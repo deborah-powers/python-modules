@@ -139,66 +139,6 @@ class Text():
 			print ('il y a %d additions et %d délétions entre les textes' % (nbAdd, nbDel))
 			return '\n'.join (listF)
 
-	def comparScore (self, otherText):
-		self.clean()
-		otherText.clean()
-		self.replace ('\n', ' ')
-		otherText.replace ('\n', ' ')
-		self.replace ('\t', ' ')
-		otherText.replace ('\t', ' ')
-		if self.text == otherText.text:
-			print ('les textes sont identiques')
-			return 'pareil'
-		# aller
-		self.text = ' '+ self.text
-		otherText.text = ' '+ otherText.text
-		lenA = len (self.text);			ranA = range (lenA)
-		lenB = len (otherText.text);	ranB = range (lenB)
-		scoreTab =[]
-		pathTab =[]
-		scoreGap =1
-		scoreMatrix ={}
-		for a in ranA:
-			scoreTab.append ([])
-			pathTab.append ([])
-			for b in ranB:
-				scoreTab[-1].append (scoreGap)
-				pathTab[-1].append (0)
-		ranA = range (1, lenA)
-		ranB = range (1, lenB)
-		for a in ranA:
-			for b in ranB:
-				scoreApp =0
-				if self.text[a] == otherText.text[b]: scoreApp =6
-				elif self.text[a] + otherText.text[b] in scoreMatrix.keys(): scoreApp = scoreMatrix[self.text[a] + otherText.text[b]]
-				elif otherText.text[b] + self.text[a] in scoreMatrix.keys(): scoreApp = scoreMatrix[otherText.text[b] + self.text[a]]
-				scoreTmp =[
-					scoreTab[a-1][b-1] + scoreApp,
-					scoreTab[a-1][b] + scoreGap,
-					scoreTab[a][b-1] + scoreGap
-				]
-				scoreTab[a][b] = max (scoreTmp)
-				pathTab[a][b] = scoreTmp.index (scoreTab[a][b])
-		# retour
-		textA ="";	lenA -=1
-		textB ="";	lenB -=1
-		while lenA >0 or lenB >0:
-			if pathTab[lenA][lenB] ==0:
-				textA = self.text[lenA] + textA
-				textB = otherText.text[lenB] + textB
-				lenA -=1
-				lenB -=1
-			elif pathTab[lenA][lenB] ==1:
-				textA = self.text[lenA] + textA
-				textB = '%'+ textB
-				lenA -=1
-			else:
-				textA = '%'+ textA
-				textB = otherText.text[lenB] + textB
-				lenB -=1
-		textA = textA +'\n'+ textB
-		return textA
-
 	def domAccolade (self):
 		blockList =[]
 		nbOuvrante = self.countWord ('{')
@@ -289,7 +229,47 @@ class Text():
 		""" nécessaire pour trier les listes """
 		return self.text < otherText.text
 
-	def test (self):
-		self.text = 'bonjour je suis deborah '
-		self.upperCase()
-		print (self)
+def testText():
+	textAccolade = Text ('abdefghijkmlmnopqrstuvwxyz')
+	textCoucou = Text ('coucou tu vas bien ?')
+	print ('exemple:', textCoucou)
+	print ('nb lettres:', textCoucou.length())
+	print ('nb o:', textCoucou.count ('o'))
+	print ('pos c:', textCoucou.index ('c'), 'et', textCoucou.rindex ('c'))
+	print ('tranche entre deux index:')
+	print ('\t2:', textCoucou.sliceNb (2))
+	print ('\t2,5:', textCoucou.sliceNb (2,5))
+	print ('\t2,-2:', textCoucou.sliceNb (2,-2))
+	print ('\t-5,-2:', textCoucou.sliceNb (-5,-2))
+	print ('\t-5:', textCoucou.sliceNb (-5))
+	print ('tranche entre deux mots, tu et bien:', textCoucou.slice ('tu', 'bien'))
+	textCoucou = textCoucou.replace ('o', 'a')
+	print ('remplacer un caractère:', textCoucou)
+	
+	textAccolade = Text ('a{bde{fg{hij}km{lmn}o}pqrs{tuv}wx}yz')
+	print ('exemple:', textAccolade)
+	print ('domAccolade emboîté:')
+	res = textAccolade.domAccolade()
+	for line in res: print ('\t', line)
+	print ('domAccolade linéaire:')
+	res = textAccolade.domAccoladePlan()
+	for line in res: print ('\t', line)
+
+	print ('comparaisons ligne à ligne')
+	textA = Text ('b\na\ne\nc\nr\nu\ni\np')
+	textB = Text ('d\na\no\nq\nt\ny\ni\nd')
+	textC = Text ('d\nf\no\nq\nt\ny\nz\no')
+	res = textA.comparLines (textA)
+	res = textA.comparLines (textC)
+	res = textA.comparLines (textB)
+	print (res)
+	print ('comparaisons lettre à lettre')
+	textA = Text ('baecruip')
+	textB = Text ('daoqtyid')
+	textC = Text ('dfoqtyzo')
+	import textAlignment
+	res = textA.comparScore (textA)
+	res = textA.comparScore (textB)
+	print (res)
+
+if __name__ == '__main__': testText()
