@@ -20,21 +20,18 @@ les valeurs de tag
 faciliter l'ecriture des noms de files lorsque l'on utilise l'un des scripts dependant de celui-ci
 vous pouvez rajouter vos propres racourcis
 """
-extensions = 'txt html xml svg tsv csv json log js py jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
-pathRoot = '/home/lenovo/'
-pathDesktop = os.path.join (pathRoot, 'Bureau/')
-pathCard = '/media/lenovo/0C9F-87C9/'
+extensions = 'txt html xml svg tsv csv json js py jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
+pathDesktop = 'C:\\Users\\deborah.powers\\Desktop\\'
+pathProject = 'C:\\dev\\synergie\\GIT\\'
 
 dictShortcut ={
-	'r/': pathRoot,
 	'b/': pathDesktop,
-	'c/': pathCard,
-	'a/': os.path.join (pathDesktop, 'articles/'),
-	'p/': os.path.join (pathDesktop, 'photos/'),
-	'j/': os.path.join (pathDesktop, 'stages/'),
-	'n/': os.path.join (pathDesktop, 'nouveaux/'),
-	'f/': os.path.join (pathCard, 'photos/'),
-	's/': os.path.join (pathDesktop, 'site-dp/')
+	'a/': pathDesktop + 'articles\\',
+	'h/': pathDesktop + 'html\\',
+	'm/': pathDesktop + 'mantis\\',
+	'd/': pathDesktop + 'dtt local\\',
+	'u/': pathDesktop + 'bdd-dump\\',
+	'p/': pathProject
 }
 def encodingList():
 	import encodings
@@ -45,7 +42,7 @@ def encodingList():
 	return encodList
 
 def shortcut (path):
-	if pathDesktop in path or pathCard in path: return path
+	if pathDesktop in path or pathProject in path: return path
 	elif path[:2] in dictShortcut.keys():
 		path = path.replace (path[:2], dictShortcut [path[:2]])
 	else: print ('chemin inconnu:', path)
@@ -58,7 +55,9 @@ class FilePerso (Text):
 		self.title =""
 		self.extension = 'txt'
 		self.path = pathDesktop
-	#	if file: self.dataFromFile()
+		if file:
+			self.shortcut()
+			self.dataFromFile()
 
 	def copyFile (self, newFile):
 		self.file = newFile.file
@@ -101,9 +100,9 @@ class FilePerso (Text):
 
 	def fromFile (self):
 		self.shortcut()
-		# ouvrir le file et recuperer le texte au format str
 		if not os.path.exists (self.file): return
 		self.dataFromFile()
+		# ouvrir le file et recuperer le texte au format str
 		"""
 		textBrut = open (self.file, 'r')
 		self.text = textBrut.read()
@@ -128,12 +127,12 @@ class FilePerso (Text):
 		if not self.text:
 			print ('rien a ecrire pour:', self.title)
 			return
-		chars = '/\\\t\n'
-		for char in chars:
-			if char in self.title:
+		chars = '/\\\t\n'; c=0
+		while chars != 'error' and c<4:
+			if chars[c] in self.title:
 				print ('le fichier est mal formé:', self.title)
 				chars = 'error'
-				break
+			c+=1
 		if chars != 'error':
 			if mode == 'a' and os.path.isfile (self.file): self.text ='\n'+ self.text
 			# ouvrir le fichier et ecrire le texte
@@ -146,7 +145,7 @@ class FilePerso (Text):
 		otherFile.fromFile()
 		textFinal =""
 		if method == 'lsort': textFinal = Text.comparLines (self, otherFile, True)
-		elif method == 'score': textFinal = Text.comparScore (self, otherFile)
+	#	elif method == 'score': textFinal = Text.comparScore (self, otherFile)
 		else: textFinal = Text.comparLines (self, otherFile)
 		if textFinal != 'pareil' and textFinal != 'different':
 			fileFinal = FilePerso ('b/compare %s - %s.txt' % (self.title, otherFile.title))
@@ -155,6 +154,25 @@ class FilePerso (Text):
 			fileFinal.text = textFinal
 			fileFinal.toFile()
 
+	def test (self):
+		self.title = 'tester FilePerso'
+		self.fileFromData()
+		self.text = '________________________________________________________________________\nje suis un message test\nsur plusieurs lignes.\nune liste:\n\ta,\n\tb,\n\tc.'
+		print (self)
+		print (self.text)
+		print ('écrire le fichier')
+		self.toFile()
+		print ('récupérer le fichier')
+		self.fromFile()
+		print ('modifier le fichier')
+		self.shape()
+		print (self.text)
+		print ('écrire le fichier')
+		self.text = 'je suis une ligne rajoutée.'
+		self.toFile ('a')
+		self.fromFile()
+		print (self.text)
+
 
 modelText ="""Sujet:	%s
 Auteur:	%s
@@ -162,7 +180,7 @@ Lien:	%s
 Laut:	%s
 %s"""
 
-class Artcile (FilePerso):
+class Article (FilePerso):
 	# classe pour les fichiers txt
 	def __init__(self, file =None):
 		FilePerso.__init__(self, file)
@@ -184,7 +202,7 @@ class Artcile (FilePerso):
 		self.subject = metadata[0]
 		self.author = metadata[1]
 		self.link = metadata[2]
-		self.author = metadata[3]
+		self.autlink = metadata[3]
 		self.text = metadata[4]
 
 	def toFile (self, mode='w'):
@@ -201,6 +219,18 @@ class Artcile (FilePerso):
 		""" nécessaire pour trier les listes """
 		struct = '%s\t%s\t%s'
 		return struct %( self.subject, self.author, self.title) < struct %( newFile.subject, newFile.author, newFile.title)
+
+	def test (self):
+		self.title = 'tester Article'
+		self.author = 'deborah powers'
+		self.subject = 'test'
+		self.link = 'http://deborah-powers.fr/doudou'
+		self.autlink = 'http://deborah-powers.fr/'
+		self.fileFromData()
+		self.text = '________________________________________________________________________\nje suis un message test\nsur plusieurs lignes.\nune liste:\n\ta,\n\tb,\n\tc.'
+		self.toFile()
+		self.fromFile()
+		print (self)
 
 	def tmp (self):
 		self.file = 'b/tmp.txt'
@@ -219,7 +249,7 @@ class Artcile (FilePerso):
 # on appele ce script dans un autre script
 if __name__ != '__main__': pass
 elif len (argv) >=2 and argv[1] =='tmp':
-	fileTxt = Artcile()
+	fileTxt = Article()
 	fileTxt.tmp()
 elif len (argv) ==4 and argv[1][:3] == 'cpr':
 	fpA = FilePerso (argv[2])
@@ -232,5 +262,14 @@ elif len (argv) ==3:
 	if argv[1] =='maj': filePerso.clean()
 	elif argv[1] =='mef': filePerso.shape()
 	filePerso.toFile()
+elif argv[1] == 'testFile':
+	filePerso = FilePerso()
+	filePerso.test()
+elif argv[1] == 'testArtic':
+	filePerso = Article()
+	filePerso.test()
 # le nom du fichier n'a pas ete donne
 else: print (help)
+
+
+

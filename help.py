@@ -1,15 +1,15 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from fileClass import FileText
+from fileClass import FilePerso
 
 wordImport =( ('import ', 7), ('from ', 5) )
 wordFunction =( ('class ', 6), ('def ', 4), ('\t""" ', 5), ('\treturn', 7), ('\tdef ', 5), ('\t\t""" ', 6), ('\t\treturn', 8) )
 
-filePython = FileText()
-filePython.path = 'b/python/'
+filePython = FilePerso()
+filePython.path = 'b/python\\'
 filePython.extension = 'py'
-fileHelp = FileText()
+fileHelp = FilePerso()
 fileHelp.path = 'b/'
 fileHelp.extension = 'txt'
 
@@ -20,6 +20,7 @@ def printHelp (pythonFile):
 		filePython.path += pythonFile[:end]
 		pythonFile = pythonFile[end:]
 	filePython.title = pythonFile
+	filePython.fileFromData()
 	filePython.fromFile()
 	while '\n\n' in filePython.text: filePython.text = filePython.text.replace ('\n\n', '\n')
 	listHelp =[]
@@ -57,7 +58,7 @@ def printHelp (pythonFile):
 	fileHelp.title = 'aide '+ filePython.title
 	fileHelp.replace ('\n\n\n', '\n\n')
 	fileHelp.toFile()
-	print (fileHelp.title)
+	print ('lire "'+ fileHelp.title +'" sur le bureau')
 
 if __name__ != '__main__': pass
 elif len (argv) >1: printHelp (argv[1])
