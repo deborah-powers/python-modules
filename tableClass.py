@@ -43,12 +43,11 @@ class ListPerso():
 		return newList
 
 	def __str__(self):
-		return self.join ('\n')
+		return self.toText ('\n')
 
 	def addList (self, newList):
 		if type (newList) == list: self.list.extend (newList)
 		elif type (newList) == ListPerso: self.list.extend (newList.list)
-		else: self.add (newList)
 
 	def add (self, value, pos=-1):
 		if pos ==-1: self.list.append (value)
@@ -58,7 +57,11 @@ class ListPerso():
 			self.list.insert (pos, value)
 		else: self.list.insert (pos, value)
 
-	def join (self, word):
+	def fromText (self, word, text):
+		newList = text.split (word)
+		self.addList (newList)
+
+	def toText (self, word):
 		newList =[]
 		for item in self.list: newList.append (str (item))
 		return word.join (newList)
@@ -104,7 +107,7 @@ class TablePerso (ListPerso):
 				self[-1].add (filling)
 
 	def __str__ (self):
-		return self.join ('\n', '\t')
+		return self.toText ('\n', '\t')
 
 	def addTable (self, itemTable):
 		if type (itemTable) == TablePerso: self.list.extend (itemTable)
@@ -130,10 +133,15 @@ class TablePerso (ListPerso):
 	def add (self, item, pLin, pCol):
 		self.list[pLin].add (item, pCol)
 
-	def join (self, wordLin, wordCol):
+	def toText (self, wordLin, wordCol):
 		newList = ListPerso()
-		for line in self: newList.add (line.join (wordCol))
-		return newList.join (wordLin)
+		for line in self: newList.add (line.toText (wordCol))
+		return newList.toText (wordLin)
+
+	def fromText (self, wordLin, wordCol, text):
+		newList = text.split (wordLin)
+		for line in newList:
+			self.addList (line.fromText (wordCol))
 
 	def test (self):
 		self.emptyTable (3,4,0)
@@ -144,3 +152,79 @@ class TablePerso (ListPerso):
 		self.addItems ([9,10,11,12,13])
 		self.addItems ([14,15,16,17,18], 2)
 		print (self)
+		print (self[2][2])
+
+class DicoPerso():
+	def __init__(self):
+		self.dico ={}
+		self.keys =[]
+
+	def getKeys (self):
+		for item in self.dico.keys: self.keys.append (item)
+
+	def __str__ (self):
+		return self.toText ('\n', '\t')
+
+	def fromText (self, wordLin, wordCol, text):
+		newList = text.split (wordLin)
+		rangeList = range (len (newList))
+		for l in rangeList:
+			tmpValue = newList[l].split (wordCol)
+			self[tmpValue[0]] = tmpValue[1]
+
+	def toText (self, wordLin, wordCol):
+		newList =[]
+		for key in self.keys: newList.append (key + wordCol + str (self.dico[key]))
+		return wordLin.join (newList)
+
+	def delete (self, key):
+		self.dico.pop (key)
+		pos = self.keys.index (key)
+		self.keys.pop (pos)
+
+	def __setitem__ (self, key, value):
+		self.dico[key] = value
+		if key not in self.keys: self.keys.append (key)
+
+	def __getitem__ (self, key):
+		if key in self.keys: return self.dico[key]
+		else: return None
+
+	def test (self):
+		self['a'] = 'coucou'
+		self['b'] = 'tvb?'
+		print (self)
+		print (self['c'])
+
+class DicoTabPerso (DicoPerso):
+
+	def toText (self, wordLin, wordCol):
+		newList =[]
+		tmpText =""
+		for key in self.keys:
+			tmpText =""
+			for item in self.dico[key]: tmpText = tmpText + wordCol + item
+			newList.append (key + tmpText)
+		return wordLin.join (newList)
+
+	def __setitem__ (self, key, newList):
+		if type (newList) == ListPerso:
+			self.dico[key] = newList
+			if key not in self.keys: self.keys.append (key)
+		elif type (newList) == list:
+			tmpList = ListPerso()
+			tmpList.addList (newList)
+			self.dico[key] = tmpList
+			if key not in self.keys: self.keys.append (key)
+		else: return
+
+	def test (self):
+		self['a'] = 'coucou'
+		tmpList = ListPerso()
+		tmpList.addList ([ 'a','b','c','d' ])
+		self['b'] = tmpList
+		print (self)
+		print (self['c'])
+
+dico = DicoTabPerso()
+dico.test()
