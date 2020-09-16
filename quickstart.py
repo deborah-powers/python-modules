@@ -30,7 +30,7 @@ les valeurs de tag
 
 dateStart = DatePerso()
 dateStart.today()
-dateStart.month =7
+dateStart.month =9
 dateStart.day =14
 
 dateEnd = DatePerso()
@@ -160,7 +160,6 @@ class eventGoogle (calendarGoogle, EventPerso):
 		else: return None
 
 	def getOnePurchase (self):
-		print (evtDict['depenses'][1], self.color, self)
 		if self.color == evtDict['depenses'][1] and self.infos.text:
 			self.infos.replace ('\r')
 			details =""
@@ -189,6 +188,7 @@ class eventGoogle (calendarGoogle, EventPerso):
 	"place": "%s",
 	"title": "%s",
 	"tags": [],
+	"peoples": [],
 	"content": [
 		"%s"\n\t]\n},""" % (self.date.toStrDay(), self.location, self.title, self.infos.text)
 			return evtStr
