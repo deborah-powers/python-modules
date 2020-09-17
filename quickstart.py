@@ -13,7 +13,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 from dateClass import DatePerso, EventPerso
-from tableClass import ListText, dictGetKeyByValue
+from tableClass import dictGetKeyByValue
+from listFile import ListFile
 from textClass import Text
 
 help =""" récupérer des évenements
@@ -211,9 +212,9 @@ class eventGoogle (calendarGoogle, EventPerso):
 			return evtStr
 		else: return None
 
-class eventList (ListText):
+class eventList (ListFile):
 	def __init__ (self):
-		ListText.__init__ (self)
+		ListFile.__init__ (self)
 		self.file = 'b/calendar.txt'
 		self.dataFromFile()
 
@@ -277,7 +278,7 @@ class eventList (ListText):
 		cal.fromName (service, calName)
 		# extraire tous leurs évênemnts
 		self.fromCalendar (service, cal, True, dateMin=dateStart, dateMax=dateEnd)
-		evtList = ListText()
+		evtList = ListFile()
 		evtList.file = 'b/calendar.txt'
 		evtList.dataFromFile()
 		for evt in self:

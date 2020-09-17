@@ -1,6 +1,5 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from fileClass import FilePerso
 help ="""
 ce script peut etre appele dans d'autres scripts
 """
@@ -226,5 +225,4 @@ class DicoTabPerso (DicoPerso):
 		print (self)
 		print (self['c'])
 
-dico = DicoTabPerso()
-dico.test()
+
