@@ -4,6 +4,7 @@ import os
 from sys import argv
 import codecs
 from textClass import Text
+from fileLocal import *
 
 help ="""traiter des fichiers
 utilisation
@@ -15,24 +16,6 @@ les valeurs de tag
 	cpr: comparer deux fichiers ligne à ligne
 """
 
-""" ____________________________________ quelques raccourci ____________________________________
-
-faciliter l'ecriture des noms de files lorsque l'on utilise l'un des scripts dependant de celui-ci
-vous pouvez rajouter vos propres racourcis
-"""
-extensions = 'txt html xml svg tsv csv json js py jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
-pathDesktop = 'C:\\Users\\deborah.powers\\Desktop\\'
-pathProject = 'C:\\dev\\synergie\\GIT\\'
-
-dictShortcut ={
-	'b/': pathDesktop,
-	'a/': pathDesktop + 'articles\\',
-	'h/': pathDesktop + 'html\\',
-	'm/': pathDesktop + 'mantis\\',
-	'd/': pathDesktop + 'dtt local\\',
-	'u/': pathDesktop + 'bdd-dump\\',
-	'p/': pathProject
-}
 def encodingList():
 	import encodings
 	from tableClass import ListPerso
@@ -40,13 +23,6 @@ def encodingList():
 	encodList.extend (encodings.aliases.aliases.values())
 	encodList.delDuplicates()
 	return encodList
-
-def shortcut (path):
-	if pathDesktop in path or pathProject in path: return path
-	elif path[:2] in dictShortcut.keys():
-		path = path.replace (path[:2], dictShortcut [path[:2]])
-	else: print ('chemin inconnu:', path)
-	return path
 
 class FilePerso (Text):
 	def __init__(self, file =None):
