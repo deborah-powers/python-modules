@@ -41,6 +41,16 @@ class ListPerso():
 			start += step
 		return newList
 
+	def count (self, item):
+		nb=0
+		if item in self.list: nb= self.list.count (item)
+		return nb
+
+	def index (self, item):
+		nb=-1
+		if item in self.list: nb= self.list.index (item)
+		return nb
+
 	def __str__(self):
 		return self.toText ('\n')
 

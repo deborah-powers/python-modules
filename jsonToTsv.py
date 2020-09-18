@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from fileClass import FilePerso
-from tableClass import ListText, ListPerso, TableText, TableBdd
+from listClass import ListText, ListPerso, TableText, TableBdd
 
 tsvName = '/home/lenovo/Bureau/html/gens.tsv'
 tsvFile = ListText (tsvName)

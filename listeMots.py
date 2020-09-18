@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from fileClass import FileText
-from tableClass import ListPerso
+from listClass import ListPerso
 
 nameTxt = "a/opinions/curiosites.html"
 alphabet = 'abcdefghijklmnopqrstuvwxyz'

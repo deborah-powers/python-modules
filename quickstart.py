@@ -13,7 +13,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 from dateClass import DatePerso, EventPerso
-from tableClass import dictGetKeyByValue
+from listClass import dictGetKeyByValue
 from listFile import ListFile
 from textClass import Text
 

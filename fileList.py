@@ -83,7 +83,7 @@ class FileList (ListPerso):
 			file.toFile()
 
 	def __str__(self):
-		strList = 'Fichier: '+ self.path +'\nListe:'
+		strList = 'Dossier: '+ self.path +'\nListe:'
 		for file in self: strList = strList +'\n'+ file.title
 		return strList
 

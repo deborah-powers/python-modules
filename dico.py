@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 import fileClass as fl
 import textClass as tx
-from tableClass import ListPerso
+from listClass import ListPerso
 
-fileTstName = "a/education/l'éducation des enfants.txt"
+fileTstName_va = "a/education/l'éducation des enfants.txt"
+fileTstName = "b/articles\\articles\\je peux y arriver.txt"
 suffix =[ 'amant', 'ament', 'elles', 'ement', 'ettes', 'euses', 'elle', 'ette', 'eurs', 'euse', 'mant', 'ment', 'eur', 'er', 'es', 'et', 'e', 's', 'x']
 newPoints = "-'()/\\\""
 fileRefName = 'b/dico.txt'
@@ -27,7 +28,7 @@ fileTstObj.fromFile()
 fileTstObj.clean()
 for p in tx.pointsEnd: fileTstObj.replace (p,' ')
 for p in newPoints: fileTstObj.replace (p,' ')
-# for p in suffix: fileTstObj.replace (p+' ',' ')
+for p in suffix: fileTstObj.replace (p, ' ')
 while '  ' in fileTstObj.text: fileTstObj.replace ('  ',' ')
 fileTstObj.text = fileTstObj.text.lower()
 

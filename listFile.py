@@ -1,11 +1,9 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from fileClass import FilePerso
-from tableClass import ListPerso, TablePerso
+from listClass import ListPerso, TablePerso
 
-help ="""
-un fichier contenant une liste
-"""
+help =""" un fichier contenant une liste """
 
 class ListFile (FilePerso, ListPerso):
 	def __init__(self, separator ='\n', file =None):

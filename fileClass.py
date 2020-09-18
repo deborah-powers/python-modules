@@ -15,6 +15,7 @@ les valeurs de tag
 	mef: mettre en forme un texte utilisant ma mise en forme spécifique
 	cpr: comparer deux fichiers ligne à ligne
 """
+extensions = 'txt html xml svg tsv csv json js py jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
 
 def encodingList():
 	import encodings
