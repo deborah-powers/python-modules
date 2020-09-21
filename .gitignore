@@ -1,5 +1,6 @@
 # perso
 article*
+boulot-*
 dom*
 fileLocal.py
 filePj.py
@@ -7,6 +8,8 @@ html*
 *.pickle
 *.txt
 *20*
+*va.py
+*vb.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

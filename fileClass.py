@@ -121,9 +121,11 @@ class FilePerso (Text):
 		self.fromFile()
 		otherFile.fromFile()
 		textFinal =""
-		if method == 'lsort': textFinal = Text.comparLines (self, otherFile, True)
+		if method == 'lsort': textFinal = Text.comparLines (self, otherFile, False, True)
+		elif method == 'lsortKeep': textFinal = Text.comparLines (self, otherFile, True, True)
+		elif method == 'linesKeep': textFinal = Text.comparLines (self, otherFile, True, False)
 	#	elif method == 'score': textFinal = Text.comparScore (self, otherFile)
-		else: textFinal = Text.comparLines (self, otherFile)
+		else: textFinal = Text.comparLines (self, otherFile, False, False)
 		if textFinal != 'pareil' and textFinal != 'different':
 			fileFinal = FilePerso ('b/compare %s - %s.txt' % (self.title, otherFile.title))
 			fileFinal.dataFromFile()
@@ -225,7 +227,8 @@ class Article (FilePerso):
 
 # on appele ce script dans un autre script
 if __name__ != '__main__': pass
-elif len (argv) >=2 and argv[1] =='tmp':
+elif len (argv) <2: print (help)
+elif argv[1] =='tmp':
 	fileTxt = Article()
 	fileTxt.tmp()
 elif len (argv) ==4 and argv[1][:3] == 'cpr':

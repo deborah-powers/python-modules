@@ -74,9 +74,10 @@ class DatePerso():
 
 	def addDays (self, nb=1):
 		self.day +=nb
-		if self.day > self.monthsDuration[self.month -1] and self.month !=2:
-			self.addMonths (1)
+		self.isBissextile()
+		if self.day > self.monthsDuration[self.month -1]:
 			self.day -= self.monthsDuration[self.month -1]
+			self.addMonths (1)
 
 	def addHours (self, nb=1):
 		self.hour +=nb
@@ -200,4 +201,17 @@ class DatePerso():
 		self.min		= newDate.minute
 		self.dayName	= daysWeek [newDate.weekday()]
 		self.isBissextile()
+
+	def toDate (self):
+		pass
+
+	def test (self):
+		self.fromStrUtz ('2018-02-25T12:30:00+01:00')
+		print (self)
+		self.addDays (10)
+		print (self)
+		self.fromStr ('2016/02/25 12:30')
+		self.addDays (10)
+		print (self)
+
 

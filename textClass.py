@@ -16,11 +16,12 @@ artefacts =(
 	('------ ', '\n------ '), (' ------', ' ------\n'), ('\n\n\n', '\n\n')
 )
 # caractères à remplacer
+
 weirdChars =(
-	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('“', '"'), ('”', '"'), ('…', '...'),
+	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ('\\', ''), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
 	('\\u00c2', 'Â'), ('\\u00ca', 'Ê'), ('\\u00cb', 'Ë'), ('\\u00ce', 'Î'), ('\\u00cf', 'Ï'), ('\\u00d4', 'Ô'), ('\\u00d6', 'Ö'), ('\\u00db', 'Û'), ('\\u00e0', 'à'), ('\\u00e2', 'â'), ('\\u00e7', 'ç'), ('\\u00e8', 'è'), ('\\u00e9', 'é'), ('\\u00ea', 'ê'), ('\\u00eb', 'ë'), ('\\u00ee', 'î'), ('\\u00ef', 'ï'), ('\\u00f4', 'ô'), ('\\u00f6', 'ö'), ('\\u00fb', 'û'),
-	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\xa0', ' '),
+	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x9c', ' '), ('\xa0', ' '),
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'),
 	('&mdash;', ' '), ('&nbsp;', ''), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"),
 	('&amp;', '&'), ('&#039', "'"), ('&#160;', ' '), ('&#8217;', "'")
@@ -98,7 +99,7 @@ class Text():
 	def fromModel (self, model):
 		return fromModel (self.text, model)
 
-	def comparLines (self, otherText, toSort=False):
+	def comparLines (self, otherText, keepCommon=True, toSort=False):
 		self.clean()
 		otherText.clean()
 		if self.text == otherText.text:
@@ -120,7 +121,8 @@ class Text():
 					for p in rpos:
 						listF.append ('<\t'+ listB.pop(0))
 					nbDel += pos
-				listF.append ('=\t'+ listA.pop(0))
+				if keepCommon: listF.append ('=\t'+ listA.pop(0))
+				else: trash = listA.pop(0)
 				nbCom +=1
 				trash = listB.pop(0)
 			else:
