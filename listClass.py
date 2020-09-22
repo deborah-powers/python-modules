@@ -66,6 +66,12 @@ class ListPerso():
 			self.list.insert (pos, value)
 		else: self.list.insert (pos, value)
 
+	def pop (self, item, isIndex=True):
+		if isIndex: trash = self.list.pop (item)
+		else:
+			id= self.index (item)
+			trash = self.list.pop (id)
+
 	def fromText (self, word, text):
 		newList = text.split (word)
 		self.addList (newList)

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from textClass import Text
+from listClass import ListPerso
 
 help ="""
 classe de gestion facile des dates
@@ -25,6 +26,10 @@ class EventPerso():
 
 	def __lt__(self, newEvent):
 		return self.date.__lt__(newEvent.date)
+
+class EventList (ListPerso):
+	pass
+
 
 monthsName	=[ 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre' ]
 daysWeek	=[ 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche' ]
