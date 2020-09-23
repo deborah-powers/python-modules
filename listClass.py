@@ -92,9 +92,24 @@ class ListPerso():
 		elif pos >=0: self.add (value, pos)
 
 	def __getitem__ (self, pos):
-		if pos <0: pos += self.length()
-		if pos > self.length() or pos <0: return None
-		else: return self.list[pos]
+		if type (pos) == int:
+			if pos <0: pos += self.length()
+			if pos > self.length() or pos <0: return None
+			else: return self.list[pos]
+		else: return None
+
+	def __getitem__vb (self, pos):
+		if type (pos) == int:
+			if pos <0: pos += self.length()
+			if pos > self.length() or pos <0: return None
+			else: return self.list[pos]
+		elif type (pos) == slice:
+			posIndex = pos.indices (self.length())
+			rangeList = self.range (posIndex[0], posIndex[1], posIndex[2])
+			newList = ListPerso()
+			for l in rangeList: newList.add (self[l])
+			return newList
+		else: return None
 
 	def length (self):
 		return len (self.list)
@@ -156,7 +171,7 @@ class TablePerso (ListPerso):
 	def fromText (self, wordLin, wordCol, text):
 		newList = text.split (wordLin)
 		for line in newList:
-			self.addList (line.fromText (wordCol))
+			self.addList (line.split (wordCol))
 
 	def test (self):
 		self.emptyTable (3,4,0)
