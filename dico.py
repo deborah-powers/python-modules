@@ -8,7 +8,7 @@ from listClass import ListPerso, TablePerso
 fileTstName_va = "a/education/l'éducation des enfants.txt"
 fileTstName_vb = "m/mantis 29724.txt"
 
-suffix =[ 'ations', 'ables', 'aires', 'amant', 'ament', 'ances', 'ation', 'elles', 'ement', 'ences', 'ettes', 'euses', 'ibles', 'tions', 'able', 'aire', 'ance', 'bles', 'eaux', 'elle', 'ence', 'ette', 'eurs', 'euse', 'ible', 'ions', 'iers', 'mant', 'ment', 'nnes', 'tion', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'eur', 'ées', 'ier', 'ion', 'nne', 'ont', 'ons', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'e', 'é', 's', 'x']
+suffix =[ 'ations', 'ables', 'aires', 'amant', 'ament', 'ances', 'ation', 'elles', 'ement', 'ences', 'ettes', 'euses', 'ibles', 'iques', 'tions', 'able', 'aire', 'ance', 'bles', 'eaux', 'elle', 'ence', 'ette', 'eurs', 'euse', 'ible', 'iers', 'ions', 'ique', 'mant', 'ment', 'ques', 'tion', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'eur', 'ées', 'ier', 'ion', 'nes', 'ont', 'ons', 'que', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'e', 'é', 's', 'x']
 newPoints = "-'()/_\\\"\n\t<>[](){}|%#$@=+*°"
 fileRefName = 'b/dico.txt'
 
@@ -55,7 +55,7 @@ def extractWord (fileTstName):
 	rangeWord = wordList.range()
 	rangeWord.reverse()
 	for w in rangeWord:
-		if len (wordList[w]) >22 and len (wordList[w]) <3: trash = wordList.pop (w)
+		if len (wordList[w]) >15 or len (wordList[w]) <3: trash = wordList.pop (w)
 		elif wordList.count (wordList[w]) >1: trash = wordList.pop (w)
 	wordList.sort()
 	# récupérer la liste de mots connus
