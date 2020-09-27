@@ -8,6 +8,7 @@ filePj.py
 *20*
 *va.py
 *vb.py
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
