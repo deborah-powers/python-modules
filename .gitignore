@@ -4,9 +4,7 @@ boulot-*
 dom*
 fileLocal.py
 filePj.py
-html*
 *.pickle
-*.txt
 *20*
 *va.py
 *vb.py

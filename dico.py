@@ -5,10 +5,8 @@ import fileClass as fl
 import textClass as tx
 from listClass import ListPerso, TablePerso
 
-fileTstName_va = "a/education/l'éducation des enfants.txt"
-fileTstName_vb = "m/mantis 29724.txt"
-
-suffix =[ 'ations', 'ables', 'aires', 'amant', 'ament', 'ances', 'ation', 'elles', 'ement', 'ences', 'ettes', 'euses', 'ibles', 'iques', 'tions', 'able', 'aire', 'ance', 'bles', 'eaux', 'elle', 'ence', 'ette', 'eurs', 'euse', 'ible', 'iers', 'ions', 'ique', 'mant', 'ment', 'ques', 'tion', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'eur', 'ées', 'ier', 'ion', 'nes', 'ont', 'ons', 'que', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'e', 'é', 's', 'x']
+suffix =( 'ations', 'itions', 'trices', 'ables', 'aires', 'amant', 'ament', 'ances', 'aient', 'ation', 'asmes', 'elles', 'ement', 'ences', 'esses', 'ettes', 'euses', 'ibles', 'ières', 'iques', 'ismes', 'ition', 'tions', 'trice', 'able', 'ages', 'aire', 'ance', 'asme', 'bles', 'eaux', 'elle', 'ence', 'esse', 'ères', 'ette', 'eurs', 'euse', 'ible', 'ière', 'iers', 'ions', 'ique', 'isme', 'ités', 'mant', 'ment', 'ques', 'sses', 'tion', 'age', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'ère', 'eur', 'ées', 'ier', 'ion', 'ité', 'nes', 'ont', 'ons', 'que', 'sse', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'a', 'e', 'é', 's', 't', 'x')
+prefix =( 'imm', 'inn', 'pré', 'dé', 'im', 'in', 're', 'ré', 'sur' )
 newPoints = "-'()/_\\\"\n\t<>[](){}|%#$@=+*°"
 fileRefName = 'b/dico.txt'
 
@@ -28,10 +26,12 @@ def sortRef():
 			if wordTable[l].count (wordTable[l][c]) >1: trash = wordTable[l].pop (c)
 			else:
 				d=0
-				while d<c:
-					if wordTable[l][c] in wordTable[l][d]:
+				lenLine = wordTable[l].length()
+				while d< lenLine:
+					if d!=c and wordTable[l][c] in wordTable[l][d]:
+						print (wordTable[l][c], wordTable[l][d])
 						trash = wordTable[l].pop (c)
-						d+=c
+						d+= lenLine
 					d+=1
 	fileRefObj.text = wordTable.toText ('\n', ' ')
 	fileRefObj.toFile()
@@ -47,6 +47,7 @@ def extractWord (fileTstName):
 	for p in tx.pointsEnd: fileTstObj.replace (p,' ')
 	for p in newPoints: fileTstObj.replace (p,' ')
 	for p in suffix: fileTstObj.replace (p+' ', ' ')
+	for p in prefix: fileTstObj.replace (' '+p, ' ')
 	while '  ' in fileTstObj.text: fileTstObj.replace ('  ',' ')
 	fileTstObj.text = fileTstObj.text.lower()
 	# lister ses mots
@@ -69,4 +70,6 @@ def extractWord (fileTstName):
 
 fileTstName = argv[1]
 if fileTstName == 'tri': sortRef()
-else: extractWord (fileTstName)
+else:
+	fileTstName = 'a/education/' + fileTstName + '.txt'
+	extractWord (fileTstName)
