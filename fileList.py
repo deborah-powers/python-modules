@@ -3,7 +3,7 @@
 import os
 from sys import argv
 import fileClass as fc
-from tableClass import ListPerso
+from listClass import ListPerso
 
 help ="""
 ce script peut être appelé dans un autre script

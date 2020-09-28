@@ -59,7 +59,7 @@ def fromModel (text, model):
 		d= model.find ('%',d) +1
 		if model[d] =='d': results[r] = int (results[r])
 		elif model[d] =='f': results[r] = float (results[r])
-	if (len (results) != modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
+	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
 	return results
 
 class Text():
