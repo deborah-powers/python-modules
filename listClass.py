@@ -88,8 +88,8 @@ class ListPerso():
 
 	def __setitem__ (self, pos, value):
 		if pos <0: pos += self.length()
-		if pos >= self.length(): self.add (value)
-		elif pos >=0: self.add (value, pos)
+		if pos >0 and pos < self.length(): self.list[pos] = value
+		elif pos >= self.length(): self.add (value)
 
 	def __getitem__ (self, pos):
 		if type (pos) == int:

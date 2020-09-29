@@ -132,8 +132,6 @@ class MantisList (FileList):
 			if file.module == module: newList.add (file)
 		return newList
 
-
-"""
 # on appele ce script dans un autre script
 if __name__ != '__main__': pass
 # créer une fiche
@@ -152,4 +150,3 @@ elif len (argv) >3:
 	fileMantis.createFile()
 # il manque des données
 else: print (help)
-"""

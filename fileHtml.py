@@ -1,5 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+import urllib as ul
+from urllib import request as urlRequest
+from listClass import ListPerso
 from htmlCreate import textToHtml, htmlToText
 from fileClass import *
 
@@ -36,14 +39,14 @@ def findTextBetweenTag (originalText, tag):
 	phrase = phrase.strip()
 	return phrase
 
-class ArticleHtml (Article):
+class FileHtml (FilePerso):
 	# classe pour les fichiers html
 	def __init__(self, file =None):
 		if file and file[:4] == 'http':
-			Article.__init__(self)
+			FilePerso.__init__(self)
 			self.link = file
-		elif file: Article.__init__(self, file)
-		else: Article.__init__(self)
+		elif file: FilePerso.__init__(self, file)
+		else: FilePerso.__init__(self)
 		self.extension = 'html'
 		self.styles =[]
 		self.metas ={}
@@ -58,10 +61,6 @@ class ArticleHtml (Article):
 		self.styles =[]
 		self.getCss()
 		self.getMetadata()
-		if 'link' in self.metas.keys(): self.link = self.metas['link']
-		if 'author' in self.metas.keys(): self.author = self.metas['author']
-		if 'subject' in self.metas.keys(): self.subject = self.metas['subject']
-		if 'autlink' in self.metas.keys(): self.autlink = self.metas['autlink']
 		self.text = findTextBetweenTag (self.text, 'body')
 
 	def toFile (self):
@@ -71,12 +70,6 @@ class ArticleHtml (Article):
 			print (self.file)
 			return
 		self.title = self.title.lower()
-		self.author = self.author.lower()
-		self.subject = self.subject.lower()
-		self.metas['author'] = self.author
-		self.metas['subject'] = self.subject
-		self.metas['link'] = self.link
-		self.metas['autlink'] = self.autlink
 		textInfos = self.setMetadata()
 		textCss = self.setCss()
 		textInfos = textInfos + textCss
@@ -92,17 +85,18 @@ class ArticleHtml (Article):
 		self.replace ('\t', ' ')
 		self.replace ('\n', ' ')
 		FilePerso.clean (self)
-		self.replace ('  ', ' ')
+		while '  ' in self.text: self.replace ('  ', ' ')
 		self.replace ('> ', '>')
 		self.replace (' <', '<')
 		self.replace (' />', '/>')
 		self.text = self.text.strip()
 		self.replace ('"', "'")
+		"""
 		# rajouter des espaces autour des liens
 		self.replace ('</a>', ' </a>')
 		self.replace ('">', '"> ')
 		self.replace ("'>", "'> ")
-
+		"""
 	def __str__ (self):
 		strFic = 'Titre: %s, Fichier: %s' %( self.title, self.file)
 		if self.metas:
@@ -174,7 +168,7 @@ class ArticleHtml (Article):
 
 	""" ________________________ convertir en texte ________________________ """
 
-	def fromArticle (self, ftext):
+	def fromFilePerso (self, ftext):
 		# file est un fichier txt utilisant ma mise en forme
 		if not ftext.text: ftext.fromFile()
 		ftext.shape()
@@ -182,17 +176,17 @@ class ArticleHtml (Article):
 		self.text = textToHtml (ftext.text)
 		self.toFile()
 
-	def fromArticleName (self, fileName):
+	def fromFilePersoName (self, fileName):
 	#	ftext = FilePerso (fileName)
-		ftext = Article (fileName)
-		self.fromArticle (ftext)
+		ftext = FilePerso (fileName)
+		self.fromFilePerso (ftext)
 
-	def toArticle (self):
+	def toFilePerso (self):
 		# fileHtml a été cré avec textToHtml
 		# récupérer le texte
 		if not self.text: self.fromFile()
 		self.clean()
-		ftext = Article()
+		ftext = FilePerso()
 		ftext.copyFile (self)
 		ftext.extension = 'txt'
 		ftext.fileFromData()
@@ -279,7 +273,7 @@ class ArticleHtml (Article):
 		self.clean()
 		# supprimer les commentaires
 		textList = ListPerso()
-		textList.extend (self.text.split ('<!--'))
+		textList.addList (self.text.split ('<!--'))
 		textRange = textList.range (1)
 		for t in textRange:
 			f= textList[t].find ('-->') +3
@@ -288,7 +282,6 @@ class ArticleHtml (Article):
 		# effacer certaines balises
 		self.cleanSpan()
 		self.cleanTags()
-	#	self.cleanTags()
 		self.text = findTextBetweenTag (self.text, 'body')
 		self.clean()
 
@@ -296,12 +289,13 @@ class ArticleHtml (Article):
 		# supprimer les attributs inutiles
 		tagList = ListPerso()
 		textList = ListPerso()
-		textList.extend (self.text.split ('<'))
+		textList.addList (self.text.split ('<'))
 		textRange = textList.range (1)
-		textRange.reverse()
+		# textRange.reverse()
 		for t in textRange:
 			if len (textList[t]) ==0: continue
-			elif '>' not in textList[t] or textList[t][0] in '/!': continue
+			elif textList[t][0] in '/!': continue
+			elif '>' not in textList[t]: textList[t] = textList[t][:f] +'>'
 			f= textList[t].find ('>')
 			tag = textList[t][:f].lower()
 			textList[t] = textList[t][f:]
@@ -310,9 +304,9 @@ class ArticleHtml (Article):
 				attributes = tag[f:]
 				tag = tag[:f]
 				if tag in ('a', 'img'): tag = self.cleanTagsSpecial (tag, attributes)
-				elif tag not in tagList: tagList.append (tag)
-			elif tag not in tagList and tag not in ('a', 'img'): tagList.append (tag)
-			textList[t] = tag+ textList[t]
+				elif tag not in tagList: tagList.add (tag)
+			elif tag not in tagList: tagList.add (tag)
+			textList[t] = tag + textList[t]
 		self.text = '<'.join (textList)
 		self.replace (' <', '<')
 		# supprimer les balises inutiles
@@ -326,7 +320,7 @@ class ArticleHtml (Article):
 				self.replace ('<'+ tag +'>')
 		if self.contain ('<a>'):
 			textList = ListPerso()
-			textList.extend (self.text.split ('<a>'))
+			textList.addList (self.text.split ('<a>'))
 			textRange = textList.range (1)
 			for a in textRange:
 				d= textList[a].find ('</a>')
@@ -368,7 +362,7 @@ class ArticleHtml (Article):
 		self.replace ('<SPAN', '<span')
 		self.replace ('</SPAN', '</span')
 		textList = ListPerso()
-		textList.extend (self.text.split ('<span '))
+		textList.addList (self.text.split ('<span '))
 		textRange = textList.range (1)
 		textRange.reverse()
 		for t in textRange:
@@ -382,7 +376,7 @@ class ArticleHtml (Article):
 		self.replace ('</span>', ' ')
 		# supprimer les liens en trop
 		textList = ListPerso()
-		textList.extend (self.text.split ('="<a '))
+		textList.addList (self.text.split ('="<a '))
 		textRange = textList.range (1)
 		textRange.reverse()
 		for t in textRange:
@@ -406,7 +400,7 @@ class ArticleHtml (Article):
 		# supprimer les liens
 		if self.contain ('<a href='):
 			textList = ListPerso()
-			textList.extend (self.text.split ('<a href='))
+			textList.addList (self.text.split ('<a href='))
 			textRange = textList.range (1)
 			for i in textRange:
 				d= textList[i].find ('>') +1
@@ -416,7 +410,7 @@ class ArticleHtml (Article):
 		# supprimer les images
 		if self.contain ('<img src='):
 			textList = ListPerso()
-			textList.extend (self.text.split ('<img src='))
+			textList.addList (self.text.split ('<img src='))
 			textRange = textList.range (1)
 			for i in textRange:
 				d= textList[i].find ('>') +1
@@ -439,7 +433,7 @@ class ArticleHtml (Article):
 if __name__ != '__main__': pass
 # mettre des majuscules dans un text
 elif len (argv) >=2:
-	fhtml = ArticleHtml()
-	fhtml.fromArticleName (argv[1])
+	fhtml = FileHtml()
+	fhtml.fromFilePersoName (argv[1])
 # le nom du fichier n'a pas ete donne
 else: print (help)
