@@ -287,6 +287,8 @@ class FileHtml (FilePerso):
 
 	def cleanTags (self):
 		# supprimer les attributs inutiles
+		self.replace ('<br/>', '<br>')
+		self.replace ('<hr/>', '<hr>')
 		tagList = ListPerso()
 		textList = ListPerso()
 		textList.addList (self.text.split ('<'))

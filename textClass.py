@@ -3,7 +3,7 @@
 
 # mots speciaux devant debuter par une majuscule
 wordsUpp = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'victo', 'tony', 'simplon', 'loïc', 'france', 'paris', 'rueil')
-pointsEnd = '\n\t .?!,;:'	# liste des symboles suivant les mots spéciaux
+pointsEnd = '\n\t .,;:?!'	# liste des symboles suivant les mots spéciaux
 # "dictionnaire" des majuscule prenant en compte les accents
 accents =( ('a','A'), ('à','A'), ('b','B'), ('c','C'), ('\xe7','\xc7'), ('d','D'), ('e','E'), ('é','E'), ('è','E'), ('ê','E'), ('ë','E'), ('f','F'), ('g','G'), ('h','H'), ('i','I'), ('î','I'), ('ï','I'), ('j','J'), ('k','K'), ('l','L'), ('m','M'), ('n','N'), ('o','O'), ('\xf4', '\xe4'), ('p','P'), ('q','Q'), ('r','R'), ('s','S'), ('t','T'), ('u','U'), ('v','V'), ('w','W'), ('x','X'), ('y','Y'), ('z','Z') )
 # liste des points, des chaines de caracteres suivies par une majuscule
@@ -95,6 +95,17 @@ class Text():
 		self.strip()
 		while self.contain ('\n\n'): self.replace ('\n\n', '\n')
 		while self.contain ('  '): self.replace ('  ', ' ')
+
+	def cleanPunctuation (self):
+		points = '.,;:?!'
+		for p in points: self.replace (p, ' '+p+' ')
+		while self.contain ('  '): self.replace ('  ', ' ')
+		for p in points[:4]: self.replace (' '+p, p)
+		while self.contain ('....'): self.replace ('....', '...')
+		self.replace (': //', '://')
+		self.replace ('. com', '.com')
+		self.replace ('. fr', '.fr')
+		self.replace ('. html', '.html')
 
 	def fromModel (self, model):
 		return fromModel (self.text, model)

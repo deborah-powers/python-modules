@@ -67,6 +67,7 @@ class ListPerso():
 		else: self.list.insert (pos, value)
 
 	def pop (self, item, isIndex=True):
+		print (self.length())
 		if isIndex: trash = self.list.pop (item)
 		else:
 			id= self.index (item)
