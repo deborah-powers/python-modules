@@ -100,7 +100,7 @@ Jean-Marc	un souvenir des dernieres vacances
 		if d==-1 and c==-1 and '\t' in list_chn[i]:
 			c= list_chn[i].count ('\t')
 			d=i ; i+=1
-		while list_chn[i].count ('\t') ==c: i+=1
+		while i< len_chn and list_chn[i].count ('\t') ==c: i+=1
 		c=i-d
 #		une table a ete trouve
 		if c>1 and d>0:

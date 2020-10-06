@@ -12,11 +12,11 @@ pointsShape =( '\n\t- ', '______ ', '\n------ ' )
 artefacts =(
 	('> ','>'), ('Deborah.powers', 'deborah.powers'), ('Http','http'), ('\n ','\n'), (' \n','\n'),
 	(' ______\n', ' ______\n\n'), ('\n______ ', '\n\n______ '),
-	('\n______\n\n______ ', '\n\n________________________\n______ '),
+ 	('\n______\n\n______ ', '\n\n______\n______ '),
 	('------ ', '\n------ '), (' ------', ' ------\n'), ('\n\n\n', '\n\n')
 )
+# 	('\n______\n\n______ ', '\n\n________________________\n______ '),
 # caractères à remplacer
-
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ('\\', ''), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
@@ -73,13 +73,30 @@ class Text():
 		# mettre le text en forme pour simplifier sa transformation
 		while self.contain ('_______'): self.replace ('_______', '______')
 		while self.contain ('-------'): self.replace ('-------', '------')
-		self.text = '\n' + self.text
+		self.text = '\n'+ self.text +'\n'
 		# rajouter les majuscules apres chaque point
 		self.upperCase()
 		for p in pointsShape:
 			for i,j in accents: self.replace (p+i, p+j)
 		for i,j in artefacts: self.replace (i,j)
 		self.strip()
+
+	def toMd (self):
+		self.shape()
+		self.text = '\n'+ self.text +'\n'
+		tmpList = self.split ('______\n______ ')
+		rangeList = range (1, len (tmpList))
+		for l in rangeList:
+			f= tmpList[l].find (' _')
+			tmpList[l] = tmpList[l][:f].upper() + tmpList[l][f:]
+		self.text = '============ '.join (tmpList)
+		self.replace ('______ ', '============ ')
+		self.replace (' ______', ' ============')
+		self.replace ('------ ', '** ')
+		self.replace (' ------', ' **')
+		while self.contain ('\n\t\t'): self.replace ('\n\t\t', '\n\t')
+		self.replace ('\n\t', '\n* ')
+		self.replace ('\n', '\n\n')
 
 	def upperCase (self):
 	#	self.text = self.text.capitalize()

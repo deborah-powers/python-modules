@@ -14,8 +14,9 @@ les valeurs de tag
 	maj: rajouter les majuscules dans un texte
 	mef: mettre en forme un texte utilisant ma mise en forme spécifique
 	cpr: comparer deux fichiers ligne à ligne
+	md: transformer mon fichier en md
 """
-extensions = 'txt html xml svg tsv csv json js py jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
+extensions = 'txt html xml svg md tsv csv json js py jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
 
 def encodingList():
 	import encodings
@@ -86,11 +87,11 @@ class FilePerso (Text):
 		"""
 		textBrut = open (self.file, 'rb')
 		tmpByte = textBrut.read()
-		encodingList =('utf-8', 'ISO-8859-1', 'ascii')
+		encodingList =('utf-8', 'ascii', 'ISO-8859-1')
 		for encoding in encodingList:
 			try: self.text = codecs.decode (tmpByte, encoding=encoding)
 			except UnicodeDecodeError: pass
-			else: break
+			else: print (encoding); break
 		"""
 			else: print (encoding); break;
 		self.text = codecs.decode (tmpByte, encoding='utf-8')
@@ -116,6 +117,12 @@ class FilePerso (Text):
 			textBrut = open (self.file, mode)
 			textBrut.write (self.text)
 			textBrut.close()
+
+	def toMd (self):
+		Text.toMd (self)
+		self.extension = 'md'
+		self.fileFromData()
+	#	self.toFile()
 
 	def compare (self, otherFile, method='lines'):
 		self.fromFile()
@@ -243,6 +250,7 @@ elif len (argv) ==3:
 	filePerso.fromFile()
 	if argv[1] =='maj': filePerso.clean()
 	elif argv[1] =='mef': filePerso.shape()
+	elif argv[1] =='md': filePerso.toMd()
 	filePerso.toFile()
 elif argv[1] == 'testFile':
 	filePerso = FilePerso()
