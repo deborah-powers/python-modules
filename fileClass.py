@@ -16,7 +16,7 @@ les valeurs de tag
 	cpr: comparer deux fichiers ligne à ligne
 	md: transformer mon fichier en md
 """
-extensions = 'txt html xml svg md tsv csv json js py jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
+extensions = 'txt html xml svg md tsv csv json js py sql jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
 
 def encodingList():
 	import encodings

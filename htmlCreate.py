@@ -12,6 +12,34 @@ balises_internes = ('span', 'em', 'i', 'strong', 'b')
 balises_externes = ('div', 'ul', 'table', 'math', 'figure')
 balises_medianes = ('p', 'li', 'tr', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'hr', 'img')
 
+def creer_code (texte):
+	"""
+code
+myfunc():
+	mon code
+x=y
+/code
+	"""
+	texte = texte.replace ('\nCode\n', '\n<code>\n')
+	texte = texte.replace ('\n/code\n', '\n</code>\n')
+	list_chn = texte.split ('code>')
+	lc= range (1, len (list_chn), 2)
+	for i in lc:
+#		nettoyer le texte pour faciliter sa transformation
+		list_chn[i] = list_chn[i].strip ('\n')
+		list_chn[i] = list_chn[i].split ('\n')
+		ltexte = range (len (list_chn[i]) -1)
+		k=0
+		for j in ltexte:
+			k=0
+			while list_chn[i][j][k] == '\t': k+=1
+			list_chn[i][j] = list_chn[i][j].strip ('\t')
+			list_chn[i][j] = '>'+ list_chn[i][j] +'</p>'
+			if k>0: list_chn[i][j] =(" class='indent-%d'" %j)+ list_chn[i][j]
+			list_chn[i][j] = '<p'+ list_chn[i][j]
+		list_chn[i] = "".join (list_chn[i])
+	texte = 'code>'.join (list_chn)
+	return texte
 
 def creer_figure (texte):
 	"""
@@ -162,6 +190,7 @@ def textToHtml (texte):
 	texte = '\n'.join (list_chn)
 #	les tableaux et les listes
 	if '\nFig' in texte: texte = creer_figure (texte)
+	if '\nCode' in texte: texte = creer_code (texte)
 	if '\n\t' in texte: texte = creer_liste (texte)
 	if '\t' in texte: texte = creer_table (texte)
 
