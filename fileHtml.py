@@ -3,7 +3,6 @@
 import urllib as ul
 from urllib import request as urlRequest
 from listClass import ListPerso
-from htmlCreate import textToHtml, htmlToText
 from fileClass import *
 
 help ="""lancer le script
@@ -23,8 +22,8 @@ htmlTemplate ="""<!DOCTYPE html><html><head>
 	<meta charset='utf-8'/>
 	<meta name='viewport' content='width=device-width,initial-scale=1'/>
 	%s
-	<link rel='stylesheet' type='text/css' href='/home/lenovo/Bureau/site-dp/library-css/structure.css'/>
-	<link rel='stylesheet' type='text/css' href='/home/lenovo/Bureau/site-dp/library-css/perso.css'/>
+	<link rel='stylesheet' type='text/css' href='C:\\Users\\deborah.powers\\Desktop\\html\\utils\\structure.css'/>
+	<link rel='stylesheet' type='text/css' href='C:\\Users\\deborah.powers\\Desktop\\html\\utils\\perso.css'/>
 	<base target='_blank'>
 </head><body>
 %s
@@ -168,19 +167,6 @@ class FileHtml (FilePerso):
 
 	""" ________________________ convertir en texte ________________________ """
 
-	def fromFilePerso (self, ftext):
-		# file est un fichier txt utilisant ma mise en forme
-		if not ftext.text: ftext.fromFile()
-		ftext.shape()
-		self.copyFile (ftext)
-		self.text = textToHtml (ftext.text)
-		self.toFile()
-
-	def fromFilePersoName (self, fileName):
-	#	ftext = FilePerso (fileName)
-		ftext = FilePerso (fileName)
-		self.fromFilePerso (ftext)
-
 	def toFilePerso (self):
 		# fileHtml a été cré avec textToHtml
 		# récupérer le texte
@@ -234,6 +220,19 @@ class FileHtml (FilePerso):
 		ftext.replace ('<br/>', '\n')
 		ftext.clean()
 		ftext.toFile()
+
+	def fromFilePersoName (self, fileName):
+	#	ftext = FilePerso (fileName)
+		ftext = FilePerso (fileName)
+		self.fromFilePerso (ftext)
+
+	def fromFilePerso (self, ftext):
+		# file est un fichier txt utilisant ma mise en forme
+		if not ftext.text: ftext.fromFile()
+		ftext.shape()
+		ftext.toHtml()
+		self.copyFile (ftext)
+		self.toFile()
 
 	""" ________________________ texte du web ________________________ """
 
@@ -430,6 +429,172 @@ class FileHtml (FilePerso):
 		self.toFile()
 		self.fromFile()
 		print (self)
+
+
+balises =( (' ______\n', '</h2>\n'), ('\n______\n______ ', '\n<h1>'), ('\n______ ', '\n<h2>'), ('\n------ ', '\n<h3>'), (' ------\n', '</h3>\n'), ('\n______\n', '\n<hr>\n'), ('\nImg\t', "\n<img src='") )
+
+def fileToHtml (self):
+	self.clean()
+	while '_______' in self.text: self.replace ('_______', '______')
+	while '-------' in self.text: self.replace ('-------', '------')
+	self.text = '\n'+ self.text +'\n'
+#	transformer la mise en page en balises
+	for i,j in balises:
+		if i in self.text: self.replace (i,j)
+
+#	ajustement pour les grands titres et les images
+	paragraphList = self.text.split ('\n')
+	paragraphRange = range (len (paragraphList))
+	for i in paragraphRange:
+		if '<h1>' in paragraphList[i]: paragraphList[i] = paragraphList[i].replace ('</h2>', '</h1>')
+		elif '<img' in paragraphList[i]: paragraphList[i] = paragraphList[i] +"'/>"
+	self.text = '\n'.join (paragraphList)
+
+#	les tableaux et les listes
+	if '\nFig' in self.text:
+		self.replace ('\nFig\n', '\n<figure>\n')
+		self.replace ('\n/fig\n', '\n</figure>\n')
+	#	mettre en forme le contenu des figures
+		paragraphList = self.text.split ('figure>')
+		lc= range (1, len (paragraphList), 2)
+		for i in lc:
+	#		nettoyer le texte pour faciliter sa transformation
+			paragraphList[i] = paragraphList[i].strip ('\n')
+			paragraphList[i] = paragraphList[i].split ('\n')
+			paragraphRange = range (len (paragraphList[i]) -1)
+			for j in paragraphRange:
+	#			les images ont deja ete modifiees precedement
+				if paragraphList[i][j][:4] != '<img':
+					paragraphList[i][j] = '<figcaption>' + paragraphList[i][j] + '</figcaption>'
+			paragraphList[i] = "".join (paragraphList[i])
+		self.text = 'figure>'.join (paragraphList)
+
+	if '\nCode' in self.text:
+		self.replace ('\nCode\n', '\n<code>\n')
+		self.replace ('\n/code\n', '\n</code>\n')
+		paragraphList = self.text.split ('code>')
+		paragraphRange = range (1, len (paragraphList), 2)
+		for i in paragraphRange:
+			paragraphList[i] = paragraphList[i].strip()
+			paragraphList[i] = paragraphList[i].strip('\n\t ')
+			paragraphList[i] = paragraphList[i].replace ('\n', '\a')
+			paragraphList[i] = paragraphList[i].replace ('\t', '\f')
+		self.text = 'code>'.join (paragraphList)
+		self.replace ('\a</code>', '</code>')
+	"""
+			paragraphList[i] = paragraphList[i].split ('\n')
+			paragraphRange = range (len (paragraphList[i]) -1)
+			k=0
+			for j in paragraphRange:
+				k=0
+				while paragraphList[i][j][k] == '\t': k+=1
+				paragraphList[i][j] = paragraphList[i][j].strip ('\t')
+				paragraphList[i][j] = '>'+ paragraphList[i][j] +'</p>'
+				if k>0: paragraphList[i][j] =(" class='indent-%d'" %k)+ paragraphList[i][j]
+				paragraphList[i][j] = '<p'+ paragraphList[i][j]
+			paragraphList[i] = "".join (paragraphList[i])
+		self.replace ('\nCode\n', '\n<code>\n')
+		self.replace ('\n/code\n', '\n</code>\n')
+		self.replace ('\n', '\a')
+		self.replace ('\t', '\f')
+	"""
+
+	if '\n\t' in self.text:
+		self.text = '\n'+ self.text +'\n'
+		self.replace ('\n\t', '\n<li>')
+	#	separer les lignes pour permettre leurs transformation
+		paragraphList = self.text.split ('\n')
+		lc= range (len( paragraphList))
+	#	rajouter les balises fermantes
+		for l in lc:
+			if '<li>' in paragraphList[l]: paragraphList[l] = paragraphList[l] +'</li>'
+		lc= range (1, len( paragraphList) -1)
+	#	rajouter les balises ouvrantes et fermantes delimitant la liste, <ul/>. reperer les listes imbriquees.
+		for l in lc:
+			if '<li>' in paragraphList[l]:
+	#			compter le niveau d'imbrication (n) de l'element paragraphList[l]
+				n=0
+				while '<li>'+n*'\t' in paragraphList[l]: n+=1
+				n-=1
+				if '<li>'+n*'\t' in paragraphList[l]:
+	#				debut de la liste (ou sous-liste), mettre le <ul>
+					if '<li>'+n*'\t' not in paragraphList[l-1]: paragraphList[l] = '<ul>'+ paragraphList[l]
+	#				fin de la liste (ou sous-liste), mettre le </ul>
+					if '<li>'+n*'\t' not in paragraphList[l+1]:
+						while n >-1:
+							if '<li>'+n*'\t' not in paragraphList[l+1]: paragraphList[l] = paragraphList[l] + '</ul>'
+							n-=1
+	#	mettre le texte au propre
+		self.text = '\n'.join (paragraphList)
+		self.text = self.text.strip ('\n')
+		while '<li>\t' in self.text: self.replace ('<li>\t', '<li>')
+		while '<ul>\t' in self.text: self.replace ('<ul>\t', '<ul>')
+
+	if '\t' in self.text:
+		paragraphList = self.text.split ('\n')
+		len_chn = len (paragraphList)
+		d=-1 ; c=-1 ; i=0
+		while i< len_chn:
+	#		rechercher une table
+			d=-1 ; c=-1
+			if d==-1 and c==-1 and '\t' in paragraphList[i]:
+				c= paragraphList[i].count ('\t')
+				d=i ; i+=1
+			while i< len_chn and paragraphList[i].count ('\t') ==c: i+=1
+			c=i-d
+	#		une table a ete trouve
+			if c>1 and d>0:
+				rtable = range (d,i)
+				for j in rtable:
+	#				entre les cases
+					paragraphList[j] = paragraphList[j].replace ('\t', '</td><td>')
+	#				bordure des cases
+					paragraphList[j] = '<tr><td>' + paragraphList[j] +'</td></tr>'
+	#			les limites de la table
+				paragraphList[d] = '<table>\n' + paragraphList[d]
+				paragraphList[i-1] = paragraphList[i-1] +'\n</table>'
+			i+=1
+		self.text = '\n'.join (paragraphList)
+
+	# transformer les p contenant un lien en a
+	endingChars = '< ;,!?\\'
+	paragraphList = self.text.split ('http')
+	paragraphRange = range (1, len (paragraphList))
+	for p in paragraphRange:
+		paragraphTmp = paragraphList[p]
+		f=-1; d=-1
+		for char in endingChars:
+			if char in paragraphTmp:
+				print ('c', char)
+				f= paragraphTmp.find (char)
+				paragraphTmp = paragraphTmp[:f]
+		paragraphTmp = paragraphTmp.strip ('/')
+		d= paragraphTmp.rfind ('/') +1
+		print (d,f, paragraphTmp)
+		paragraphList[p] = paragraphTmp +"'>"+ paragraphTmp[d:] +'</a> '+ paragraphList[p][f:]
+	self.text = " <a href='http".join (paragraphList)
+
+#	nettoyer le texte pour faciliter la suite des transformations
+	self.replace ('\t')
+	self.clean()
+#	rajouter les <p/>
+	self.replace ('\n', '</p><p>')
+	self.replace ('></p><p><', '><')
+	self.replace ('></p><p>', '><p>')
+	self.replace ('</p><p><', '</p><')
+
+#	rajouter d'eventuel <p/> s'il n'y a pas de balise en debut ou fin de self.text
+	if '<' not in self.text[0:3]: self.text = '<p>'+ self.text
+	if '>'not in self.text[-3:]: self.text = self.text +'</p>'
+#	mettre en forme les balises pour clarifier le texte
+	self.replace ('\n')
+	self.replace ('\t')
+	# pour les blocs de code
+	self.replace ('\a', '\n')
+	self.replace ('\f', '\t')
+	self.clean()
+
+setattr (FilePerso, 'toHtml', fileToHtml)
 
 # on appele ce script dans un autre script
 if __name__ != '__main__': pass

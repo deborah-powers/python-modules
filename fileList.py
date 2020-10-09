@@ -37,7 +37,7 @@ class FileList (ListPerso):
 				for file in subList:
 					fileTmp = fc.FilePerso (os.path.join (dirpath, file))
 					fileTmp.dataFromFile()
-					self.addList (fileTmp)
+					self.add (fileTmp)
 		self.sort()
 
 	def doublons (self):
@@ -103,7 +103,7 @@ class ArticleList (FileList):
 		tmpList.get ('.html')
 		lRange = tmpList.range()
 		for f in lRange:
-			self.addList (FileHtml())
+			self.add (FileHtml())
 			self[f].title = tmpList[f].title
 			self[f].path = tmpList[f].path
 			self[f].fileFromData()
@@ -128,7 +128,7 @@ class ArticleList (FileList):
 		else:
 			aList = ArticleList()
 			for article in self:
-				if genre in article.subject: aList.addList (article)
+				if genre in article.subject: aList.add (article)
 			return aList
 
 if __name__ != '__main__': pass
