@@ -481,23 +481,6 @@ def fileToHtml (self):
 			paragraphList[i] = paragraphList[i].replace ('\t', '\f')
 		self.text = 'code>'.join (paragraphList)
 		self.replace ('\a</code>', '</code>')
-	"""
-			paragraphList[i] = paragraphList[i].split ('\n')
-			paragraphRange = range (len (paragraphList[i]) -1)
-			k=0
-			for j in paragraphRange:
-				k=0
-				while paragraphList[i][j][k] == '\t': k+=1
-				paragraphList[i][j] = paragraphList[i][j].strip ('\t')
-				paragraphList[i][j] = '>'+ paragraphList[i][j] +'</p>'
-				if k>0: paragraphList[i][j] =(" class='indent-%d'" %k)+ paragraphList[i][j]
-				paragraphList[i][j] = '<p'+ paragraphList[i][j]
-			paragraphList[i] = "".join (paragraphList[i])
-		self.replace ('\nCode\n', '\n<code>\n')
-		self.replace ('\n/code\n', '\n</code>\n')
-		self.replace ('\n', '\a')
-		self.replace ('\t', '\f')
-	"""
 
 	if '\n\t' in self.text:
 		self.text = '\n'+ self.text +'\n'
@@ -557,21 +540,21 @@ def fileToHtml (self):
 		self.text = '\n'.join (paragraphList)
 
 	# transformer les p contenant un lien en a
-	endingChars = '< ;,!?\\'
+	endingChars = '< ;,!?\\\t\n'
 	paragraphList = self.text.split ('http')
 	paragraphRange = range (1, len (paragraphList))
 	for p in paragraphRange:
 		paragraphTmp = paragraphList[p]
-		f=-1; d=-1
+		e=-1; f=-1; d=-1
 		for char in endingChars:
 			if char in paragraphTmp:
-				print ('c', char)
 				f= paragraphTmp.find (char)
 				paragraphTmp = paragraphTmp[:f]
 		paragraphTmp = paragraphTmp.strip ('/')
 		d= paragraphTmp.rfind ('/') +1
-		print (d,f, paragraphTmp)
-		paragraphList[p] = paragraphTmp +"'>"+ paragraphTmp[d:] +'</a> '+ paragraphList[p][f:]
+		e= len (paragraphTmp)
+		if '.' in paragraphTmp: e= paragraphTmp.rfind ('.')
+		paragraphList[p] = paragraphTmp +"'>"+ paragraphTmp[d:e] +'</a> '+ paragraphList[p][f:]
 	self.text = " <a href='http".join (paragraphList)
 
 #	nettoyer le texte pour faciliter la suite des transformations
