@@ -67,7 +67,6 @@ class ListPerso():
 		else: self.list.insert (pos, value)
 
 	def pop (self, item, isIndex=True):
-		print (self.length())
 		if isIndex: trash = self.list.pop (item)
 		else:
 			id= self.index (item)
@@ -84,8 +83,12 @@ class ListPerso():
 
 	def reverse (self):
 		self.list.reverse()
+
 	def sort (self):
 		self.list.sort()
+
+	def __lt__ (self, newList):
+		return self.__str__() < newList.__str__()
 
 	def __setitem__ (self, pos, value):
 		if pos <0: pos += self.length()
@@ -141,6 +144,7 @@ class TablePerso (ListPerso):
 		return self.toText ('\n', '\t')
 
 	def addTable (self, itemTable):
+		# regrouper deux tables
 		if type (itemTable) == TablePerso: self.list.extend (itemTable)
 		elif type (itemTable) == ListPerso: self.list.append (itemTable)
 		elif type (itemTable) == list:
@@ -148,7 +152,8 @@ class TablePerso (ListPerso):
 			newList.addList (itemTable)
 			self.addList (newList, pLin)
 
-	def addList (self, itemList, pLin =-1):
+	def addLine (self, itemList, pLin =-1):
+		# rajouter une ligne au tableau
 		if type (itemList) == ListPerso: ListPerso.add (self, itemList, pLin)
 		elif type (itemList) == list:
 			newList = ListPerso()
@@ -156,17 +161,19 @@ class TablePerso (ListPerso):
 			ListPerso.add (self, newList, pLin)
 
 	def addItems (self, itemList, pCol=-1):
+		# rajouter un élément à chaque ligne de la table
 		if type (itemList) != list: return
 		elif len (itemList) != self.length(): return
 		rangitem = self.range()
 		for i in rangitem: self.list[i].add (itemList[i], pCol)
 
 	def add (self, item, pLin, pCol):
+		# rajouter un élément dans le tableau
 		self.list[pLin].add (item, pCol)
 
 	def toText (self, wordLin, wordCol):
 		newList = ListPerso()
-		for line in self: newList.add (line.toText (wordCol))
+		for line in self.list: newList.add (line.toText (wordCol))
 		return newList.toText (wordLin)
 
 	def fromText (self, wordLin, wordCol, text):

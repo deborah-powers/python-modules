@@ -14,7 +14,7 @@ from google.auth.transport.requests import Request
 
 from dateClass import DatePerso, EventPerso
 from listClass import dictGetKeyByValue
-from listFile import ListFile
+from listFile import ListFile, TableFile
 from textClass import Text
 
 help =""" récupérer des évenements
@@ -51,6 +51,7 @@ evtDict ={
 	'repas':	('quotidien', '1'),
 	'poids':	('sante', '7'),
 	'regles':	('sante', '7'),
+	'douleurs':	('sante', '7'),
 	'depenses':	('quotidien', '7'),
 	'journal':	('journal', '2'),
 	'reves':	('journal', '7')
@@ -125,7 +126,11 @@ class eventGoogle (calendarGoogle, EventPerso):
 		self.location = tmpEvt.get ('location')
 		dateKey = 'date'
 		if 'dateTime' in tmpEvt.get ('start').keys(): dateKey = 'dateTime'
-		self.date.fromStr (tmpEvt.get ('start').get (dateKey))
+		self.date.fromStrUtz (tmpEvt.get ('start').get (dateKey))
+		if dateKey == 'date': self.duration.day =1
+		else:
+			self.duration.fromStrUtz (tmpEvt.get ('end').get (dateKey))
+			self.duration = self.date.gapDates (self.duration)
 		self.idRec = tmpEvt.get ('recurringEventId')
 
 	def equals (self, newEvt):
@@ -135,6 +140,10 @@ class eventGoogle (calendarGoogle, EventPerso):
 	def __str__(self):
 		strEvt = "%s\t%s\t%s" % (self.date.__str__(), self.category, self.title)
 		return strEvt
+
+	def __lt__ (self, newEvt):
+		return self.__str__() < newEvt.__str__()
+
 
 	""" __________________ récupérer un type d'évenement __________________ """
 
@@ -175,6 +184,13 @@ class eventGoogle (calendarGoogle, EventPerso):
 			if details: self.infos.text = self.infos.text +'\t'+ details
 			evtStr = '%s\t%s\t%s\t%s' % (self.date.toStrDay(), self.location, self.title, self.infos.text)
 			return evtStr																	
+		else: return None
+
+	def getOneDolor (self):
+		if self.title == 'Douleur':
+			strDate = self.date.toStrHour() +'\t'+ self.duration.toStrHour() +'\t'+ self.infos.text.replace ('. ','\t')
+			strDate = strDate.replace ('0/00/00 ', "")
+			return strDate
 		else: return None
 
 	def getOneDiary (self):
@@ -238,17 +254,17 @@ class eventList (ListFile):
 			if not evtTmp.color: evtTmp.color = calendar.color
 			if (calendar.title, evtTmp.color) in evtDict.values(): evtTmp.category = dictGetKeyByValue (evtDict, (calendar.title, evtTmp.color))
 			else: evtTmp.category = 'divers'
-			self.append (evtTmp)
+			self.add (evtTmp)
 
 	def selectByCalendar (self, calId):
 		newList = eventList()
-		for evt in self:
-			if evt.calId ==calId: newList.append (evt)
+		for evt in self.list:
+			if evt.calId ==calId: newList.add (evt)
 		return newList
 
 	def selectByColor (self, colId):
 		newList = eventList()
-		for evt in self:
+		for evt in self.list:
 			if evt.color ==colId: newList.append (evt)
 		return newList
 
@@ -257,6 +273,16 @@ class eventList (ListFile):
 		newList = tmpList.selectByColor (colId)
 		return newList
 
+	def toFile (self):
+		newList = TableFile()
+		newList.title = 'calendar'
+		newList.extension = 'tsv'
+		newList.fileFromData()
+		for evt in self.list:
+			newList.addLine ([ evt.date.__str__(), evt.category, evt.title, evt.infos.__str__().replace ('\n', '\t') ])
+		newList.sort()
+		newList.toFile()
+
 	def getAll (self):
 		# récupérer tous les calendriers
 	#	service = setService()
@@ -264,11 +290,11 @@ class eventList (ListFile):
 		for calName in calDict.keys():
 			cal = calendarGoogle()
 			cal.fromName (service, calName)
-			# extraire tous leurs évênemnts
+			# extraire tous leurs évênements
 			tmpList = eventList()
 			tmpList.fromCalendar (service, cal, dateMin=dateStart, dateMax=dateEnd)
-			self.extend (tmpList)
-		self.list.sort (key=eventGoogle.sortEvent)
+			self.addList (tmpList.list)
+		self.list.sort()
 		self.list.reverse()
 		self.toFile()
 
@@ -279,14 +305,14 @@ class eventList (ListFile):
 		# extraire tous leurs évênemnts
 		self.fromCalendar (service, cal, True, dateMin=dateStart, dateMax=dateEnd)
 		evtList = ListFile()
-		evtList.file = 'b/calendar.txt'
+		evtList.file = 'b/calendar.tsv'
 		evtList.dataFromFile()
-		for evt in self:
+		for evt in self.list:
 			if not evt.infos.text: evt.infos.text =""
 			if not evt.location: evt.location =""
 			if not evt.category: evt.category =""
 			evtStr = func (evt)
-			if evtStr: evtList.append (evtStr)
+			if evtStr: evtList.add (evtStr)
 		evtList.reverse()
 		evtList.toFile()
 
@@ -301,5 +327,6 @@ elif argv[1] == 'repas':	evtList.getPastEvents (evtDict['repas'][0],		eventGoogl
 elif argv[1] == 'regles':	evtList.getPastEvents (evtDict['regles'][0],	eventGoogle.getOnePeriod)
 elif argv[1] == 'poids':	evtList.getPastEvents (evtDict['poids'][0],		eventGoogle.getOneWeight)
 elif argv[1] == 'depenses':	evtList.getPastEvents (evtDict['depenses'][0],	eventGoogle.getOnePurchase)
+elif argv[1] == 'douleurs':	evtList.getPastEvents (evtDict['douleurs'][0],	eventGoogle.getOneDolor)
 elif argv[1] == 'all':		evtList.getAll()
 else: print (help)

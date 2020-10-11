@@ -4,6 +4,7 @@ import urllib as ul
 from urllib import request as urlRequest
 from listClass import ListPerso
 from fileClass import *
+from fileLocal import pathCss
 
 help ="""lancer le script
 	python fileHtml.py url"""
@@ -16,14 +17,17 @@ listTagsKeep.extend (listTagsSpecial)
 listTags =[]
 listTags.extend (listTagsKeep)
 listTags.extend (listTagsSpecial)
-
+"""
+pathCssAlt = 'C:\\Users\\deborah.powers\\Desktop\\html\\utils\\'
+pathCss = '/home/lenovo/Bureau/site-dp/library-css/'
+"""
 htmlTemplate ="""<!DOCTYPE html><html><head>
 	<title>%s</title>
 	<meta charset='utf-8'/>
 	<meta name='viewport' content='width=device-width,initial-scale=1'/>
 	%s
-	<link rel='stylesheet' type='text/css' href='C:\\Users\\deborah.powers\\Desktop\\html\\utils\\structure.css'/>
-	<link rel='stylesheet' type='text/css' href='C:\\Users\\deborah.powers\\Desktop\\html\\utils\\perso.css'/>
+	<link rel='stylesheet' type='text/css' href='""" + pathCss + """structure.css'/>
+	<link rel='stylesheet' type='text/css' href='""" + pathCss + """perso.css'/>
 	<base target='_blank'>
 </head><body>
 %s
@@ -71,12 +75,14 @@ class FileHtml (FilePerso):
 		self.title = self.title.lower()
 		textInfos = self.setMetadata()
 		textCss = self.setCss()
+		textCss = textCss.strip()
 		textInfos = textInfos + textCss
 		textInfos = textInfos.strip()
 		# le nouveau fichier
 		for tag in listTagsIntern:
 			self.replace ('<'+ tag +'>\n<', '<'+ tag +'><')
 			self.replace ('>\n</'+ tag +'>', '></'+ tag +'>')
+		self.text = self.text.strip()
 		self.text = htmlTemplate %( self.title, textInfos, self.text)
 		FilePerso.toFile (self)
 
@@ -111,8 +117,8 @@ class FileHtml (FilePerso):
 	def getCss (self):
 		# styles par défaut
 		defaultCss =[
-			'/home/lenovo/Bureau/site-dp/library-css/structure.styles',
-			'/home/lenovo/Bureau/site-dp/library-css/perso.styles'
+			'/home/lenovo/Bureau/site-dp/library-css/structure.css',
+			'/home/lenovo/Bureau/site-dp/library-css/perso.css'
 		]
 		listText = self.text.split ('<link ')
 		for line in listText[1:]:

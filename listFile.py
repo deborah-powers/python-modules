@@ -6,7 +6,7 @@ from listClass import ListPerso, TablePerso
 help =""" un fichier contenant une liste """
 
 class ListFile (FilePerso, ListPerso):
-	def __init__(self, separator ='\n', file =None):
+	def __init__(self, sepLin ='\n', file =None):
 		FilePerso.__init__(self, file)
 		ListPerso.__init__(self)
 		self.sepLin = sepLin
@@ -20,9 +20,9 @@ class ListFile (FilePerso, ListPerso):
 		FilePerso.toFile (self)
 
 
-class TableFile (ListFile, TablePerso):
+class TableFile (FilePerso, TablePerso):
 	def __init__(self, sepLin='\n', sepCol='\t', file =None):
-		ListFile.__init__(self, file)
+		ListFile.__init__(self, sepLin, file)
 		TablePerso.__init__(self)
 		self.sepCol = sepCol
 
@@ -32,9 +32,13 @@ class TableFile (ListFile, TablePerso):
 		for l in rangeLin: self[l] = self[l].fromText (self.sepCol, self[l])
 
 	def toFile (self):
-		rangeLin = self.range()
-		for l in rangeLin: self[l] = self[l].toText (self.sepCol)
-		ListFile.toFile (self)
+		self.text = self.toText (self.sepLin, self.sepCol)
+		print (self.title, self.file, self.path, self.extension)
+		FilePerso.toFile (self)
+
+	def __str__ (self):
+		return self.toText ('\n', '\t')
+
 
 class TableFileVa (FilePerso, TablePerso):
 	def __init__(self, sepLin='\n', sepCol='\t', file =None):

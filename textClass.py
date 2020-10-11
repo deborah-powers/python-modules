@@ -208,7 +208,8 @@ class Text():
 		return len (self.text)
 
 	def __str__(self):
-		return self.text
+		if self.text: return self.text
+		else: return ""
 
 	def split (self, word):
 		return self.text.split (word)

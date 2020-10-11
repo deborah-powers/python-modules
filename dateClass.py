@@ -15,6 +15,7 @@ source:
 class EventPerso():
 	def __init__(self):
 		self.date		= DatePerso()
+		self.duration	= DatePerso()
 		self.location	=""
 		self.category	=""
 		self.title		=""
@@ -53,6 +54,24 @@ class DatePerso():
 		today = datetime.now()
 		self.FromDate (today)
 
+	def gapDates (self, newDate):
+		diff = self.compareMins (newDate)
+		if diff <0: return newDate.gapDates (self)
+		else:
+			thirdDate = DatePerso()
+			thirdDate.monthsDuration = self.monthsDuration
+			thirdDate.min = self.min
+			thirdDate.hour = self.hour
+			thirdDate.day = self.day
+			thirdDate.month = self.month
+			thirdDate.year = self.year
+			thirdDate.remMinutes (newDate.min)
+			thirdDate.remHours (newDate.hour)
+			thirdDate.remDays (newDate.day)
+			thirdDate.remMonth (newDate.month)
+			thirdDate.year -= newDate.year
+			return thirdDate
+
 	def compareDays (self, newDate):
 		diff =0
 		if self.year	> newDate.year:		diff =3
@@ -72,6 +91,26 @@ class DatePerso():
 		elif self.min	> newDate.min:	diff =1
 		elif self.min	< newDate.min:	diff =-1
 		return diff
+
+
+	def remMonth (self, nb=1):
+		self.month -=nb
+		if self.month <0: self.year -=1; self.month +=12
+
+	def remDays (self, nb=1):
+		self.day -=nb
+		self.isBissextile()
+		if self.day <0:
+			self.day += self.monthsDuration[self.month -2]
+			self.remMonth (1)
+
+	def remHours (self, nb=1):
+		self.hour -=nb
+		if self.hour <0: self.remDays (1); self.hour +=24
+
+	def remMinutes (self, nb=1):
+		self.min -=nb
+		if self.min <0: self.remHours (1); self.min +=60
 
 	def addMonths (self, nb=1):
 		self.month +=nb
@@ -104,32 +143,6 @@ class DatePerso():
 		elif self.year %100 !=0 and self.year %4 ==0: bissextile = True
 		if bissextile: self.monthsDuration[1] =29
 		else: self.monthsDuration[1] =28
-
-	def gapDay (self, newDate):
-		diff = self.compareMin (newDate)
-		nbGap =0
-		if diff <0:
-			nbGap = newDate.gapDay (self)
-			nbGap = - nbGap
-		elif diff >0:
-			nbSelf = self.nbDays()
-			nbNew = newDate.nbDays()
-			nbGap = nbSelf - nbNew
-		return nbGap
-
-	def gapMins (self, newDate):
-		diff = self.compareMin (newDate)
-		nbGap =0
-		if diff <0:
-			nbGap = newDate.gapMins (self)
-			nbGap = - nbGap
-		elif diff >0:
-			nbGap = self.gapDay (newDate)
-			nbSelf = self.nbMin()
-			nbNew = newDate.nbMin()
-			nbGap += nbSelf
-			nbGap -= nbNew
-		return nbGap
 
 	def nbDays (self):
 		""" nombres approximatif de jours écoulés depuis l'an 0, pour comparer deux dates. je considère que les années écoulées font toutes 365j """
@@ -186,6 +199,7 @@ class DatePerso():
 		self.min = int (dateListTmp[1])
 
 	def fromStr (self, dateStr):
+		dateStr = dateStr.replace ('-', '/')
 		dateStr = dateStr.replace (' ', '/')
 		dateStr = dateStr.replace (':', '/')
 		dateList = dateStr.split ('/')
