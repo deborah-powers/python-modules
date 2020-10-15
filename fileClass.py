@@ -100,11 +100,11 @@ class FilePerso (Text):
 		FilePerso.clean (self)
 
 	def toFile (self, mode='w'):
-		self.fileFromData()
 		# pas de texte
 		if not self.text:
 			print ('rien a ecrire pour:', self.title)
 			return
+		self.fileFromData()
 		chars = '/\\\t\n'; c=0
 		while chars != 'error' and c<4:
 			if chars[c] in self.title:
@@ -114,8 +114,8 @@ class FilePerso (Text):
 		if chars != 'error':
 			if mode == 'a' and os.path.isfile (self.file): self.text ='\n'+ self.text
 			# ouvrir le fichier et ecrire le texte
-			textBrut = open (self.file, mode)
-			textBrut.write (self.text)
+			textBrut = open (self.file, mode +'b')
+			textBrut.write (self.text.encode ('utf-8'))
 			textBrut.close()
 
 	def toMd (self):
@@ -124,9 +124,34 @@ class FilePerso (Text):
 		self.fileFromData()
 	#	self.toFile()
 
-	def compare (self, otherFile, method='lines'):
+	""" ________________________ comparer deux fichiers ________________________ """
+
+	def compareGroom (self):
 		self.fromFile()
-		otherFile.fromFile()
+		self.text = self.text.lower()
+		self.clean()
+
+	def compareGroomSql (self):
+		self.replace ('\t')
+		self.clean()
+		self.replace (', ',',\n')
+		self.replace (', ',',\n')
+		self.replace (' from','\nfrom')
+		self.replace (' where','\nwhere')
+		self.replace (' select','\nselect')
+		self.replace (' union','\nunion')
+		self.replace (' group by','\ngroup by')
+		self.replace (' order by','\norder by')
+		self.replace ('-- ','\n')
+		while self.contain ('\n\n'): self.replace ('\n\n','\n')
+
+	def compare (self, otherFile, method='lines'):
+		self.compareGroom()
+		otherFile.compareGroom()
+		print (self.extension)
+		if self.extension == 'sql':
+			self.compareGroomSql()
+			otherFile.compareGroomSql()
 		textFinal =""
 		if method == 'lsort': textFinal = Text.comparLines (self, otherFile, False, True)
 		elif method == 'lsortKeep': textFinal = Text.comparLines (self, otherFile, True, True)

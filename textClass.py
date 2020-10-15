@@ -130,6 +130,8 @@ class Text():
 	def comparLines (self, otherText, keepCommon=True, toSort=False):
 		self.clean()
 		otherText.clean()
+		self.text = self.text.lower()
+		otherText.text = otherText.text.lower()
 		if self.text == otherText.text:
 			print ('les textes sont identiques')
 			return 'pareil'
