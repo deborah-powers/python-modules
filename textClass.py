@@ -24,7 +24,7 @@ weirdChars =(
 	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x97', "'"), ('\x9c', ' '), ('\xa0', ' '),
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'),
 	('&mdash;', ' '), ('&nbsp;', ''), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"),
-	('&amp;', '&'), ('&#039', "'"), ('&#160;', ' '), ('&#8217;', "'")
+	('&amp;', '&'), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'")
 )
 # fonctions pour les textes simples
 def clean (text):
@@ -110,8 +110,12 @@ class Text():
 		# remplacer les caractères bizzares
 		for i,j in weirdChars: self.replace (i,j)
 		self.strip()
-		while self.contain ('\n\n'): self.replace ('\n\n', '\n')
 		while self.contain ('  '): self.replace ('  ', ' ')
+		self.replace ('\n ', '\n')
+		self.replace (' \n', '\n')
+		while self.contain ('\n\t'): self.replace ('\n\t', '\n')
+		while self.contain ('\t\n'): self.replace ('\t\n', '\n')
+		while self.contain ('\n\n'): self.replace ('\n\n', '\n')
 
 	def cleanPunctuation (self):
 		points = '.,;:?!'
@@ -123,6 +127,7 @@ class Text():
 		self.replace ('. com', '.com')
 		self.replace ('. fr', '.fr')
 		self.replace ('. html', '.html')
+		self.replace ('//www. ', '//www.')
 
 	def fromModel (self, model):
 		return fromModel (self.text, model)

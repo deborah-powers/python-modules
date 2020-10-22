@@ -218,7 +218,7 @@ class Article (FilePerso):
 		self.text = metadata[4]
 
 	def toFile (self, mode='w'):
-		self.replace ('\n', '\n\n')
+		# self.replace ('\n', '\n\n')
 		text = modelText %( self.subject, self.author, self.link, self.autlink, self.text)
 		self.text = text
 		FilePerso.toFile (self, mode)

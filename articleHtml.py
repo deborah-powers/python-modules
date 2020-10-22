@@ -33,52 +33,15 @@ class ArticleHtml (FileHtml, Article):
 
 	def toFileText (self):
 		self.clean()
-		ftext = Article()
-		ftext.copyFile (self)
-		ftext.extension = 'txt'
-		ftext.fileFromData()
-		# les titres
-		ftext.replace ('<h1>', '\n______\n______ ')
-		ftext.replace ('<h2>', '\n______ ')
-		ftext.replace ('<h3>', '\n------ ')
-		ftext.replace ('<h4>', '\n--- ')
-		ftext.replace ('</h4>', ' ---\n')
-		ftext.replace ('</h3>', ' ------\n')
-		ftext.replace ('</h2>', ' ______\n')
-		ftext.replace ('</h1>', ' ______\n')
-		# les conteneurs
-		container =[ 'div', 'section', 'ol', 'ul', 'table', 'figure', 'math' ]
-		for tag in container:
-			ftext.replace ('</'+ tag +'>')
-			ftext.replace ('<'+ tag +'>')
-		# les tableaux
-		ftext.replace ('th>', 'td>')
-		ftext.replace ('</td><td>', '\t')
-		ftext.replace ('</td></tr><tr><td>', '\n')
-		ftext.replace ('<tr>', '\n')
-		ftext.replace ('</tr>', '\n')
-		# les listes
-		ftext.replace ('</li><li>', '\n\t')
-		ftext.replace ('<li>', '\n\t')
-		ftext.replace ('</li>', '\n')
-		# les lignes
-		ftext.replace ('</p><p>', '\n')
-		lines =[ 'p', 'caption', 'figcaption' ]
-		for tag in lines:
-			ftext.replace ('</'+ tag +'>', '\n')
-			ftext.replace ('<'+ tag +'>', '\n')
-		# les phrases
-		inner =[ 'span', 'em', 'strong' ]
-		for tag in inner:
-			ftext.replace ('</'+ tag +'>', ' ')
-			ftext.replace ('<'+ tag +'>', ' ')
-		ftext.replace (' \n', '\n')
-		ftext.replace ('\n ', '\n')
-		# autres
-		ftext.replace ('<hr>', '\n________________________\n')
-		ftext.replace ('<br>', '\n')
-		ftext.clean()
-		ftext.toFile()
+		# récupérer les metadonnées
+		self.text = """<table>
+	<tr><td>Sujet:</td><td>%s</td></tr>
+	<tr><td>Auteur:</td><td>%s</td></tr>
+	<tr><td>Lien:</td><td>%s</td></tr>
+	<tr><td>Laut:</td><td>%s</td></tr>
+</table>
+%s""" %( self.subject, self.author, self.link, self.autlink, self.text)
+		self.toFilePerso()
 
 	""" ________________________ récupérer et nettoyer les fichiers ________________________ """
 
@@ -94,12 +57,15 @@ class ArticleHtml (FileHtml, Article):
 		elif 'https://www.deviantart.com/' in url:			self.deviantart()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel (subject)
+		elif 'https://www.reddit.com/r/' in url:
+			self.reddit()
 		else:
 			self.cleanWeb()
 			toText = False
 		self.metas ={}
 		self.cleanPunctuation()
 		self.replace (' <', '<')
+		self.replace ('><', '>\n<')
 		if toText: self.toFileText()
 		else: self.toFile()
 
@@ -175,6 +141,28 @@ class ArticleHtml (FileHtml, Article):
 		self.text = self.text.replace ('h/c', 'dark blond')
 
 	""" ________________________ récupérer les articles des sites ________________________ """
+
+	def reddit (self):
+		self.subject = 'opinion'
+		self.cleanWeb()
+		d= self.index ('<h1>')
+		f= self.index ('<div>Reddit Inc')
+		self.text = self.text[d:f]
+		self.replace ('<div>')
+		self.replace ('</div>')
+		"""
+		if self.contain ('Sister Communities'):
+			f= self.index ('Sister Communities')
+			self.text = self.text[:f]
+		"""
+		f= self.link.find ('/',26)
+		self.autlink = self.link[:f]
+		self.author = self.autlink[25:]
+		self.title = self.title.replace ('#',' ')
+		d= self.index ('<h2>')
+		d= self.index ('<h2>', d+1)
+		self.text = self.text[d:]
+
 
 	def unisciel (self, subject):
 		self.subject = 'cours'

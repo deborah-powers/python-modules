@@ -200,8 +200,8 @@ class FileHtml (FilePerso):
 		ftext.replace ('th>', 'td>')
 		ftext.replace ('</td><td>', '\t')
 		ftext.replace ('</td></tr><tr><td>', '\n')
-		ftext.replace ('<tr>', '\n')
-		ftext.replace ('</tr>', '\n')
+		ftext.replace ('<tr><td>', '\n')
+		ftext.replace ('</td></tr>', '\n')
 		# les listes
 		ftext.replace ('</li><li>', '\n\t')
 		ftext.replace ('<li>', '\n\t')
@@ -219,6 +219,20 @@ class FileHtml (FilePerso):
 			ftext.replace ('<'+ tag +'>', ' ')
 		ftext.replace (' \n', '\n')
 		ftext.replace ('\n ', '\n')
+		# les liens
+		ltext = ListPerso()
+		ltext.addList (ftext.split ('</a>'))
+		rtext = ltext.range (end=-1)
+		for t in rtext:
+			d= ltext[t].find ('href') +6
+			f= ltext[t].find ("'",d)
+			link = ltext[t][d:f]
+			f= ltext[t].find ('>',f) +1
+			title = ltext[t][f:]
+			d= ltext[t].find ('<a ')
+			ltext[t] = ltext[t][:d] +' '+ title +' : '+ link
+		ftext.text = ' '.join (ltext)
+		ftext.clean()
 		# autres
 		ftext.replace ('<hr>', '\n________________________\n')
 		ftext.replace ('<hr/>', '\n________________________\n')
@@ -288,6 +302,7 @@ class FileHtml (FilePerso):
 		self.cleanSpan()
 		self.cleanTags()
 		self.text = findTextBetweenTag (self.text, 'body')
+		self.replace ('><', '>\n<')
 		self.clean()
 
 	def cleanTags (self):

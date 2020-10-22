@@ -31,8 +31,8 @@ les valeurs de tag
 
 dateStart = DatePerso()
 dateStart.today()
-dateStart.month =9
-dateStart.day =14
+dateStart.month =10
+dateStart.day =10
 
 dateEnd = DatePerso()
 dateEnd.today()
