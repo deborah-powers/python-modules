@@ -220,9 +220,8 @@ class FileHtml (FilePerso):
 		ftext.replace (' \n', '\n')
 		ftext.replace ('\n ', '\n')
 		# les liens
-		ltext = ListPerso()
-		ltext.addList (ftext.split ('</a>'))
-		rtext = ltext.range (end=-1)
+		ltext = ftext.split ('</a>')
+		rtext = range (len (ltext) -1)
 		for t in rtext:
 			d= ltext[t].find ('href') +6
 			f= ltext[t].find ("'",d)
@@ -232,7 +231,6 @@ class FileHtml (FilePerso):
 			d= ltext[t].find ('<a ')
 			ltext[t] = ltext[t][:d] +' '+ title +' : '+ link
 		ftext.text = ' '.join (ltext)
-		ftext.clean()
 		# autres
 		ftext.replace ('<hr>', '\n________________________\n')
 		ftext.replace ('<hr/>', '\n________________________\n')

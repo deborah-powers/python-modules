@@ -28,12 +28,16 @@ weirdChars =(
 )
 # fonctions pour les textes simples
 def clean (text):
-	text = text.replace ('\r')
+	text = text.replace ('\r',"")
 	# remplacer les caractères bizzares
 	for i,j in weirdChars: text = text.replace (i,j)
 	text = text.strip()
-	while ('\n\n') in text: text = text.replace ('\n\n', '\n')
 	while ('  ') in text: text = text.replace ('  ', ' ')
+	text = text.replace (' \n', '\n')
+	text = text.replace ('\n ', '\n')
+	while ('\t\n') in text: text = text.replace ('\t\n', '\n')
+	while ('\n\t') in text: text = text.replace ('\n\t', '\n')
+	while ('\n\n') in text: text = text.replace ('\n\n', '\n')
 	return text
 
 def fromModel (text, model):
@@ -106,16 +110,7 @@ class Text():
 			for word in wordsUpp: self.replace (' '+ word +p, ' '+ word.capitalize() +p)
 
 	def clean (self):
-		self.replace ('\r')
-		# remplacer les caractères bizzares
-		for i,j in weirdChars: self.replace (i,j)
-		self.strip()
-		while self.contain ('  '): self.replace ('  ', ' ')
-		self.replace ('\n ', '\n')
-		self.replace (' \n', '\n')
-		while self.contain ('\n\t'): self.replace ('\n\t', '\n')
-		while self.contain ('\t\n'): self.replace ('\t\n', '\n')
-		while self.contain ('\n\n'): self.replace ('\n\n', '\n')
+		self.text = clean (self.text)
 
 	def cleanPunctuation (self):
 		points = '.,;:?!'
