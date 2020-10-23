@@ -488,8 +488,8 @@ def fileToHtml (self):
 			paragraphList[i] = "".join (paragraphList[i])
 		self.text = 'figure>'.join (paragraphList)
 
-	if '\nCode' in self.text:
-		self.replace ('\nCode\n', '\n<code>\n')
+	if '\ncode' in self.text:
+		self.replace ('\ncode\n', '\n<code>\n')
 		self.replace ('\n/code\n', '\n</code>\n')
 		paragraphList = self.text.split ('code>')
 		paragraphRange = range (1, len (paragraphList), 2)
@@ -504,7 +504,6 @@ def fileToHtml (self):
 	if '\n\t' in self.text:
 		self.text = '\n'+ self.text +'\n'
 		self.replace ('\n\t', '\n<li>')
-	#	separer les lignes pour permettre leurs transformation
 		paragraphList = self.text.split ('\n')
 		lc= range (len( paragraphList))
 	#	rajouter les balises fermantes
