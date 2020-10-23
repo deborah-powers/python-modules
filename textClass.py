@@ -28,12 +28,26 @@ weirdChars =(
 )
 # fonctions pour les textes simples
 def clean (text):
-	text = text.replace ('\r')
+	text = text.replace ('\r', "")
 	# remplacer les caractères bizzares
 	for i,j in weirdChars: text = text.replace (i,j)
 	text = text.strip()
-	while ('\n\n') in text: text = text.replace ('\n\n', '\n')
-	while ('  ') in text: text = text.replace ('  ', ' ')
+	while '  ' in text: text = text.replace ('  ', ' ')
+	text = text.replace ('\n ', '\n')
+	text = text.replace (' \n', '\n')
+	while '\n\t' in text: text = text.replace ('\n\t', '\n')
+	while '\t\n' in text: text = text.replace ('\t\n', '\n')
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	return text
+
+def toUpperCase (text):
+	text = text.capitalize()
+	for i,j in accents:
+		for p in points: text = text.replace (p+i, p+j)
+		for p in pointsShape: text = text.replace (p+i, p+j)
+	for p in pointsEnd:
+		for word in wordsUpp: text = text.replace (' '+ word +p, ' '+ word.capitalize() +p)
+	for i,j in artefacts: text = text.replace (i,j)
 	return text
 
 def fromModel (text, model):
@@ -99,23 +113,17 @@ class Text():
 		self.replace ('\n', '\n\n')
 
 	def upperCase (self):
-	#	self.text = self.text.capitalize()
-		for p in points:
-			for i,j in accents: self.replace (p+i, p+j)
-		for p in pointsEnd:
-			for word in wordsUpp: self.replace (' '+ word +p, ' '+ word.capitalize() +p)
+		if self.contain ('\n/code\n'):
+			paragraphList = self.split ('\ncode\n')
+			paragraphRange = range (1, len (paragraphList))
+			for i in paragraphRange:
+				d= paragraphList[i].find ('\n/code\n') +7
+				paragraphList[i] = paragraphList[i][:d] + toUpperCase (paragraphList[i][d:])
+			self.text = '\ncode\n'.join (paragraphList)
+		else: self.text = toUpperCase (self.text)
 
 	def clean (self):
-		self.replace ('\r')
-		# remplacer les caractères bizzares
-		for i,j in weirdChars: self.replace (i,j)
-		self.strip()
-		while self.contain ('  '): self.replace ('  ', ' ')
-		self.replace ('\n ', '\n')
-		self.replace (' \n', '\n')
-		while self.contain ('\n\t'): self.replace ('\n\t', '\n')
-		while self.contain ('\t\n'): self.replace ('\t\n', '\n')
-		while self.contain ('\n\n'): self.replace ('\n\n', '\n')
+		self.text = clean (self.text)
 
 	def cleanPunctuation (self):
 		points = '.,;:?!'
