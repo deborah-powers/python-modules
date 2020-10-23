@@ -35,19 +35,19 @@ def clean (text):
 	while '  ' in text: text = text.replace ('  ', ' ')
 	text = text.replace ('\n ', '\n')
 	text = text.replace (' \n', '\n')
-	while '\n\t' in text: text = text.replace ('\n\t', '\n')
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	return text
 
 def toUpperCase (text):
-	text = text.capitalize()
+	text ='\n'+ text
 	for i,j in accents:
 		for p in points: text = text.replace (p+i, p+j)
 		for p in pointsShape: text = text.replace (p+i, p+j)
 	for p in pointsEnd:
 		for word in wordsUpp: text = text.replace (' '+ word +p, ' '+ word.capitalize() +p)
 	for i,j in artefacts: text = text.replace (i,j)
+	text = text.strip()
 	return text
 
 def fromModel (text, model):
