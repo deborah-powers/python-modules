@@ -32,6 +32,9 @@ class ArticleHtml (FileHtml, Article):
 		FileHtml.toFile (self)
 
 	def toFileText (self):
+		self.author = self.author.lower()
+		self.subject = self.subject.lower()
+		self.title = self.title.lower()
 		self.clean()
 		# récupérer les metadonnées
 		self.text = """<table>
@@ -281,7 +284,8 @@ class ArticleHtml (FileHtml, Article):
 		self.title = data[0]
 		self.author = data[1]
 		self.subject = data[2]
-		d= self.index ("https://archiveofourown.org/works/")
+		d= self.index ("https://archiveofourown.org/works/") +1
+		d= self.index ("https://archiveofourown.org/works/", d)
 		f= self.index ("'", d)
 		self.link = self.text[d:f]
 		if '"' in self.link:
@@ -297,8 +301,8 @@ class ArticleHtml (FileHtml, Article):
 		c= self.text[:d].rfind ('href') +6
 		f= self.index ('/pseuds/', c) +1
 		self.metas ['autlink'] = self.text[c:f]
-		d= self.index ('</h3>', d) +5
-		f= self.text.rfind ('<h3>Actions</h3>')
+		d= self.index ('</h3>', d) +7
+		f= self.rindex ('<h3>Actions</h3>')
 		self.text = self.text[d:f]
 		"""
 		if self.contain ('<h3>Notes:</h3>'):

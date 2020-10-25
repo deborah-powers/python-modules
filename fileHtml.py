@@ -239,6 +239,7 @@ class FileHtml (FilePerso):
 		ftext.replace ('<br>', '\n')
 		ftext.replace ('<br/>', '\n')
 		ftext.clean()
+		ftext.shape()
 		ftext.toFile()
 
 	def fromFilePersoName (self, fileName):
