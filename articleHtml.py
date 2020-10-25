@@ -57,8 +57,7 @@ class ArticleHtml (FileHtml, Article):
 		elif 'https://www.deviantart.com/' in url:			self.deviantart()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel (subject)
-		elif 'https://www.reddit.com/r/' in url:
-			self.reddit()
+		elif 'https://www.reddit.com/r/' in url: self.reddit()
 		else:
 			self.cleanWeb()
 			toText = False
@@ -74,15 +73,18 @@ class ArticleHtml (FileHtml, Article):
 		self.fromFile()
 		self.clean()
 		self.cleanWeb()
+		toText = True
 		if 'gtb'		in self.file: self.gutemberg (subject)
 		elif 'egb'		in self.file: self.egb (subject)
 		elif 'aooo'		in self.file: self.aoooFromSource (subject)
 		elif 'ffnet'	in self.file: self.ffnet (subject)
 		elif 'medium'	in self.file: self.medium (subject)
 		elif 'adapt'	in self.file: self.adapt()
+		# else: toText = False
 		self.metas ={}
 		self.styles =[]
-		self.toFileText()
+		if toText: self.toFileText()
+		else: self.toFile()
 
 	def findSubject (self, subject=None):
 		storyData = self.title.lower() +'\t'+ self.subject.lower() +'\t'+ self.author.lower()

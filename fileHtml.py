@@ -176,7 +176,9 @@ class FileHtml (FilePerso):
 	def toFilePerso (self):
 		# fileHtml a été cré avec textToHtml
 		# récupérer le texte
-		if not self.text: self.fromFile()
+		if not self.text:
+			self.fromFile()
+			self.dataFromFile()
 		self.clean()
 		ftext = FilePerso()
 		ftext.copyFile (self)
@@ -240,7 +242,6 @@ class FileHtml (FilePerso):
 		ftext.toFile()
 
 	def fromFilePersoName (self, fileName):
-	#	ftext = FilePerso (fileName)
 		ftext = FilePerso (fileName)
 		self.fromFilePerso (ftext)
 
@@ -602,6 +603,7 @@ if __name__ != '__main__': pass
 # mettre des majuscules dans un text
 elif len (argv) >=2:
 	fhtml = FileHtml()
-	fhtml.fromFilePersoName (argv[1])
+	fhtml.file = argv[1]
+	fhtml.toFilePerso()
 # le nom du fichier n'a pas ete donne
 else: print (help)
