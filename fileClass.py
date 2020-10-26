@@ -16,7 +16,10 @@ les valeurs de tag
 	cpr: comparer deux fichiers ligne à ligne
 	md: transformer mon fichier en md
 """
-extensions = 'txt html xml svg md tsv csv json js py sql jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
+extensions = 'txt css html xml svg md tsv csv json js py sql jpeg jpg png bmp gif pdf mp3 mp4 waw vlc'
+
+def createFolder (folder):
+	if not os.path.exists (folder): os.mkdir (folder)
 
 def encodingList():
 	import encodings
@@ -42,6 +45,7 @@ class FilePerso (Text):
 		self.title = newFile.title
 		self.text = newFile.text
 		self.path = newFile.path
+		self.extension = newFile.extension
 
 	def __str__ (self):
 		strShow = 'Titre: %s\tDossier: %s' %( self.title, self.path)

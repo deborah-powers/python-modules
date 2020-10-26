@@ -1,0 +1,160 @@
+#!/usr/bin/python3.6
+# -*- coding: utf-8 -*-
+import os
+from sys import argv
+from fileLocal import *
+import fileClass as fc
+
+# les fichiers modèles
+filesModels =[
+	's/library-js/text.js', 's/library-css/structure.css', 's/library-css/color.css',
+	's/library-js/debby-play/debbyPlay.css', 's/library-js/debby-play/debbyPlay.js'
+]
+
+""" créer l'architecture d'une pwa perso """
+fc.extensions = fc.extensions +' webmanifest'
+folder = shortcut ('b/')
+name = argv[1]
+desc = argv[2]
+
+# les dossiers
+folder = folder + name +'/'
+fc.createFolder (folder)
+fc.createFolder (folder + 'utils')
+
+def createFile (self, title, extension, text):
+	self.title = title
+	self.extension = extension
+	self.fileFromData()
+	self.text = text
+	self.toFile()
+
+setattr (fc.FilePerso, 'createFilePwa', createFile)
+
+# les fichiers communs
+fileTmp = fc.FilePerso (folder + 'manifest.webmanifest')
+fileTmp.text = """{
+	"name": "%s",
+	"short_name": "%s",
+	"description": "%s",
+	"icons": [
+		{	"src": "utils/icone-192.png", "sizes": "192x192", "type": "image/png"	},
+		{	"src": "utils/icone-512.png", "sizes": "512x512", "type": "image/png"	}
+	],
+	"version": "1",
+	"lang": "fr",
+	"start_url": "/%s/index.html",
+	"display": "standalone",
+	"background_color": "ivory",
+	"theme_color": "ivory"
+}""" % (name, name, desc, name)
+fileTmp.toFile()
+
+text = """<!doctype html><html><head>
+	<title>%s</title>
+	<meta name='viewport' content='width=device-width,initial-scale=1'/>
+	<meta charset='utf-8'/>
+	<base target='_blank'>
+	<link rel='manifest' href='manifest.webmanifest'/>
+	<link rel='icon' type='image/png' href='utils/icone-192.png'/>
+	<link rel='apple-touch-icon' type='image/png' href='utils/icone-192.png'/>
+	<meta name='msapplication-TileImage' content='utils/icone-192.png'>
+	<meta name='theme-color' content='ivory'/>
+	<meta name='msapplication-TileColor' content='ivory'>
+	<meta name='apple-mobile-web-app-capable' content='yes'>
+	<meta name='apple-mobile-web-app-status-bar-style' content='black'>
+	<meta name='apple-mobile-web-app-title' content='%s'>
+	<link rel='stylesheet' type='text/css' href='utils/structure.css'/>
+	<link rel='stylesheet' type='text/css' href='utils/debbyPlay.css'/>
+	<link rel='stylesheet' type='text/css' href='utils/color.css' media='screen'/>
+	<script type='text/javascript' src='utils/text.js'></script>
+	<script type='text/javascript' src='utils/debbyPlay.js'></script>
+<style type='text/css'></style></head><body>
+	<h1>mon appli</h1>
+	<button id='install-pwa'>installer l'application</button>
+	<p id='worker-state'>service-worker en chargement.</p>
+	<script type='text/javascript' src='service-launcher.js'></script>
+</body></html>""" %( name, name)
+fileTmp.createFilePwa ('index', 'html', text)
+
+
+text = """// vérifier si le service-worker est installable
+window.onload = function(){
+	'use strict';
+	var responseMessage = 'votre navigateur ne supporte pas de service-worker';
+	if ('serviceWorker' in navigator){
+		navigator.serviceWorker.register ('./service-worker.js');
+		responseMessage = 'votre navigateur supporte le service-worker';
+	}
+	showResponse (responseMessage);
+}
+// rendre mon application installable
+var buttonInstall = document.getElementById ('install-pwa');
+var deferredPrompt;
+window.addEventListener ('beforeinstallprompt', function (event){
+	// empêcher l'affichage de la popup d'installation
+	event.preventDefault();
+	deferredPrompt = event;
+	// indiquer que l'appli est installable
+	buttonInstall.innerHTML = 'installez-moi';
+	showResponse ("vous pouvez installer l'appli");
+});
+buttonInstall.addEventListener ('click', function(){
+	if (! deferredPrompt) showResponse ("l'application est déjà installée");
+	else{
+		deferredPrompt.prompt();
+		deferredPrompt.userChoice.then (function (choiceResult){
+			if (choiceResult.outcome === 'accepted') responseMessage = "l'application s'installe";
+			else responseMessage = "l'application n'est pas installée";
+			showResponse (responseMessage);
+});}});
+// vérifier si l'appli est installée
+window.addEventListener ('appinstalled', function (event){ showResponse ("l'application est installée"); });
+"""
+fileTmp.createFilePwa ('service-launcher', 'js', text)
+
+text = """// gérer le cache
+const cacheName = 'pwa-base';
+const filesToCache =[
+	'/pwa-base/',
+	'/pwa-base/index.html',
+	'/pwa-base/utils/structure.css',
+	'/pwa-base/utils/color.css',
+	'/pwa-base/utils/debbyPlay.css',
+	'/pwa-base/utils/debbyPlay.js',
+	'/pwa-base/utils/text.js',
+	'/pwa-base/service-launcher.js'
+];
+// mettre en cache le contenu de l'app
+self.addEventListener ('install', function (event){
+	event.waitUntil (caches.open (cacheName).then (function (cache){
+		return cache.addAll (filesToCache);
+}));});
+// rendre le contenu de l'app hors-ligne
+self.addEventListener ('fetch', function (event){
+	event.respondWith (
+	caches.match (event.request).then (function (response){
+		return response || fetch (event.request);
+}));});
+"""
+text = text.replace ('pwa-base', name)
+fileTmp.createFilePwa ('service-worker', 'js', text)
+
+# les fichiers de style
+fileMdl = fc.FilePerso()
+for modelName in filesModels:
+	fileMdl.file = modelName
+	fileMdl.dataFromFile()
+	fileMdl.fromFile()
+	fileTmp.copyFile (fileMdl)
+	fileTmp.path = folder + 'utils/'
+	fileTmp.fileFromData()
+	fileTmp.toFile()
+
+
+
+
+
+
+
+

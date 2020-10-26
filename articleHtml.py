@@ -209,17 +209,17 @@ class ArticleHtml (FileHtml, Article):
 		f= self.index ('Release', d) -1
 		self.author = self.text[d:f]
 		# le sujet est impossible à trouver
-		self.indexSubject (subject)
+		self.findSubject (subject)
 		# le texte
 		d= self.index ('<h1>')
 		f= self.text.rfind ('</p>') +4
 		self.text = self.text[d:f]
 		# cas spécifiques
-		if (self.inText ('<p>CONTENTS</p>')):
+		if (self.contain ('<p>CONTENTS</p>')):
 			d= self.index ('<p>CONTENTS</p>')
 			d= self.index ('<hr>', d)
 			self.text = self.text[d:]
-		if (self.inText ('<h2>Footnotes:</h2>')):
+		if (self.contain ('<h2>Footnotes:</h2>')):
 			f= self.index ('<h2>Footnotes:</h2>')
 			self.text = self.text[:f]
 		for tag in listTags: self.text = self.text.replace ('<'+tag+'></'+tag+'>', "")
@@ -229,32 +229,24 @@ class ArticleHtml (FileHtml, Article):
 
 	def ebg (self, subject=None):
 		self.delImgLink()
-		# le titre
-		d= self.index ('<p>', 10) +3
-		f= self.index ('</p>', d)
-		self.author = self.text[d:f]
 		# l'auteur
-		d= self.index ('<p>', f) +3
+		d= self.index ('<p class=Auteur>') +16
 		f= self.index ('</p>', d)
-		self.title = self.text[d:f]
-		# le sujet
-		self.indexSubject (subject)
+		self.author = self.text[d:f].lower()
+		print (self.author)
+		# le titre
+		d= self.index ('<title>') +7
+		f= self.index ('</title>', d)
+		self.title = self.text[d:f].lower()
 		# le texte
-		d=f
-		f= self.text.rfind ('<h1>')
-		if self.inText ('propos de cette édition électronique'):
-			d2= self.index ('propos de cette édition électronique')
-			if d2<f: d=d2
-		elif self.count ('<h1>') >1:
-			d2= self.index ('<h1>')
-			if d2<f: d=d2
-		d= self.index ('<p>', d)
-		self.text = self.text[d:f]
-		self.metas ={}
-		self.toFile()
+		self.cleanWeb()
+		f= self.index ('<h1>À propos de cette édition électronique</h1>')
+		self.text = self.text[:f]
+		# le sujet
+		self.findSubject (subject)
 
 	def deviantart (self, subject=None):
-		self.indexSubject (subject)
+		self.findSubject (subject)
 		self.text = self.text.replace ('<br/>', '</p><p>')
 		self.delScript()
 		self.cleanWeb()
