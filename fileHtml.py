@@ -252,6 +252,7 @@ class FileHtml (FilePerso):
 		ftext.shape()
 		ftext.toHtml()
 		self.copyFile (ftext)
+		self.extension = 'html'
 		self.toFile()
 
 	""" ________________________ texte du web ________________________ """
@@ -604,7 +605,6 @@ if __name__ != '__main__': pass
 # mettre des majuscules dans un text
 elif len (argv) >=2:
 	fhtml = FileHtml()
-	fhtml.file = argv[1]
-	fhtml.toFilePerso()
+	fhtml.fromFilePersoName (argv[1])
 # le nom du fichier n'a pas ete donne
 else: print (help)

@@ -193,7 +193,6 @@ modelText ="""Sujet:	%s
 Auteur:	%s
 Lien:	%s
 Laut:	%s
-
 %s"""
 
 class Article (FilePerso):
@@ -215,6 +214,7 @@ class Article (FilePerso):
 	def fromFile (self):
 		FilePerso.fromFile (self)
 		metadata = self.fromModel (modelText)
+		print (len (metadata))
 		self.subject = metadata[0]
 		self.author = metadata[1]
 		self.link = metadata[2]
