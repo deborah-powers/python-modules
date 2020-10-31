@@ -46,6 +46,20 @@ class ArticleHtml (FileHtml, Article):
 %s""" %( self.subject, self.author, self.link, self.autlink, self.text)
 		self.toFilePerso()
 
+	def fromFileTextName (self, fileName):
+		ftext = Article (fileName)
+		self.fromFileText (ftext)
+
+	def fromFileText (self, ftext):
+		# file est un fichier txt utilisant ma mise en forme
+		if not ftext.text: ftext.fromFile()
+		ftext.shape()
+		ftext.toHtml()
+		Article.copyFile (self, ftext)
+		print (self)
+		self.extension = 'html'
+		self.toFile()
+
 	""" ________________________ récupérer et nettoyer les fichiers ________________________ """
 
 	def fromWeb (self, url, subject=None):
@@ -439,6 +453,7 @@ elif len (argv) >=2:
 	if len (argv) >=3: subject = argv[2]
 	page = ArticleHtml()
 	if url[:4] == 'http': page.fromWeb (url, subject)
-	else: page.fromLocal (url, subject)
+	elif url[-5:] == '.html': page.fromLocal (url, subject)
+	elif url[-4:] == '.txt': page.fromFileTextName (url)
 # le nom du file n'a pas ete donne
 else: print (help)
