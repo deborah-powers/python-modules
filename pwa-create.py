@@ -2,20 +2,26 @@
 # -*- coding: utf-8 -*-
 import os
 from sys import argv
+from shutil import copyfile
 from fileLocal import *
 import fileClass as fc
 
 # les fichiers modèles
-filesModels =[
+filesModels =(
 	's/library-js/text.js', 's/library-css/structure.css', 's/library-css/color.css',
-	's/library-js/debby-play/debbyPlay.css', 's/library-js/debby-play/debbyPlay.js'
-]
+	's/library-css/debbyPlay.css', 's/library-js/debbyPlay.js'
+)
+iconsNb =( '144', '192', '512')
 
 """ créer l'architecture d'une pwa perso """
 fc.extensions = fc.extensions +' webmanifest'
-folder = shortcut ('b/')
+folder = shortcut ('s/')
 name = argv[1]
 desc = argv[2]
+subFolder =""
+if len (argv) >3:
+	subFolder = argv[3] +'/'
+	folder = folder + argv[3] +'/'
 
 # les dossiers
 folder = folder + name +'/'
@@ -47,7 +53,7 @@ fileTmp.text = """{
 	"display": "standalone",
 	"background_color": "ivory",
 	"theme_color": "ivory"
-}""" % (name, name, desc, name)
+}""" % (name, name, desc, subFolder + name)
 fileTmp.toFile()
 
 text = """<!doctype html><html><head>
@@ -71,8 +77,6 @@ text = """<!doctype html><html><head>
 	<script type='text/javascript' src='utils/debbyPlay.js'></script>
 <style type='text/css'></style></head><body>
 	<h1>mon appli</h1>
-	<button id='install-pwa'>installer l'application</button>
-	<p id='worker-state'>service-worker en chargement.</p>
 	<script type='text/javascript' src='service-launcher.js'></script>
 </body></html>""" %( name, name)
 fileTmp.createFilePwa ('index', 'html', text)
@@ -116,7 +120,6 @@ fileTmp.createFilePwa ('service-launcher', 'js', text)
 text = """// gérer le cache
 const cacheName = 'pwa-base';
 const filesToCache =[
-	'/pwa-base/',
 	'/pwa-base/index.html',
 	'/pwa-base/utils/structure.css',
 	'/pwa-base/utils/color.css',
@@ -137,24 +140,22 @@ self.addEventListener ('fetch', function (event){
 		return response || fetch (event.request);
 }));});
 """
-text = text.replace ('pwa-base', name)
+text = text.replace ('pwa-base', subFolder + name)
 fileTmp.createFilePwa ('service-worker', 'js', text)
 
 # les fichiers de style
+folder = folder + 'utils/'
+
 fileMdl = fc.FilePerso()
 for modelName in filesModels:
 	fileMdl.file = modelName
 	fileMdl.dataFromFile()
 	fileMdl.fromFile()
 	fileTmp.copyFile (fileMdl)
-	fileTmp.path = folder + 'utils/'
+	fileTmp.path = folder
 	fileTmp.fileFromData()
 	fileTmp.toFile()
 
-
-
-
-
-
-
-
+iconPathSrc = shortcut ('s/data/icone-%s.png')
+iconPathDst = folder + 'icone-%s.png'
+for nb in iconsNb: copyfile (iconPathSrc %nb, iconPathDst %nb)

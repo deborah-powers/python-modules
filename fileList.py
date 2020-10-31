@@ -73,7 +73,7 @@ class FileList (ListPerso):
 		""" remplacer un motif dans le texte """
 		for file in self:
 			file.fromFile()
-			file.text = file.text.replace (wordOld, wordNew)
+			file.replace (wordOld, wordNew)
 			file.toFile()
 
 	def modify (self, funcText):

@@ -95,7 +95,7 @@ class FilePerso (Text):
 		for encoding in encodingList:
 			try: self.text = codecs.decode (tmpByte, encoding=encoding)
 			except UnicodeDecodeError: pass
-			else: print (encoding); break
+			else: break
 		"""
 			else: print (encoding); break;
 		self.text = codecs.decode (tmpByte, encoding='utf-8')
