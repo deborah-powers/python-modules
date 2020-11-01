@@ -32,6 +32,9 @@ class ArticleHtml (FileHtml, Article):
 		FileHtml.toFile (self)
 
 	def toFileText (self):
+		if not self.text:
+			self.dataFromFile()
+			self.fromFile()
 		self.author = self.author.lower()
 		self.subject = self.subject.lower()
 		self.title = self.title.lower()
@@ -453,6 +456,9 @@ elif len (argv) >=2:
 	if len (argv) >=3: subject = argv[2]
 	page = ArticleHtml()
 	if url[:4] == 'http': page.fromWeb (url, subject)
+	elif subject == 'toText':
+		page.file = url
+		page.toFileText()
 	elif url[-5:] == '.html': page.fromLocal (url, subject)
 	elif url[-4:] == '.txt': page.fromFileTextName (url)
 # le nom du file n'a pas ete donne

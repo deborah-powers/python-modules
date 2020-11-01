@@ -7,13 +7,11 @@ from fileLocal import *
 import fileClass as fc
 
 # les fichiers modèles
-filesModels =(
-	's/library-js/text.js', 's/library-css/structure.css', 's/library-css/color.css',
-	's/library-css/debbyPlay.css', 's/library-js/debbyPlay.js'
-)
+filesScript = ('text', 'debbyPlay')
+filesStyles = ('structure', 'color', 'debbyPlay')
 iconsNb =( '144', '192', '512')
 
-""" créer l'architecture d'une pwa perso """
+# créer l'architecture d'une pwa perso
 fc.extensions = fc.extensions +' webmanifest'
 folder = shortcut ('s/')
 name = argv[1]
@@ -52,7 +50,7 @@ fileTmp.text = """{
 	"start_url": "/%s/index.html",
 	"display": "standalone",
 	"background_color": "ivory",
-	"theme_color": "ivory"
+	"theme_color": "#C29FC2"
 }""" % (name, name, desc, subFolder + name)
 fileTmp.toFile()
 
@@ -77,44 +75,41 @@ text = """<!doctype html><html><head>
 	<script type='text/javascript' src='utils/debbyPlay.js'></script>
 <style type='text/css'></style></head><body>
 	<h1>mon appli</h1>
+	<button id='install-pwa'>installer l'application</button>
 	<script type='text/javascript' src='service-launcher.js'></script>
 </body></html>""" %( name, name)
 fileTmp.createFilePwa ('index', 'html', text)
 
 
-text = """// vérifier si le service-worker est installable
+text = """const messageAppInstalled = "app installée";
+// vérifier si le service-worker est installable
 window.onload = function(){
 	'use strict';
-	var responseMessage = 'votre navigateur ne supporte pas de service-worker';
-	if ('serviceWorker' in navigator){
-		navigator.serviceWorker.register ('./service-worker.js');
-		responseMessage = 'votre navigateur supporte le service-worker';
-	}
-	showResponse (responseMessage);
+	if ('serviceWorker' in navigator) navigator.serviceWorker.register ('./service-worker.js');
 }
 // rendre mon application installable
-var buttonInstall = document.getElementById ('install-pwa');
+var installButton = document.getElementById ('install-pwa');
 var deferredPrompt;
 window.addEventListener ('beforeinstallprompt', function (event){
 	// empêcher l'affichage de la popup d'installation
 	event.preventDefault();
 	deferredPrompt = event;
-	// indiquer que l'appli est installable
-	buttonInstall.innerHTML = 'installez-moi';
-	showResponse ("vous pouvez installer l'appli");
+	if (! deferredPrompt) installButton.innerHTML = messageAppInstalled;
+	else installButton.innerHTML = "installez l'application";
 });
-buttonInstall.addEventListener ('click', function(){
-	if (! deferredPrompt) showResponse ("l'application est déjà installée");
+installButton.addEventListener ('click', function(){
+	if (! deferredPrompt) installButton.innerHTML = messageAppInstalled;
 	else{
 		deferredPrompt.prompt();
 		deferredPrompt.userChoice.then (function (choiceResult){
-			if (choiceResult.outcome === 'accepted') responseMessage = "l'application s'installe";
-			else responseMessage = "l'application n'est pas installée";
-			showResponse (responseMessage);
+			if (choiceResult.outcome === 'accepted') installButton.innerHTML = messageAppInstalled;
+			else installButton.innerHTML = 'installation ratée';
 });}});
 // vérifier si l'appli est installée
-window.addEventListener ('appinstalled', function (event){ showResponse ("l'application est installée"); });
-"""
+window.addEventListener ('appinstalled', function (event){
+	var installButton = document.getElementById ('install-pwa');
+	installButton.innerHTML = messageAppInstalled;
+});"""
 fileTmp.createFilePwa ('service-launcher', 'js', text)
 
 text = """// gérer le cache
@@ -146,16 +141,14 @@ fileTmp.createFilePwa ('service-worker', 'js', text)
 # les fichiers de style
 folder = folder + 'utils/'
 
-fileMdl = fc.FilePerso()
-for modelName in filesModels:
-	fileMdl.file = modelName
-	fileMdl.dataFromFile()
-	fileMdl.fromFile()
-	fileTmp.copyFile (fileMdl)
-	fileTmp.path = folder
-	fileTmp.fileFromData()
-	fileTmp.toFile()
+filePathSrc = shortcut ('s/library-css/%s.css')
+filePathDst = folder + '%s.css'
+for nb in filesStyles: copyfile (filePathSrc %nb, filePathDst %nb)
 
-iconPathSrc = shortcut ('s/data/icone-%s.png')
-iconPathDst = folder + 'icone-%s.png'
-for nb in iconsNb: copyfile (iconPathSrc %nb, iconPathDst %nb)
+filePathSrc = shortcut ('s/library-js/%s.js')
+filePathDst = folder + '%s.js'
+for nb in filesScript: copyfile (filePathSrc %nb, filePathDst %nb)
+
+filePathSrc = shortcut ('s/data/icone-%s.png')
+filePathDst = folder + 'icone-%s.png'
+for nb in iconsNb: copyfile (filePathSrc %nb, filePathDst %nb)
