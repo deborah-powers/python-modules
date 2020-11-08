@@ -12,7 +12,7 @@ pointsShape =( '\n\t- ', '______ ', '\n------ ' )
 artefacts =(
 	('> ','>'), ('Deborah.powers', 'deborah.powers'), ('Http','http'), ('\n ','\n'), (' \n','\n'),
 	(' ______\n', ' ______\n\n'), ('\n______ ', '\n\n______ '),
- 	('\n______\n\n______ ', '\n\n______\n______ '),
+ 	('\n______\n\n______ ', '\n\n________________________\n______ '),
 	('------ ', '\n------ '), (' ------', ' ------\n'), ('\n\n\n', '\n\n')
 )
 # 	('\n______\n\n______ ', '\n\n________________________\n______ '),
@@ -90,10 +90,12 @@ class Text():
 		self.text = '\n'+ self.text +'\n'
 		# rajouter les majuscules apres chaque point
 		self.upperCase()
+		self.text = '\n\n'+ self.text
 		for p in pointsShape:
 			for i,j in accents: self.replace (p+i, p+j)
 		for i,j in artefacts: self.replace (i,j)
 		self.strip()
+		self.replace ('______\n\n______ ', '______\n______ ')
 
 	def toMd (self):
 		self.shape()

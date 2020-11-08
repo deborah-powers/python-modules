@@ -452,7 +452,6 @@ class FileHtml (FilePerso):
 		self.fromFile()
 		print (self)
 
-
 balises =( (' ______\n', '</h2>\n'), ('\n______\n______ ', '\n<h1>'), ('\n______ ', '\n<h2>'), ('\n------ ', '\n<h3>'), (' ------\n', '</h3>\n'), ('\n______\n', '\n<hr>\n'), ('\nImg\t', "\n<img src='") )
 
 def fileToHtml (self):
@@ -480,12 +479,12 @@ def fileToHtml (self):
 		paragraphList = self.text.split ('figure>')
 		lc= range (1, len (paragraphList), 2)
 		for i in lc:
-	#		nettoyer le texte pour faciliter sa transformation
+			# nettoyer le texte pour faciliter sa transformation
 			paragraphList[i] = paragraphList[i].strip ('\n')
 			paragraphList[i] = paragraphList[i].split ('\n')
 			paragraphRange = range (len (paragraphList[i]) -1)
 			for j in paragraphRange:
-	#			les images ont deja ete modifiees precedement
+				# les images ont deja ete modifiees precedement
 				if paragraphList[i][j][:4] != '<img':
 					paragraphList[i][j] = '<figcaption>' + paragraphList[i][j] + '</figcaption>'
 			paragraphList[i] = "".join (paragraphList[i])
@@ -516,14 +515,14 @@ def fileToHtml (self):
 	#	rajouter les balises ouvrantes et fermantes delimitant la liste, <ul/>. reperer les listes imbriquees.
 		for l in lc:
 			if '<li>' in paragraphList[l]:
-	#			compter le niveau d'imbrication (n) de l'element paragraphList[l]
+				# compter le niveau d'imbrication (n) de l'element paragraphList[l]
 				n=0
 				while '<li>'+n*'\t' in paragraphList[l]: n+=1
 				n-=1
 				if '<li>'+n*'\t' in paragraphList[l]:
-	#				debut de la liste (ou sous-liste), mettre le <ul>
+					# debut de la liste (ou sous-liste), mettre le <ul>
 					if '<li>'+n*'\t' not in paragraphList[l-1]: paragraphList[l] = '<ul>'+ paragraphList[l]
-	#				fin de la liste (ou sous-liste), mettre le </ul>
+					# fin de la liste (ou sous-liste), mettre le </ul>
 					if '<li>'+n*'\t' not in paragraphList[l+1]:
 						while n >-1:
 							if '<li>'+n*'\t' not in paragraphList[l+1]: paragraphList[l] = paragraphList[l] + '</ul>'
@@ -539,26 +538,34 @@ def fileToHtml (self):
 		len_chn = len (paragraphList)
 		d=-1 ; c=-1 ; i=0
 		while i< len_chn:
-	#		rechercher une table
+			# rechercher une table
 			d=-1 ; c=-1
 			if d==-1 and c==-1 and '\t' in paragraphList[i]:
 				c= paragraphList[i].count ('\t')
 				d=i ; i+=1
 			while i< len_chn and paragraphList[i].count ('\t') ==c: i+=1
 			c=i-d
-	#		une table a ete trouve
+			# une table a ete trouve
 			if c>1 and d>0:
 				rtable = range (d,i)
 				for j in rtable:
-	#				entre les cases
+					# entre les cases
 					paragraphList[j] = paragraphList[j].replace ('\t', '</td><td>')
-	#				bordure des cases
+					# bordure des cases
 					paragraphList[j] = '<tr><td>' + paragraphList[j] +'</td></tr>'
-	#			les limites de la table
+				# les limites de la table
 				paragraphList[d] = '<table>\n' + paragraphList[d]
 				paragraphList[i-1] = paragraphList[i-1] +'\n</table>'
 			i+=1
 		self.text = '\n'.join (paragraphList)
+		# les titres de colonnes ou de lignes
+		if self.contain (':</td>'):
+			paragraphList = self.split (':</td>')
+			paragraphRange = range (len (paragraphList) -1)
+			for p in paragraphRange:
+				d= paragraphList[p].rfind ('<td>')
+				paragraphList[p] = paragraphList[p][:d] +'<th>'+ paragraphList[p][d+4:]
+			self.text = '</th>'.join (paragraphList)
 
 	# transformer les p contenant un lien en a
 	endingChars = '< ;,!?\\\t\n'
