@@ -18,10 +18,10 @@ templateJson ="""{
 	"numInt": %s,
 	"modules": ["%s"],
 	"date": "%s",
-	"type": "%s",
+	"type": "%s"
 },
 "infos": [],
-"solution": []
+"solution": ""
 }"""
 
 templateSmall = """message		%s
