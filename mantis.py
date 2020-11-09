@@ -11,6 +11,18 @@ python mantis.py cdm 29700 message (type / numint)
 type vaut evo, ddt, ano
 si un numéro de mantis interne est précisé à la place, le type est automatiquement fixé à ano.
 """
+templateJson ="""{
+"head": {
+	"message": "%s",
+	"numExt": %s,
+	"numInt": %s,
+	"modules": ["%s"],
+	"date": "%s",
+	"type": "%s",
+},
+"infos": [],
+"solution": []
+}"""
 
 templateSmall = """message		%s
 num ext		%s
@@ -80,9 +92,19 @@ class Mantis (FilePerso):
 		print (self)
 
 	def createFile (self):
+		self.createFileText()
+		self.createFileJson()
+
+	def createFileText (self):
 		self.file = 'b/mantis '+ self.numero + '.txt'
 		self.dataFromFile()
 		self.text = template %( self.message, self.numero, self.numint, self.module, self.type, self.date.toStrDay(), self.date.toStrDay(), self.date.toStrDay())
+		self.toFile()
+
+	def createFileJson (self):
+		self.file = 'b/mantis '+ self.numero + '.json'
+		self.dataFromFile()
+		self.text = templateJson %( self.message, self.numero, self.numint, self.module.replace (' ', '", "'), self.date.toStrDay(), self.type)
 		self.toFile()
 
 	def __lt__(self, newMantis):
