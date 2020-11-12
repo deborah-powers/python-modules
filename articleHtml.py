@@ -77,12 +77,16 @@ class ArticleHtml (FileHtml, Article):
 		elif 'https://www.deviantart.com/' in url:			self.deviantart()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel (subject)
-		elif 'https://www.reddit.com/r/' in url: self.reddit()
+		elif 'https://www.reddit.com/r/' in url:
+			self.reddit()
+			toText = False
+		elif 'https://www.therealfemaledatingstrategy.com/' in url:
+			self.fds()
+			toText = False
 		else:
 			self.cleanWeb()
 			toText = False
 		self.metas ={}
-		self.cleanPunctuation()
 		self.replace (' <', '<')
 		self.replace ('><', '>\n<')
 		if toText: self.toFileText()
@@ -165,25 +169,32 @@ class ArticleHtml (FileHtml, Article):
 	""" ________________________ récupérer les articles des sites ________________________ """
 
 	def reddit (self):
-		self.subject = 'opinion'
+		if 'FemaleDatingStrategy' in self.link:
+			self.subject = 'feminisme'
+			self.title = 'fds '+ self.title
+		else: self.subject = 'opinion'
 		self.cleanWeb()
 		d= self.index ('<h1>')
+		d= self.index ('<p>',d)
 		f= self.index ('<div>Reddit Inc')
 		self.text = self.text[d:f]
 		self.replace ('<div>')
 		self.replace ('</div>')
-		"""
-		if self.contain ('Sister Communities'):
-			f= self.index ('Sister Communities')
-			self.text = self.text[:f]
-		"""
+		# auteur
 		f= self.link.find ('/',26)
 		self.autlink = self.link[:f]
 		self.author = self.autlink[25:]
 		self.title = self.title.replace ('#',' ')
-		d= self.index ('<h2>')
-		d= self.index ('<h2>', d+1)
-		self.text = self.text[d:]
+		# finir le texte
+		self.replace ('<li><p>', '<li>')
+		self.replace ('</p></li>', '</li>')
+		f= self.rindex ('<hr>Created')
+		self.text = self.text[:f]
+		# zapper les commentaires
+		f= self.index ('<button>share</button>')
+		self.text = self.text[:f]
+		f= self.rindex ('</p>') +4
+		self.text = self.text[:f]
 
 
 	def unisciel (self, subject):
@@ -446,6 +457,21 @@ class ArticleHtml (FileHtml, Article):
 		f= self.text[:f].rfind ('<a')
 		f= self.text[:f].rfind ('>') +1
 		self.text = self.text[:f]
+
+	def fds (self):
+		self.subject = 'feminisme'
+		self.title = 'fds '+ findTextBetweenTag (self.text, 'title').lower()
+		d= self.index ('article:author')
+		d= self.index ('content=', d) +9
+		f= self.index ("'", d)
+		self.author = self.text[d:f]
+		self.text = findTextBetweenTag (self.text, 'article')
+		self.cleanWeb()
+		d= self.index ('<img')
+		d= self.index ('<p>')
+		self.text = self.text[d:]
+		self.replace ('<div>')
+		self.replace ('</div>')
 
 # on appele ce script dans un autre script
 if __name__ != '__main__': pass

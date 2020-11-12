@@ -5,8 +5,8 @@ from listClass import ListPerso
 from fileList import FileList
 from fileClass import FilePerso
 
-fileNameA = 'b/html\\utils\\color.css'
-fileNameB = 'b/html\\library-perso\\color.css'
+fileNameA = 'b/python/textClass.py'
+fileNameB = 'b/python b/textClass.py'
 
 fpA = FilePerso (fileNameA)
 fpB = FilePerso (fileNameB)
