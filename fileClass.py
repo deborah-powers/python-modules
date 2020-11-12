@@ -163,7 +163,18 @@ class FilePerso (Text):
 	#	elif method == 'score': textFinal = Text.comparScore (self, otherFile)
 		else: textFinal = Text.comparLines (self, otherFile, False, False)
 		if textFinal != 'pareil' and textFinal != 'different':
-			fileFinal = FilePerso ('b/compare %s - %s.txt' % (self.title, otherFile.title))
+			titleFinal = 'compare '
+			if self.title == otherFile.title: titleFinal = titleFinal + self.title
+			else:
+				lenA = len (self.title)
+				lenB = len (otherFile.title)
+				t=0
+				while t< lenA and t< lenB:
+					if self.title[t] == otherFile[t]: titleFinal = titleFinal + self.title[t]
+					else: t= lenA +10
+					t+=1
+				if len (titleFinal) <12: titleFinal = 'compare '+ self.title +' - '+ otherFile.title
+			fileFinal = FilePerso ('b/'+ titleFinal +'.txt')
 			fileFinal.dataFromFile()
 			print ('voir', fileFinal.title)
 			fileFinal.text = textFinal
