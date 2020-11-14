@@ -306,6 +306,33 @@ class FileHtml (FilePerso):
 		self.replace ('><', '>\n<')
 		self.clean()
 
+	def cleanLink (self):
+		if not self.contain ('</a>'): return
+		listText = self.split ('</a>')
+		rangeTxt = range (len (listText) -1)
+		for l in rangeTxt:
+			listText[l] = listText[l].strip ('/')
+			d= listText[l].rfind ('<a')
+			d= listText[l].rfind ('>', d) +1
+			title = listText[l][d:]
+			title = title.replace (' / ', ' $ ')
+			title = title.replace (' /', ' $')
+			title = title.replace ('/ ', '$ ')
+			title = title.replace ('. ', '% ')
+			if '/' in title:
+				e= title.rfind ('/') +1
+				title = title[e:]
+			if '.' in title:
+				e= title.rfind ('.')
+				title = title[:e]
+			title = title.replace ('%', '.')
+			title = title.replace ('$', '/')
+			title = title.replace ('-', ' ')
+			title = title.replace ('_', ' ')
+			while '  ' in title: title = title.replace ('  ', ' ')
+			listText[l] = listText[l][:d] + title
+		self.text = '</a>'.join (listText)
+
 	def cleanTags (self):
 		# supprimer les attributs inutiles
 		self.replace ('<br/>', '<br>')

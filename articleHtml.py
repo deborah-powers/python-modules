@@ -174,6 +174,7 @@ class ArticleHtml (FileHtml, Article):
 			self.title = 'fds '+ self.title
 		else: self.subject = 'opinion'
 		self.cleanWeb()
+		self.cleanLink()
 		d= self.index ('<h1>')
 		d= self.index ('<p>',d)
 		f= self.index ('<div>Reddit Inc')
