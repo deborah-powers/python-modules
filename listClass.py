@@ -32,12 +32,12 @@ class ListPerso():
 
 	def range (self, start=0, end=0, step=1):
 		# end peut valoir -1
-		lenList = self.length()
+		lenList = self.len()
 		if end <=0: end += lenList
 		elif end > lenList: end = lenList
-		newList = ListPerso()
+		newList =[]
 		while start <end:
-			newList.add (start)
+			newList.append (start)
 			start += step
 		return newList
 
@@ -60,9 +60,9 @@ class ListPerso():
 
 	def add (self, value, pos=-1):
 		if pos ==-1: self.list.append (value)
-		elif pos > self.length(): pass
+		elif pos > self.len(): pass
 		elif pos <0:
-			pos += self.length()
+			pos += self.len()
 			self.list.insert (pos, value)
 		else: self.list.insert (pos, value)
 
@@ -91,31 +91,31 @@ class ListPerso():
 		return self.__str__() < newList.__str__()
 
 	def __setitem__ (self, pos, value):
-		if pos <0: pos += self.length()
-		if pos >0 and pos < self.length(): self.list[pos] = value
-		elif pos >= self.length(): self.add (value)
+		if pos <0: pos += self.len()
+		if pos >0 and pos < self.len(): self.list[pos] = value
+		elif pos >= self.len(): self.add (value)
 
 	def __getitem__ (self, pos):
 		if type (pos) == int:
-			if pos <0: pos += self.length()
-			if pos > self.length() or pos <0: return None
+			if pos <0: pos += self.len()
+			if pos > self.len() or pos <0: return None
 			else: return self.list[pos]
 		else: return None
 
 	def __getitem__vb (self, pos):
 		if type (pos) == int:
-			if pos <0: pos += self.length()
-			if pos > self.length() or pos <0: return None
+			if pos <0: pos += self.len()
+			if pos > self.len() or pos <0: return None
 			else: return self.list[pos]
 		elif type (pos) == slice:
-			posIndex = pos.indices (self.length())
+			posIndex = pos.indices (self.len())
 			rangeList = self.range (posIndex[0], posIndex[1], posIndex[2])
 			newList = ListPerso()
 			for l in rangeList: newList.add (self[l])
 			return newList
 		else: return None
 
-	def length (self):
+	def len (self):
 		return len (self.list)
 
 	def test (self):
@@ -163,13 +163,20 @@ class TablePerso (ListPerso):
 	def addItems (self, itemList, pCol=-1):
 		# rajouter un élément à chaque ligne de la table
 		if type (itemList) != list: return
-		elif len (itemList) != self.length(): return
+		elif len (itemList) != self.len(): return
 		rangitem = self.range()
 		for i in rangitem: self.list[i].add (itemList[i], pCol)
 
 	def add (self, item, pLin, pCol):
 		# rajouter un élément dans le tableau
 		self.list[pLin].add (item, pCol)
+
+	def getCol (self, pCol):
+		cases = ListPerso()
+		for line in self.list:
+			if line.len() > pCol: cases.add (line[pCol])
+			else: cases.add (None)
+		return cases
 
 	def toText (self, wordLin, wordCol):
 		newList = ListPerso()

@@ -13,7 +13,7 @@ class ListFile (FilePerso, ListPerso):
 
 	def fromFile (self):
 		FilePerso.fromFile (self)
-		self.fromText (self.sepLin, self.text)
+		ListPerso.fromText (self, self.sepLin, self.text)
 
 	def toFile (self):
 		self.text = self.toText (self.sepLin)
@@ -27,13 +27,17 @@ class TableFile (FilePerso, TablePerso):
 		self.sepCol = sepCol
 
 	def fromFile (self):
-		ListFile.fromFile (self)
-		rangeLin = self.range()
-		for l in rangeLin: self[l] = self[l].fromText (self.sepCol, self[l])
+		tmpList = ListFile()
+		tmpList.copyFile (self)
+		tmpList.fromFile()
+		rangeLin = tmpList.range()
+		for l in rangeLin:
+			tmp = ListPerso()
+			tmp.fromText (self.sepCol, tmpList[l])
+			self.addLine (tmp)
 
 	def toFile (self):
 		self.text = self.toText (self.sepLin, self.sepCol)
-		print (self.title, self.file, self.path, self.extension)
 		FilePerso.toFile (self)
 
 	def __str__ (self):
