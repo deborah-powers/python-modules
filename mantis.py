@@ -93,7 +93,6 @@ class Mantis (FilePerso):
 
 	def createFile (self):
 		self.createFileText()
-		self.createFileJson()
 
 	def createFileText (self):
 		self.file = 'b/mantis '+ self.numero + '.txt'
