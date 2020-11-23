@@ -43,8 +43,13 @@ module		%s
 type		%s
 debut		%s
 
+
 ______________________
 ______ solution ______
+
+
+commit		?
+branche		%s mantis-%s
 
 
 ___________________
@@ -93,7 +98,7 @@ class Mantis (FilePerso):
 	def createFile (self):
 		self.file = 'b/mantis '+ self.numero + '.txt'
 		self.dataFromFile()
-		self.text = template %( self.message, self.numero, self.numint, self.module, self.type, self.date.toStrDay(), self.date.toStrDay(), self.date.toStrDay())
+		self.text = template %( self.message, self.numero, self.numint, self.module, self.type, self.date.toStrDay(), self.module, self.numero, self.date.toStrDay(), self.date.toStrDay())
 		if self.type != 'ddt': self.text = self.text + """
 log.debug ("________________________ requete ________________________");
 log.debug (obj.getA() +"\t"+ obj.getB);"""
