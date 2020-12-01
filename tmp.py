@@ -6,6 +6,35 @@ from fileList import FileList
 from fileClass import FilePerso
 from listFile import TableFile
 
+directory = 'C:\\Users\\deborah.powers\\Desktop\\mantis 30211\\%s-%s.log'
+files =( 'bth-11-16', 'bth-11-18', 'edi-09-04', 'edi-09-11', 'ord-09', 'ord-10')
+tmpFile = FilePerso()
+
+def cleanLog (tmpName):
+	tmpFile.file = tmpName
+	tmpFile.dataFromFile()
+	tmpFile.fromFile()
+	f= tmpFile.index ('2020-11-24')
+	d= tmpFile.text[:f].find ('\n')
+	if d<0: d=f
+	tmpFile.text = tmpFile.text[d:]
+	if tmpFile.contain ('2020-11-25'):
+		f= tmpFile.index ('2020-11-25')
+		f= tmpFile.text[:f].find ('\n')
+		tmpFile.text = tmpFile.text[:f]
+	tmpFile.toFile()
+
+for name in files:
+	tmpName = directory %( name, 'log')
+	cleanLog (tmpName)
+	tmpName = directory %( name, 'tra')
+	cleanLog (tmpName)
+
+
+
+
+
+
 def getCol():
 	fileCsv = TableFile ('\n','\t', fileCsvName)
 	fileCsv.fromFile()
