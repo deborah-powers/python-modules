@@ -19,6 +19,9 @@ class ListFile (FilePerso, ListPerso):
 		self.text = self.toText (self.sepLin)
 		FilePerso.toFile (self)
 
+	def length (self):
+		return len (self.list)
+
 
 class TableFile (FilePerso, TablePerso):
 	def __init__(self, sepLin='\n', sepCol='\t', file =None):

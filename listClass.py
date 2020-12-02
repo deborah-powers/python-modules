@@ -46,6 +46,9 @@ class ListPerso():
 		if item in self.list: nb= self.list.count (item)
 		return nb
 
+	def length (self):
+		return len (self.list)
+
 	def index (self, item):
 		nb=-1
 		if item in self.list: nb= self.list.index (item)
