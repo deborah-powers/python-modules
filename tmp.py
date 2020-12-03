@@ -2,80 +2,14 @@
 # -*- coding: utf-8 -*-
 # mes actions temporaires
 from listClass import ListPerso
-from fileList import FileList
+from fileList import FileList, FileTable
 from fileClass import FilePerso
-from listFile import TableFile, ListFile
+from listFile import ListFile
 
 directory = 'C:\\Users\\deborah.powers\\Desktop\\mantis 30211\\%s-%s.log'
 files =( 'bth-11-16', 'bth-11-18', 'edi-09-04', 'edi-09-11', 'ord-09', 'ord-10')
-tmpFile = FilePerso()
+tmpFile = FileLog()
 
-dateStart = '2020-11-24'
-dateEnd = '2020-11-25'
-
-def findHour (self, hour):
-	hourFound = False
-	hourText = '%s %s:' %(dateStart, hour)
-	if self.contain (hourText):
-		d= self.index (hourText)
-		d= self.text[:d].rfind ('\n')
-		if d<0: d=0
-		self.text = self.text[d:]
-		hourFound = True
-	return hourFound
-
-def findDate (self):
-	# repérer le jour
-	if self.contain (dateStart):
-		d= self.index (dateStart)
-		d= self.text[:d].rfind ('\n')
-		if d<0: d=0
-		self.text = self.text[d:]
-		if self.contain (dateEnd):
-			d= self.index (dateEnd)
-			d= self.text[:d].rfind ('\n')
-			if d>0: self.text = self.text[:d]
-		# repérer l'heure
-		hourFound = self.findHour ('07')
-		if not hourFound: hourFound = self.findHour ('08')
-		if not hourFound: hourFound = self.findHour ('09')
-		if not hourFound: hourFound = self.findHour ('10')
-		if not hourFound: hourFound = self.findHour ('11')
-		if self.contain ('[ERROR]'): print (self.countWord ('[ERROR]'), 'erreurs dans', self.title)
-		else: print ("pas d'erreur dans", self.title, self.length(), self.text[:200])
-		self.clean()
-		self.replace ('\n<label>Voir</label>\n</xmlResult>]) sur la Queue queue://ord-com-out .....')
-		self.toFile()
-	else: print (self.title, 'ne contient pas la date recherchée')
-
-def extractErrors (self):
-	errorNb =0
-	tmpList = ListFile()
-	tmpList.copyFile (self)
-	tmpList.fromFile()
-	tmpRang = tmpList.range()
-	tmpRang.reverse()
-	trash =0
-	for i in tmpRang:
-		# if '[INFO]' in tmpList[i]: trash = tmpList.pop (i)
-		elif '\tat ' in tmpList[i] and '\tat fr.asp.synergie' not in tmpList[i]: trash = tmpList.pop (i)
-	i=0
-	tmpLen = tmpList.length()
-	while i< tmpLen:
-		if '\tat fr.asp.synergie' not in tmpList[i]:
-			errorNb =0
-			i+=1
-		elif errorNb <5:
-			errorNb +=1
-			i+=1
-		else:
-			trash = tmpList.pop (i)
-			tmpLen -=1
-	tmpList.toFile()
-
-setattr (FilePerso, 'findDate', findDate)
-setattr (FilePerso, 'findHour', findHour)
-setattr (FilePerso, 'extractErrors', extractErrors)
 
 def reviewLogs (funcRes, trace=False):
 	directory = 'C:\\Users\\deborah.powers\\Desktop\\mantis 30211\\%s-%s.log'
