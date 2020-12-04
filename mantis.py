@@ -57,6 +57,11 @@ ______ infos ______
 
 select * from deb_autorite where operation like 'AL000%%';
 
+______ données ______
+
+
+______ marche à suivre ______
+
 
 ______________________________
 ______ %s aprem ______
