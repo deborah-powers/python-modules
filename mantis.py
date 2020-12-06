@@ -48,14 +48,13 @@ ______________________
 ______ solution ______
 
 
-commit		?
-branche		%s mantis-%s
+branche: %s mantis-%s
+reprise de donnée nécessaire: ?
 
 
 ___________________
 ______ infos ______
 
-/10.202.202.254/marcheNTIC/Projet PILOT_CF/Production/01 -STD/
 select * from deb_autorite where operation like 'AL000%%';
 
 

@@ -2,9 +2,40 @@
 # -*- coding: utf-8 -*-
 # mes actions temporaires
 from listClass import ListPerso
-from fileList import FileList
+from fileList import FileList, FileTable
 from fileClass import FilePerso
-from listFile import TableFile
+from listFile import ListFile
+
+directory = 'C:\\Users\\deborah.powers\\Desktop\\mantis 30211\\%s-%s.log'
+files =( 'bth-11-16', 'bth-11-18', 'edi-09-04', 'edi-09-11', 'ord-09', 'ord-10')
+tmpFile = FileLog()
+
+
+def reviewLogs (funcRes, trace=False):
+	directory = 'C:\\Users\\deborah.powers\\Desktop\\mantis 30211\\%s-%s.log'
+	# files =( 'bth-11-16', 'bth-11-18', 'edi-09-04', 'edi-09-11', 'ord-09', 'ord-10')
+	files =( 'bth-11-16', 'bth-11-18', 'edi-09-04')
+	tmpFile = FilePerso()
+	for name in files:
+		tmpName = directory %( name, 'log')
+		tmpFile.file = tmpName
+		tmpFile.dataFromFile()
+		tmpFile.fromFile()
+		funcRes (tmpFile)
+	if trace:
+		for name in files:
+			tmpName = directory %( name, 'tra')
+			tmpFile.file = tmpName
+			tmpFile.dataFromFile()
+			tmpFile.fromFile()
+			funcRes (tmpFile)
+
+reviewLogs (findDate)
+reviewLogs (extractErrors)
+
+
+
+
 
 def getCol():
 	fileCsv = TableFile ('\n','\t', fileCsvName)
