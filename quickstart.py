@@ -31,8 +31,8 @@ les valeurs de tag
 
 dateStart = DatePerso()
 dateStart.today()
-dateStart.month =10
-dateStart.day =10
+dateStart.month =11
+dateStart.day =20
 
 dateEnd = DatePerso()
 dateEnd.today()
@@ -144,6 +144,12 @@ class eventGoogle (calendarGoogle, EventPerso):
 	def __lt__ (self, newEvt):
 		return self.__str__() < newEvt.__str__()
 
+	def toLowercase (self):
+		self.category = self.category.lower()
+		self.title = self.title.lower()
+		self.location = self.location.lower()
+		self.infos.text = self.infos.text.lower()
+
 
 	""" __________________ récupérer un type d'évenement __________________ """
 
@@ -182,6 +188,7 @@ class eventGoogle (calendarGoogle, EventPerso):
 			if cost =='0' or cost == '0.0': return None
 			self.infos.text = ' '.join (tmpList) +'\t' + cost
 			if details: self.infos.text = self.infos.text +'\t'+ details
+			self.toLowercase()
 			evtStr = '%s\t%s\t%s\t%s' % (self.date.toStrDay(), self.location, self.title, self.infos.text)
 			return evtStr																	
 		else: return None
