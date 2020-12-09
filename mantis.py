@@ -55,7 +55,7 @@ reprise de donnée nécessaire: ?
 ___________________
 ______ infos ______
 
-select * from deb_autorite where operation like 'AL000%%';
+select * from deb_autorite where operation = 'AL0000012';
 
 ______ données ______
 
@@ -106,6 +106,7 @@ class Mantis (FilePerso):
 		if self.type != 'ddt': self.text = self.text + """
 log.debug ("________________________ requete ________________________");
 log.debug (obj.getA() +"\t"+ obj.getB);"""
+		if 'aec' in self.module or 'sif' in self.module: self.replace ('deb_autorite', 'deb_autorite_ope')
 		self.toFile()
 
 	def createFileJson (self):
