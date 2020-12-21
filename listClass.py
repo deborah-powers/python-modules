@@ -16,13 +16,13 @@ class ListPerso():
 	def __init__(self):
 		self.list =[]
 
-	def delDuplicates (self):
+	def delDouble (self):
 		""" transformer la liste [ a b b a c d e a f g ] en [ a b c d e f g ] """
-		rangeList = self.range()
-		rangeList.reverse()
-		for i in rangeList:
-			nb= self.count (self.list[i])
-			if nb>1: self.list.pop(i)
+		tmpRange = self.range()
+		tmpRange.reverse()
+		trash =0
+		for w in tmpRange:
+			if self.list.count (self.list[w]) >1: trash = self.list.pop (w)
 
 	def iterate (self, function):
 		rangeList = self.range()

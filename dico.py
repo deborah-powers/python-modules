@@ -1,75 +1,95 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-import fileClass as fl
-import textClass as tx
-from listClass import ListPerso, TablePerso
+from fileClass import FilePerso
+from fileList import FileList, FileTable
+from textClass import pointsEnd
+from listClass import ListPerso
 
 suffix =( 'ations', 'itions', 'trices', 'ables', 'aires', 'amant', 'ament', 'ances', 'aient', 'ation', 'asmes', 'elles', 'ement', 'ences', 'esses', 'ettes', 'euses', 'ibles', 'ières', 'iques', 'ismes', 'ition', 'tions', 'trice', 'able', 'ages', 'aire', 'ance', 'asme', 'bles', 'eaux', 'elle', 'ence', 'esse', 'ères', 'ette', 'eurs', 'euse', 'ible', 'ière', 'iers', 'ions', 'ique', 'isme', 'ités', 'mant', 'ment', 'ques', 'sses', 'tion', 'age', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'ère', 'eur', 'ées', 'ier', 'ion', 'ité', 'nes', 'ont', 'ons', 'que', 'sse', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'a', 'e', 'é', 's', 't', 'x')
 prefix =( 'imm', 'inn', 'pré', 'dé', 'im', 'in', 're', 'ré', 'sur' )
 newPoints = "-'()/_\\\"\n\t<>[](){}|%#$@=+*°"
 fileRefName = 'b/dico.txt'
 
-def sortRef():
-	fileRefObj = fl.FilePerso (fileRefName)
-	fileRefObj.fromFile()
-	wordTable = TablePerso()
-	wordTable.fromText ('\n', ' ', fileRefObj.text)
-	wordRange = wordTable.range()
-	fileRefObj.text =""
-	trash = None
-	for l in wordRange:
-		wordTable[l].sort()
-		linRange = wordTable[l].range()
-		linRange.reverse()
-		for c in linRange:
-			if wordTable[l].count (wordTable[l][c]) >1: trash = wordTable[l].pop (c)
-			else:
-				d=0
-				lenLine = wordTable[l].length()
-				while d< lenLine:
-					if d!=c and wordTable[l][c] in wordTable[l][d]:
-						print (wordTable[l][c], wordTable[l][d])
-						trash = wordTable[l].pop (c)
-						d+= lenLine
-					d+=1
-	fileRefObj.text = wordTable.toText ('\n', ' ')
-	fileRefObj.toFile()
+class FileRef (FileTable):
+	def __init__ (self):
+		FileTable.__init__ (self, '\n',' ', fileRefName)
+		self.fromFile()
+		if self.length() <3: self.add (ListPerso())
 
-def extractWord (fileTstName):
-	# récupérer le nouveau texte
-	fileTstObj = fl.FilePerso (fileTstName)
-	fileTstObj.fromFile()
-	fileTstObj.clean()
-	numbers = '0123456789'
-	for n in numbers: fileTstObj.replace (n)
-	fileTstObj.text = fileTstObj.text +' '
-	for p in tx.pointsEnd: fileTstObj.replace (p,' ')
-	for p in newPoints: fileTstObj.replace (p,' ')
-	for p in suffix: fileTstObj.replace (p+' ', ' ')
-	for p in prefix: fileTstObj.replace (' '+p, ' ')
-	while '  ' in fileTstObj.text: fileTstObj.replace ('  ',' ')
-	fileTstObj.text = fileTstObj.text.lower()
-	# lister ses mots
-	wordList = ListPerso()
-	wordList.fromText (' ', fileTstObj.text)
-	rangeWord = wordList.range()
-	rangeWord.reverse()
-	for w in rangeWord:
-		if len (wordList[w]) >15 or len (wordList[w]) <3: trash = wordList.pop (w)
-		elif wordList.count (wordList[w]) >1: trash = wordList.pop (w)
-	wordList.sort()
-	# récupérer la liste de mots connus
-	fileRefObj = fl.FilePerso (fileRefName)
-	fileRefObj.fromFile()
-	fileRefObj.text = fileRefObj.text +'\n'
-	for word in wordList:
-		if word not in fileRefObj.text: fileRefObj.text = fileRefObj.text +' '+ word
-	fileRefObj.replace ('\n ', '\n')
-	fileRefObj.toFile()
+	def sort (self):
+		tmpRange = self.range()
+		for l in tmpRange: self[l].list.sort()
+		self.list.sort()
+
+class FileSrc (FileList):
+	def __init__ (self, fileName=None):
+		FileList.__init__ (self, ' ')
+		if fileName:
+			self.file = fileName
+			self.fromFile()
+
+	def listWords (self):
+		for p in pointsEnd: self.replace (p,' ')
+		for p in newPoints: self.replace (p,' ')
+		self.clean()
+		self.addList (self.text.split (' '))
+		self.delDouble()
+		self.list.sort()
+
+	def fromFile (self):
+		FilePerso.fromFile (self)
+		self.listWords()
+
+	def toFile (self, message=None):
+		self.list.sort()
+		self.text = ' '.join (self.list)
+		if not message: message = 'dico'
+		self.title = self.title +' '+ message
+		self.path = 'b/'
+		self.fileFromData()
+		FilePerso.toFile (self)
+
+	def checkWordLen (self):
+		if not self.list: self.fromFile()
+		tmpRange = self.range()
+		tmpRange.reverse()
+		for w in tmpRange:
+			if len (self.list[w]) <17: trash = self.list.pop (w)
+		self.toFile ('mots longs')
+
+	def dictPrep (self):
+		if not self.text: self.fromFile()
+		self.text = self.sep.join (self.list)
+		for p in suffix: self.replace (p+' ', ' ')
+		for p in prefix: self.replace (' '+p, ' ')
+		numbers = '0123456789'
+		for n in numbers: self.replace (n)
+		while '  ' in self.text: self.replace ('  ',' ')
+		self.text = self.text.lower()
+		self.list = self.text.split (self.sep)
+		self.delDouble()
+
+	def dictList (self):
+		self.dictPrep()
+		dictRef = FileRef()
+		tmpRange = self.range()
+		tmpRange.reverse()
+		for w in tmpRange:
+			if self[w] not in dictRef[0] and self[w] not in dictRef[1] and self[w] not in dictRef[2]:
+				dictRef[2].add (self[w])
+		dictRef[2].sort()
+		dictRef.toFile()
 
 fileTstName = argv[1]
-if fileTstName == 'tri': sortRef()
+if fileTstName == 'tri':
+	dictRef = FileRef()
+	dictRef.sort()
+	dictRef.toFile()
+elif len (argv) >2 and argv[2] == 'len':
+	dictSrc = FileSrc (fileTstName)
+	dictSrc.checkWordLen()
 else:
 	fileTstName = 'a/education/' + fileTstName + '.txt'
-	extractWord (fileTstName)
+	dictSrc = FileSrc (fileTstName)
+	dictSrc.dictList()
