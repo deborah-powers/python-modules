@@ -86,18 +86,18 @@ class ListFile (ListPerso):
 			os.rename (file.file, newFile)
 			file.title = newTitle
 
-	def replace (self, wordOld, wordNew):
+	def replace (self, wordOld, wordNew, close=True):
 		""" remplacer un motif dans le texte """
 		for file in self:
-			file.fromFile()
+			if close: file.fromFile()
 			file.replace (wordOld, wordNew)
-			file.toFile()
+			if close: file.toFile()
 
-	def modify (self, funcText):
+	def modify (self, funcText, close=True):
 		for file in self:
-			file.fromFile()
-			file.text = funcText (file.text)
-			file.toFile()
+			if close: file.fromFile()
+			funcText (file)
+			if close: file.toFile()
 
 	def __str__(self):
 		strList = 'Dossier: '+ self.path +'\nListe:'

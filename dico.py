@@ -5,6 +5,7 @@ from fileClass import FilePerso
 from fileList import FileList, FileTable
 from textClass import pointsEnd
 from listClass import ListPerso
+from listFile import ListFile
 
 suffix =( 'ations', 'itions', 'trices', 'ables', 'aires', 'amant', 'ament', 'ances', 'aient', 'ation', 'asmes', 'elles', 'ement', 'ences', 'esses', 'ettes', 'euses', 'ibles', 'ières', 'iques', 'ismes', 'ition', 'tions', 'trice', 'able', 'ages', 'aire', 'ance', 'asme', 'bles', 'eaux', 'elle', 'ence', 'esse', 'ères', 'ette', 'eurs', 'euse', 'ible', 'ière', 'iers', 'ions', 'ique', 'isme', 'ités', 'mant', 'ment', 'ques', 'sses', 'tion', 'age', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'ère', 'eur', 'ées', 'ier', 'ion', 'ité', 'nes', 'ont', 'ons', 'que', 'sse', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'a', 'e', 'é', 's', 't', 'x')
 prefix =( 'imm', 'inn', 'pré', 'dé', 'im', 'in', 're', 'ré', 'sur' )
@@ -21,6 +22,14 @@ class FileRef (FileTable):
 	def sort (self):
 		tmpRange = self.range()
 		for l in tmpRange: self[l].sort()
+
+class ListSrc (ListFile):
+	def get (self):
+		ListFile.get (self)
+		rangeFile = self.range()
+		rangeFile.reverse()
+		for f in rangeFile:
+			if self[f].extension not in 'txt html': trash = self.pop (f)
 
 class FileSrc (FileList):
 	def __init__ (self, fileName=None):
@@ -50,7 +59,7 @@ class FileSrc (FileList):
 		self.fileFromData()
 		FilePerso.toFile (self)
 
-	def checkWordLen (self):
+	def checkWordLen (self, lang):
 		if not self.list: self.fromFile()
 		tmpRange = self.range()
 		tmpRange.reverse()
@@ -88,11 +97,10 @@ if fileTstName == 'tri':
 	dictRef = FileRef()
 	dictRef.sort()
 	dictRef.toFile()
-elif len (argv) >2 and argv[2] in 'fr an':
-	lang = argv[2]
-	dictSrc = FileSrc (fileTstName)
-	dictSrc.checkWordLen()
 else:
-	fileTstName = 'a/education/' + fileTstName + '.txt'
+	fileTstName = 'a/romans/' + fileTstName + '.txt'
 	dictSrc = FileSrc (fileTstName)
-	dictSrc.dictList()
+	if len (argv) >2 and argv[2] in 'fr an':
+		lang = argv[2]
+		dictSrc.checkWordLen (lang)
+	else: dictSrc.dictList()

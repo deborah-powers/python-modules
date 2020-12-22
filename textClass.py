@@ -33,10 +33,13 @@ def clean (text):
 	for i,j in weirdChars: text = text.replace (i,j)
 	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
+	for p in pointsEnd[:-2]: text = text.replace (' '+p, p)
 	text = text.replace ('\n ', '\n')
-	text = text.replace (' \n', '\n')
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	while '....' in text: text = text.replace ('....', '...')
+
+
 	return text
 
 def toUpperCase (text):
@@ -126,18 +129,27 @@ class Text():
 
 	def clean (self):
 		self.text = clean (self.text)
+		self.cleanPunctuation()
+		self.text = clean (self.text)
 
 	def cleanPunctuation (self):
-		points = '.,;:?!'
-		for p in points: self.replace (p, ' '+p+' ')
-		while self.contain ('  '): self.replace ('  ', ' ')
-		for p in points[:4]: self.replace (' '+p, p)
-		while self.contain ('....'): self.replace ('....', '...')
-		self.replace (': //', '://')
-		self.replace ('. com', '.com')
-		self.replace ('. fr', '.fr')
-		self.replace ('. html', '.html')
-		self.replace ('//www. ', '//www.')
+		for mi,ma in accents: self.replace (ma, ' '+ma)
+		while '  ' in self.text: self.replace ('  ', ' ')
+		self.replace ('( ', '(')
+		self.replace ('?', ' ?')
+		self.replace ('!', ' !')
+		self.replace ('  ', ' ')
+		lettreAppostrophe =( 'c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
+		for l in lettreAppostrophe:
+			self.replace (' '+l+"' ", ' '+l+"'")
+			self.replace (' '+ l.upper() +"' ", ' '+ l.upper() +"'")
+
+	def cleanEnglish (self):
+		self.clean()
+		wordList =( 'and', 'for', 'then', 'in', 'on', 'to')
+		for word in wordList:
+			self.replace (' '+ word +'\t', ' '+ word +' ')
+			self.replace (' '+ word +'\n', ' '+ word +' ')
 
 	def fromModel (self, model):
 		return fromModel (self.text, model)

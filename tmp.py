@@ -1,6 +1,20 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 # mes actions temporaires
+from fileClass import FilePerso
+from textClass import Text
+from listFile import ListFile
+
+def tmp (file):
+	file.clean()
+	file.shape()
+
+flist = ListFile ('a/romans/')
+flist.get ('.txt')
+flist.modify (Text.clean)
+for file in flist: print (file.title)
+
+
 
 def launchApp():
 	# lancer mon lecteur vidéo, totem
