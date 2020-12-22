@@ -10,6 +10,7 @@ suffix =( 'ations', 'itions', 'trices', 'ables', 'aires', 'amant', 'ament', 'anc
 prefix =( 'imm', 'inn', 'pré', 'dé', 'im', 'in', 're', 'ré', 'sur' )
 newPoints = "-'()/_\\\"\n\t<>[](){}|%#$@=+*°"
 fileRefName = 'b/dico.txt'
+lang = None
 
 class FileRef (FileTable):
 	def __init__ (self):
@@ -19,8 +20,7 @@ class FileRef (FileTable):
 
 	def sort (self):
 		tmpRange = self.range()
-		for l in tmpRange: self[l].list.sort()
-		self.list.sort()
+		for l in tmpRange: self[l].sort()
 
 class FileSrc (FileList):
 	def __init__ (self, fileName=None):
@@ -54,8 +54,10 @@ class FileSrc (FileList):
 		if not self.list: self.fromFile()
 		tmpRange = self.range()
 		tmpRange.reverse()
+		wordLen =10
+		if lang == 'fr': wordLen =17
 		for w in tmpRange:
-			if len (self.list[w]) <17: trash = self.list.pop (w)
+			if len (self.list[w]) < wordLen: trash = self.list.pop (w)
 		self.toFile ('mots longs')
 
 	def dictPrep (self):
@@ -86,7 +88,8 @@ if fileTstName == 'tri':
 	dictRef = FileRef()
 	dictRef.sort()
 	dictRef.toFile()
-elif len (argv) >2 and argv[2] == 'len':
+elif len (argv) >2 and argv[2] in 'fr an':
+	lang = argv[2]
 	dictSrc = FileSrc (fileTstName)
 	dictSrc.checkWordLen()
 else:

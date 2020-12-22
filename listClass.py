@@ -46,6 +46,25 @@ class ListPerso():
 		if item in self.list: nb= self.list.count (item)
 		return nb
 
+	def sortFunc (self, funcSort):
+		from random import choice
+		if self.length() <2: return
+		listStart = ListPerso()
+		listEnd = ListPerso()
+		item = choice (self.list)
+		for l in self:
+			if funcSort (item, l): listEnd.add (l)
+			else: listStart.add (l)
+		if listStart.length() >1: listStart.sortFunc (funcSort)
+		if listEnd.length() >1: listEnd.sortFunc (funcSort)
+		self.list =[]
+		if listStart: self.addList (listStart)
+		if listEnd: self.addList (listEnd)
+
+	def sort (self, funcSort=None):
+		if sortFunc: self.sortFunc (funcSort)
+		else: self.list.sort()
+
 	def length (self):
 		return len (self.list)
 
