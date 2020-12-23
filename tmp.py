@@ -14,8 +14,6 @@ flist.get ('.txt')
 flist.modify (Text.clean)
 for file in flist: print (file.title)
 
-
-
 def launchApp():
 	# lancer mon lecteur vidéo, totem
 	import os
