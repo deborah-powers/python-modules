@@ -9,7 +9,7 @@ tmp.py
 *va.py
 *vb.py
 *.json
-
+*.log
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
