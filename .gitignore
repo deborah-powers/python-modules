@@ -3,7 +3,7 @@ boulot-*
 dom*
 fileLocal.py
 filePj.py
-tmp.py
+temp.py
 *.pickle
 *20*
 *va.py
