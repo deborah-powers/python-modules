@@ -9,6 +9,7 @@ tmp.py
 *va.py
 *vb.py
 *.json
+*.log
 doublons-fichiers/
 
 # Byte-compiled / optimized / DLL files

@@ -152,7 +152,6 @@ class FilePerso (Text):
 	def compare (self, otherFile, method='lines'):
 		self.compareGroom()
 		otherFile.compareGroom()
-		print (self.extension)
 		if self.extension == 'sql':
 			self.compareGroomSql()
 			otherFile.compareGroomSql()
@@ -225,7 +224,6 @@ class Article (FilePerso):
 	def fromFile (self):
 		FilePerso.fromFile (self)
 		metadata = self.fromModel (modelText)
-		print (len (metadata))
 		self.subject = metadata[0]
 		self.author = metadata[1]
 		self.link = metadata[2]
