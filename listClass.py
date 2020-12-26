@@ -47,7 +47,6 @@ class ListPerso():
 		return nb
 
 	def sortFunc (self, funcSort):
-		from random import choice
 		if self.length() <2: return
 		listStart = ListPerso()
 		listEnd = ListPerso()
@@ -62,7 +61,9 @@ class ListPerso():
 		if listEnd: self.addList (listEnd)
 
 	def sort (self, funcSort=None):
-		if sortFunc: self.sortFunc (funcSort)
+		if sortFunc:
+			from random import choice
+			self.sortFunc (funcSort)
 		else: self.list.sort()
 
 	def length (self):
@@ -93,6 +94,11 @@ class ListPerso():
 		else:
 			id= self.index (item)
 			trash = self.list.pop (id)
+
+	def copy (self):
+		newList = ListPerso()
+		for line in self: newList.add (line)
+		return newList
 
 	def fromText (self, word, text):
 		newList = text.split (word)

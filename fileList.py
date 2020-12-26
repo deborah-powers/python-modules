@@ -11,6 +11,7 @@ class FileList (FilePerso, ListPerso):
 		ListPerso.__init__(self)
 		self.sepLin = sepLin
 
+
 	def fromFile (self):
 		FilePerso.fromFile (self)
 		ListPerso.fromText (self, self.sepLin, self.text)
@@ -25,8 +26,9 @@ class FileList (FilePerso, ListPerso):
 
 class FileTable (FilePerso, TablePerso):
 	def __init__(self, sepLin='\n', sepCol='\t', file =None):
-		FilePerso.__init__(self, sepLin, file)
+		FilePerso.__init__(self, file)
 		TablePerso.__init__(self)
+		self.sepLin = sepLin
 		self.sepCol = sepCol
 
 	def fromFile (self):

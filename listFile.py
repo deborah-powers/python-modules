@@ -36,7 +36,7 @@ class ListFile (ListPerso):
 			if subList:
 				for file in subList:
 					fileTmp = fc.FilePerso (os.path.join (dirpath, file))
-					fileTmp.dataFromFile()
+					# fileTmp.dataFromFile()
 					self.add (fileTmp)
 		self.sort()
 		# eliminer les fichiers de format inconnu
@@ -57,16 +57,40 @@ class ListFile (ListPerso):
 			for f in rangeFile:
 				if TagNomfile in self[f].file: trash = self.list.pop (f)
 
-	def doublons (self):
+	def doublons (self, inText=False):
+		listDbl = ListFile (self.path)
 		rangeFile = self.range()
 		for f in rangeFile:
-			self[f].fromFile()
 			for g in rangeFile[f+1:]:
-				if self[f].title == self[g].title: print ('doublons pour', self[f].title, '\n', self[f].path, '\n', self[g].path)
-		for f in rangeFile:
-			if self[f].text:
-				for g in rangeFile[f+1:]:
-					if self[f].text == self[g].text: print ('doublons pour\n', self[f].file, '\n', self[g].file)
+				if self[f].title == self[g].title:
+					# print ('doublons pour', self[f].title, '\n\t', self[f].path, '\n\t', self[g].path)
+					listDbl.add (self[f])
+			if inText:
+				for f in rangeFile:
+					self[f].fromFile()
+					if self[f].text:
+						for g in rangeFile[f+1:]:
+							if self[f].text == self[g].text:
+								# print ('doublons pour\n\t', self[f].file, '\n\t', self[g].file)
+								listDbl.add (self[f])
+		return listDbl
+
+	def compare (self, pathNew):
+		# identifier les films présents dans pathNew mais absent de la référence
+		listNew = ListFile (pathNew)
+		listNew.get()
+		listDbl = ListFile()
+		listUnq = ListFile()
+		rangeTmp = listNew.range()
+		rangeTmp.reverse()
+		for fref in self:
+			for f in rangeTmp:
+				if fref.title == listNew[f].title:
+					# print ('doublons pour', fref.title, '\n\t', fref.path, '\n\t', listNew[f].path)
+					listDbl.add (listNew[f])
+		for fnew in listNew:
+			if fnew not in listDbl: listUnq.add (fnew)
+		return listUnq
 
 	def move (self, newPath):
 		# newPath est une string
@@ -78,13 +102,28 @@ class ListFile (ListPerso):
 			file.extractData()
 		self.path = newPath
 
-	def rename (self, wordOld, wordNew):
+	def clean (self):
+		numbers = '0123456789'
+		for fref in self:
+			newFile = fref.title.replace ('.',' ')
+			newFile = newFile.replace ('_',' ')
+			newFile = newFile.replace ('\t',' ')
+			newFile = newFile.replace ('-',' - ')
+			while '  ' in newFile: newFile = newFile.replace ('  ',' ')
+			newFile = newFile.strip()
+			newFile = newFile.lower()
+			for n in numbers:
+				newFile = newFile.replace (n+' - ', n+' ')
+				newFile = newFile.replace (' - '+n, ' '+n)
+			newFile = fref.path + newFile +'.'+ fref.extension.lower()
+			os.rename (fref.file, newFile)
+
+	def rename (self, wordOld, wordNew=""):
 		for file in self:
 			if wordOld not in file.title: continue
-			newTitle = file.title.replace (wordOld, wordNew)
-			newFile = file.path + newTitle +'.'+ file.extension
+			newFile = file.title.replace (wordOld, wordNew)
+			newFile = file.path + newFile +'.'+ file.extension
 			os.rename (file.file, newFile)
-			file.title = newTitle
 
 	def replace (self, wordOld, wordNew, close=True):
 		""" remplacer un motif dans le texte """

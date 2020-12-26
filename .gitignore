@@ -9,6 +9,7 @@ tmp.py
 *va.py
 *vb.py
 *.json
+doublons-fichiers/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
