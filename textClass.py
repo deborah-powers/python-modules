@@ -10,12 +10,15 @@ accents =( ('a','A'), ('à','A'), ('b','B'), ('c','C'), ('\xe7','\xc7'), ('d','D
 points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t')
 pointsShape =( '\n\t- ', '______ ', '\n------ ' )
 artefacts =(
-	('> ','>'), ('Deborah.powers', 'deborah.powers'), ('Http','http'), ('\n ','\n'), (' \n','\n'),
+	('> ','>'), ('\n ','\n'), (' \n','\n'),
 	(' ______\n', ' ______\n\n'), ('\n______ ', '\n\n______ '),
  	('\n______\n\n______ ', '\n\n________________________\n______ '),
-	('------ ', '\n------ '), (' ------', ' ------\n'), ('\n\n\n', '\n\n')
+	('------ ', '\n------ '), (' ------', ' ------\n'), ('\n\n\n', '\n\n'),
 )
 # 	('\n______\n\n______ ', '\n\n________________________\n______ '),
+artefactsLowerCase =( 'Deborah.powers', 'Deborah.noisetier', 'Http',
+	'\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', '\nInner join ', '\nOuter join ', '\nLeft outer join ',
+	'\nDef ', '\nClass ', '\nLog.', '\nConsole.log', '\nVar ', '\nFunction ')
 # caractères à remplacer
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('…', '...'),
@@ -50,6 +53,7 @@ def toUpperCase (text):
 	for p in pointsEnd:
 		for word in wordsUpp: text = text.replace (' '+ word +p, ' '+ word.capitalize() +p)
 	for i,j in artefacts: text = text.replace (i,j)
+	for artefact in artefactsLowerCase: text = text.replace (artefact, artefact.lower())
 	text = text.strip()
 	return text
 
