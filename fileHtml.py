@@ -11,7 +11,7 @@ help ="""lancer le script
 
 listTagsIntern =[ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button']
 listTagsSpecial =[ 'a', 'img', 'form', 'input']
-listTagsKeep =[ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'header', 'footer', 'section', 'div', 'body']
+listTagsKeep =[ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body']
 listTagsKeep.extend (listTagsIntern)
 listTagsKeep.extend (listTagsSpecial)
 listTags =[]
@@ -303,7 +303,8 @@ class FileHtml (FilePerso):
 		self.cleanSpan()
 		self.cleanTags()
 		self.text = findTextBetweenTag (self.text, 'body')
-		self.replace ('><', '>\n<')
+		self.replace ('\n')
+		self.replace ('\t')
 		self.clean()
 
 	def cleanLink (self):
@@ -378,6 +379,8 @@ class FileHtml (FilePerso):
 			#	textList[a] = textList[a][d+4:].strip()
 			self.text = ' '.join (textList)
 		# retrouver les balises vides
+		self.clean()
+		self.replace ('\n')
 		for tag in tagList: self.replace ('<'+ tag +'></'+ tag +'>')
 
 	def cleanTagsSpecial (self, tag, attributeList):

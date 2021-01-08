@@ -38,8 +38,6 @@ def clean (text):
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	while '....' in text: text = text.replace ('....', '...')
-
-
 	return text
 
 def toUpperCase (text):
@@ -133,7 +131,7 @@ class Text():
 		self.text = clean (self.text)
 
 	def cleanPunctuation (self):
-		for mi,ma in accents: self.replace (ma, ' '+ma)
+		# for mi,ma in accents: self.replace (ma, ' '+ma)
 		while '  ' in self.text: self.replace ('  ', ' ')
 		self.replace ('( ', '(')
 		self.replace ('?', ' ?')

@@ -104,7 +104,7 @@ class ArticleHtml (FileHtml, Article):
 		elif 'ffnet'	in self.file: self.ffnet (subject)
 		elif 'medium'	in self.file: self.medium (subject)
 		elif 'adapt'	in self.file: self.adapt()
-		# else: toText = False
+		else: toText = False
 		self.metas ={}
 		self.styles =[]
 		if toText: self.toFileText()
