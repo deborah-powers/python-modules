@@ -17,8 +17,9 @@ artefacts =(
 )
 # 	('\n______\n\n______ ', '\n\n________________________\n______ '),
 artefactsLowerCase =( 'Deborah.powers', 'Deborah.noisetier', 'Http',
-	'\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', '\nInner join ', '\nOuter join ', '\nLeft outer join ',
-	'\nDef ', '\nClass ', '\nLog.', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
+	'\nUpdate ', '\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', '\nInner join ', '\nOuter join ', '\nLeft outer join ',
+	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
+	'\nLog.', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
 # caractères à remplacer
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('…', '...'),
