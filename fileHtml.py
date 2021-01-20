@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+from os import remove
 import urllib as ul
 from urllib import request as urlRequest
 from listClass import ListPerso
@@ -257,33 +258,56 @@ class FileHtml (FilePerso):
 
 	""" ________________________ texte du web ________________________ """
 
+
 	def fromUrl (self, params=None):
 		# récupérer le texte. les params servent à remplir les formulaires
 		myRequest = None
+		response = None
 		if params:
 			paramsUrl = ul.urlencode (params).encode ('utf-8')
 			myRequest = urlRequest.Request (self.link, paramsUrl)
 		else: myRequest = urlRequest.Request (self.link)
 		try: response = urlRequest.urlopen (myRequest)
 		except Exception as e:
-			print ("le fichier n'est pas téléchargeable:\n", self.link)
-			return
+			# print ("la première methode de téléchargement à échoué, éssai avec la seconde.\nun fichier tmp.html est créé sur le bureau puis supprimé")
+			self.title = 'tmp'
+			self.fileFromData()
+			urlRequest.urlretrieve (self.link, self.file)
+			self.fromFile()
+			remove (self.file)
+			self.fileFromData()
+			self.titleFromUrl()
 		else:
 			tmpByte = response.read()
 			self.text = codecs.decode (tmpByte, 'utf-8', errors='ignore')
 			response.close()
-			# récupérer le titre
-			title = self.link.strip ('/')
-			pos = title.rfind ('/') +1
-			title = title[pos:]
-			endTitle = '?.'
-			for end in endTitle:
-				if end in title:
-					pos = title.rfind (end)
-					title = title[:pos]
-			if title.count ('-') >1: title = title.replace ('-', ' ')
-			self.title = title.replace ('_', ' ')
-			self.clean()
+			self.titleFromUrl()
+
+	def titleFromUrl (self):
+		title = self.link.strip ('/')
+		pos = title.rfind ('/') +1
+		title = title[pos:]
+		endTitle = '?.'
+		for end in endTitle:
+			if end in title:
+				pos = title.rfind (end)
+				title = title[:pos]
+		if title.count ('-') >1: title = title.replace ('-', ' ')
+		self.title = title.replace ('_', ' ')
+		self.cleanWeb()
+
+	def fromWeb (self, url):
+		self.extension = 'html'
+		self.path = 'b/'
+		self.title = 'tmp'
+		self.fileFromData()
+		self.link = url
+		self.fromUrl()
+		self.cleanWeb()
+		self.metas ={}
+		self.styles =[]
+		self.metas['link'] = self.link
+		self.toFile()
 
 	def cleanLocal (self):
 		FileHtml.clean()
@@ -481,6 +505,10 @@ class FileHtml (FilePerso):
 		self.toFile()
 		self.fromFile()
 		print (self)
+
+	def testOnline (self):
+		self.link = 'https://www.tutorialspoint.com/downloading-files-from-web-using-python'
+		self.fromUrl()
 
 balises =( (' ______\n', '</h2>\n'), ('\n______\n______ ', '\n<h1>'), ('\n______ ', '\n<h2>'), ('\n------ ', '\n<h3>'), (' ------\n', '</h3>\n'), ('\n______\n', '\n<hr>\n'), ('\nImg\t', "\n<img src='") )
 
