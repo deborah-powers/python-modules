@@ -70,7 +70,7 @@ class ArticleHtml (FileHtml, Article):
 		self.link = url
 		self.fromUrl()
 		self.clean()
-		toText = True
+		toText = False
 		if 'http://www.gutenberg.org/' in url:				self.gutemberg (subject)
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebg (subject)
 		elif 'https://archiveofourown.org/works/' in url:	self.aooo()
@@ -86,6 +86,7 @@ class ArticleHtml (FileHtml, Article):
 		else:
 			self.cleanWeb()
 			toText = False
+		if self.contain ('</a>'): toText = False
 		self.metas ={}
 		self.replace (' <', '<')
 		self.replace ('><', '>\n<')
@@ -343,32 +344,48 @@ class ArticleHtml (FileHtml, Article):
 	def aooo (self, subject=None):
 		if 'This work could have adult content. If you proceed you have agreed that you are willing to see such content' in self.text:
 			print ('fichier protégé', self.title)
-			return
+			self.fromUrlVb()
+		#	return
 		self.cleanWeb()
 		self.replace ('<br>', '</p><p>')
 		self.text = findTextBetweenTag (self.text, 'body')
+		# le titre
 		d= self.index ('<h2>') +4
 		f= self.index ('</h2>', d)
 		self.title = self.text[d:f]
 		self.title = self.title.strip()
 		self.title = self.title.strip ('.')
+		# l'auteur et sa page
 		d= self.index ("<a href='/users/", f) +9
 		f= self.index ("'", d)
 		self.autlink = self.text[d:f]
 		d= self.index ('>', d) +1
 		f= self.index ('</a>', d)
 		self.author = self.text[d:f]
+		# le sujet
 		self.findSubject (subject)
 		if self.subject == 'histoire':
 			d= self.index ('Additional Tags:<ul>') +24
 			d= self.index ('>', d) +1
 			f= self.index ('<', d)
 			self.subject = self.text[d:f]
+		# le texte ne compte qu'un seul chapître
 		d= self.index ('<h3>Work Text:</h3>') +19
+		# le texte compte plusieurs chapîtres
+		if d==18: d= self.index ("<h3><a href='/works/")
 		f= self.rindex ('<h3>Actions</h3>')
 		self.text = self.text[d:f]
 		self.replace ('<div>')
 		self.replace ('</div>')
+		self.replace ('<h3>Chapter Text</h3>')
+		self.replace ('</h3>', '</h2>')
+		chapterList = self.text.split ("<h3><a href='/works/")
+		chapterRange = range (1, len (chapterList))
+		for c in chapterRange:
+			d= chapterList[c].find ('</a>: ') +6
+			chapterList[c] = chapterList[c][d:]
+		self.text = '<h2>'.join (chapterList)
+		# nettoyer le texte
 		if self.contain ('<h3>Notes:</h3>'):
 			halfText = self.length() /2
 			d= self.index ('<h3>Notes:</h3>')

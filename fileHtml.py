@@ -258,6 +258,14 @@ class FileHtml (FilePerso):
 
 	""" ________________________ texte du web ________________________ """
 
+	def fromUrlVb (self):
+		self.title = 'tmp'
+		self.fileFromData()
+		urlRequest.urlretrieve (self.link, self.file)
+		self.fromFile()
+		remove (self.file)
+		self.titleFromUrl()
+		self.fileFromData()
 
 	def fromUrl (self, params=None):
 		# récupérer le texte. les params servent à remplir les formulaires
@@ -269,14 +277,8 @@ class FileHtml (FilePerso):
 		else: myRequest = urlRequest.Request (self.link)
 		try: response = urlRequest.urlopen (myRequest)
 		except Exception as e:
-			# print ("la première methode de téléchargement à échoué, éssai avec la seconde.\nun fichier tmp.html est créé sur le bureau puis supprimé")
-			self.title = 'tmp'
-			self.fileFromData()
-			urlRequest.urlretrieve (self.link, self.file)
-			self.fromFile()
-			remove (self.file)
-			self.fileFromData()
-			self.titleFromUrl()
+			print ("la première methode de téléchargement à échoué, éssai avec la seconde.\nun fichier tmp.html est créé sur le bureau puis supprimé")
+			self.fromUrlVb()
 		else:
 			tmpByte = response.read()
 			self.text = codecs.decode (tmpByte, 'utf-8', errors='ignore')
@@ -316,6 +318,7 @@ class FileHtml (FilePerso):
 	def cleanWeb (self):
 		self.clean()
 		# supprimer les commentaires
+		self.replace ('< !--', '<!--')
 		textList = ListPerso()
 		textList.addList (self.text.split ('<!--'))
 		textRange = textList.range (1)
