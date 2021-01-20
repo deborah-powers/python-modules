@@ -521,17 +521,17 @@ def fileToHtml (self):
 		self.text = 'figure>'.join (paragraphList)
 
 	if '\ncode' in self.text:
-		self.replace ('\ncode\n', '\n<code>\n')
-		self.replace ('\n/code\n', '\n</code>\n')
-		paragraphList = self.text.split ('code>')
+		self.replace ('\ncode\n', '\n<xmp>\n')
+		self.replace ('\n/code\n', '\n</xmp>\n')
+		paragraphList = self.text.split ('xmp>')
 		paragraphRange = range (1, len (paragraphList), 2)
 		for i in paragraphRange:
 			paragraphList[i] = paragraphList[i].strip()
 			paragraphList[i] = paragraphList[i].strip('\n\t ')
 			paragraphList[i] = paragraphList[i].replace ('\n', '\a')
 			paragraphList[i] = paragraphList[i].replace ('\t', '\f')
-		self.text = 'code>'.join (paragraphList)
-		self.replace ('\a</code>', '</code>')
+		self.text = 'xmp>'.join (paragraphList)
+		self.replace ('\a</xmp>', '</xmp>')
 
 	if '\n\t' in self.text:
 		self.text = '\n'+ self.text +'\n'
