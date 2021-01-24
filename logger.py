@@ -15,7 +15,7 @@ def traceLine():
 	stackLen = len (stackList)
 	i=0
 	while i< stackLen and __file__ in stackList[i].filename: i+=1
-	return '%s:%d: %s' %( stackList[i].filename, stackList[i].lineno, stackList[i].function)
+	return '%s\t%d\t%s' %( stackList[i].filename, stackList[i].lineno, stackList[i].function)
 
 def log (message=None):
 	trace = traceDate() +' '+ traceLine()
@@ -24,6 +24,13 @@ def log (message=None):
 
 def coucou():
 	log ('coucou')
+
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
+letterPos =0
+def letter():
+	log (alphabet [letterPos])
+	letterPos +=1
+	if letterPos >25: letterPos =0
 
 """
 class Logger():
