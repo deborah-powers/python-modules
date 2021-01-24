@@ -96,8 +96,9 @@ class FileHtml (FilePerso):
 		self.replace (' <', '<')
 		self.replace (' />', '/>')
 		self.text = self.text.strip()
-		self.replace ('"', "'")
+		self.replace ("''",'"')
 		"""
+		self.replace ('"', "'")
 		# rajouter des espaces autour des liens
 		self.replace ('</a>', ' </a>')
 		self.replace ('">', '"> ')

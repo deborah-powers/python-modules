@@ -1,6 +1,18 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from fileHtml import FileHtml
+from logger import Logger
 
-fhtml = FileHtml()
-fhtml.testOnline()
+log = Logger()
+log.log ('a')
+log.coucou()
+
+class Test():
+	def __init__ (self):
+		self.a = 'a'
+		log.log ('b')
+
+	def printC (self):
+		log.log ('c')
+
+test = Test()
+test.printC()

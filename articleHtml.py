@@ -4,9 +4,11 @@ from sys import argv
 from fileHtml import FileHtml, findTextBetweenTag
 from fileClass import Article
 from listClass import ListPerso
+import logger
 
 help ="""lancer le script
 	python articleHtml.py url"""
+
 
 class ArticleHtml (FileHtml, Article):
 	def __init__(self, file =None):
@@ -135,8 +137,8 @@ class ArticleHtml (FileHtml, Article):
 		else: self.subject = 'histoire'
 
 	def delImgLink (self):
-		self.text = self.text.replace ('</div>', "")
-		self.text = self.text.replace ('<div>', "")
+		self.replace ('</div>', "")
+		self.replace ('<div>', "")
 		# supprimer les liens
 		if self.contain ('<a href='):
 			textList = ListPerso()
@@ -146,7 +148,7 @@ class ArticleHtml (FileHtml, Article):
 				d= textList[i].find ('>') +1
 				textList[i] = textList[i][d:]
 			self.text = "".join (textList)
-			self.text = self.text.replace ('</a>', "")
+			self.replace ('</a>', "")
 		# supprimer les images
 		if self.contain ('<img src='):
 			textList = ListPerso()
@@ -160,12 +162,12 @@ class ArticleHtml (FileHtml, Article):
 	def usePlaceholders (self):
 		placeholders = ('y/n', 'e/c', 'h/c')
 		for ph in placeholders:
-			self.text.replace (ph.upper(), ph)
-			self.text.replace ('('+ ph.upper() +')', ph)
-			self.text.replace ('('+ ph +')', ph)
-		self.text = self.text.replace ('y/n', 'Deborah')
-		self.text = self.text.replace ('e/c', 'grey')
-		self.text = self.text.replace ('h/c', 'dark blond')
+			self.replace (ph.upper(), ph)
+			self.replace ('('+ ph.upper() +')', ph)
+			self.replace ('('+ ph +')', ph)
+		self.replace ('y/n', 'Deborah')
+		self.replace ('e/c', 'grey')
+		self.replace ('h/c', 'dark blond')
 
 	""" ________________________ récupérer les articles des sites ________________________ """
 
@@ -252,7 +254,7 @@ class ArticleHtml (FileHtml, Article):
 		if (self.contain ('<h2>Footnotes:</h2>')):
 			f= self.index ('<h2>Footnotes:</h2>')
 			self.text = self.text[:f]
-		for tag in listTags: self.text = self.text.replace ('<'+tag+'></'+tag+'>', "")
+		for tag in listTags: self.replace ('<'+tag+'></'+tag+'>', "")
 		self.delImgLink()
 		self.metas ={}
 		self.toFile()
@@ -277,7 +279,7 @@ class ArticleHtml (FileHtml, Article):
 
 	def deviantart (self, subject=None):
 		self.findSubject (subject)
-		self.text = self.text.replace ('<br/>', '</p><p>')
+		self.replace ('<br/>', '</p><p>')
 		self.delScript()
 		self.cleanWeb()
 		f= self.title.rfind (' ')
@@ -290,8 +292,8 @@ class ArticleHtml (FileHtml, Article):
 		self.author = self.text[d:f]
 		d= self.index ('<p>',f)
 		self.text = self.text[d:]
-		self.text = self.text.replace ('<div>', "")
-		self.text = self.text.replace ('</div>', "")
+		self.replace ('<div>', "")
+		self.replace ('</div>', "")
 		f= self.index ('>See More by')
 		self.text = self.text[:f]
 		f= self.rfind ('<a')
@@ -378,7 +380,6 @@ class ArticleHtml (FileHtml, Article):
 		self.replace ('<div>')
 		self.replace ('</div>')
 		self.replace ('<h3>Chapter Text</h3>')
-		self.replace ('</h3>', '</h2>')
 		chapterList = self.text.split ("<h3><a href='/works/")
 		chapterRange = range (1, len (chapterList))
 		for c in chapterRange:
@@ -390,7 +391,16 @@ class ArticleHtml (FileHtml, Article):
 			halfText = self.length() /2
 			d= self.index ('<h3>Notes:</h3>')
 			if d> halfText: self.text = self.text[:d]
+		# les balises de titres
+		if self.contain ('<h2>'):
+			titleList = ListPerso()
+			titleList.fromText ('<h2>', self.text)
+			titleRange = titleList.range (1)
+			for t in titleRange:
+				if '</h2>' not in titleList[t]: titleList[t] = titleList[t].replace ('</h3>', '</h2>', 1)
+			self.text = titleList.toText ('<h2>')
 		self.usePlaceholders()
+		self.title = 'tmp'
 
 	def ffnet (self, subject=None):
 		# trouver les meta
