@@ -61,7 +61,6 @@ class ArticleHtml (FileHtml, Article):
 		ftext.shape()
 		ftext.toHtml()
 		Article.copyFile (self, ftext)
-		print (self)
 		self.extension = 'html'
 		self.toFile()
 
@@ -86,9 +85,9 @@ class ArticleHtml (FileHtml, Article):
 			self.fds()
 			toText = False
 		else:
-			self.cleanWeb()
+			# self.cleanWeb()
 			toText = False
-		if self.contain ('</a>'): toText = False
+		if self.contain ('</a>') or self.contain ('<img'): toText = False
 		self.metas ={}
 		self.replace (' <', '<')
 		self.replace ('><', '>\n<')

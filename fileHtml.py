@@ -6,6 +6,7 @@ from urllib import request as urlRequest
 from listClass import ListPerso
 from fileClass import *
 from fileLocal import pathCss
+import logger
 
 help ="""lancer le script
 	python fileHtml.py url"""
@@ -268,23 +269,29 @@ class FileHtml (FilePerso):
 		self.titleFromUrl()
 		self.fileFromData()
 
-	def fromUrl (self, params=None):
+	def fromUrlVa (self, params=None):
 		# récupérer le texte. les params servent à remplir les formulaires
 		myRequest = None
 		response = None
+		paramsUrl = None
 		if params:
-			paramsUrl = ul.urlencode (params).encode ('utf-8')
-			myRequest = urlRequest.Request (self.link, paramsUrl)
+			paramsUrl = ul.parse.urlencode (params).encode ('utf-8')
+			myRequest = urlRequest.Request (self.link, method='POST')
 		else: myRequest = urlRequest.Request (self.link)
-		try: response = urlRequest.urlopen (myRequest)
+		try: response = urlRequest.urlopen (myRequest, paramsUrl)
 		except Exception as e:
-			print ("la première methode de téléchargement à échoué, éssai avec la seconde.\nun fichier tmp.html est créé sur le bureau puis supprimé")
-			self.fromUrlVb()
+			print ('la récupération à échoué')
+			return
 		else:
 			tmpByte = response.read()
 			self.text = codecs.decode (tmpByte, 'utf-8', errors='ignore')
 			response.close()
 			self.titleFromUrl()
+
+
+	def fromUrl (self, params=None):
+		if params == 'b': self.fromUrlVb()
+		else: self.fromUrlVa()
 
 	def titleFromUrl (self):
 		title = self.link.strip ('/')
@@ -306,7 +313,7 @@ class FileHtml (FilePerso):
 		self.fileFromData()
 		self.link = url
 		self.fromUrl()
-		self.cleanWeb()
+		# self.cleanWeb()
 		self.metas ={}
 		self.styles =[]
 		self.metas['link'] = self.link
@@ -330,7 +337,9 @@ class FileHtml (FilePerso):
 		# effacer certaines balises
 		self.cleanSpan()
 		self.cleanTags()
+		logger.log (self.text[-20:])
 		self.text = findTextBetweenTag (self.text, 'body')
+		logger.log (self.text[-20:])
 		self.replace ('\n')
 		self.replace ('\t')
 		self.clean()
@@ -382,7 +391,7 @@ class FileHtml (FilePerso):
 				f= tag.find (' ')
 				attributes = tag[f:]
 				tag = tag[:f]
-				if tag in ('a', 'img'): tag = self.cleanTagsSpecial (tag, attributes)
+				if tag in ('a', 'img', 'form', 'input'): tag = self.cleanTagsSpecial (tag, attributes)
 				elif tag not in tagList: tagList.add (tag)
 			elif tag not in tagList: tagList.add (tag)
 			textList[t] = tag + textList[t]
@@ -415,6 +424,8 @@ class FileHtml (FilePerso):
 		if tag == 'a':
 			return self.keepAttribute ('a', 'href', attributeList)
 		elif tag == 'img': return self.keepAttribute ('img', 'src', attributeList)
+		elif tag == 'input': return self.keepAttributeInput (attributeList)
+		elif tag == 'form': return self.keepAttributeForm (attributeList)
 
 	def keepAttribute (self, tag, attr, attributeList):
 		if attr in attributeList:
@@ -428,6 +439,37 @@ class FileHtml (FilePerso):
 				d-=1
 				tag = tag + attributeList[d:] +"'"
 		return tag
+
+	def keepAttributeInput (self, attributeList):
+		tag = 'input'
+		for attr in ('type', 'name', 'value', 'placeholder'):
+			if attr in attributeList:
+				tag = tag +' '+ attr +"='"
+				d= attributeList.find (attr) +2+ len (attr)
+				quote = attributeList[d-1]
+				if quote in '"\'':
+					f= attributeList.find (quote, d)
+					tag = tag + attributeList[d:f] +"'"
+				else:
+					d-=1
+					tag = tag + attributeList[d:] +"'"
+		return tag
+
+	def keepAttributeForm (self, attributeList):
+		tag = 'form'
+		for attr in ('action', 'method'):
+			if attr in attributeList:
+				tag = tag +' '+ attr +"='"
+				d= attributeList.find (attr) +2+ len (attr)
+				quote = attributeList[d-1]
+				if quote in '"\'':
+					f= attributeList.find (quote, d)
+					tag = tag + attributeList[d:f] +"'"
+				else:
+					d-=1
+					tag = tag + attributeList[d:] +"'"
+		return tag
+
 
 	def delScript (self):
 		if not self.contain ('</script>'): return
