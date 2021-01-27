@@ -72,7 +72,7 @@ class ArticleHtml (FileHtml, Article):
 		self.link = url
 		self.fromUrl()
 		self.clean()
-		toText = False
+		toText = True
 		if 'http://www.gutenberg.org/' in url:				self.gutemberg (subject)
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebg (subject)
 		elif 'https://archiveofourown.org/works/' in url:	self.aooo()
@@ -160,14 +160,15 @@ class ArticleHtml (FileHtml, Article):
 			self.text = "".join (textList)
 
 	def usePlaceholders (self):
-		placeholders = ('y/n', 'e/c', 'h/c')
+		placeholders = ('y/n', 'e/c', 'h/c', 'l/n')
 		for ph in placeholders:
 			self.replace (ph.upper(), ph)
-			self.replace ('('+ ph.upper() +')', ph)
 			self.replace ('('+ ph +')', ph)
+			self.replace ('['+ ph +']', ph)
 		self.replace ('y/n', 'Deborah')
 		self.replace ('e/c', 'grey')
 		self.replace ('h/c', 'dark blond')
+		self.replace ('l/n', 'Powers')
 
 	""" ________________________ récupérer les articles des sites ________________________ """
 
@@ -346,8 +347,7 @@ class ArticleHtml (FileHtml, Article):
 	def aooo (self, subject=None):
 		if 'This work could have adult content. If you proceed you have agreed that you are willing to see such content' in self.text:
 			print ('fichier protégé', self.title)
-			self.fromUrlVb()
-		#	return
+			return
 		self.cleanWeb()
 		self.replace ('<br>', '</p><p>')
 		self.text = findTextBetweenTag (self.text, 'body')
@@ -380,27 +380,22 @@ class ArticleHtml (FileHtml, Article):
 		self.replace ('<div>')
 		self.replace ('</div>')
 		self.replace ('<h3>Chapter Text</h3>')
-		chapterList = self.text.split ("<h3><a href='/works/")
-		chapterRange = range (1, len (chapterList))
-		for c in chapterRange:
-			d= chapterList[c].find ('</a>: ') +6
-			chapterList[c] = chapterList[c][d:]
-		self.text = '<h2>'.join (chapterList)
+		if self.contain ("<h3><a href='/works/"):
+			chapterList = ListPerso()
+			chapterList.fromText ("<h3><a href='/works/", self.text)
+			chapterRange = chapterList.range (1)
+			for c in chapterRange:
+				d= chapterList[c].find ('>') +1
+				chapterList[c] = chapterList[c][d:]
+			self.text = '<h2>'.join (chapterList)
+			self.replace ('</a></h3>', '</h2>')
 		# nettoyer le texte
 		if self.contain ('<h3>Notes:</h3>'):
 			halfText = self.length() /2
 			d= self.index ('<h3>Notes:</h3>')
 			if d> halfText: self.text = self.text[:d]
-		# les balises de titres
-		if self.contain ('<h2>'):
-			titleList = ListPerso()
-			titleList.fromText ('<h2>', self.text)
-			titleRange = titleList.range (1)
-			for t in titleRange:
-				if '</h2>' not in titleList[t]: titleList[t] = titleList[t].replace ('</h3>', '</h2>', 1)
-			self.text = titleList.toText ('<h2>')
 		self.usePlaceholders()
-		self.title = 'tmp'
+	#	self.title = 'tmp'
 
 	def ffnet (self, subject=None):
 		# trouver les meta
@@ -488,15 +483,12 @@ class ArticleHtml (FileHtml, Article):
 
 	def fds (self):
 		self.subject = 'feminisme'
-		self.title = 'fds '+ findTextBetweenTag (self.text, 'title').lower()
-		d= self.index ('article:author')
-		d= self.index ('content=', d) +9
-		f= self.index ("'", d)
-		self.author = self.text[d:f]
+		# self.title = 'fds '+ findTextBetweenTag (self.text, 'title').lower()
+		self.title = 'fds '+ self.title
 		self.text = findTextBetweenTag (self.text, 'article')
-		self.cleanWeb()
-		d= self.index ('<img')
-		d= self.index ('<p>')
+		self.author = findTextBetweenTag (self.text, 'li')
+		d= self.index ('<article>') +9
+		d= self.index ('<',d)
 		self.text = self.text[d:]
 		self.replace ('<div>')
 		self.replace ('</div>')

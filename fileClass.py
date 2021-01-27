@@ -112,7 +112,7 @@ class FilePerso (Text):
 		chars = '/\\\t\n'; c=0
 		while chars != 'error' and c<4:
 			if chars[c] in self.title:
-				print ('le fichier est mal formé:', self.title)
+				print ('le fichier est mal formé:', self.title[:100])
 				chars = 'error'
 			c+=1
 		if chars != 'error':
@@ -127,6 +127,11 @@ class FilePerso (Text):
 		self.extension = 'md'
 		self.fileFromData()
 	#	self.toFile()
+
+	def toLiseuse (self):
+		self.clean()
+		self.replace ('\n\n','\n')
+		self.replace ('\n','\n\n')
 
 	""" ________________________ comparer deux fichiers ________________________ """
 
@@ -288,6 +293,7 @@ elif len (argv) ==3:
 	filePerso.fromFile()
 	if argv[1] =='maj': filePerso.clean()
 	elif argv[1] =='mef': filePerso.shape()
+	elif argv[1] =='lis': filePerso.toLiseuse()
 	elif argv[1] =='md': filePerso.toMd()
 	filePerso.toFile()
 elif argv[1] == 'testFile':
