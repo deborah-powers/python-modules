@@ -337,9 +337,7 @@ class FileHtml (FilePerso):
 		# effacer certaines balises
 		self.cleanSpan()
 		self.cleanTags()
-		logger.log (self.text[-20:])
 		self.text = findTextBetweenTag (self.text, 'body')
-		logger.log (self.text[-20:])
 		self.replace ('\n')
 		self.replace ('\t')
 		self.clean()

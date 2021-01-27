@@ -6,22 +6,23 @@ import urllib as ul
 from urllib import request as urlRequest
 
 links =(
-	'https://www.reddit.com/r/femaledatingstrategy/comments/hmjaqh/thread_on_detecting_lies_and_infidelity/',
-	'https://www.therealfemaledatingstrategy.com/post/how-to-vet-for-sexual-compatibility',
-	'https://www.therealfemaledatingstrategy.com/post/dick-size-matters',
-	'https://www.therealfemaledatingstrategy.com/forum/handbook-posts/males-monogamy-and-mate-guarding/',
-	'https://www.reddit.com/r/femaledatingstrategy/comments/fgmqcm/women_have_the_trump_card_and_men_know_it/',
-	'https://www.therealfemaledatingstrategy.com/post/women-are-not-responsible-for-mens-behavior',
-	'https://www.reddit.com/r/femaledatingstrategy/comments/izylyt/protect_your_womb_like_its_the_last_thing_you_do/',
-	'https://www.reddit.com/r/femaledatingstrategy/comments/fbdes8/the_real_reason_why_lvm_want_to_go_dutch_and_why/',
-	'https://www.reddit.com/r/femaledatingstrategy/comments/iwfi5z/the_myth_of_the_modern_housewife/',
-	'https://www.reddit.com/r/femaledatingstrategy/comments/imkv32/fds_is_so_judgemental_yes_and_we_are_proud_of_it/'
+	'https://www.therealfemaledatingstrategy.com/post/fucking-ain-t-fair-act-accordingly',
+	'https://www.therealfemaledatingstrategy.com/post/why-are-one-night-stands-being-sold-to-women-as-strong-empowering-instead-of-risky-reckless',
+	'https://www.reddit.com/r/femaledatingstrategy/comments/jbtke6/ladies_lets_talk_about_money_whether_youre_single/',
+	'https://www.reddit.com/r/femaledatingstrategy/comments/exmc2u/to_the_men_that_call_us_entitled_princesses/',
+	'https://www.therealfemaledatingstrategy.com/post/testing-post-3',
+	'https://www.reddit.com/r/femaledatingstrategy/comments/f3datu/does_she_expect_you_to_read_her_mind_yep_next/',
+	'https://www.reddit.com/r/femaledatingstrategy/wiki/index',
+	'https://www.reddit.com/r/femaledatingstrategy/wiki/faqs',
+	'https://www.reddit.com/r/femaledatingstrategy/comments/exmc2u/to_the_men_that_call_us_entitled_princesses/'
 )
 article = ArticleHtml()
 article.path = 'b/fds/'
 
 def getFiles():
 	for link in links: article.fromWeb (link, 'feminisme')
+
+getFiles()
 
 urlF = 'https://mantis2.axyus.com/view.php?id=660'
 urlD = 'https://mantis2.axyus.com/login_password_page.php'

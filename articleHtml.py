@@ -388,6 +388,15 @@ class ArticleHtml (FileHtml, Article):
 				chapterList[c] = chapterList[c][d:]
 			self.text = '<h2>'.join (chapterList)
 			self.replace ('</a></h3>', '</h2>')
+		if self.contain ('<h2>Chapter ') and not self.contain ('</h2>'):
+			chapterList = ListPerso()
+			chapterList.fromText ('<h2>Chapter ', self.text)
+			chapterRange = chapterList.range (1)
+			for c in chapterRange:
+				d= chapterList[c].find ('</a>: ') +6
+				chapterList[c] = chapterList[c][d:]
+				chapterList[c] = chapterList[c].replace ('</h3>', '</h2>', 1)
+			self.text = '<h2>'.join (chapterList)
 		# nettoyer le texte
 		if self.contain ('<h3>Notes:</h3>'):
 			halfText = self.length() /2
