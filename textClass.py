@@ -18,6 +18,7 @@ artefacts =(
 # 	('\n______\n\n______ ', '\n\n________________________\n______ '),
 artefactsLowerCase =( 'Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nUpdate ', '\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', 'Inner join ', 'Outer join ', 'Left outer join ', 'Insert into ',
+	'\nCd ', '\nPsql ','\nPg_', '\nPython ',
 	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
 	'\nLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
 # caractères à remplacer
