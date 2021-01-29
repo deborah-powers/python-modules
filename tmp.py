@@ -5,6 +5,15 @@ from fileHtml import FileHtml
 import urllib as ul
 from urllib import request as urlRequest
 
+file = 'b/cv-2021-01/CV deborah powers.html'
+html = FileHtml()
+html.file = file
+html.fromFile()
+html.cleanWeb()
+html.title = 'tmp'
+html.fileFromData()
+html.toFile()
+
 links =(
 	'https://www.therealfemaledatingstrategy.com/post/fucking-ain-t-fair-act-accordingly',
 	'https://www.therealfemaledatingstrategy.com/post/why-are-one-night-stands-being-sold-to-women-as-strong-empowering-instead-of-risky-reckless',
