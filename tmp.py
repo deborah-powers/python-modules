@@ -5,9 +5,8 @@ from fileHtml import FileHtml
 import urllib as ul
 from urllib import request as urlRequest
 
-file = 'b/cv-2021-01/CV deborah powers.html'
 html = FileHtml()
-html.file = file
+html.file = 'b/cv-2021-01/cv.mht'
 html.fromFile()
 html.cleanWeb()
 html.title = 'tmp'
@@ -30,8 +29,6 @@ article.path = 'b/fds/'
 
 def getFiles():
 	for link in links: article.fromWeb (link, 'feminisme')
-
-getFiles()
 
 urlF = 'https://mantis2.axyus.com/view.php?id=660'
 urlD = 'https://mantis2.axyus.com/login_password_page.php'

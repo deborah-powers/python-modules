@@ -16,7 +16,7 @@ les valeurs de tag
 	cpr: comparer deux fichiers ligne à ligne
 	md: transformer mon fichier en md
 """
-extensions = 'txt log css html xml svg md tsv csv json js py sql jpeg jpg png bmp gif pdf mp3 mp4 waw vlc avi mpg srt mkv divx ass AVI torrent Divx flv wma m4a MP3 TMP tmp'
+extensions = 'txt log css html xml svg md tsv csv json js py sql jpeg jpg png bmp gif pdf mp3 mp4 waw vlc avi mpg srt mkv divx ass AVI torrent Divx flv wma m4a MP3 TMP tmp mht'
 
 def createFolder (folder):
 	if not os.path.exists (folder): os.mkdir (folder)
@@ -113,6 +113,7 @@ class FilePerso (Text):
 		while chars != 'error' and c<4:
 			if chars[c] in self.title:
 				print ('le fichier est mal formé:', self.title[:100])
+				print (c, chars[c])
 				chars = 'error'
 			c+=1
 		if chars != 'error':
