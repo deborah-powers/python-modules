@@ -4,6 +4,7 @@ from articleHtml import ArticleHtml
 from fileHtml import FileHtml
 import urllib as ul
 from urllib import request as urlRequest
+import logger
 
 file = 'b/cv-2021-01/CV deborah powers.html'
 html = FileHtml()
@@ -15,21 +16,14 @@ html.fileFromData()
 html.toFile()
 
 links =(
-	'https://www.therealfemaledatingstrategy.com/post/fucking-ain-t-fair-act-accordingly',
-	'https://www.therealfemaledatingstrategy.com/post/why-are-one-night-stands-being-sold-to-women-as-strong-empowering-instead-of-risky-reckless',
-	'https://www.reddit.com/r/femaledatingstrategy/comments/jbtke6/ladies_lets_talk_about_money_whether_youre_single/',
-	'https://www.reddit.com/r/femaledatingstrategy/comments/exmc2u/to_the_men_that_call_us_entitled_princesses/',
-	'https://www.therealfemaledatingstrategy.com/post/testing-post-3',
-	'https://www.reddit.com/r/femaledatingstrategy/comments/f3datu/does_she_expect_you_to_read_her_mind_yep_next/',
-	'https://www.reddit.com/r/femaledatingstrategy/wiki/index',
-	'https://www.reddit.com/r/femaledatingstrategy/wiki/faqs',
-	'https://www.reddit.com/r/femaledatingstrategy/comments/exmc2u/to_the_men_that_call_us_entitled_princesses/'
+	'https://www.reddit.com/r/FemaleDatingStrategy/comments/dqnjgx/',
 )
 article = ArticleHtml()
 article.path = 'b/fds/'
 
 def getFiles():
-	for link in links: article.fromWeb (link, 'feminisme')
+	for link in links:
+		article.fromWeb (link, 'feminisme')
 
 getFiles()
 

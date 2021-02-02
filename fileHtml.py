@@ -324,7 +324,6 @@ class FileHtml (FilePerso):
 		self.text = findTextBetweenTag (self.text, 'body')
 
 	def cleanWeb (self):
-		logger.log (1)
 		self.clean()
 		# supprimer les commentaires
 		self.replace ('< !--', '<!--')
