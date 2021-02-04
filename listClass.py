@@ -105,9 +105,10 @@ class ListPerso():
 		self.addList (newList)
 
 	def toText (self, word):
-		newList =[]
-		for item in self.list: newList.append (str (item))
-		return word.join (newList)
+		newList =""
+		for item in self.list: newList = newList + word + str (item)
+		newList = newList.replace (word, "", 1)
+		return newList
 
 	def reverse (self):
 		self.list.reverse()
