@@ -14,8 +14,9 @@ from google.auth.transport.requests import Request
 
 from dateClass import DatePerso, EventPerso
 from listClass import dictGetKeyByValue
-from listFile import ListFile, TableFile
+from fileList import FileList, FileTable
 from textClass import Text
+import logger
 
 help =""" récupérer des évenements
 utilisation
@@ -31,6 +32,7 @@ les valeurs de tag
 
 dateStart = DatePerso()
 dateStart.today()
+dateStart.year = 2020
 dateStart.month =11
 dateStart.day =20
 
@@ -54,7 +56,8 @@ evtDict ={
 	'douleurs':	('sante', '7'),
 	'depenses':	('quotidien', '7'),
 	'journal':	('journal', '2'),
-	'reves':	('journal', '7')
+	'reves':	('journal', '7'),
+	'balade':	('journal', '7')
 }
 
 def setService():
@@ -137,10 +140,6 @@ class eventGoogle (calendarGoogle, EventPerso):
 		if EventPerso.equals (self, newEvt) and self.idRec == newEvt.idRec: return True
 		else: return False
 
-	def __str__(self):
-		strEvt = "%s\t%s\t%s" % (self.date.__str__(), self.category, self.title)
-		return strEvt
-
 	def __lt__ (self, newEvt):
 		return self.__str__() < newEvt.__str__()
 
@@ -172,6 +171,15 @@ class eventGoogle (calendarGoogle, EventPerso):
 		if self.color == evtDict['regles'][1] and self.title.lower() in ('règles', 'regles'):
 			self.infos.replace ('\n', '\t')
 			evtStr = '%s\t%s' % (self.date.toStrDay(), self.infos.text)
+			return evtStr
+		else: return None
+
+	def getOneWalk (self):
+		if self.title == 'Balade':
+			self.infos.replace ('\r')
+			evtStr = '%s\n%s' % (self.date.toStrDay(), self.infos.text)
+			evtStr = evtStr.replace ('\n', '\n\t')
+			evtStr = evtStr.replace ('\r', "")
 			return evtStr
 		else: return None
 
@@ -235,9 +243,9 @@ class eventGoogle (calendarGoogle, EventPerso):
 			return evtStr
 		else: return None
 
-class eventList (ListFile):
+class eventList (FileList):
 	def __init__ (self):
-		ListFile.__init__ (self)
+		FileList.__init__ (self)
 		self.file = 'b/calendar.txt'
 		self.dataFromFile()
 
@@ -281,7 +289,7 @@ class eventList (ListFile):
 		return newList
 
 	def toFile (self):
-		newList = TableFile()
+		newList = FileTable()
 		newList.title = 'calendar'
 		newList.extension = 'tsv'
 		newList.fileFromData()
@@ -311,7 +319,7 @@ class eventList (ListFile):
 		cal.fromName (service, calName)
 		# extraire tous leurs évênemnts
 		self.fromCalendar (service, cal, True, dateMin=dateStart, dateMax=dateEnd)
-		evtList = ListFile()
+		evtList = FileList()
 		evtList.file = 'b/calendar.tsv'
 		evtList.dataFromFile()
 		for evt in self.list:
@@ -335,5 +343,6 @@ elif argv[1] == 'regles':	evtList.getPastEvents (evtDict['regles'][0],	eventGoog
 elif argv[1] == 'poids':	evtList.getPastEvents (evtDict['poids'][0],		eventGoogle.getOneWeight)
 elif argv[1] == 'depenses':	evtList.getPastEvents (evtDict['depenses'][0],	eventGoogle.getOnePurchase)
 elif argv[1] == 'douleurs':	evtList.getPastEvents (evtDict['douleurs'][0],	eventGoogle.getOneDolor)
+elif argv[1] == 'balade':	evtList.getPastEvents (evtDict['balade'][0],	eventGoogle.getOneWalk)
 elif argv[1] == 'all':		evtList.getAll()
 else: print (help)

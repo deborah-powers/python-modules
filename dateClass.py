@@ -28,6 +28,20 @@ class EventPerso():
 	def __lt__(self, newEvent):
 		return self.date.__lt__(newEvent.date)
 
+	def __str__(self):
+		return self.toStrDay()
+
+	def toStrHour (self):
+		strEvt = self.date.toStrHour() +'\t'+ self.category +'\t'+ self.title +'\t'+ self.location +'\n\t'+ self.infos.text
+		return strEvt
+
+	def toStrDay (self):
+		strEvt = self.date.toStrDay() +'\t'+ self.category +'\t'+ self.title +'\t'+ self.location +'\n\t'+ self.infos.text
+		return strEvt
+
+
+
+
 class EventList (ListPerso):
 	pass
 

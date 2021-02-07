@@ -19,8 +19,20 @@ def traceLine():
 
 def log (message=None):
 	trace = traceDate() +' '+ traceLine()
+	if message: print (trace, message)
+	else: print (trace)
+	"""
 	if logon and message: print (trace, message)
 	elif logon: print (trace)
+	"""
+
+def message (message=None, obj=None):
+	msgAffichable =""
+	if message:
+		msgAffichable = message
+		if obj: msgAffichable = msgAffichable +'\t'+ str (obj)
+	elif obj: msgAffichable = str (obj)
+	log (msgAffichable)
 
 def coucou():
 	log ('coucou')
