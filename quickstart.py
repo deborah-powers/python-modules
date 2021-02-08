@@ -32,9 +32,8 @@ les valeurs de tag
 
 dateStart = DatePerso()
 dateStart.today()
-dateStart.year = 2020
-dateStart.month =11
-dateStart.day =20
+dateStart.month =2
+dateStart.day =6
 
 dateEnd = DatePerso()
 dateEnd.today()
@@ -227,7 +226,7 @@ class eventGoogle (calendarGoogle, EventPerso):
 		else: return None
 
 	def getOneDream (self):
-		if self.color == evtDict['reves'][1]:
+		if self.color == evtDict['reves'][1] and self.title != 'Balade':
 			self.infos.shape()
 			self.infos.replace ('"', '\\"')
 			self.infos.replace ('\n', '",\n\t\t"')
