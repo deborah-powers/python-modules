@@ -510,7 +510,7 @@ elif len (argv) >=2:
 	if len (argv) >=3: subject = argv[2]
 	page = ArticleHtml()
 	if url[:4] == 'http': page.fromWeb (url, subject)
-	elif subject == 'toText':
+	elif subject == 'totext':
 		page.file = url
 		page.toFileText()
 	elif url[-5:] == '.html': page.fromLocal (url, subject)

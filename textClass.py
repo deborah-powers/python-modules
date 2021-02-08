@@ -139,10 +139,12 @@ class Text():
 	def cleanPunctuation (self):
 		# for mi,ma in accents: self.replace (ma, ' '+ma)
 		while '  ' in self.text: self.replace ('  ', ' ')
+		points = '?!;'
 		self.replace ('( ', '(')
-		self.replace ('?', ' ?')
-		self.replace ('!', ' !')
+		for p in points: self.replace (p, ' '+p)
 		self.replace ('  ', ' ')
+		for p in points:
+			for q in points: self.replace (p+' '+q, p+q)
 		lettreAppostrophe =( 'c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
 		for l in lettreAppostrophe:
 			self.replace (' '+l+"' ", ' '+l+"'")
