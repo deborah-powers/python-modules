@@ -17,7 +17,7 @@ artefacts =(
 )
 # 	('\n______\n\n______ ', '\n\n________________________\n______ '),
 artefactsLowerCase =( 'Deborah.powers', 'Deborah.noisetier', 'Http',
-	'\nUpdate ', '\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', 'Inner join ', 'Outer join ', 'Left outer join ', 'Insert into ',
+	'\nUpdate ', '\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', 'Inner join ', 'Outer join ', 'Left outer join ', 'Insert into ', 'Set schema ',
 	'\nCd ', '\nPsql ','\nPg_', '\nPython ', '\nGit ',
 	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
 	'\nLog.', '\tLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
