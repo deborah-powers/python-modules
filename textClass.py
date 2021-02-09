@@ -134,21 +134,26 @@ class Text():
 	def clean (self):
 		self.text = clean (self.text)
 		self.cleanPunctuation()
-		self.text = clean (self.text)
+	#	self.text = clean (self.text)
 
 	def cleanPunctuation (self):
 		# for mi,ma in accents: self.replace (ma, ' '+ma)
 		while '  ' in self.text: self.replace ('  ', ' ')
-		points = '?!;'
 		self.replace ('( ', '(')
+		self.replace (' )', ')')
+		points = '?!;,.'
+		for p in points: self.replace (p, p+' ')
+		points = '?!;'
 		for p in points: self.replace (p, ' '+p)
-		self.replace ('  ', ' ')
+		while '  ' in self.text: self.replace ('  ', ' ')
 		for p in points:
 			for q in points: self.replace (p+' '+q, p+q)
+		while self.contain ('. .'): self.replace ('. .', '..')
 		lettreAppostrophe =( 'c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
 		for l in lettreAppostrophe:
 			self.replace (' '+l+"' ", ' '+l+"'")
 			self.replace (' '+ l.upper() +"' ", ' '+ l.upper() +"'")
+		self.replace ("Qu' ", "Qu'")
 
 	def cleanEnglish (self):
 		self.clean()
