@@ -47,10 +47,7 @@ debut		%s
 ______________________
 ______ solution ______
 
-
-branche: %s mantis-%s
-reprise de donnée nécessaire: ?
-
+%s
 
 ___________________
 ______ infos ______
@@ -102,7 +99,9 @@ class Mantis (FilePerso):
 	def createFile (self):
 		self.file = 'b/mantis '+ self.numero + '.txt'
 		self.dataFromFile()
-		self.text = template %( self.message, self.numero, self.numint, self.module, self.type, self.date.toStrDay(), self.module, self.numero, self.date.toStrDay(), self.date.toStrDay())
+		solutionStr = 'branche: %s mantis-%s\nreprise de donnée nécessaire: ?' %( self.module, self.numero)
+		if self.type == 'ddt': solutionStr = 'su_%s_' % self.numero
+		self.text = template %( self.message, self.numero, self.numint, self.module, self.type, self.date.toStrDay(), solutionStr, self.date.toStrDay(), self.date.toStrDay())
 		if self.type != 'ddt': self.text = self.text + """
 log.debug ("________________________ requete ________________________");
 log.debug (obj.getA() +"\t"+ obj.getB);"""
