@@ -341,5 +341,3 @@ def testText():
 	res = textA.comparScore (textA)
 	res = textA.comparScore (textB)
 	print (res)
-
-if __name__ == '__main__': testText()

@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 
 author = 'deborah powers'
 email = 'deborah.powers@orange.fr'
-name = 'pp-test'
-description = "package test pour comprendre la création et l'installation  des packages"
+name = 'file debby'
+description = "classes pour gérer mes fichiers"
 version = '0.1'
 
 setup (
@@ -13,7 +13,7 @@ setup (
 	author = author, author_email = email,
 	# list folders, not files
 	# packages =[ 'pptest'],
-	packages = find_packages()
+	packages = find_packages(),
 	# additional packages that needs to be installed along with your package
-	# install_requires =[ 'fileDeb']
+	install_requires =[]
 )
