@@ -71,7 +71,7 @@ class ArticleHtml (FileHtml, Article):
 		self.link = url
 		self.fromUrl()
 		self.clean()
-		toText = True
+		toText = False
 		if 'http://www.gutenberg.org/' in url:				self.gutemberg (subject)
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebg (subject)
 		elif 'https://archiveofourown.org/works/' in url:	self.aooo()
@@ -279,12 +279,12 @@ class ArticleHtml (FileHtml, Article):
 
 	def deviantart (self, subject=None):
 		self.findSubject (subject)
-		self.replace ('<br/>', '</p><p>')
-		self.delScript()
 		self.cleanWeb()
+		self.replace ('<br>', '</p><p>')
+		self.delScript()
 		f= self.title.rfind (' ')
 		self.title = self.title[:f]
-		d= self.index ("By<a href='https://www.deviantart.com/") +11
+		d= self.index ("By<a href=") +11
 		f= self.index ("'",d)
 		self.autlink = self.text[d:f]
 		d= self.index ('>',f) +1
@@ -296,9 +296,9 @@ class ArticleHtml (FileHtml, Article):
 		self.replace ('</div>', "")
 		f= self.index ('>See More by')
 		self.text = self.text[:f]
-		f= self.rfind ('<a')
+		f= self.rindex ('</p>') +4
 		self.text = self.text[:f]
-		if self.text[-1] != '>': self.text = self.text +'</p>'
+	#	if self.text[-1] != '>': self.text = self.text +'</p>'
 
 	def aoooFromSource (self, subject=None):
 		data = self.title.split (' - ')

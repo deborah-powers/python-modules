@@ -32,7 +32,8 @@ les valeurs de tag
 
 dateStart = DatePerso()
 dateStart.today()
-dateStart.month =2
+dateStart.year =2020
+dateStart.month =10
 dateStart.day =6
 
 dateEnd = DatePerso()

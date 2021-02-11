@@ -325,8 +325,10 @@ class FileHtml (FilePerso):
 
 	def cleanWeb (self):
 		self.clean()
+		self.replace ('<br/>', '<br>')
+		self.replace ('<hr/>', '<hr>')
 		# supprimer les commentaires
-		self.replace ('< !--', '<!--')
+		self.replace ('< ! --', '<!--')
 		textList = ListPerso()
 		textList.addList (self.text.split ('<!--'))
 		textRange = textList.range (1)

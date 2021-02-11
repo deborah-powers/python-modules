@@ -141,14 +141,13 @@ class Text():
 		while '  ' in self.text: self.replace ('  ', ' ')
 		self.replace ('( ', '(')
 		self.replace (' )', ')')
-		points = '?!;,.'
-		for p in points: self.replace (p, p+' ')
-		points = '?!;'
+		pointsTuple =('...', '!', ';', ',', ')')
+		for p in pointsTuple: self.replace (p, p+' ')
+		points = '!;('
 		for p in points: self.replace (p, ' '+p)
 		while '  ' in self.text: self.replace ('  ', ' ')
 		for p in points:
 			for q in points: self.replace (p+' '+q, p+q)
-		while self.contain ('. .'): self.replace ('. .', '..')
 		lettreAppostrophe =( 'c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
 		for l in lettreAppostrophe:
 			self.replace (' '+l+"' ", ' '+l+"'")
