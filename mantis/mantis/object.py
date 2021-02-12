@@ -1,8 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from dateClass import DatePerso
-from fileClass import FilePerso
-from listFile import ListFile
+from debutils.date import DatePerso
+from debutils.file import FilePerso
+from debutils.listFile import ListFile
 
 types =( 'ano', 'ddt', 'evo')
 refName = 'mantis-base.txt'
@@ -15,6 +15,7 @@ class Mantis():
 		self.module = module
 		self.type = type
 		self.numint = numint
+		if (not type or type == '?') and 'ddt' in message.lower(): self.type = 'ddt'
 
 	def __lt__(self, newMantis):
 		string = '%s %s'
@@ -24,7 +25,7 @@ class Mantis():
 		message = '%s - %s: %s\t\t\ttype: %s\tmodule: %s' %( self.numext, self.numint, self.message, self.type, self.module)
 		return message
 
-class Mantisfile (Mantis, FilePerso):
+class MantisFile (Mantis, FilePerso):
 	def __init__(self, numext ='0', message ='?', module = '?', numint ='0', type ='?'):
 		Mantis.__init__ (self, numext, message, module, numint, type)
 		FilePerso.__init__ (self, 'b/mantis' + numext)

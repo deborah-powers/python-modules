@@ -3,10 +3,9 @@
 from os import remove
 import urllib as ul
 from urllib import request as urlRequest
-from listClass import ListPerso
-from fileClass import *
-from fileLocal import pathCss
-import logger
+from debutils.list import ListPerso
+from debutils.file import *
+from debutils.fileLocal import pathCss
 
 help ="""lancer le script
 	python fileHtml.py url"""

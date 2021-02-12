@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from fileClass import FilePerso
-from listClass import ListPerso, TablePerso
+from debutils.file import FilePerso
+from debutils.list import ListPerso, TablePerso
 
 help =""" un fichier contenant une liste """
 

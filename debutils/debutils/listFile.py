@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import os
 from sys import argv
-import fileClass as fc
-from listClass import ListPerso
+import debutils.file as fc
+from debutils.list import ListPerso
 
 help ="""
 ce script peut être appelé dans un autre script

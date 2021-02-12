@@ -1,9 +1,10 @@
 ﻿#!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 import os
+from sys import argv
 import codecs
-from fileDeb.textClass import Text
-from fileDeb.fileLocal import *
+from debutils.text import Text
+from debutils.fileLocal import *
 
 help ="""traiter des fichiers
 utilisation
@@ -262,4 +263,48 @@ class Article (FilePerso):
 		self.toFile()
 		self.fromFile()
 		print (self)
+
+	def tmp (self):
+		self.file = 'b/tmp.txt'
+		self.dataFromFile()
+		self.shortcut()
+		self.fromFile()
+		self.clean()
+		self.replace ('\n')
+		self.replace ('\t')
+		self.replace ('> <', '><')
+		self.replace ('><', '>\n<')
+		self.replace ('>\n</p>', '></p>')
+		self.replace ('$ ','\n')
+		self.toFile()
+
+# on appele ce script dans un autre script
+if __name__ != '__main__': pass
+elif len (argv) <2: print (help)
+elif argv[1] =='tmp':
+	fileTxt = Article()
+	fileTxt.tmp()
+elif len (argv) ==4 and argv[1][:3] == 'cpr':
+	fpA = FilePerso (argv[2])
+	fpB = FilePerso (argv[3])
+	if argv[1] == 'cprs': fpA.compare (fpB, 'lsort')
+	else: fpA.compare (fpB)
+elif len (argv) ==3:
+	filePerso = FilePerso (argv[2])
+	filePerso.fromFile()
+	if argv[1] =='maj': filePerso.clean()
+	elif argv[1] =='mef': filePerso.shape()
+	elif argv[1] =='lis': filePerso.toLiseuse()
+	elif argv[1] =='md': filePerso.toMd()
+	filePerso.toFile()
+elif argv[1] == 'testFile':
+	filePerso = FilePerso()
+	filePerso.test()
+elif argv[1] == 'testArtic':
+	filePerso = Article()
+	filePerso.test()
+# le nom du fichier n'a pas ete donne
+else: print (help)
+
+
 

@@ -1,10 +1,9 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from fileHtml import FileHtml, findTextBetweenTag
-from fileClass import Article
-from listClass import ListPerso
-import logger
+from debutils.html import FileHtml, findTextBetweenTag
+from debutils.file import Article
+from debutils.list import ListPerso
 
 help ="""lancer le script
 	python articleHtml.py url"""

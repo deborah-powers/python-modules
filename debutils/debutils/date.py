@@ -1,8 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from textClass import Text
-from listClass import ListPerso
+from debutils.text import Text
 
 help ="""
 classe de gestion facile des dates
@@ -38,13 +37,6 @@ class EventPerso():
 	def toStrDay (self):
 		strEvt = self.date.toStrDay() +'\t'+ self.category +'\t'+ self.title +'\t'+ self.location +'\n\t'+ self.infos.text
 		return strEvt
-
-
-
-
-class EventList (ListPerso):
-	pass
-
 
 monthsName	=[ 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre' ]
 daysWeek	=[ 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche' ]

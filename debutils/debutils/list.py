@@ -1,8 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-help ="""
-ce script peut etre appele dans d'autres scripts
-"""
+
 def dictGetKeyByValue (dictionnary, value):
 	return list(dictionnary.keys())[list(dictionnary.values()).index(value)]
 

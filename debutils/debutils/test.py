@@ -1,7 +1,7 @@
-#!/usr/bin/python3.8
+#!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from fileClass import FileText
+from debutils.file import FilePerso
 
 help = """pour tester mes classes.
 utilisation: l'appeler dans un autre fichier.
@@ -52,7 +52,7 @@ class TestClass():
 		return txt
 """
 	def __init__(self, objTested, fileTested):
-		FileText.__init__ (self)
+		FilePerso.__init__ (self)
 		self.clazz = objTested.__class__.__name__
 		self.object = objTested
 		self.title = 'test ' + self.clazz
@@ -76,13 +76,9 @@ tclass = TestClass (TestFunc, coucou, 2)
 # print (tclass)
 tclass.launch()
 
-
-
-
-
-class Test (FileText):
+class Test (FilePerso):
 	def __init__(self, objTested, fileTested):
-		FileText.__init__ (self)
+		FilePerso.__init__ (self)
 		self.clazz = objTested.__class__.__name__
 		self.object = objTested
 		self.funcs =[]
@@ -103,9 +99,9 @@ class Test (FileText):
 
 	def toFile (self):
 		self.shape()
-		FileText.toFile (self)
+		FilePerso.toFile (self)
 
-	def testFileText (self):
+	def testFilePerso (self):
 		self.oneFunc (self.object.count, self.object.count ('test'), '%d occurences du mot "test".')
 		self.oneFunc (self.object.find, self.object.find ('test'), '"test" apparaît pour la première fois à la position %d.')
 		self.oneFunc (self.object.find, self.object.find ('coucou'), '"coucou" apparaît pour la première fois à la position %d.')
