@@ -18,14 +18,14 @@ listTags.extend (listTagsSpecial)
 """
 pathCssAlt = 'C:\\Users\\deborah.powers\\Desktop\\html\\utils\\'
 pathCss = '/home/lenovo/Bureau/site-dp/library-css/'
+	<link rel='stylesheet' type='text/css' href='" + pathCss + "structure.css'/>
+	<link rel='stylesheet' type='text/css' href='" + pathCss + "perso.css'/>
 """
 htmlTemplate ="""<!DOCTYPE html><html><head>
 	<title>%s</title>
 	<meta charset='utf-8'/>
 	<meta name='viewport' content='width=device-width,initial-scale=1'/>
 	%s
-	<link rel='stylesheet' type='text/css' href='""" + pathCss + """structure.css'/>
-	<link rel='stylesheet' type='text/css' href='""" + pathCss + """perso.css'/>
 	<base target='_blank'>
 </head><body>
 %s
@@ -65,11 +65,16 @@ class FileHtml (FilePerso):
 		self.text = findTextBetweenTag (self.text, 'body')
 
 	def toFile (self):
-	#	pas de text, ""
+		# pas de text, ""
 		if not self.text:
 			print ('rien a ecrire pour', self.title)
 			print (self.file)
 			return
+		"""
+		if local:
+			self.styles.append (pathCss + 'structure.css')
+			self.styles.append (pathCss + 'perso.css')
+		"""
 		self.title = self.title.lower()
 		textInfos = self.setMetadata()
 		textCss = self.setCss()
