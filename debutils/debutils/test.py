@@ -50,15 +50,6 @@ class TestClass():
 		txt = txt +'\nles fonctions: ' + ', '.join (self.funcs)
 		txt = txt +'\n'+ str (self.object)
 		return txt
-"""
-	def __init__(self, objTested, fileTested):
-		FilePerso.__init__ (self)
-		self.clazz = objTested.__class__.__name__
-		self.object = objTested
-		self.title = 'test ' + self.clazz
-		self.text = 'test de la classe %s, fichier: %s\nliste des fonctions: %s' %( self.clazz, fileTested, ', '.join (self.funcs))
-		print (self.text)
-"""
 
 def coucou (prenom, nom):
 	print ('coucou', prenom, nom)

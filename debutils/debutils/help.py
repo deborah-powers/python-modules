@@ -1,6 +1,5 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from sys import argv
 from debutils.file import FilePerso
 
 wordImport =( ('import ', 7), ('from ', 5) )
@@ -60,6 +59,20 @@ def printHelp (pythonFile):
 	fileHelp.toFile()
 	print ('lire "'+ fileHelp.title +'" sur le bureau')
 
-if __name__ != '__main__': pass
+
+"""
+ancienne méthode
+from sys import argv
+if __name__ == '__main__': pass
 elif len (argv) >1: printHelp (argv[1])
 else: print ("entrez le nom du script à analyser")
+"""
+help = """
+préciser le chemin du dossier python dans ce fichier.
+par défaut, il vaut .../bureau/python
+
+utilisation:
+	printHelp (pythonFile)
+	printHelp ('debutils/debutils/text.py')
+"""
+print (help)

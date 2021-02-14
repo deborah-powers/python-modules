@@ -1,8 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from fileHtml import FileHtml
-from fileClass import FilePerso
+from debutils.html import FileHtml
+from debutils.file import FilePerso
 
 if len (argv) <2: print ('indiquez le numéro de la fiche à convertir au format html')
 else:

@@ -3,7 +3,8 @@
 
 # mots speciaux devant debuter par une majuscule
 wordsUpp = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'victo', 'tony', 'simplon', 'loïc', 'france', 'paris', 'rueil')
-pointsEnd = '\n\t .,;:?!'	# liste des symboles suivant les mots spéciaux
+pointsEnd = '\n\t .,;:)?!'	# liste des symboles suivant les mots spéciaux
+pointsStart = '( \n\t'
 # "dictionnaire" des majuscule prenant en compte les accents
 accents =( ('a','A'), ('à','A'), ('b','B'), ('c','C'), ('\xe7','\xc7'), ('d','D'), ('e','E'), ('é','E'), ('è','E'), ('ê','E'), ('ë','E'), ('f','F'), ('g','G'), ('h','H'), ('i','I'), ('î','I'), ('ï','I'), ('j','J'), ('k','K'), ('l','L'), ('m','M'), ('n','N'), ('o','O'), ('\xf4', '\xe4'), ('p','P'), ('q','Q'), ('r','R'), ('s','S'), ('t','T'), ('u','U'), ('v','V'), ('w','W'), ('x','X'), ('y','Y'), ('z','Z') )
 # liste des points, des chaines de caracteres suivies par une majuscule
@@ -29,7 +30,8 @@ weirdChars =(
 	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x97', "'"), ('\x9c', ' '), ('\xa0', ' '),
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'),
 	('&mdash;', ' '), ('&nbsp;', ''), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"),
-	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'")
+	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'"),
+	(',', ', '), ('(', ' ('), (')', ') '), ('[', ' ['), (']', '] '), ('{', ' {'), ('}', '} ')
 )
 # fonctions pour les textes simples
 def clean (text):
@@ -39,10 +41,16 @@ def clean (text):
 	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
 	for p in pointsEnd[:-2]: text = text.replace (' '+p, p)
+	for p in pointsStart: text = text.replace (p+' ', p)
 	text = text.replace ('\n ', '\n')
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	while '....' in text: text = text.replace ('....', '...')
+	text = text.replace ('...', '... ')
+	text = text.replace ('  ', ' ')
+	text = text.replace ('( ', '(')
+
+
 	return text
 
 def toUpperCase (text):
@@ -51,7 +59,8 @@ def toUpperCase (text):
 		for p in points: text = text.replace (p+i, p+j)
 		for p in pointsShape: text = text.replace (p+i, p+j)
 	for p in pointsEnd:
-		for word in wordsUpp: text = text.replace (' '+ word +p, ' '+ word.capitalize() +p)
+		for q in pointsStart:
+			for word in wordsUpp: text = text.replace (q+ word +p, q+ word.capitalize() +p)
 	for i,j in artefacts: text = text.replace (i,j)
 	for artefact in artefactsLowerCase: text = text.replace (artefact, artefact.lower())
 	text = text.strip()
@@ -139,8 +148,10 @@ class Text():
 	def cleanPunctuation (self):
 		# for mi,ma in accents: self.replace (ma, ' '+ma)
 		while '  ' in self.text: self.replace ('  ', ' ')
-		self.replace ('( ', '(')
-		self.replace (' )', ')')
+
+
+
+
 		pointsTuple =('...', '!', ';', ',', ')')
 		for p in pointsTuple: self.replace (p, p+' ')
 		points = '!;('

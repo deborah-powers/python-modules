@@ -1,13 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from sys import argv
 from debutils.html import FileHtml, findTextBetweenTag
 from debutils.file import Article
 from debutils.list import ListPerso
-
-help ="""lancer le script
-	python articleHtml.py url"""
-
 
 class ArticleHtml (FileHtml, Article):
 	def __init__(self, file =None):
@@ -32,7 +27,7 @@ class ArticleHtml (FileHtml, Article):
 		self.metas['autlink'] = self.autlink
 		FileHtml.toFile (self)
 
-	def toFileText (self):
+	def toFilePerso (self):
 		if not self.text:
 			self.dataFromFile()
 			self.fromFile()
@@ -50,11 +45,11 @@ class ArticleHtml (FileHtml, Article):
 %s""" %( self.subject, self.author, self.link, self.autlink, self.text)
 		self.toFilePerso()
 
-	def fromFileTextName (self, fileName):
+	def fromFilePersoName (self, fileName):
 		ftext = Article (fileName)
-		self.fromFileText (ftext)
+		self.fromFilePerso (ftext)
 
-	def fromFileText (self, ftext):
+	def fromFilePerso (self, ftext):
 		# file est un fichier txt utilisant ma mise en forme
 		if not ftext.text: ftext.fromFile()
 		ftext.shape()
@@ -90,7 +85,7 @@ class ArticleHtml (FileHtml, Article):
 		self.metas ={}
 		self.replace (' <', '<')
 		self.replace ('><', '>\n<')
-		if toText: self.toFileText()
+		if toText: self.toFilePerso()
 		else: self.toFile()
 
 	def fromLocal (self, file, subject=None):
@@ -108,7 +103,7 @@ class ArticleHtml (FileHtml, Article):
 		else: toText = False
 		self.metas ={}
 		self.styles =[]
-		if toText: self.toFileText()
+		if toText: self.toFilePerso()
 		else: self.toFile()
 
 	def findSubject (self, subject=None):
@@ -500,19 +495,3 @@ class ArticleHtml (FileHtml, Article):
 		self.replace ('<div>')
 		self.replace ('</div>')
 
-# on appele ce script dans un autre script
-if __name__ != '__main__': pass
-# mettre des majuscules dans un texte
-elif len (argv) >=2:
-	url = argv[1]
-	subject =None
-	if len (argv) >=3: subject = argv[2]
-	page = ArticleHtml()
-	if url[:4] == 'http': page.fromWeb (url, subject)
-	elif subject == 'totext':
-		page.file = url
-		page.toFileText()
-	elif url[-5:] == '.html': page.fromLocal (url, subject)
-	elif url[-4:] == '.txt': page.fromFileTextName (url)
-# le nom du file n'a pas ete donne
-else: print (help)

@@ -7,9 +7,6 @@ from debutils.list import ListPerso
 from debutils.file import *
 from debutils.fileLocal import pathCss
 
-help ="""lancer le script
-	python fileHtml.py url"""
-
 listTagsIntern =[ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button']
 listTagsSpecial =[ 'a', 'img', 'form', 'input']
 listTagsKeep =[ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body']
@@ -709,12 +706,3 @@ def fileToHtml (self):
 	self.clean()
 
 setattr (FilePerso, 'toHtml', fileToHtml)
-
-# on appele ce script dans un autre script
-if __name__ != '__main__': pass
-# mettre des majuscules dans un text
-elif len (argv) >=2:
-	fhtml = FileHtml()
-	fhtml.fromFilePersoName (argv[1])
-# le nom du fichier n'a pas ete donne
-else: print (help)
