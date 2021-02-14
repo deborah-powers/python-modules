@@ -43,7 +43,7 @@ class ArticleHtml (FileHtml, Article):
 	<tr><td>Laut:</td><td>%s</td></tr>
 </table>
 %s""" %( self.subject, self.author, self.link, self.autlink, self.text)
-		self.toFilePerso()
+		FileHtml.toFilePerso (self)
 
 	def fromFilePersoName (self, fileName):
 		ftext = Article (fileName)
@@ -65,7 +65,7 @@ class ArticleHtml (FileHtml, Article):
 		self.link = url
 		self.fromUrl()
 		self.clean()
-		toText = False
+		toText = True
 		if 'http://www.gutenberg.org/' in url:				self.gutemberg (subject)
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebg (subject)
 		elif 'https://archiveofourown.org/works/' in url:	self.aooo()
@@ -78,9 +78,7 @@ class ArticleHtml (FileHtml, Article):
 		elif 'https://www.therealfemaledatingstrategy.com/' in url:
 			self.fds()
 			toText = False
-		else:
-			# self.cleanWeb()
-			toText = False
+		else: self.cleanWeb()
 		if self.contain ('</a>') or self.contain ('<img'): toText = False
 		self.metas ={}
 		self.replace (' <', '<')

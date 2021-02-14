@@ -24,7 +24,7 @@ artefactsLowerCase =( 'Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nLog.', '\tLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
 # caractères à remplacer
 weirdChars =(
-	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('…', '...'),
+	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ('\\', ''), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
 	('\\u00c2', 'Â'), ('\\u00ca', 'Ê'), ('\\u00cb', 'Ë'), ('\\u00ce', 'Î'), ('\\u00cf', 'Ï'), ('\\u00d4', 'Ô'), ('\\u00d6', 'Ö'), ('\\u00db', 'Û'), ('\\u00e0', 'à'), ('\\u00e2', 'â'), ('\\u00e7', 'ç'), ('\\u00e8', 'è'), ('\\u00e9', 'é'), ('\\u00ea', 'ê'), ('\\u00eb', 'ë'), ('\\u00ee', 'î'), ('\\u00ef', 'ï'), ('\\u00f4', 'ô'), ('\\u00f6', 'ö'), ('\\u00fb', 'û'),
 	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x97', "'"), ('\x9c', ' '), ('\xa0', ' '),
@@ -48,9 +48,23 @@ def clean (text):
 	while '....' in text: text = text.replace ('....', '...')
 	text = text.replace ('...', '... ')
 	text = text.replace ('  ', ' ')
-	text = text.replace ('( ', '(')
-
-
+	lettreAppostrophe =( 'c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
+	for l in lettreAppostrophe:
+		text = text.replace (' '+l+"' ", ' '+l+"'")
+		text = text.replace (' '+ l.upper() +"' ", ' '+ l.upper() +"'")
+	text = text.replace ("Qu' ", "Qu'")
+	points = ')!?.;,:'
+	for p in points:
+		for q in points: text = text.replace (p+' '+q, p+q)
+		text = text.replace (p+' "', p+'"')
+	points = ')!?\'"'
+	for p in points:
+		text = text.replace ('?'+p, ' ?' +p)
+		text = text.replace ('!'+p, ' !' +p)
+	while '  ' in text: text = text.replace ('  ', ' ')
+	points = '!?'
+	for p in points:
+		for q in points: text = text.replace (p+' '+q, p+q)
 	return text
 
 def toUpperCase (text):
@@ -142,28 +156,6 @@ class Text():
 
 	def clean (self):
 		self.text = clean (self.text)
-		self.cleanPunctuation()
-	#	self.text = clean (self.text)
-
-	def cleanPunctuation (self):
-		# for mi,ma in accents: self.replace (ma, ' '+ma)
-		while '  ' in self.text: self.replace ('  ', ' ')
-
-
-
-
-		pointsTuple =('...', '!', ';', ',', ')')
-		for p in pointsTuple: self.replace (p, p+' ')
-		points = '!;('
-		for p in points: self.replace (p, ' '+p)
-		while '  ' in self.text: self.replace ('  ', ' ')
-		for p in points:
-			for q in points: self.replace (p+' '+q, p+q)
-		lettreAppostrophe =( 'c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
-		for l in lettreAppostrophe:
-			self.replace (' '+l+"' ", ' '+l+"'")
-			self.replace (' '+ l.upper() +"' ", ' '+ l.upper() +"'")
-		self.replace ("Qu' ", "Qu'")
 
 	def cleanEnglish (self):
 		self.clean()
