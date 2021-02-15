@@ -73,7 +73,7 @@ class ArticleHtml (FileHtml, Article):
 		if self.contain ('</a>') or self.contain ('<img'): toText = False
 		self.metas = {}
 		self.replace (' <', '<')
-		self.replace ('><', '>n<')
+		self.replace ('><', '>\n<')
 		if toText: self.toFile ()
 		else: self.toFile ()
 	def fromLocal (self, file, subject=None):
@@ -94,7 +94,7 @@ class ArticleHtml (FileHtml, Article):
 		if toText: self.toFile ()
 		else: self.toFile ()
 	def findSubject (self, subject=None):
-		storyData = self.title.lower () +'t'+ self.subject.lower () +'t'+ self.author.lower ()
+		storyData = self.title.lower () +'\t'+ self.subject.lower () +'\t'+ self.author.lower ()
 		subjectList =""
 		if subject:
 			subject = subject.replace ('/', ', ')

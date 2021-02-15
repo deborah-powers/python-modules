@@ -5,7 +5,7 @@ wordsUpp = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanc
 pointsEnd = '\n\t .,;:)?!'	# liste des symboles suivant les mots spéciaux
 pointsStart = '( \n\t'
 # "dictionnaire" des majuscule prenant en compte les accents
-accents = (('a', 'A'), ('à', 'A'), ('b', 'B'), ('c', 'C'), ('\xe7', '\xc7'), ('d', 'D'), ('e', 'E'), ('é', 'E'), ('è', 'E'), ('ê', 'E'), ('ë', 'E'), ('f', 'F'), ('g', 'G'), ('h', 'H'), ('i', 'I'), ('î', 'I'), ('ï', 'I'), ('j', 'J'), ('k', 'K'), ('l', 'L'), ('m', 'M'), ('n', 'N'), ('o', 'O'), ('xf4', 'xe4'), ('p', 'P'), ('q', 'Q'), ('r', 'R'), ('s', 'S'), ('t', 'T'), ('u', 'U'), ('v', 'V'), ('w', 'W'), ('x', 'X'), ('y', 'Y'), ('z', 'Z'))
+accents = (('a', 'A'), ('à', 'A'), ('b', 'B'), ('c', 'C'), ('\xe7', '\xc7'), ('d', 'D'), ('e', 'E'), ('é', 'E'), ('è', 'E'), ('ê', 'E'), ('ë', 'E'), ('f', 'F'), ('g', 'G'), ('h', 'H'), ('i', 'I'), ('î', 'I'), ('ï', 'I'), ('j', 'J'), ('k', 'K'), ('l', 'L'), ('m', 'M'), ('\n', '\n'), ('o', 'O'), ('xf4', 'xe4'), ('p', 'P'), ('q', 'Q'), ('r', 'R'), ('s', 'S'), ('\t', '\t'), ('u', 'U'), ('v', 'V'), ('w', 'W'), ('x', 'X'), ('y', 'Y'), ('z', 'Z'))
 # liste des points, des chaines de caracteres suivies par une majuscule
 points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t')
 pointsShape =( '\n\t- ', '______ ', '\n------ ' )
@@ -15,7 +15,7 @@ artefacts =(
  	('\n______\n\n______ ', '\n\n________________________\n______ '),
 	('------ ', '\n------ '), (' ------', ' ------\n'), ('\n\n\n', '\n\n')
 )
-#	('n______nn______ ', 'nn________________________n______ '),
+#	('\n______\n\n______ ', '\n\n________________________\n______ '),
 artefactsLowerCase = ('Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nUpdate ', '\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', 'Inner join ', 'Outer join ', 'Left outer join ', 'Insert into ', 'Set schema ',
 	'\nCd ', '\nPsql ','\nPg_', '\nPython ', '\nGit ',
@@ -32,21 +32,22 @@ weirdChars =(
 	(',', ', '), ('(', ' ('), (')', ') '), ('[', ' ['), (']', '] '), ('{', ' {'), ('}', '} ')
 )
 # fonctions pour les textes simples
+
 def clean (text):
 	text = text.replace ('r',"")
 	# remplacer les caractères bizzares
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip ()
-	while ' ' in text: text = text.replace (' ', ' ')
+	while '  ' in text: text = text.replace ('  ', ' ')
 	for p in pointsEnd [:-2]: text = text.replace (' '+p, p)
 	for p in pointsStart: text = text.replace (p+' ', p)
-	text = text.replace ('n ', 'n')
-	while 'tn' in text: text = text.replace ('tn', 'n')
-	while 'nn' in text: text = text.replace ('nn', 'n')
-	while '... ' in text: text = text.replace ('... ', '... ')
-	text = text.replace ('... ', '... ')
-	text = text.replace (' ', ' ')
-	lettreAppostrophe = ('c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
+	text = text.replace ('\n ', '\n')
+	while '\t\n' in text: text = text.replace ('\t\n', '\n')
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	while '....' in text: text = text.replace ('....', '...')
+	text = text.replace ('...', '... ')
+	text = text.replace ('  ', ' ')
+	lettreAppostrophe = ('c', 'd', 'j', 'l', 'm', '\n', 'qu', 'r', 's', '\t')
 	for l in lettreAppostrophe:
 		text = text.replace (' '+l+"' ", ' '+l+"'")
 		text = text.replace (' '+ l.upper () +"' ", ' '+ l.upper () +"'")
@@ -59,13 +60,14 @@ def clean (text):
 	for p in points:
 		text = text.replace (' ?'+p, ' ?' +p)
 		text = text.replace (' !'+p, ' !' +p)
-	while ' ' in text: text = text.replace (' ', ' ')
+	while '  ' in text: text = text.replace ('  ', ' ')
 	points = ' !?'
 	for p in points:
 		for q in points: text = text.replace (p+' '+q, p+q)
 	return text
+
 def toUpperCase (text):
-	text ='n'+ text
+	text ='\n'+ text
 	for i, j in accents:
 		for p in points: text = text.replace (p+i, p+j)
 		for p in pointsShape: text = text.replace (p+i, p+j)
@@ -76,6 +78,7 @@ def toUpperCase (text):
 	for artefact in artefactsLowerCase: text = text.replace (artefact, artefact.lower ())
 	text = text.strip ()
 	return text
+
 def fromModel (text, model):
 	# remplacer scanf
 	# préparer le modèle
@@ -102,27 +105,30 @@ def fromModel (text, model):
 	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
 	return results
 class Text ():
+
 	def __init__ (self, string=""):
 		self.text = string
 	# ________________________ fonctions de mise en forme ________________________
+
 	def shape (self):
 		self.clean ()
 		# mettre le text en forme pour simplifier sa transformation
 		while self.contain ('_______'): self.replace ('_______', '______')
 		while self.contain ('-------'): self.replace ('-------', '------')
-		self.text = 'n'+ self.text +'n'
+		self.text = '\n'+ self.text +'\n'
 		# rajouter les majuscules apres chaque point
 		self.upperCase ()
-		self.text = 'nn'+ self.text
+		self.text = '\n\n'+ self.text
 		for p in pointsShape:
 			for i, j in accents: self.replace (p+i, p+j)
 		for i, j in artefacts: self.replace (i, j)
 		self.strip ()
-		self.replace ('______nn______ ', '______n______ ')
+		self.replace ('______\n\n______ ', '______\n______ ')
+
 	def toMd (self):
 		self.shape ()
-		self.text = 'n'+ self.text +'n'
-		tmpList = self.split ('______n______ ')
+		self.text = '\n'+ self.text +'\n'
+		tmpList = self.split ('______\n______ ')
 		rangeList = range (1, len (tmpList))
 		for l in rangeList:
 			f= tmpList [l].find (' _')
@@ -132,28 +138,33 @@ class Text ():
 		self.replace (' ______', ' ============')
 		self.replace ('------ ', '** ')
 		self.replace (' ------', ' **')
-		while self.contain ('ntt'): self.replace ('ntt', 'nt')
-		self.replace ('nt', 'n* ')
-		self.replace ('n', 'nn')
+		while self.contain ('\n\t\t'): self.replace ('\n\t\t', '\n\t')
+		self.replace ('\n\t', '\n* ')
+		self.replace ('\n', '\n\n')
+
 	def upperCase (self):
-		if self.contain ('n/coden'):
-			paragraphList = self.split ('ncoden')
+		if self.contain ('\n/code\n'):
+			paragraphList = self.split ('\ncode\n')
 			paragraphRange = range (1, len (paragraphList))
 			for i in paragraphRange:
-				d= paragraphList [i].find ('n/coden') +7
+				d= paragraphList [i].find ('\n/code\n') +7
 				paragraphList [i] = paragraphList [i] [:d] + toUpperCase (paragraphList [i] [d:])
-			self.text = 'ncoden'.join (paragraphList)
+			self.text = '\ncode\n'.join (paragraphList)
 		else: self.text = toUpperCase (self.text)
+
 	def clean (self):
 		self.text = clean (self.text)
+
 	def cleanEnglish (self):
 		self.clean ()
 		wordList = ('and', 'for', 'then', 'in', 'on', 'to')
 		for word in wordList:
-			self.replace (' '+ word +'t', ' '+ word +' ')
-			self.replace (' '+ word +'n', ' '+ word +' ')
+			self.replace (' '+ word +'\t', ' '+ word +' ')
+			self.replace (' '+ word +'\n', ' '+ word +' ')
+
 	def fromModel (self, model):
 		return fromModel (self.text, model)
+
 	def comparLines (self, otherText, keepCommon=True, toSort=False):
 		self.clean ()
 		otherText.clean ()
@@ -162,8 +173,8 @@ class Text ():
 		if self.text == otherText.text:
 			print ('les textes sont identiques')
 			return 'pareil'
-		listA = self.split ('n')
-		listB = otherText.split ('n')
+		listA = self.split ('\n')
+		listB = otherText.split ('\n')
 		if toSort:
 			listA.sort ()
 			listB.sort ()
@@ -196,7 +207,8 @@ class Text ():
 			return 'different'
 		else:
 			print ('il y a %d additions et %d délétions entre les textes' % (nbAdd, nbDel))
-			return 'n'.join (listF)
+			return '\n'.join (listF)
+
 	def domAccolade (self):
 		blockList = []
 		nbOuvrante = self.countWord (' {')
@@ -218,6 +230,7 @@ class Text ():
 		self.text = self.text [posF:]
 		blockList.append (self.domAccolade ())
 		return blockList
+
 	def domAccoladePlan (self):
 		blockList = []
 		nbOuvrante = self.countWord (' {')
@@ -229,33 +242,43 @@ class Text ():
 		self.replace (' {', ' {')
 		return self.split (' {')
 	# ________________________ fonctions de bases ________________________
+
 	def length (self):
 		return len (self.text)
+
 	def __str__ (self):
 		if self.text: return self.text
 		else: return ""
+
 	def split (self, word):
 		return self.text.split (word)
+
 	def replace (self, oldWord, newWord=''):
 		self.text = self.text.replace (oldWord, newWord)
+
 	def strip (self):
 		self.text = self.text.strip ()
+
 	def contain (self, word):
 		if word in self.text: return True
 		else: return False
+
 	def countWord (self, word):
 		nb=0
 		if word in self.text: nb= self.text.count (word)
 		return nb
+
 	def index (self, word, pos=0):
 		posFind =-1
 		if pos <0: pos = len (self.text) -pos
 		if self.contain (word): posFind = self.text.find (word, pos)
 		return posFind
+
 	def rindex (self, word):
 		posFind =-1
 		if self.contain (word): posFind = self.text.rfind (word)
 		return posFind
+
 	def sliceNb (self, posStart, posEnd):
 		res =""
 		lText = self.length ()
@@ -263,6 +286,7 @@ class Text ():
 		if posEnd <0: posEnd += lText
 		if posStart < posEnd: res = self.text [posStart:posEnd]
 		return res
+
 	def slice (self, wordStart, wordEnd):
 		res =""
 		if self.contain (wordStart) and self.contain (wordEnd):
@@ -270,6 +294,7 @@ class Text ():
 			f= self.index (wordEnd, d)
 			if f>0 and f>d: res = self.sliceNb (d, f)
 		return res
+
 	def __lt__ (self, otherText):
 		""" nécessaire pour trier les listes """
 		return self.text < otherText.text
@@ -294,10 +319,10 @@ def testText ():
 	print ('exemple:', textAccolade)
 	print ('domAccolade emboîté:')
 	res = textAccolade.domAccolade ()
-	for line in res: print ('t', line)
+	for line in res: print ('\t', line)
 	print ('domAccolade linéaire:')
 	res = textAccolade.domAccoladePlan ()
-	for line in res: print ('t', line)
+	for line in res: print ('\t', line)
 	print ('comparaisons ligne à ligne')
 	textA = Text ('bnanencnrnuninp')
 	textB = Text ('dnanonqntnynind')

@@ -77,16 +77,16 @@ class FileHtml (File):
 		textInfos = textInfos.strip ()
 		# le nouveau fichier
 		for tag in listTagsIntern:
-			self.replace ('<'+ tag +'>n<', '<'+ tag +'><')
-			self.replace ('>n</'+ tag +'>', '></'+ tag +'>')
+			self.replace ('<'+ tag +'>\n<', '<'+ tag +'><')
+			self.replace ('>\n</'+ tag +'>', '></'+ tag +'>')
 		self.text = self.text.strip ()
 		self.text = htmlTemplate % (self.title, textInfos, self.text)
 		File.toFile (self)
 	def clean (self):
-		self.replace ('t', ' ')
-		self.replace ('n', ' ')
+		self.replace ('\t', ' ')
+		self.replace ('\n', ' ')
 		File.clean (self)
-		while ' ' in self.text: self.replace (' ', ' ')
+		while '  ' in self.text: self.replace ('  ', ' ')
 		self.replace ('> ', '>')
 		self.replace (' <', '<')
 		self.replace (' />', '/>')
@@ -102,11 +102,11 @@ class FileHtml (File):
 	def __str__ (self):
 		strFic = 'Titre: %s, Fichier: %s' % (self.title, self.file)
 		if self.metas:
-			strFic = strFic + 'nMeta:'
-			for meta in self.metas.keys (): strFic = strFic +'nt%st%s' % (meta, self.metas [meta])
+			strFic = strFic + '\nMeta:'
+			for meta in self.metas.keys (): strFic = strFic +'\n\t%st%s' % (meta, self.metas [meta])
 		if self.styles:
-			strFic = strFic + 'nStyle:'
-			for css in self.styles: strFic = strFic +'nt%s' %css
+			strFic = strFic + '\nStyle:'
+			for css in self.styles: strFic = strFic +'\n\t%s' %css
 		return strFic
 	""" ________________________ récupérer les métadonnées ________________________ """
 	def getCss (self):
@@ -123,7 +123,7 @@ class FileHtml (File):
 	def setCss (self):
 		textCss =""
 		if self.styles:
-			textCss = "'/>nt<link rel='stylesheet' type='text/css' href='".join (self.styles)
+			textCss = "'/>\n\t<link rel='stylesheet' type='text/css' href='".join (self.styles)
 			textCss = "<link rel='stylesheet' type='text/css' href='%s'/>" % textCss
 		return textCss
 	def getMetadata (self):
@@ -159,7 +159,7 @@ class FileHtml (File):
 		textInfos =""
 		if self.metas.keys ():
 			for meta in self.metas.keys ():
-				tmpMeta = "<meta name='%s' content='%s'/>nt" % (meta, self.metas [meta])
+				tmpMeta = "<meta name='%s' content='%s'/>\n\t" % (meta, self.metas [meta])
 				textInfos = textInfos + tmpMeta
 		return textInfos
 	""" ________________________ convertir en texte ________________________ """
@@ -175,14 +175,14 @@ class FileHtml (File):
 		ftext.extension = 'txt'
 		ftext.fileFromData ()
 		# les titres
-		ftext.replace ('<h1>', 'n______n______ ')
-		ftext.replace ('<h2>', 'n______ ')
-		ftext.replace ('<h3>', 'n------ ')
-		ftext.replace ('<h4>', 'n--- ')
-		ftext.replace ('</h4>', ' ---n')
-		ftext.replace ('</h3>', ' ------n')
-		ftext.replace ('</h2>', ' ______n')
-		ftext.replace ('</h1>', ' ______n')
+		ftext.replace ('<h1>', '\n______\n______ ')
+		ftext.replace ('<h2>', '\n______ ')
+		ftext.replace ('<h3>', '\n------ ')
+		ftext.replace ('<h4>', '\n--- ')
+		ftext.replace ('</h4>', ' ---\n')
+		ftext.replace ('</h3>', ' ------\n')
+		ftext.replace ('</h2>', ' ______\n')
+		ftext.replace ('</h1>', ' ______\n')
 		# les conteneurs
 		container = [ 'div', 'section', 'ol', 'ul', 'table', 'figure', 'math' ]
 		for tag in container:
@@ -190,27 +190,27 @@ class FileHtml (File):
 			ftext.replace ('<'+ tag +'>')
 		# les tableaux
 		ftext.replace ('th>', 'td>')
-		ftext.replace ('</td><td>', 't')
-		ftext.replace ('</td></tr><tr><td>', 'n')
-		ftext.replace ('<tr><td>', 'n')
-		ftext.replace ('</td></tr>', 'n')
+		ftext.replace ('</td><td>', '\t')
+		ftext.replace ('</td></tr><tr><td>', '\n')
+		ftext.replace ('<tr><td>', '\n')
+		ftext.replace ('</td></tr>', '\n')
 		# les listes
-		ftext.replace ('</li><li>', 'nt')
-		ftext.replace ('<li>', 'nt')
-		ftext.replace ('</li>', 'n')
+		ftext.replace ('</li><li>', '\n\t')
+		ftext.replace ('<li>', '\n\t')
+		ftext.replace ('</li>', '\n')
 		# les lignes
-		ftext.replace ('</p><p>', 'n')
+		ftext.replace ('</p><p>', '\n')
 		lines = [ 'p', 'caption', 'figcaption' ]
 		for tag in lines:
-			ftext.replace ('</'+ tag +'>', 'n')
-			ftext.replace ('<'+ tag +'>', 'n')
+			ftext.replace ('</'+ tag +'>', '\n')
+			ftext.replace ('<'+ tag +'>', '\n')
 		# les phrases
 		inner = [ 'span', 'em', 'strong' ]
 		for tag in inner:
 			ftext.replace ('</'+ tag +'>', ' ')
 			ftext.replace ('<'+ tag +'>', ' ')
-		ftext.replace (' n', 'n')
-		ftext.replace ('n ', 'n')
+		ftext.replace (' n', '\n')
+		ftext.replace ('\n ', '\n')
 		# les liens
 		ltext = ftext.split ('</a>')
 		rtext = range (len (ltext) -1)
@@ -224,10 +224,10 @@ class FileHtml (File):
 			ltext [t] = ltext [t] [:d] +' '+ title +': '+ link
 		ftext.text = ' '.join (ltext)
 		# autres
-		ftext.replace ('<hr>', 'n________________________n')
-		ftext.replace ('<hr/>', 'n________________________n')
-		ftext.replace ('<br>', 'n')
-		ftext.replace ('<br/>', 'n')
+		ftext.replace ('<hr>', '\n________________________\n')
+		ftext.replace ('<hr/>', '\n________________________\n')
+		ftext.replace ('<br>', '\n')
+		ftext.replace ('<br/>', '\n')
 		ftext.clean ()
 		ftext.shape ()
 		ftext.toFile ()
@@ -316,8 +316,8 @@ class FileHtml (File):
 		self.cleanSpan ()
 		self.cleanTags ()
 		self.text = findTextBetweenTag (self.text, 'body')
-		self.replace ('n')
-		self.replace ('t')
+		self.replace ('\n')
+		self.replace ('\t')
 		self.clean ()
 	def cleanLink (self):
 		if not self.contain ('</a>'): return
@@ -342,7 +342,7 @@ class FileHtml (File):
 			title = title.replace ('$', '/')
 			title = title.replace ('-', ' ')
 			title = title.replace ('_', ' ')
-			while ' ' in title: title = title.replace (' ', ' ')
+			while '  ' in title: title = title.replace ('  ', ' ')
 			listText [l] = listText [l] [:d] + title
 		self.text = '</a>'.join (listText)
 	def cleanTags (self):
@@ -365,7 +365,7 @@ class FileHtml (File):
 				f= tag.find (' ')
 				attributes = tag [f:]
 				tag = tag [:f]
-				if tag in ('a', 'img', 'form', 'input'): tag = self.cleanTagsSpecial (tag, attributes)
+				if tag in ('\a', 'img', 'form', 'input'): tag = self.cleanTagsSpecial (tag, attributes)
 				elif tag not in tagList: tagList.add (tag)
 			elif tag not in tagList: tagList.add (tag)
 			textList [t] = tag + textList [t]
@@ -391,11 +391,11 @@ class FileHtml (File):
 			self.text = ' '.join (textList)
 		# retrouver les balises vides
 		self.clean ()
-		self.replace ('n')
+		self.replace ('\n')
 		for tag in tagList: self.replace ('<'+ tag +'></'+ tag +'>')
 	def cleanTagsSpecial (self, tag, attributeList):
-		if tag == 'a':
-			return self.keepAttribute ('a', 'href', attributeList)
+		if tag == '\a':
+			return self.keepAttribute ('\a', 'href', attributeList)
 		elif tag == 'img': return self.keepAttribute ('img', 'src', attributeList)
 		elif tag == 'input': return self.keepAttributeInput (attributeList)
 		elif tag == 'form': return self.keepAttributeForm (attributeList)
@@ -475,7 +475,7 @@ class FileHtml (File):
 		self.text = '="'.join (textList)
 		self.replace (' href=""')
 		# nettoyer
-		while self.contain (' '): self.replace (' ', ' ')
+		while self.contain ('  '): self.replace ('  ', ' ')
 		self.replace (' >', '>')
 		self.replace ('< ', '<')
 		self.replace ('> ', '>')
@@ -519,33 +519,33 @@ class FileHtml (File):
 	def testOnline (self):
 		self.link = 'https://www.tutorialspoint.com/downloading-files-from-web-using-python'
 		self.fromUrl ()
-balises = ((' ______n', '</h2>n'), ('n______n______ ', 'n<h1>'), ('n______ ', 'n<h2>'), ('n------ ', 'n<h3>'), (' ------n', '</h3>n'), ('n______n', 'n<hr>n'), ('nImgt',"n<img src='"))
+balises = ((' ______\n', '</h2>\n'), ('\n______\n______ ', '\n<h1>'), ('\n______ ', '\n<h2>'), ('\n------ ', '\n<h3>'), (' ------\n', '</h3>\n'), ('\n______\n', '\n<hr>\n'), ('\nImg\t', "\n<img src='"))
 def fileToHtml (self):
 	self.clean ()
 	while '_______' in self.text: self.replace ('_______', '______')
 	while '-------' in self.text: self.replace ('-------', '------')
-	self.text = 'n'+ self.text +'n'
+	self.text = '\n'+ self.text +'\n'
 #	transformer la mise en page en balises
 	for i, j in balises:
 		if i in self.text: self.replace (i, j)
 #	ajustement pour les grands titres et les images
-	paragraphList = self.text.split ('n')
+	paragraphList = self.text.split ('\n')
 	paragraphRange = range (len (paragraphList))
 	for i in paragraphRange:
 		if '<h1>' in paragraphList [i]: paragraphList [i] = paragraphList [i].replace ('</h2>', '</h1>')
 		elif '<img' in paragraphList [i]: paragraphList [i] = paragraphList [i] +"'/>"
-	self.text = 'n'.join (paragraphList)
+	self.text = '\n'.join (paragraphList)
 #	les tableaux et les listes
-	if 'nFig' in self.text:
-		self.replace ('nFign', 'n<figure>n')
-		self.replace ('n/fign', 'n</figure>n')
+	if '\nFig' in self.text:
+		self.replace ('\nFig\n', '\n<figure>\n')
+		self.replace ('\n/fig\n', '\n</figure>\n')
 	#	mettre en forme le contenu des figures
 		paragraphList = self.text.split ('figure>')
 		lc= range (1, len (paragraphList), 2)
 		for i in lc:
 			# nettoyer le texte pour faciliter sa transformation
-			paragraphList [i] = paragraphList [i].strip ('n')
-			paragraphList [i] = paragraphList [i].split ('n')
+			paragraphList [i] = paragraphList [i].strip ('\n')
+			paragraphList [i] = paragraphList [i].split ('\n')
 			paragraphRange = range (len (paragraphList [i]) -1)
 			for j in paragraphRange:
 				# les images ont deja ete modifiees precedement
@@ -553,22 +553,22 @@ def fileToHtml (self):
 					paragraphList [i] [j] = '<figcaption>' + paragraphList [i] [j] + '</figcaption>'
 			paragraphList [i] = "".join (paragraphList [i])
 		self.text = 'figure>'.join (paragraphList)
-	if 'ncode' in self.text:
-		self.replace ('ncoden', 'n<xmp>n')
-		self.replace ('n/coden', 'n</xmp>n')
+	if '\ncode' in self.text:
+		self.replace ('\ncode\n', '\n<xmp>\n')
+		self.replace ('\n/code\n', '\n</xmp>\n')
 		paragraphList = self.text.split ('xmp>')
 		paragraphRange = range (1, len (paragraphList), 2)
 		for i in paragraphRange:
 			paragraphList [i] = paragraphList [i].strip ()
-			paragraphList [i] = paragraphList [i].strip ('nt ')
-			paragraphList [i] = paragraphList [i].replace ('n', 'a')
-			paragraphList [i] = paragraphList [i].replace ('t', 'f')
+			paragraphList [i] = paragraphList [i].strip ('\n\t ')
+			paragraphList [i] = paragraphList [i].replace ('\n', '\a')
+			paragraphList [i] = paragraphList [i].replace ('\t', '\f')
 		self.text = 'xmp>'.join (paragraphList)
-		self.replace ('a</xmp>', '</xmp>')
-	if 'nt' in self.text:
-		self.text = 'n'+ self.text +'n'
-		self.replace ('nt', 'n<li>')
-		paragraphList = self.text.split ('n')
+		self.replace ('\a</xmp>', '</xmp>')
+	if '\n\t' in self.text:
+		self.text = '\n'+ self.text +'\n'
+		self.replace ('\n\t', '\n<li>')
+		paragraphList = self.text.split ('\n')
 		lc= range (len (paragraphList))
 	#	rajouter les balises fermantes
 		for l in lc:
@@ -579,46 +579,46 @@ def fileToHtml (self):
 			if '<li>' in paragraphList [l]:
 				# compter le niveau d'imbrication (n) de l'element paragraphList [l]
 				n=0
-				while '<li>'+n*'t' in paragraphList [l]: n+=1
+				while '<li>'+n*'\t' in paragraphList [l]: n+=1
 				n-=1
-				if '<li>'+n*'t' in paragraphList [l]:
+				if '<li>'+n*'\t' in paragraphList [l]:
 					# debut de la liste (ou sous-liste), mettre le <ul>
-					if '<li>'+n*'t' not in paragraphList [l-1]: paragraphList [l] = '<ul>'+ paragraphList [l]
+					if '<li>'+n*'\t' not in paragraphList [l-1]: paragraphList [l] = '<ul>'+ paragraphList [l]
 					# fin de la liste (ou sous-liste), mettre le </ul>
-					if '<li>'+n*'t' not in paragraphList [l+1]:
+					if '<li>'+n*'\t' not in paragraphList [l+1]:
 						while n >-1:
-							if '<li>'+n*'t' not in paragraphList [l+1]: paragraphList [l] = paragraphList [l] + '</ul>'
+							if '<li>'+n*'\t' not in paragraphList [l+1]: paragraphList [l] = paragraphList [l] + '</ul>'
 							n-=1
 	#	mettre le texte au propre
-		self.text = 'n'.join (paragraphList)
-		self.text = self.text.strip ('n')
+		self.text = '\n'.join (paragraphList)
+		self.text = self.text.strip ('\n')
 		while '<li>t' in self.text: self.replace ('<li>t', '<li>')
 		while '<ul>t' in self.text: self.replace ('<ul>t', '<ul>')
-	if 't' in self.text:
-		paragraphList = self.text.split ('n')
+	if '\t' in self.text:
+		paragraphList = self.text.split ('\n')
 		len_chn = len (paragraphList)
 		d=-1; c=-1; i=0
 		while i< len_chn:
 			# rechercher une table
 			d=-1; c=-1
-			if d==-1 and c==-1 and 't' in paragraphList [i]:
-				c= paragraphList [i].count ('t')
+			if d==-1 and c==-1 and '\t' in paragraphList [i]:
+				c= paragraphList [i].count ('\t')
 				d=i; i+=1
-			while i< len_chn and paragraphList [i].count ('t') ==c: i+=1
+			while i< len_chn and paragraphList [i].count ('\t') ==c: i+=1
 			c=i-d
 			# une table a ete trouve
 			if c>1 and d>0:
 				rtable = range (d, i)
 				for j in rtable:
 					# entre les cases
-					paragraphList [j] = paragraphList [j].replace ('t', '</td><td>')
+					paragraphList [j] = paragraphList [j].replace ('\t', '</td><td>')
 					# bordure des cases
 					paragraphList [j] = '<tr><td>' + paragraphList [j] +'</td></tr>'
 				# les limites de la table
-				paragraphList [d] = '<table>n' + paragraphList [d]
-				paragraphList [i-1] = paragraphList [i-1] +'n</table>'
+				paragraphList [d] = '<table>\n' + paragraphList [d]
+				paragraphList [i-1] = paragraphList [i-1] +'\n</table>'
 			i+=1
-		self.text = 'n'.join (paragraphList)
+		self.text = '\n'.join (paragraphList)
 		# les titres de colonnes ou de lignes
 		if self.contain (':</td>'):
 			paragraphList = self.split (':</td>')
@@ -628,7 +628,7 @@ def fileToHtml (self):
 				paragraphList [p] = paragraphList [p] [:d] +'<th>'+ paragraphList [p] [d+4:]
 			self.text = '</th>'.join (paragraphList)
 	# transformer les p contenant un lien en a
-	endingChars = '<;, !?tn'
+	endingChars = '<;, !?\t\n'
 	paragraphList = self.text.split ('http')
 	paragraphRange = range (1, len (paragraphList))
 	for p in paragraphRange:
@@ -645,21 +645,21 @@ def fileToHtml (self):
 		paragraphList [p] = paragraphTmp +"'>"+ paragraphTmp [d:e] +'</a> '+ paragraphList [p] [f:]
 	self.text = " <a href='http".join (paragraphList)
 #	nettoyer le texte pour faciliter la suite des transformations
-	self.replace ('t')
+	self.replace ('\t')
 	self.clean ()
 #	rajouter les <p/>
-	self.replace ('n', '</p><p>')
+	self.replace ('\n', '</p><p>')
 	self.replace ('></p><p><', '><')
 	self.replace ('></p><p>', '><p>')
 	self.replace ('</p><p><', '</p><')
 #	rajouter d'eventuel <p/> s'il n'y a pas de balise en debut ou fin de self.text
 	if '<' not in self.text [0:3]: self.text = '<p>'+ self.text
-	if '>'not in self.text [-3:]: self.text = self.text +'</p>'
+	if '>' not in self.text [-3:]: self.text = self.text +'</p>'
 #	mettre en forme les balises pour clarifier le texte
-	self.replace ('n')
-	self.replace ('t')
+	self.replace ('\n')
+	self.replace ('\t')
 	# pour les blocs de code
-	self.replace ('a', 'n')
-	self.replace ('f', 't')
+	self.replace ('\a', '\n')
+	self.replace ('\f', '\t')
 	self.clean ()
-setattr (File, 'toHtml', fileToHtml)
+setattr (File, '\toHtml', fileToHtml)
