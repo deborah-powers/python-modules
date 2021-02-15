@@ -3,18 +3,24 @@
 from debutils.date import DatePerso
 from debutils.file import File
 from debutils.listFile import ListFile
+import debutils.logger as log
+
 types = ('ano', 'ddt', 'evo')
 refName = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\mantis-base.txt'
 refFile = File (refName)
 
 class Mantis():
-	def __init__ (self, numext ='0', message =' ?', module = ' ?', numint ='0', type =' ?'):
+	def __init__ (self, numext ='0', message ='?', module = '?', numint ='0', type ='?'):
 		self.message = message
 		self.numext = numext
 		self.module = module
-		self.type = type
 		self.numint = numint
-		if (not type or type == ' ?') and 'ddt' in message.lower(): self.type = 'ddt'
+		self.type = '?'
+		if type in types: self.type = type
+		else:
+			self.types = 'ano'
+			if 'ddt' in message.lower(): self.type = 'ddt'
+
 	def __lt__ (self, newMantis):
 		string = '%s %s'
 		return string % (self.module, self.numext) < string % (newMantis.module, newMantis.numext)
@@ -34,8 +40,8 @@ class MantisFile (Mantis, File):
 		refFile.replace ('%numint%', self.numint)
 		refFile.replace ('%module%', self.module)
 		refFile.replace ('%type%', self.type)
-		commandesStr = 'log.debug ("________________________ requete ________________________");\nlog.debug (obj.getA() +"t"+ obj.getB);'
-		solutionStr = 'branche: %s mantis-%s \n reprise de donnée nécessaire: ?' % (self.module, self.numext)
+		commandesStr = 'log.debug ("________________________ requete ________________________");\nlog.debug (obj.getA() +"\t"+ obj.getB());'
+		solutionStr = 'branche: %s mantis-%s\nreprise de donnée nécessaire: ?' % (self.module, self.numext)
 		if self.type == 'ddt':
 			solutionStr = 'su_%s_' % self.numext
 			commandesStr =""
@@ -97,6 +103,7 @@ class MantisList (ListFile):
 		self.sort()
 		rangeFile = self.range()
 		for f in rangeFile: self [f].fromFile()
+
 	def getBynumext (self, numext):
 		self.get (numext)
 	def getByType (self, type):

@@ -26,12 +26,10 @@ elif nbArg >3:
 	numext = argv [2]
 	message = argv [3]
 	numint ='0'
-	type = ' ?'
-	if len (argv) >4:
-		type = argv [4]
-		if type not in types:
-			type = 'ano'
-			numint = argv [4]
+	type = '?'
+	if nbArg >4:
+		if argv[4][0] in '0123456789': numint = argv [4]
+		else: type = argv[4]
 	fileMantis = MantisFile (numext, message, module, numint, type)
 	fileMantis.createFile()
 # il manque des données
