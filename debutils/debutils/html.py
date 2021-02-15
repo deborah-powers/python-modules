@@ -662,4 +662,4 @@ def fileToHtml (self):
 	self.replace ('\a', '\n')
 	self.replace ('\f', '\t')
 	self.clean ()
-setattr (File, '\toHtml', fileToHtml)
+setattr (File, 'toHtml', fileToHtml)

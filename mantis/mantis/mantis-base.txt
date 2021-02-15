@@ -1,36 +1,23 @@
-
 __________________________
-______ présentation ______
-
-message		%message%
-num ext		%numext%
-num int		%numint%
-module		%module%
-type		%type%
-
+______ pésentation ______
+message		tata
+num ext		333
+num int		0
+module		cdm
+type		?
 ______________________
-______ temps travaillé ______
-
+______ temps tavaillé ______
 %date%	0
-
 ______________________
 ______ solution ______
-
-%solution%
-
+banche: cdm mantis-333nepise de donnée nécessaie:?
 ___________________
 ______ infos ______
-
 ______ données ______
-
-
-______ marche à suivre ______
-
-
+______ mache à suive ______
 ______________________________
-______ %date% aprem ______
-
+______ %date% apem ______
 ______________________________
 ______ %date% matin ______
-
-%commandes%
+log.debug ("________________________ equete ________________________");
+log.debug (obj.getA () +"t"+ obj.getB);
