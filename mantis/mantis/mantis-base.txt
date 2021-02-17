@@ -1,6 +1,5 @@
-
 __________________________
-______ présentation ______
+______ pésentation ______
 
 message		%message%
 num ext		%numext%
@@ -9,10 +8,9 @@ module		%module%
 type		%type%
 
 ______________________
-______ temps travaillé ______
+______ temps tavaillé ______
 
 %date%	0
-
 ______________________
 ______ solution ______
 
@@ -23,12 +21,10 @@ ______ infos ______
 
 ______ données ______
 
-
-______ marche à suivre ______
-
+______ mache à suive ______
 
 ______________________________
-______ %date% aprem ______
+______ %date% apem ______
 
 ______________________________
 ______ %date% matin ______

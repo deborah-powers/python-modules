@@ -3,8 +3,16 @@
 from sys import argv
 from debutils.html import FileHtml
 from debutils.htmlArticle import ArticleHtml
-help ="""lancer le script
-	python htmlClean.py url"""
+
+help ="""ce script fait trois actions
+a- récupérer une page web, au format html ou txt
+	python htmlDeb.py url (sujet)
+b- convertir un fichier html en txt
+	python htmlDeb.py file.html totext
+c- convertir un fichier txt en html
+	python htmlDeb.py file.txt
+	python htmlDeb.py file.txt article"""
+
 if len (argv) >=2:
 	url = argv [1]
 	subject =None
