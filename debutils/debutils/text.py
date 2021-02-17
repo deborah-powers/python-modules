@@ -23,8 +23,9 @@ artefactsLowerCase = ('Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nLog.', '\tLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
-	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ('\\', ''), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
+	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
 	('\\u00c2', 'Â'), ('\\u00ca', 'Ê'), ('\\u00cb', 'Ë'), ('\\u00ce', 'Î'), ('\\u00cf', 'Ï'), ('\\u00d4', 'Ô'), ('\\u00d6', 'Ö'), ('\\u00db', 'Û'), ('\\u00e0', 'à'), ('\\u00e2', 'â'), ('\\u00e7', 'ç'), ('\\u00e8', 'è'), ('\\u00e9', 'é'), ('\\u00ea', 'ê'), ('\\u00eb', 'ë'), ('\\u00ee', 'î'), ('\\u00ef', 'ï'), ('\\u00f4', 'ô'), ('\\u00f6', 'ö'), ('\\u00fb', 'û'),
+	('\\', ''),
 	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x97', "'"), ('\x9c', ' '), ('\xa0', ' '),
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'),
 	('&mdash;', ' '), ('&nbsp;', ''), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"),
@@ -34,7 +35,7 @@ weirdChars =(
 # fonctions pour les textes simples
 
 def clean (text):
-	text = text.replace ('r',"")
+	text = text.replace ('\r',"")
 	# remplacer les caractères bizzares
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip ()
@@ -47,7 +48,7 @@ def clean (text):
 	while '....' in text: text = text.replace ('....', '...')
 	text = text.replace ('...', '... ')
 	text = text.replace ('  ', ' ')
-	lettreAppostrophe = ('c', 'd', 'j', 'l', 'm', '\n', 'qu', 'r', 's', '\t')
+	lettreAppostrophe = ('c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
 	for l in lettreAppostrophe:
 		text = text.replace (' '+l+"' ", ' '+l+"'")
 		text = text.replace (' '+ l.upper () +"' ", ' '+ l.upper () +"'")
@@ -58,8 +59,8 @@ def clean (text):
 		text = text.replace (p+' "', p+'"')
 	points = ') !?\'"'
 	for p in points:
-		text = text.replace (' ?'+p, ' ?' +p)
-		text = text.replace (' !'+p, ' !' +p)
+		text = text.replace ('? '+p, '?' +p)
+		text = text.replace ('! '+p, '!' +p)
 	while '  ' in text: text = text.replace ('  ', ' ')
 	points = ' !?'
 	for p in points:

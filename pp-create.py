@@ -10,8 +10,7 @@ pathPython = pathRoot + 'python' + os.sep
 templateInit ="""#!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 """
-templateSetup ="""%s
-from setuptools import setup, find_packages
+templateSetup = templateInit + """from setuptools import setup, find_packages
 author = 'deborah noisetier'
 name = '%s'
 description = "%s"
@@ -19,7 +18,7 @@ version = '0.1'
 setup (
 	name = name, version = version, description = description,
 	author = author,
-	packages = find_packages ()
+	packages = find_packages()
 )
 """
 folderName =""
@@ -48,7 +47,7 @@ else:
 	tmpFile.path = pathPython + folderName
 	tmpFile.title = 'setup'
 	tmpFile.fileFromData ()
-	tmpFile.text = templateSetup % (templateInit, name, description)
+	tmpFile.text = templateSetup % (name, description)
 	tmpFile.toFile ()
 	tmpFile.title = 'readme'
 	tmpFile.extension = 'txt'

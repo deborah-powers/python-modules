@@ -130,50 +130,50 @@ class eventGoogle (calendarGoogle, EventPerso):
 	def getOneMeal (self):
 		if self.color == evtDict ['repas'] [1]:
 			if not self.infos.text: self.infos.text = 'non noté'
-			else: self.infos.replace ('n', 't')
+			else: self.infos.replace ('\n', '\t')
 			evtStr = '%st%st%s' % (self.date.toStrDay (), self.title, self.infos.text)
 			return evtStr
 		else: return None
 	def getOneWeight (self):
 		if self.color == evtDict ['poids'] [1] and self.title.lower () == 'poids':
-			self.infos.replace ('n', 't')
+			self.infos.replace ('\n', '\t')
 			evtStr = '%st%s' % (self.date.toStrDay (), self.infos.text)
 			return evtStr
 		else: return None
 	def getOnePeriod (self):
 		if self.color == evtDict ['regles'] [1] and self.title.lower () in ('règles', 'regles'):
-			self.infos.replace ('n', 't')
+			self.infos.replace ('\n', '\t')
 			evtStr = '%st%s' % (self.date.toStrDay (), self.infos.text)
 			return evtStr
 		else: return None
 	def getOneWalk (self):
 		if self.title == 'Balade':
-			self.infos.replace ('r')
+			self.infos.replace ('\r')
 			evtStr = '%sn%s' % (self.date.toStrDay (), self.infos.text)
-			evtStr = evtStr.replace ('n', 'nt')
-			evtStr = evtStr.replace ('r',"")
+			evtStr = evtStr.replace ('\n', '\n\t')
+			evtStr = evtStr.replace ('\r',"")
 			return evtStr
 		else: return None
 	def getOnePurchase (self):
 		if self.color == evtDict ['depenses'] [1] and self.infos.text:
-			self.infos.replace ('r')
+			self.infos.replace ('\r')
 			details =""
-			if self.infos.contain ('n'):
-				d= self.infos.index ('n')
+			if self.infos.contain ('\n'):
+				d= self.infos.index ('\n')
 				details = self.infos.text [d+1:]
 				self.infos.text = self.infos.text [:d]
 			tmpList = self.infos.split (' ')
 			cost = tmpList.pop (-1)
 			if cost =='0' or cost == '0.0': return None
-			self.infos.text = ' '.join (tmpList) +'t' + cost
-			if details: self.infos.text = self.infos.text +'t'+ details
+			self.infos.text = ' '.join (tmpList) +'\t' + cost
+			if details: self.infos.text = self.infos.text +'\t'+ details
 			self.toLowercase ()
 			evtStr = '%st%st%st%s' % (self.date.toStrDay (), self.location, self.title, self.infos.text)
 			return evtStr
 		else: return None
 	def getOneDolor (self):
 		if self.title == 'Douleur':
-			strDate = self.date.toStrHour () +'t'+ self.duration.toStrHour () +'t'+ self.infos.text.replace ('. ', 't')
+			strDate = self.date.toStrHour () +'\t'+ self.duration.toStrHour () +'\t'+ self.infos.text.replace ('. ', '\t')
 			strDate = strDate.replace ('0/00/00 ',"")
 			return strDate
 		else: return None
@@ -182,7 +182,7 @@ class eventGoogle (calendarGoogle, EventPerso):
 			if self.infos.text:
 				self.infos.shape ()
 				self.infos.replace ('"', '"')
-				self.infos.replace ('n', '", ntt"')
+				self.infos.replace ('\n', '", \n\t\t"')
 			else: self.infos.text =""
 			evtStr =""" {
 	"date":"%s",
@@ -191,14 +191,14 @@ class eventGoogle (calendarGoogle, EventPerso):
 	"tags": [],
 	"peoples": [],
 	"content": [
-		"%s"nt] n},""" % (self.date.toStrDay (), self.location, self.title, self.infos.text)
+		"%s"\n\t] \n},""" % (self.date.toStrDay (), self.location, self.title, self.infos.text)
 			return evtStr
 		else: return None
 	def getOneDream (self):
 		if self.color == evtDict ['reves'] [1] and self.title != 'Balade':
 			self.infos.shape ()
 			self.infos.replace ('"', '"')
-			self.infos.replace ('n', '", ntt"')
+			self.infos.replace ('\n', '", \n\t\t"')
 			evtStr =""" {
 	"date":"%s",
 	"place":"%s",
@@ -206,7 +206,7 @@ class eventGoogle (calendarGoogle, EventPerso):
 	"tags": [],
 	"peoples": [],
 	"content": [
-		"%s"nt] n},""" % (self.date.toStrDay (), self.location, self.title, self.infos.text)
+		"%s"\n\t] \n},""" % (self.date.toStrDay (), self.location, self.title, self.infos.text)
 			evtStr = evtStr.replace ('"None"', '""')
 			return evtStr
 		else: return None
@@ -256,7 +256,7 @@ class eventList (FileList):
 		newList.extension = 'tsv'
 		newList.fileFromData ()
 		for evt in self.list:
-			newList.addLine ([ evt.date.__str__ (), evt.category, evt.title, evt.infos.__str__ ().replace ('n', 't') ])
+			newList.addLine ([ evt.date.__str__ (), evt.category, evt.title, evt.infos.__str__ ().replace ('\n', '\t') ])
 		newList.sort ()
 		newList.toFile ()
 	def getAll (self):
