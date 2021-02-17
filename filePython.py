@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 import os
 from sys import argv
-import codecs
+# import codecs
 from debutils.file import File
 from debutils.fileList import FileList
+from debutils.listFile import ListFile
 
 help ="""lancement: python filePy
 	python mantisDeb
@@ -45,6 +46,11 @@ class FilePy (File):
 		self.replace ('\nclass ', '\n\nclass ')
 
 	def fromFile (self):
+		File.fromFile (self)
+		self.clean()
+
+	"""
+	def fromFile (self):
 		if not os.path.exists (self.file): return
 		self.dataFromFile()
 		# ouvrir le file et recuperer le texte au format str
@@ -57,9 +63,9 @@ class FilePy (File):
 			else: break
 		textBrut.close()
 		self.clean()
+	"""
 
 	def test (self):
-		self.fromFile()
 		self.title = self.title +'-bis'
 		print ('création de %s') % self.title
 		self.fileFromData()
@@ -70,6 +76,10 @@ class FilePy (File):
 		self.replace ('\n\n', '\n')
 		flist = FileList ('\n', 'b/' + self.title + '-help.txt')
 		flist.helpPy (self.text)
+
+	def gitConflict (self):
+		if self.contain ('===') and self.contain ('>>>'): print ('conflit git dans le fichier', self.title)
+	#	else: print ('pas de conflit dans le fichier', self.title)
 
 def helpPy (self, text):
 	self.fromText ('\n', text)
@@ -87,9 +97,41 @@ def helpPy (self, text):
 
 setattr (FileList, 'helpPy', helpPy)
 
+class ListPy (ListFile):
+	def __init__ (self):
+		ListFile.__init__ (self)
+		self.path = pathPython
+
+	def get (self, TagNomfile=None, sens=True):
+		for dirpath, SousListDossiers, subList in os.walk (self.path):
+			if not subList: continue
+			range_tag = range (len (subList) -1, -1, -1)
+			for i in range_tag:
+				if subList[i][-3:] != '.py': trash = subList.pop (i)
+			if TagNomfile and sens:
+				range_tag = range (len (subList) -1, -1, -1)
+				for i in range_tag:
+					if TagNomfile not in subList[i]: trash = subList.pop (i)
+			elif TagNomfile:
+				range_tag = range (len (subList) -1, -1, -1)
+				for i in range_tag:
+					if TagNomfile in subList[i]: trash = subList.pop (i)
+			if subList:
+				for file in subList:
+					fileTmp = FilePy (os.path.join (dirpath, file))
+					self.add (fileTmp)
+
+	def gitConflict (self):
+		for file in self:
+			file.fromFile()
+			file.gitConflict()
 
 if __name__ != '__main__': pass
 elif len (argv) <2: print (help)
+elif argv[1] == 'git':
+	pyList = ListPy()
+	pyList.get()
+	pyList.gitConflict()
 else:
 	pyFile = FilePy (argv[1])
 	pyFile.help()

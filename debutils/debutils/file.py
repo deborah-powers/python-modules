@@ -90,7 +90,7 @@ class File (Text):
 		self.text = codecs.decode (tmpByte, encoding='utf-8')
 		"""
 		textBrut.close()
-		File.clean (self)
+	#	File.clean (self)
 
 	def toFile (self, mode='w'):
 		# pas de texte
