@@ -61,7 +61,7 @@ class List ():
 		if item in self.list: nb= self.list.index (item)
 		return nb
 	def __str__ (self):
-		return self.toText ('n')
+		return self.toText ('\n')
 	def addList (self, newList):
 		if type (newList) == list: self.list.extend (newList)
 		elif type (newList) == List: self.list.extend (newList.list)
@@ -140,7 +140,7 @@ class Table (List):
 #				creer une case
 				self [-1].add (filling)
 	def __str__ (self):
-		return self.toText ('n', 't')
+		return self.toText ('\n', '\t')
 	def addTable (self, itemTable):
 		# regrouper deux tables
 		if type (itemTable) == Table: self.list.extend (itemTable)
@@ -196,7 +196,7 @@ class Dico ():
 	def getKeys (self):
 		for item in self.dico.keys: self.keys.append (item)
 	def __str__ (self):
-		return self.toText ('n', 't')
+		return self.toText ('\n', '\t')
 	def fromText (self, wordLin, wordCol, text):
 		newList = text.split (wordLin)
 		rangeList = range (len (newList))

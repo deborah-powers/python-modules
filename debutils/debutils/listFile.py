@@ -48,7 +48,7 @@ class ListFile (List):
 		for f in rangeFile:
 			for g in rangeFile [f+1:]:
 				if self [f].title == self [g].title:
-					# print ('doublons pour', self [f].title, 'nt', self [f].path, 'nt', self [g].path)
+					# print ('doublons pour', self [f].title, '\n\t', self [f].path, '\n\t', self [g].path)
 					listDbl.add (self [f])
 			if inText:
 				for f in rangeFile:
@@ -56,7 +56,7 @@ class ListFile (List):
 					if self [f].text:
 						for g in rangeFile [f+1:]:
 							if self [f].text == self [g].text:
-								# print ('doublons pournt', self [f].file, 'nt', self [g].file)
+								# print ('doublons pournt', self [f].file, '\n\t', self [g].file)
 								listDbl.add (self [f])
 		return listDbl
 	def compare (self, pathNew):
@@ -70,7 +70,7 @@ class ListFile (List):
 		for fref in self:
 			for f in rangeTmp:
 				if fref.title == listNew [f].title:
-					# print ('doublons pour', fref.title, 'nt', fref.path, 'nt', listNew [f].path)
+					# print ('doublons pour', fref.title, '\n\t', fref.path, '\n\t', listNew [f].path)
 					listDbl.add (listNew [f])
 		for fnew in listNew:
 			if fnew not in listDbl: listUnq.add (fnew)
@@ -89,7 +89,7 @@ class ListFile (List):
 		for fref in self:
 			newFile = fref.title.replace ('.', ' ')
 			newFile = newFile.replace ('_', ' ')
-			newFile = newFile.replace ('t', ' ')
+			newFile = newFile.replace ('\t', ' ')
 			newFile = newFile.replace ('-', ' - ')
 			while ' ' in newFile: newFile = newFile.replace (' ', ' ')
 			newFile = newFile.strip ()
@@ -118,7 +118,7 @@ class ListFile (List):
 			if close: file.toFile ()
 	def __str__ (self):
 		strList = 'Dossier: '+ self.path +'nListe:'
-		for file in self: strList = strList +'n'+ file.title
+		for file in self: strList = strList +'\n'+ file.title
 		return strList
 class ArticleList (ListFile):
 	def __init__ (self, genre=""):
@@ -148,7 +148,7 @@ class ArticleList (ListFile):
 	def show (self, genre=None):
 		if genre:
 			print (len (self), 'histoires de', genre)
-			for article in self: print ('%st%s' % (article.author, article.title))
+			for article in self: print ('%s\t%s' % (article.author, article.title))
 		else:
 			print (len (self), 'histoires')
 			print (self)

@@ -6,7 +6,7 @@ from debutils.list import List, Table
 help =""" un fichier contenant une liste """
 
 class FileList (File, List):
-	def __init__ (self, sepLin ='n', file =None):
+	def __init__ (self, sepLin ='\n', file =None):
 		File.__init__ (self, file)
 		List.__init__ (self)
 		self.sepLin = sepLin
@@ -20,7 +20,7 @@ class FileList (File, List):
 		return len (self.list)
 
 class FileTable (File, Table):
-	def __init__ (self, sepLin='n', sepCol='t', file =None):
+	def __init__ (self, sepLin='\n', sepCol='\t', file =None):
 		File.__init__ (self, file)
 		Table.__init__ (self)
 		self.sepLin = sepLin
@@ -40,4 +40,4 @@ class FileTable (File, Table):
 	def length (self):
 		return len (self.list)
 	def __str__ (self):
-		return self.toText ('n', 't')
+		return self.toText ('\n', '\t')

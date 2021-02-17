@@ -25,10 +25,10 @@ class EventPerso ():
 	def __str__ (self):
 		return self.toStrDay ()
 	def toStrHour (self):
-		strEvt = self.date.toStrHour () +'t'+ self.category +'t'+ self.title +'t'+ self.location +'nt'+ self.infos.text
+		strEvt = self.date.toStrHour () +'\t'+ self.category +'\t'+ self.title +'\t'+ self.location +'\n\t'+ self.infos.text
 		return strEvt
 	def toStrDay (self):
-		strEvt = self.date.toStrDay () +'t'+ self.category +'t'+ self.title +'t'+ self.location +'nt'+ self.infos.text
+		strEvt = self.date.toStrDay () +'\t'+ self.category +'\t'+ self.title +'\t'+ self.location +'\n\t'+ self.infos.text
 		return strEvt
 monthsName	= [ 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre' ]
 daysWeek	= [ 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche' ]
@@ -186,8 +186,8 @@ class DatePerso ():
 		self.day		= newDate.day
 		self.hour		= newDate.hour
 		self.min		= newDate.minute
-		self.dayName	= daysWeek [newDate.weekday () ]
-		self.isBissextile ()
+		self.dayName	= daysWeek [newDate.weekday()]
+		self.isBissextile()
 	def toDate (self):
 		pass
 	def test (self):

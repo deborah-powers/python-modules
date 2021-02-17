@@ -11,7 +11,7 @@ def traceLine ():
 	stackLen = len (stackList)
 	i=0
 	while i< stackLen and __file__ in stackList [i].filename: i+=1
-	return '%st%dt%s' % (stackList [i].filename, stackList [i].lineno, stackList [i].function)
+	return '%s\t%d\t%s' % (stackList [i].filename, stackList [i].lineno, stackList [i].function)
 def log (message=None):
 	trace = traceDate () +' '+ traceLine ()
 	if message: print (trace, message)
@@ -20,7 +20,7 @@ def message (message=None, obj=None):
 	msgAffichable =""
 	if message:
 		msgAffichable = message
-		if obj: msgAffichable = msgAffichable +'t'+ str (obj)
+		if obj: msgAffichable = msgAffichable +'\t'+ str (obj)
 	elif obj: msgAffichable = str (obj)
 	log (msgAffichable)
 def coucou ():

@@ -19,12 +19,12 @@ class TestFunc ():
 		self.succes =False
 	def __str__ (self):
 		txt = '____________ fonction %s ____________' % self.function.__name__
-		if self.arguments !=None: txt = txt + 'narguments:tt' + str (self.arguments)
-		txt = txt + 'nrésultat attendu:t' + str (self.resPredicted)
+		if self.arguments !=None: txt = txt + '\narguments:tt' + str (self.arguments)
+		txt = txt + '\nrésultat attendu:t' + str (self.resPredicted)
 		if self.resComputed !=None:
-			txt = txt + 'nrésultat obtenu:t' + str (self.resComputed)
-			if self.succes: txt = txt + 'nla fonction donne le résultat attendu'
-			else: txt = txt + 'nla fonction donne un résultat érroné'
+			txt = txt + '\nrésultat obtenu:t' + str (self.resComputed)
+			if self.succes: txt = txt + '\nla fonction donne le résultat attendu'
+			else: txt = txt + '\nla fonction donne un résultat érroné'
 		return txt
 	def launch (self):
 		if (self.arguments): self.resComputed = self.function (*self.arguments)
@@ -41,8 +41,8 @@ class TestClass ():
 			if func [:2] != '__': self.funcs.append (func)
 	def __str__ (self):
 		txt = '____________ class %s ____________' % self.clazz.__name__
-		txt = txt +'nles fonctions: ' + ', '.join (self.funcs)
-		txt = txt +'n'+ str (self.object)
+		txt = txt +'\nles fonctions: ' + ', '.join (self.funcs)
+		txt = txt +'\n'+ str (self.object)
 		return txt
 def coucou (prenom, nom):
 	print ('coucou', prenom, nom)
@@ -70,7 +70,7 @@ class Test (File):
 	def oneFunc (self, funcTest, funcRes=None, messageRes=None):
 		message = 'test de '+ funcTest.__name__
 		print (message)
-		self.text = self.text +'n'+ message
+		self.text = self.text +'\n'+ message
 		if funcRes != None and messageRes:
 			message = messageRes % funcRes
 			print (message)
