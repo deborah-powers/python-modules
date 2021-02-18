@@ -2,6 +2,7 @@
 boulot-*
 dom*
 fileLocal.py
+quickstart.py
 filePj.py
 temp.py
 *.pickle
