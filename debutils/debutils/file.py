@@ -4,7 +4,7 @@ import os
 import codecs
 from debutils.text import Text
 from debutils.fileLocal import *
-extensions = 'txt log css html xml svg md tsv csv json js py sql jpeg jpg png bmp gif pdf mp3 mp4 waw vlc avi mpg srt mkv divx ass AVI torrent Divx flv wma m4a MP3 TMP tmp mht'
+extensions = 'txt log css html xml svg md tsv csv json js py sql jpeg jpg png bmp gif pdf mp3 mp4 wav vlc avi mpg srt mkv divx ass AVI torrent Divx flv wma m4a MP3 TMP tmp mht'
 def createFolder (folder):
 	if not os.path.exists (folder): os.mkdir (folder)
 

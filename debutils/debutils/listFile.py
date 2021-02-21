@@ -9,6 +9,7 @@ class ListFile (List):
 		List.__init__ (self)
 		if path: path = fc.shortcut (path)
 		self.path = path
+
 	def get (self, TagNomfile=None, sens=True):
 		for dirpath, SousListDossiers, subList in os.walk (self.path):
 			if not subList: continue
@@ -25,6 +26,7 @@ class ListFile (List):
 					fileTmp = fc.File (os.path.join (dirpath, file))
 					# fileTmp.dataFromFile ()
 					self.add (fileTmp)
+
 		self.sort ()
 		# eliminer les fichiers de format inconnu
 		rangeFile = self.range ()
@@ -117,7 +119,7 @@ class ListFile (List):
 			funcText (file)
 			if close: file.toFile ()
 	def __str__ (self):
-		strList = 'Dossier: '+ self.path +'nListe:'
+		strList = 'Dossier: '+ self.path +'\nListe:'
 		for file in self: strList = strList +'\n'+ file.title
 		return strList
 class ArticleList (ListFile):
@@ -143,7 +145,7 @@ class ArticleList (ListFile):
 		self.sort ()
 	def __str__ (self):
 		string =""
-		for article in self: string = string +'n%st%st%s' % (article.subject, article.author, article.title)
+		for article in self: string = string +'\n%s\t%s\t%s' % (article.subject, article.author, article.title)
 		return string [1:]
 	def show (self, genre=None):
 		if genre:

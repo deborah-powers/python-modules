@@ -1,0 +1,23 @@
+
+
+
+
+______ lancer une application ______
+
+pour l'utiliser moi-même
+
+import os
+os.system ('appli')
+os.system ('appli fichier')
+
+lancer et fermer une application
+
+import subprocess
+import time
+p= subprocess.Popen ([ appli, fichier])
+time.sleep (4)
+p.terminate()
+
+applis:
+	vlc	vlc
+	eog	visionneuse d'image
