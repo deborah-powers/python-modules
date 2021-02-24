@@ -7,10 +7,18 @@ self.year, self.month, self.day, self.hour, self.minute, self.second
 newDay = self.replace (day=4, month= self.month +3)
 """
 today = datetime.now()
-print (today)
-nwday = today.replace (day=3, month=today.month +1)
-print (nwday)
+print (today, today.__class__)
+
+class Date (datetime):
+	def __init__(self):
+		self.now()
+
+	def coucou (self):
+		print ('coucou')
+
+tomorow = Date()
+print (tomorow)
 
 
-
-
+"""
+"""

@@ -12,7 +12,7 @@ les valeurs de tag
 	cpr: comparer deux fichiers ligne à ligne
 	md: transformer mon fichier en md
 """
-if len (argv) <2: print (help)
+if len (argv) <3: print (help)
 elif argv[2] =='tmp':
 	fileTxt = Article()
 	fileTxt.tmp()
