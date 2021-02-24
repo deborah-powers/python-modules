@@ -117,10 +117,9 @@ def fromTextRequest (self, textOrigine):
 	self.replace ('\n ','\n')
 
 def replaceAppend (self, word, newWord=None):
-	if not newWord: newWord = ' '+ word +' '
-	elif '_' in word:
+	if not newWord:
 		newWord = ' '+ word +' '
-		newWord = newWord.replace ('_',' ')
+		if '_' in word: newWord = newWord.replace ('_',' ')
 	self.replace ('.append(' + word +')', newWord)
 
 setattr (File, 'eraseComment', eraseComment)

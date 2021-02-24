@@ -1,6 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from debutils.date import DatePerso
+from datetime import datetime
 from debutils.file import File
 from debutils.listFile import ListFile
 import debutils.logger as log
@@ -35,6 +35,9 @@ class MantisFile (Mantis, File):
 
 	def createFile (self):
 		refFile.fromFile()
+		strNum = str (self.numext)
+		while len (strNum) <4: strNum = '0'+ strNum
+		self.message = '000'+ strNum +': '+ self.message
 		refFile.replace ('%message%', self.message)
 		refFile.replace ('%numext%', self.numext)
 		refFile.replace ('%numint%', self.numint)
@@ -47,9 +50,9 @@ class MantisFile (Mantis, File):
 			commandesStr =""
 		refFile.replace ('%commandes%', commandesStr)
 		refFile.replace ('%solution%', solutionStr)
-		date = DatePerso()
-		date.today()
-		refFile.replace ('%date%', date.toStrDay())
+		date = datetime.now()
+		dateStr = '%02d/%02d/%02d' % (date.year, date.month, date.day)
+		refFile.replace ('%date%', dateStr)
 		refFile.file = self.file
 		refFile.dataFromFile()
 		refFile.replace (' ______\n', ' ______\n\n')
