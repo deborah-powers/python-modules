@@ -29,14 +29,16 @@ htmlTemplate ="""<!DOCTYPE html><html><head>
 </head><body>
 %s
 </body></html>"""
+
 def findTextBetweenTag (originalText, tag):
 	lTag = len (tag)
 	d= originalText.find ('<'+ tag) +1+ lTag
 	d= originalText.find ('>', d) +1
 	f= originalText.find ('</'+ tag +'>', d)
 	phrase = originalText [d:f]
-	phrase = phrase.strip ()
+	phrase = phrase.strip()
 	return phrase
+
 class FileHtml (File):
 	# classe pour les fichiers html
 	def __init__ (self, file =None):
@@ -48,16 +50,19 @@ class FileHtml (File):
 		self.extension = 'html'
 		self.styles = []
 		self.metas = {}
+
 	""" ________________________ manipuler les fichiers ________________________ """
+
 	def fromFile (self):
 		File.fromFile (self)
-		self.clean ()
+		self.clean()
 		tmpTitle = findTextBetweenTag (self.text, 'title')
 		if tmpTitle and '>' not in tmpTitle and '<' not in tmpTitle: self.title = tmpTitle
 		self.styles = []
-		self.getCss ()
-		self.getMetadata ()
+		self.getCss()
+		self.getMetadata()
 		self.text = findTextBetweenTag (self.text, 'body')
+
 	def toFile (self):
 		# pas de text,""
 		if not self.text:
@@ -69,19 +74,21 @@ class FileHtml (File):
 			self.styles.append (pathCss + 'structure.css')
 			self.styles.append (pathCss + 'perso.css')
 		"""
-		self.title = self.title.lower ()
-		textInfos = self.setMetadata ()
-		textCss = self.setCss ()
-		textCss = textCss.strip ()
+		print ('b', self.metas)
+		self.title = self.title.lower()
+		textInfos = self.setMetadata()
+		textCss = self.setCss()
+		textCss = textCss.strip()
 		textInfos = textInfos + textCss
-		textInfos = textInfos.strip ()
+		textInfos = textInfos.strip()
 		# le nouveau fichier
 		for tag in listTagsIntern:
 			self.replace ('<'+ tag +'>\n<', '<'+ tag +'><')
 			self.replace ('>\n</'+ tag +'>', '></'+ tag +'>')
-		self.text = self.text.strip ()
+		self.text = self.text.strip()
 		self.text = htmlTemplate % (self.title, textInfos, self.text)
 		File.toFile (self)
+
 	def clean (self):
 		self.replace ('\t', ' ')
 		self.replace ('\n', ' ')
@@ -90,7 +97,7 @@ class FileHtml (File):
 		self.replace ('> ', '>')
 		self.replace (' <', '<')
 		self.replace (' />', '/>')
-		self.text = self.text.strip ()
+		self.text = self.text.strip()
 		self.replace ("''", '"')
 		"""
 		self.replace ('"',"'")
@@ -103,12 +110,14 @@ class FileHtml (File):
 		strFic = 'Titre: %s, Fichier: %s' % (self.title, self.file)
 		if self.metas:
 			strFic = strFic + '\nMeta:'
-			for meta in self.metas.keys (): strFic = strFic +'\n\t%st%s' % (meta, self.metas [meta])
+			for meta in self.metas.keys(): strFic = strFic +'\n\t%st%s' % (meta, self.metas [meta])
 		if self.styles:
 			strFic = strFic + '\nStyle:'
 			for css in self.styles: strFic = strFic +'\n\t%s' %css
 		return strFic
+
 	""" ________________________ récupérer les métadonnées ________________________ """
+
 	def getCss (self):
 		# styles par défaut
 		defaultCss = [
@@ -155,25 +164,29 @@ class FileHtml (File):
 				f= metaTmp [1].find ("'")
 				metaTmp [1] = metaTmp [1] [:f]
 			self.metas [metaTmp [0] ] = metaTmp [1]
+
 	def setMetadata (self):
 		textInfos =""
-		if self.metas.keys ():
-			for meta in self.metas.keys ():
+		print ('c', self.metas)
+		if self.metas.keys():
+			for meta in self.metas.keys():
 				tmpMeta = "<meta name='%s' content='%s'/>\n\t" % (meta, self.metas [meta])
 				textInfos = textInfos + tmpMeta
 		return textInfos
+
 	""" ________________________ convertir en texte ________________________ """
-	def toFile (self):
+
+	def toFilePerso (self):
 		# fileHtml a été cré avec textToHtml
 		# récupérer le texte
 		if not self.text:
-			self.fromFile ()
-			self.dataFromFile ()
-		self.clean ()
-		ftext = File ()
+			self.fromFile()
+			self.dataFromFile()
+		self.clean()
+		ftext = File()
 		ftext.copyFile (self)
 		ftext.extension = 'txt'
-		ftext.fileFromData ()
+		ftext.fileFromData()
 		# les titres
 		ftext.replace ('<h1>', '\n______\n______ ')
 		ftext.replace ('<h2>', '\n______ ')
@@ -228,29 +241,31 @@ class FileHtml (File):
 		ftext.replace ('<hr/>', '\n________________________\n')
 		ftext.replace ('<br>', '\n')
 		ftext.replace ('<br/>', '\n')
-		ftext.clean ()
-		ftext.shape ()
-		ftext.toFile ()
-	def fromFileName (self, fileName):
+		ftext.clean()
+		ftext.shape()
+		ftext.toFile()
+
+	def fromFilePersoName (self, fileName):
 		ftext = File (fileName)
-		self.fromFile (ftext)
-	def fromFile (self, ftext):
+		self.fromFilePerso (ftext)
+
+	def fromFilePerso (self, ftext):
 		# file est un fichier txt utilisant ma mise en forme
-		if not ftext.text: ftext.fromFile ()
-		ftext.shape ()
-		ftext.toHtml ()
+		if not ftext.text: ftext.fromFile()
+		ftext.shape()
+		ftext.toHtml()
 		self.copyFile (ftext)
 		self.extension = 'html'
-		self.toFile ()
+		self.toFile()
 	""" ________________________ texte du web ________________________ """
 	def fromUrlVb (self):
 		self.title = 'tmp'
-		self.fileFromData ()
+		self.fileFromData()
 		urlRequest.urlretrieve (self.link, self.file)
-		self.fromFile ()
+		self.fromFile()
 		remove (self.file)
-		self.titleFromUrl ()
-		self.fileFromData ()
+		self.titleFromUrl()
+		self.fileFromData()
 	def fromUrlVa (self, params=None):
 		# récupérer le texte. les params servent à remplir les formulaires
 		myRequest = None
@@ -265,13 +280,13 @@ class FileHtml (File):
 			print ('la récupération à échoué')
 			return
 		else:
-			tmpByte = response.read ()
+			tmpByte = response.read()
 			self.text = codecs.decode (tmpByte, 'utf-8', errors='ignore')
-			response.close ()
-			self.titleFromUrl ()
+			response.close()
+			self.titleFromUrl()
 	def fromUrl (self, params=None):
-		if params == 'b': self.fromUrlVb ()
-		else: self.fromUrlVa ()
+		if params == 'b': self.fromUrlVb()
+		else: self.fromUrlVa()
 	def titleFromUrl (self):
 		title = self.link.strip ('/')
 		pos = title.rfind ('/') +1
@@ -283,29 +298,32 @@ class FileHtml (File):
 				title = title [:pos]
 		if title.count ('-') >1: title = title.replace ('-', ' ')
 		self.title = title.replace ('_', ' ')
-		self.cleanWeb ()
+		self.cleanWeb()
+
 	def fromWeb (self, url):
 		self.extension = 'html'
 		self.path = 'b/'
 		self.title = 'tmp'
-		self.fileFromData ()
+		self.fileFromData()
 		self.link = url
-		self.fromUrl ()
-		# self.cleanWeb ()
+		self.fromUrl()
+		# self.cleanWeb()
 		self.metas = {}
 		self.styles = []
 		self.metas ['link'] = self.link
-		self.toFile ()
+		self.toFile()
+
 	def cleanLocal (self):
-		FileHtml.clean ()
+		FileHtml.clean()
 		self.text = findTextBetweenTag (self.text, 'body')
+
 	def cleanWeb (self):
-		self.clean ()
+		self.clean()
 		self.replace ('<br/>', '<br>')
 		self.replace ('<hr/>', '<hr>')
 		# supprimer les commentaires
 		self.replace ('< ! --', '<!--')
-		textList = List ()
+		textList = List()
 		textList.addList (self.text.split ('<!--'))
 		textRange = textList.range (1)
 		for t in textRange:
@@ -313,12 +331,12 @@ class FileHtml (File):
 			textList [t] = textList [t] [f:]
 			self.text = "".join (textList)
 		# effacer certaines balises
-		self.cleanSpan ()
-		self.cleanTags ()
+		self.cleanSpan()
+		self.cleanTags()
 		self.text = findTextBetweenTag (self.text, 'body')
 		self.replace ('\n')
 		self.replace ('\t')
-		self.clean ()
+		self.clean()
 	def cleanLink (self):
 		if not self.contain ('</a>'): return
 		listText = self.split ('</a>')
@@ -349,17 +367,17 @@ class FileHtml (File):
 		# supprimer les attributs inutiles
 		self.replace ('<br/>', '<br>')
 		self.replace ('<hr/>', '<hr>')
-		tagList = List ()
-		textList = List ()
+		tagList = List()
+		textList = List()
 		textList.addList (self.text.split ('<'))
 		textRange = textList.range (1)
-		# textRange.reverse ()
+		# textRange.reverse()
 		for t in textRange:
 			if len (textList [t]) ==0: continue
 			elif textList [t] [0] in '/ !': continue
 			elif '>' not in textList [t]: textList [t] = textList [t] [:f] +'>'
 			f= textList [t].find ('>')
-			tag = textList [t] [:f].lower ()
+			tag = textList [t] [:f].lower()
 			textList [t] = textList [t] [f:]
 			if ' ' in tag:
 				f= tag.find (' ')
@@ -381,16 +399,16 @@ class FileHtml (File):
 				self.replace ('</'+ tag +'>')
 				self.replace ('<'+ tag +'>')
 		if self.contain ('<a>'):
-			textList = List ()
+			textList = List()
 			textList.addList (self.text.split ('<a>'))
 			textRange = textList.range (1)
 			for a in textRange:
 				d= textList [a].find ('</a>')
-				textList [a] = textList [a] [:d].strip () +' '+ textList [a] [d+4:].strip ()
-			#	textList [a] = textList [a] [d+4:].strip ()
+				textList [a] = textList [a] [:d].strip() +' '+ textList [a] [d+4:].strip()
+			#	textList [a] = textList [a] [d+4:].strip()
 			self.text = ' '.join (textList)
 		# retrouver les balises vides
-		self.clean ()
+		self.clean()
 		self.replace ('\n')
 		for tag in tagList: self.replace ('<'+ tag +'></'+ tag +'>')
 	def cleanTagsSpecial (self, tag, attributeList):
@@ -451,10 +469,10 @@ class FileHtml (File):
 		# supprimer les span en trop
 		self.replace ('<SPAN', '<span')
 		self.replace ('</SPAN', '</span')
-		textList = List ()
+		textList = List()
 		textList.addList (self.text.split ('<span '))
 		textRange = textList.range (1)
-		textRange.reverse ()
+		textRange.reverse()
 		for t in textRange:
 			f= textList [t].find ('>')
 			textList [t] = textList [t] [f:]
@@ -465,10 +483,10 @@ class FileHtml (File):
 		self.replace ('<span>', ' ')
 		self.replace ('</span>', ' ')
 		# supprimer les liens en trop
-		textList = List ()
+		textList = List()
 		textList.addList (self.text.split ('="<a '))
 		textRange = textList.range (1)
-		textRange.reverse ()
+		textRange.reverse()
 		for t in textRange:
 			f= textList [t].find ('</a>"') +4
 			textList [t] = textList [t] [f:]
@@ -482,13 +500,13 @@ class FileHtml (File):
 		self.replace (' <', '<')
 		self.replace ('</ ', '</')
 		self.replace (' />', '/>')
-		self.text = self.text.strip ()
+		self.text = self.text.strip()
 	def delImgLink (self):
 		self.text = self.text.replace ('</div>',"")
 		self.text = self.text.replace ('<div>',"")
 		# supprimer les liens
 		if self.contain ('<a href='):
-			textList = List ()
+			textList = List()
 			textList.addList (self.text.split ('<a href='))
 			textRange = textList.range (1)
 			for i in textRange:
@@ -498,30 +516,32 @@ class FileHtml (File):
 			self.text = self.text.replace ('</a>',"")
 		# supprimer les images
 		if self.contain ('<img src='):
-			textList = List ()
+			textList = List()
 			textList.addList (self.text.split ('<img src='))
 			textRange = textList.range (1)
 			for i in textRange:
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]
 			self.text = "".join (textList)
+
 	def test (self):
 		self.file = 'b/coucou.html'
-		self.dataFromFile ()
+		self.dataFromFile()
 		self.author = 'deborah powers'
 		self.subject = 'test'
 		self.autlink = 'http://deborah-powers.fr/'
 		self.link = 'http://www.mon/histoire.com'
 		self.text = 'coucou je suis deborah'
-		self.toFile ()
-		self.fromFile ()
+		self.toFile()
+		self.fromFile()
 		print (self)
+
 	def testOnline (self):
 		self.link = 'https://www.tutorialspoint.com/downloading-files-from-web-using-python'
-		self.fromUrl ()
+		self.fromUrl()
 balises = ((' ______\n', '</h2>\n'), ('\n______\n______ ', '\n<h1>'), ('\n______ ', '\n<h2>'), ('\n------ ', '\n<h3>'), (' ------\n', '</h3>\n'), ('\n______\n', '\n<hr>\n'), ('\nImg\t', "\n<img src='"))
 def fileToHtml (self):
-	self.clean ()
+	self.clean()
 	while '_______' in self.text: self.replace ('_______', '______')
 	while '-------' in self.text: self.replace ('-------', '------')
 	self.text = '\n'+ self.text +'\n'
@@ -559,7 +579,7 @@ def fileToHtml (self):
 		paragraphList = self.text.split ('xmp>')
 		paragraphRange = range (1, len (paragraphList), 2)
 		for i in paragraphRange:
-			paragraphList [i] = paragraphList [i].strip ()
+			paragraphList [i] = paragraphList [i].strip()
 			paragraphList [i] = paragraphList [i].strip ('\n\t ')
 			paragraphList [i] = paragraphList [i].replace ('\n', '\a')
 			paragraphList [i] = paragraphList [i].replace ('\t', '\f')
@@ -646,7 +666,7 @@ def fileToHtml (self):
 	self.text = " <a href='http".join (paragraphList)
 #	nettoyer le texte pour faciliter la suite des transformations
 	self.replace ('\t')
-	self.clean ()
+	self.clean()
 #	rajouter les <p/>
 	self.replace ('\n', '</p><p>')
 	self.replace ('></p><p><', '><')
@@ -661,5 +681,5 @@ def fileToHtml (self):
 	# pour les blocs de code
 	self.replace ('\a', '\n')
 	self.replace ('\f', '\t')
-	self.clean ()
+	self.clean()
 setattr (File, 'toHtml', fileToHtml)

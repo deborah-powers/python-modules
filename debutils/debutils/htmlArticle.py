@@ -3,33 +3,39 @@
 from debutils.html import FileHtml, findTextBetweenTag
 from debutils.file import Article
 from debutils.list import List
+
 class ArticleHtml (FileHtml, Article):
 	def __init__ (self, file =None):
 		FileHtml.__init__ (self)
 		Article.__init__ (self)
+
 	""" ________________________ manipuler des fichiers ________________________ """
+
 	def fromFile (self):
 		FileHtml.fromFile (self)
-		if 'link' in self.metas.keys (): self.link = self.metas ['link']
-		if 'author' in self.metas.keys (): self.author = self.metas ['author']
-		if 'subject' in self.metas.keys (): self.subject = self.metas ['subject']
-		if 'autlink' in self.metas.keys (): self.autlink = self.metas ['autlink']
+		if 'link' in self.metas.keys(): self.link = self.metas ['link']
+		if 'author' in self.metas.keys(): self.author = self.metas ['author']
+		if 'subject' in self.metas.keys(): self.subject = self.metas ['subject']
+		if 'autlink' in self.metas.keys(): self.autlink = self.metas ['autlink']
+
 	def toFile (self):
-		self.author = self.author.lower ()
-		self.subject = self.subject.lower ()
+		self.author = self.author.lower()
+		self.subject = self.subject.lower()
+		self.title = self.title.lower()
 		self.metas ['author'] = self.author
 		self.metas ['subject'] = self.subject
 		self.metas ['link'] = self.link
 		self.metas ['autlink'] = self.autlink
 		FileHtml.toFile (self)
-	def toFile (self):
+
+	def toArticle (self):
 		if not self.text:
-			self.dataFromFile ()
-			self.fromFile ()
-		self.author = self.author.lower ()
-		self.subject = self.subject.lower ()
-		self.title = self.title.lower ()
-		self.clean ()
+			self.dataFromFile()
+			self.fromFile()
+		self.author = self.author.lower()
+		self.subject = self.subject.lower()
+		self.title = self.title.lower()
+		self.clean()
 		# récupérer les metadonnées
 		self.text = """<table>
 	<tr><td>Sujet:</td><td>%s</td></tr>
@@ -38,63 +44,68 @@ class ArticleHtml (FileHtml, Article):
 	<tr><td>Laut:</td><td>%s</td></tr>
 </table>
 %s""" % (self.subject, self.author, self.link, self.autlink, self.text)
-		FileHtml.toFile (self)
-	def fromFileName (self, fileName):
+		FileHtml.toFilePerso (self)
+
+	def fromArticleName (self, fileName):
 		ftext = Article (fileName)
-		self.fromFile (ftext)
-	def fromFile (self, ftext):
+		self.fromArticle (ftext)
+
+	def fromArticle (self, ftext):
 		# file est un fichier txt utilisant ma mise en forme
-		if not ftext.text: ftext.fromFile ()
-		ftext.shape ()
-		ftext.toHtml ()
+		if not ftext.text: ftext.fromFile()
+		ftext.shape()
+		ftext.toHtml()
 		Article.copyFile (self, ftext)
 		self.extension = 'html'
-		self.toFile ()
+		self.toFile()
+
 	""" ________________________ récupérer et nettoyer les fichiers ________________________ """
+
 	def fromWeb (self, url, subject=None):
 		self.extension = 'html'
 		self.link = url
-		self.fromUrl ()
-		self.clean ()
+		self.fromUrl()
+		self.clean()
 		toText = True
 		if 'http://www.gutenberg.org/' in url:				self.gutemberg (subject)
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebg (subject)
-		elif 'https://archiveofourown.org/works/' in url:	self.aooo ()
-		elif 'https://www.deviantart.com/' in url:			self.deviantart ()
-		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste ()
+		elif 'https://archiveofourown.org/works/' in url:	self.aooo()
+		elif 'https://www.deviantart.com/' in url:			self.deviantart()
+		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel (subject)
 		elif 'https://www.reddit.com/r/' in url:
-			self.reddit ()
+			self.reddit()
 			toText = False
 		elif 'https://www.therealfemaledatingstrategy.com/' in url:
-			self.fds ()
+			self.fds()
 			toText = False
-		else: self.cleanWeb ()
+		else: self.cleanWeb()
 		if self.contain ('</a>') or self.contain ('<img'): toText = False
 		self.metas = {}
 		self.replace (' <', '<')
 		self.replace ('><', '>\n<')
-		if toText: self.toFile ()
-		else: self.toFile ()
+		if toText: self.toArticle()
+		else: self.toFile()
+
 	def fromLocal (self, file, subject=None):
 		self.file = file
-		self.fromFile ()
-		self.clean ()
-		self.cleanWeb ()
+		self.fromFile()
+		self.clean()
+		self.cleanWeb()
 		toText = True
 		if 'gtb'		in self.file: self.gutemberg (subject)
 		elif 'egb'		in self.file: self.egb (subject)
 		elif 'aooo'		in self.file: self.aoooFromSource (subject)
 		elif 'ffnet'	in self.file: self.ffnet (subject)
 		elif 'medium'	in self.file: self.medium (subject)
-		elif 'adapt'	in self.file: self.adapt ()
+		elif 'adapt'	in self.file: self.adapt()
 		else: toText = False
-		self.metas = {}
-		self.styles = []
-		if toText: self.toFile ()
-		else: self.toFile ()
+		if self.contain ('<img') or self.contain ('</a>'): toText = False
+		if toText: self.toArticle()
+		else: self.toFile()
+
 	def findSubject (self, subject=None):
-		storyData = self.title.lower () +'\t'+ self.subject.lower () +'\t'+ self.author.lower ()
+		storyData = self.title.lower() +'\t'+ self.subject.lower() +'\t'+ self.author.lower()
 		subjectList =""
 		if subject:
 			subject = subject.replace ('/', ', ')
@@ -107,7 +118,7 @@ class ArticleHtml (FileHtml, Article):
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
 			'tricot': ('tricot', 'point', 'crochet')
 		}
-		subjectKeys = subjectDict.keys ()
+		subjectKeys = subjectDict.keys()
 		for subject in subjectKeys:
 			for word in subjectDict [subject]:
 				if word in storyData:
@@ -120,7 +131,7 @@ class ArticleHtml (FileHtml, Article):
 		self.replace ('<div>',"")
 		# supprimer les liens
 		if self.contain ('<a href='):
-			textList = List ()
+			textList = List()
 			textList.addList (self.text.split ('<a href='))
 			textRange = textList.range (1)
 			for i in textRange:
@@ -130,17 +141,18 @@ class ArticleHtml (FileHtml, Article):
 			self.replace ('</a>',"")
 		# supprimer les images
 		if self.contain ('<img src='):
-			textList = List ()
+			textList = List()
 			textList.addList (self.text.split ('<img src='))
 			textRange = textList.range (1)
 			for i in textRange:
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]
 			self.text = "".join (textList)
+
 	def usePlaceholders (self):
 		placeholders = ('y/n', 'e/c', 'h/c', 'l/n')
 		for ph in placeholders:
-			self.replace (ph.upper (), ph)
+			self.replace (ph.upper(), ph)
 			self.replace (' ('+ ph +') ', ph)
 			self.replace (' ['+ ph +'] ', ph)
 		self.replace ('y/n', 'Deborah')
@@ -153,8 +165,8 @@ class ArticleHtml (FileHtml, Article):
 			self.subject = 'feminisme'
 			self.title = 'fds '+ self.title
 		else: self.subject = 'opinion'
-		self.cleanWeb ()
-		self.cleanLink ()
+		self.cleanWeb()
+		self.cleanLink()
 		d= self.index ('<h1>')
 		d= self.index ('<p>', d)
 		f= self.index ('<div>Reddit Inc')
@@ -180,11 +192,11 @@ class ArticleHtml (FileHtml, Article):
 		self.subject = 'cours'
 		self.author = 'unisciel'
 		self.text = findTextBetweenTag (self.text, 'body')
-		self.cleanWeb ()
-		self.delScript ()
+		self.cleanWeb()
+		self.delScript()
 		d= self.index ('<td>') +4
 		f= self.index ('</td>', d)
-		self.title = self.text [d:f].lower ()
+		self.title = self.text [d:f].lower()
 		d= self.index ('<p>')
 		f= self.rindex ('</p>') +4
 		self.text = self.text [d:f]
@@ -229,31 +241,32 @@ class ArticleHtml (FileHtml, Article):
 			f= self.index ('<h2>Footnotes:</h2>')
 			self.text = self.text [:f]
 		for tag in listTags: self.replace ('<'+tag+'></'+tag+'>',"")
-		self.delImgLink ()
+		self.delImgLink()
 		self.metas = {}
-		self.toFile ()
+		self.toFile()
+
 	def ebg (self, subject=None):
-		self.delImgLink ()
+		self.delImgLink()
 		# l'auteur
 		d= self.index ('<p class=Auteur>') +16
 		f= self.index ('</p>', d)
-		self.author = self.text [d:f].lower ()
-		print (self.author)
+		self.author = self.text [d:f].lower()
 		# le titre
 		d= self.index ('<title>') +7
 		f= self.index ('</title>', d)
-		self.title = self.text [d:f].lower ()
+		self.title = self.text [d:f].lower()
 		# le texte
-		self.cleanWeb ()
+		self.cleanWeb()
 		f= self.index ('<h1>À propos de cette édition électronique</h1>')
 		self.text = self.text [:f]
 		# le sujet
 		self.findSubject (subject)
+
 	def deviantart (self, subject=None):
 		self.findSubject (subject)
-		self.cleanWeb ()
+		self.cleanWeb()
 		self.replace ('<br>', '</p><p>')
-		self.delScript ()
+		self.delScript()
 		f= self.title.rfind (' ')
 		self.title = self.title [:f]
 		d= self.index ("By<a href=") +11
@@ -271,7 +284,10 @@ class ArticleHtml (FileHtml, Article):
 		f= self.rindex ('</p>') +4
 		self.text = self.text [:f]
 	#	if self.text [-1] != '>': self.text = self.text +'</p>'
+
 	def aoooFromSource (self, subject=None):
+		self.styles =[]
+		self.metas ={}
 		data = self.title.split (' - ')
 		if len (data) >3:
 			print ('trop de blocks dans le titre', self.title)
@@ -279,52 +295,52 @@ class ArticleHtml (FileHtml, Article):
 		self.title = data [0]
 		self.author = data [1]
 		self.subject = data [2]
-		d= self.index ("https://archiveofourown.org/works/") +1
-		d= self.index ("https://archiveofourown.org/works/", d)
-		f= self.index ("'", d)
-		self.link = self.text [d:f]
-		if '"' in self.link:
-			f= self.link.find ('"')
-			self.link = self.link [:f]
+		d= self.index ("archiveofourown.org/works") +26
+		f= self.index (" ", d)
+		self.link = 'https://archiveofourown.org/works/' + self.text [d:f]
+		if "'" in self.link: f= self.link.find ("'")
+		else: f= self.link.find ('"')
+		self.link = self.link[:f]
 		self.autlink = 'https://archiveofourown.org/users/' + self.author
 		# trouver le texte
-		self.delScript ()
-		self.replace ('<div>')
-		self.replace ('</div>')
+		self.delScript()
 		d= self.index ('<h2>')
-		d= self.index (self.author + '</a></h3>', d)
-		c= self.text [:d].rfind ('href') +6
-		f= self.index ('/pseuds/', c) +1
-		self.metas ['autlink'] = self.text [c:f]
-		d= self.index ('</h3>', d) +7
+		d= self.index ('</h3>', d) +5
 		f= self.rindex ('<h3>Actions</h3>')
 		self.text = self.text [d:f]
-		"""
-		if self.contain ('<h3>Notes:</h3>'):
-			f= self.text.rfind ('<h3>Notes:</h3>')
-			self.text = self.text [:f]
-		"""
-		self.delImgLink ()
-		d= self.index ('<h3>Work Text:</h3>') +19
-		self.text = self.text [d:]
+		self.delImgLink()
+		self.replace ('<div>')
+		self.replace ('</div>')
+		if self.contain ('<h3>Chapter Text</h3>'):
+			chapters = List()
+			chapters.fromText ('<h3>Chapter Text</h3>', self.text)
+			chapterRange = chapters.range (end=-1)
+			for c in chapterRange:
+				if '<h3>Notes:</h3>' in chapters[c]:
+					f= chapters[c].rfind ('<h3>Notes:</h3>')
+					chapters[c] = chapters[c][:f]
+					if '<h3>Notes:</h3>' in chapters[c]:
+						f= chapters[c].rfind ('<h3>Notes:</h3>')
+						if f>500: chapters[c] = chapters[c][:f]
+			self.text = chapters.toText ("")
 		self.replace ('</blockquote><h3>Notes:</h3><blockquote>')
-		self.replace ('</h3><h3>', '</h2><h3>')
-		self.replace ('<h3>Chapter Text</h3>', '<hr>')
-		self.replace ('<h3>Chapter', '<h2>Chapter')
+		self.replace ('</h3><hr>', '</h3>')
 		self.replace ('</h2><hr>', '</h2>')
-		self.usePlaceholders ()
+		if not self.contain ('</h2>'): self.replace ('h3>', 'h2>')
+		self.usePlaceholders()
+
 	def aooo (self, subject=None):
 		if 'This work could have adult content. If you proceed you have agreed that you are willing to see such content' in self.text:
 			print ('fichier protégé', self.title)
 			return
-		self.cleanWeb ()
+		self.cleanWeb()
 		self.replace ('<br>', '</p><p>')
 		self.text = findTextBetweenTag (self.text, 'body')
 		# le titre
 		d= self.index ('<h2>') +4
 		f= self.index ('</h2>', d)
 		self.title = self.text [d:f]
-		self.title = self.title.strip ()
+		self.title = self.title.strip()
 		self.title = self.title.strip ('.')
 		# l'auteur et sa page
 		d= self.index ("<a href='/users/", f) +9
@@ -350,29 +366,29 @@ class ArticleHtml (FileHtml, Article):
 		self.replace ('</div>')
 		self.replace ('<h3>Chapter Text</h3>')
 		if self.contain ("<h3><a href='/works/"):
-			chapterList = List ()
-			chapterList.fromText ("<h3><a href='/works/", self.text)
-			chapterRange = chapterList.range (1)
+			chapters = List()
+			chapters.fromText ("<h3><a href='/works/", self.text)
+			chapterRange = chapters.range (1)
 			for c in chapterRange:
-				d= chapterList [c].find ('>') +1
-				chapterList [c] = chapterList [c] [d:]
-			self.text = '<h2>'.join (chapterList)
+				d= chapters [c].find ('>') +1
+				chapters [c] = chapters [c] [d:]
+			self.text = '<h2>'.join (chapters)
 			self.replace ('</a></h3>', '</h2>')
 		if self.contain ('<h2>Chapter ') and not self.contain ('</h2>'):
-			chapterList = List ()
-			chapterList.fromText ('<h2>Chapter ', self.text)
-			chapterRange = chapterList.range (1)
+			chapters = List()
+			chapters.fromText ('<h2>Chapter ', self.text)
+			chapterRange = chapters.range (1)
 			for c in chapterRange:
-				d= chapterList [c].find ('</a>: ') +6
-				chapterList [c] = chapterList [c] [d:]
-				chapterList [c] = chapterList [c].replace ('</h3>', '</h2>', 1)
-			self.text = '<h2>'.join (chapterList)
+				d= chapters [c].find ('</a>: ') +6
+				chapters [c] = chapters [c] [d:]
+				chapters [c] = chapters [c].replace ('</h3>', '</h2>', 1)
+			self.text = '<h2>'.join (chapters)
 		# nettoyer le texte
 		if self.contain ('<h3>Notes:</h3>'):
-			halfText = self.length () /2
+			halfText = self.length() /2
 			d= self.index ('<h3>Notes:</h3>')
 			if d> halfText: self.text = self.text [:d]
-		self.usePlaceholders ()
+		self.usePlaceholders()
 	#	self.title = 'tmp'
 	def ffnet (self, subject=None):
 		# trouver les meta
@@ -413,7 +429,8 @@ class ArticleHtml (FileHtml, Article):
 		d= self.index ('<p>')
 		f= self.text.rfind ('</p>') +4
 		self.text = self.text [d:f]
-		self.toFile ()
+		self.toFile()
+
 	def medium (self, subject):
 		# récupérer les metadonnées
 		self.link = self.title
@@ -435,10 +452,10 @@ class ArticleHtml (FileHtml, Article):
 		self.text = self.text [:f]
 		self.replace ('<div>')
 		self.replace ('</div>')
-	#	self.delImgLink ()
+	#	self.delImgLink()
 	def menaceTheoriste (self):
 		self.subject = 'sciences'
-		self.cleanWeb ()
+		self.cleanWeb()
 		self.replace ('<div>')
 		self.replace ('</div>')
 		d= self.index ("par<a href='https://menace-theoriste.fr/author/") +12
@@ -457,7 +474,7 @@ class ArticleHtml (FileHtml, Article):
 		self.text = self.text [:f]
 	def fds (self):
 		self.subject = 'feminisme'
-		# self.title = 'fds '+ findTextBetweenTag (self.text, 'title').lower ()
+		# self.title = 'fds '+ findTextBetweenTag (self.text, 'title').lower()
 		self.title = 'fds '+ self.title
 		self.text = findTextBetweenTag (self.text, 'article')
 		self.author = findTextBetweenTag (self.text, 'li')
