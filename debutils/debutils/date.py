@@ -118,7 +118,3 @@ class Date (datetime):
 			self.minute = int (dateList [3])
 		self.isBissextile()
 
-
-today = Date.now()
-tomorow = today.replace (day=25)
-tomorow.gap (today)
