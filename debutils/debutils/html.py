@@ -74,7 +74,6 @@ class FileHtml (File):
 			self.styles.append (pathCss + 'structure.css')
 			self.styles.append (pathCss + 'perso.css')
 		"""
-		print ('b', self.metas)
 		self.title = self.title.lower()
 		textInfos = self.setMetadata()
 		textCss = self.setCss()
@@ -167,7 +166,6 @@ class FileHtml (File):
 
 	def setMetadata (self):
 		textInfos =""
-		print ('c', self.metas)
 		if self.metas.keys():
 			for meta in self.metas.keys():
 				tmpMeta = "<meta name='%s' content='%s'/>\n\t" % (meta, self.metas [meta])

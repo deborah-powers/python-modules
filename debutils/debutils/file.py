@@ -206,12 +206,14 @@ class Article (File):
 		self.subject =""
 		self.link =""
 		self.autlink =""
+
 	def copyFile (self, newFile):
 		File.copyFile (self, newFile)
 		self.author = newFile.author
 		self.subject = newFile.subject
 		self.link = newFile.link
 		self.autlink = newFile.autlink
+
 	def fromFile (self):
 		File.fromFile (self)
 		metadata = self.fromModel (modelText)
@@ -220,11 +222,13 @@ class Article (File):
 		self.link = metadata [2]
 		self.autlink = metadata [3]
 		self.text = metadata [4]
+
 	def toFile (self, mode='w'):
 		# self.replace ('\n', '\n\n')
 		text = modelText % (self.subject, self.author, self.link, self.autlink, self.text)
 		self.text = text
 		File.toFile (self, mode)
+
 	def __str__ (self):
 		strShow = 'Titre: %s\tDossier: %s\nSujet: %s\tAuteur: %s' % (self.title, self.path, self.subject, self.author)
 		if self.text: strShow += '\n\t%d caractères' % len (self.text)

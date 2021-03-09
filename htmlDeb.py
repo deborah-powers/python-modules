@@ -16,16 +16,18 @@ c- convertir un fichier txt en html
 if len (argv) >=2:
 	url = argv [1]
 	subject =None
-	page = ArticleHtml ()
+	page = ArticleHtml()
 	if len (argv) >=3: subject = argv [2]
 	if url [:4] == 'http': page.fromWeb (url, subject)
 	elif url [-5:] == '.html':
 		if subject == 'totext':
 			page.file = url
-			page.toFileText ()
+			page.toFileText()
 		else: page.fromLocal (url, subject)
 	elif url [-4:] == '.txt':
-		if subject != 'article': page = FileHtml ()
-		page.fromFileName (url)
+		if subject == 'article': page.fromArticleName (url)
+		else:
+			page = FileHtml()
+			page.fromFilePersoName (url)
 # le nom du fichier n'a pas ete donne
 else: print (help)
