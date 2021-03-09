@@ -73,12 +73,9 @@ class ArticleHtml (FileHtml, Article):
 		elif 'https://www.deviantart.com/' in url:			self.deviantart()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel (subject)
-		elif 'https://www.reddit.com/r/' in url:
-			self.reddit()
-			toText = False
-		elif 'https://www.therealfemaledatingstrategy.com/' in url:
-			self.fds()
-			toText = False
+		elif 'https://www.reddit.com/r/' in url:			self.reddit()
+		elif 'https://www.therealfemaledatingstrategy.com/' in url:	self.fds()
+		elif 'https://www.abcbourse.com/' in url:			self.abcBourse()
 		else: self.cleanWeb()
 		if self.contain ('</a>') or self.contain ('<img'): toText = False
 		self.metas = {}
@@ -126,6 +123,7 @@ class ArticleHtml (FileHtml, Article):
 					break
 		if subjectList: self.subject = subjectList [2:]
 		else: self.subject = 'histoire'
+
 	def delImgLink (self):
 		self.replace ('</div>',"")
 		self.replace ('<div>',"")
@@ -160,6 +158,18 @@ class ArticleHtml (FileHtml, Article):
 		self.replace ('h/c', 'dark blond')
 		self.replace ('l/n', 'Powers')
 	""" ________________________ récupérer les articles des sites ________________________ """
+
+	def abcBourse (self):
+		self.subject = 'argent'
+		d= self.index ('<h1>')
+		f= self.index ('<p>Vous avez aimé cet article')
+		self.text = self.text[d:f]
+		if self.contain ('suivant.gif'):
+			f= self.index ('suivant.gif')
+			self.text = self.text[0:f]
+			f= self.rindex ('</p>') +4
+			self.text = self.text[0:f]
+
 	def reddit (self):
 		if 'FemaleDatingStrategy' in self.link:
 			self.subject = 'feminisme'
@@ -188,6 +198,7 @@ class ArticleHtml (FileHtml, Article):
 		self.text = self.text [:f]
 		f= self.rindex ('</p>') +4
 		self.text = self.text [:f]
+
 	def unisciel (self, subject):
 		self.subject = 'cours'
 		self.author = 'unisciel'

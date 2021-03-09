@@ -22,7 +22,7 @@ if len (argv) >=2:
 	elif url [-5:] == '.html':
 		if subject == 'totext':
 			page.file = url
-			page.toFileText()
+			page.toArticle()
 		else: page.fromLocal (url, subject)
 	elif url [-4:] == '.txt':
 		if subject == 'article': page.fromArticleName (url)

@@ -220,7 +220,7 @@ class FileHtml (File):
 		for tag in inner:
 			ftext.replace ('</'+ tag +'>', ' ')
 			ftext.replace ('<'+ tag +'>', ' ')
-		ftext.replace (' n', '\n')
+		ftext.replace (' \n', '\n')
 		ftext.replace ('\n ', '\n')
 		# les liens
 		ltext = ftext.split ('</a>')
