@@ -5,19 +5,17 @@ from debutils.file import File
 
 def cleanLog (self):
 	self.fromFile()
-	self.text = self.toText ('\n')
+	# préparer le texte
+	self.toText()
 	self.clean()
 	self.replace (' com.',' ')
 	self.replace (' org.',' ')
-	self.replace ('&lt;', '<')
-	self.replace ('&gt;', '>')
 	self.replace ('<label>Voir</label>')
 	self.replace ('</label>')
-	self.replace ('</xmlResult>]) sur la Queue queue://ord-com-out ...')
 	self.replace ('</xmlResult>]) sur la Queue queue://ord-com-out...')
 	self.clean()
-	self.list =[]
-	self.fromText ('\n', self.text)
+	# supprimer les lignes inutiles
+	self.fromText()
 	rangeLine = self.range()
 	rangeLine.reverse()
 	for l in rangeLine:
@@ -33,8 +31,18 @@ def cleanLog (self):
 		elif countLine <4: l+=1; countLine +=1
 		else: lenList -=1; trash = self.pop (l)
 	"""
-	self.text = self.toText ('\n')
+	self.toText()
+	self.replace (' fr.asp.synergie.app.',' ')
 	self.replace (' fr.asp.synergie.',' ')
+	# au cas où le fichier est inversé
+	if self.contain ('\tat '):
+		d= File.index (self, '[ERROR]')
+		f= File.index (self, '\tat ')
+		if d<f:
+			self.fromText()
+			self.reverse()
+			self.toText()
+	# écrire le fichier
 	self.title = self.title + ' bis'
 	self.fileFromData()
 	File.toFile (self)
@@ -42,7 +50,7 @@ def cleanLog (self):
 setattr (FileList, 'cleanLog', cleanLog)
 
 filePattern = 'b/mantis 1560\\mantis 1560 log 03-08 %s.txt'
-moduleNames =( 'sbt', 'edi')
+moduleNames =( 'aec', 'sbt', 'edi')
 for module in moduleNames:
 	flist = FileList ('\n', filePattern % module)
 	flist.cleanLog()

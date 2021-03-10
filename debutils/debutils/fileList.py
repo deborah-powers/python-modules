@@ -11,9 +11,16 @@ class FileList (File, List):
 		List.__init__ (self)
 		self.sepLin = sepLin
 
+	def fromText (self):
+		self.list =[]
+		List.fromText (self, self.sepLin, self.text)
+
+	def toText (self):
+		self.text = List.toText (self, self.sepLin)
+
 	def fromFile (self):
 		File.fromFile (self)
-		List.fromText (self, self.sepLin, self.text)
+		self.fromText()
 
 	def toFile (self):
 		self.text = self.toText (self.sepLin)

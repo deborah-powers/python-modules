@@ -41,6 +41,7 @@ def findTextBetweenTag (originalText, tag):
 
 class FileHtml (File):
 	# classe pour les fichiers html
+
 	def __init__ (self, file =None):
 		if file and file [:4] == 'http':
 			File.__init__ (self)
@@ -53,6 +54,7 @@ class FileHtml (File):
 
 	""" ________________________ manipuler les fichiers ________________________ """
 
+
 	def fromFile (self):
 		File.fromFile (self)
 		self.clean()
@@ -62,6 +64,7 @@ class FileHtml (File):
 		self.getCss()
 		self.getMetadata()
 		self.text = findTextBetweenTag (self.text, 'body')
+
 
 	def toFile (self):
 		# pas de text,""
@@ -88,6 +91,7 @@ class FileHtml (File):
 		self.text = htmlTemplate % (self.title, textInfos, self.text)
 		File.toFile (self)
 
+
 	def clean (self):
 		self.replace ('\t', ' ')
 		self.replace ('\n', ' ')
@@ -105,6 +109,7 @@ class FileHtml (File):
 		self.replace ('">', '"> ')
 		self.replace ("'>","'> ")
 		"""
+
 	def __str__ (self):
 		strFic = 'Titre: %s, Fichier: %s' % (self.title, self.file)
 		if self.metas:
@@ -117,6 +122,7 @@ class FileHtml (File):
 
 	""" ________________________ récupérer les métadonnées ________________________ """
 
+
 	def getCss (self):
 		# styles par défaut
 		defaultCss = [
@@ -128,12 +134,14 @@ class FileHtml (File):
 			d= line.find ('href=') +6
 			f= line.find ('.css', d) +4
 			if line [d:f] not in self.styles and line [d:f] not in defaultCss: self.styles.append (line [d:f])
+
 	def setCss (self):
 		textCss =""
 		if self.styles:
 			textCss = "'/>\n\t<link rel='stylesheet' type='text/css' href='".join (self.styles)
 			textCss = "<link rel='stylesheet' type='text/css' href='%s'/>" % textCss
 		return textCss
+
 	def getMetadata (self):
 		"""
 		tmpText = self.text.replace ('<link rel=', '<meta name=')
@@ -164,6 +172,7 @@ class FileHtml (File):
 				metaTmp [1] = metaTmp [1] [:f]
 			self.metas [metaTmp [0] ] = metaTmp [1]
 
+
 	def setMetadata (self):
 		textInfos =""
 		if self.metas.keys():
@@ -173,6 +182,7 @@ class FileHtml (File):
 		return textInfos
 
 	""" ________________________ convertir en texte ________________________ """
+
 
 	def toFilePerso (self):
 		# fileHtml a été cré avec textToHtml
@@ -243,9 +253,11 @@ class FileHtml (File):
 		ftext.shape()
 		ftext.toFile()
 
+
 	def fromFilePersoName (self, fileName):
 		ftext = File (fileName)
 		self.fromFilePerso (ftext)
+
 
 	def fromFilePerso (self, ftext):
 		# file est un fichier txt utilisant ma mise en forme
@@ -255,7 +267,9 @@ class FileHtml (File):
 		self.copyFile (ftext)
 		self.extension = 'html'
 		self.toFile()
+
 	""" ________________________ texte du web ________________________ """
+
 	def fromUrlVb (self):
 		self.title = 'tmp'
 		self.fileFromData()
@@ -264,6 +278,7 @@ class FileHtml (File):
 		remove (self.file)
 		self.titleFromUrl()
 		self.fileFromData()
+
 	def fromUrlVa (self, params=None):
 		# récupérer le texte. les params servent à remplir les formulaires
 		myRequest = None
@@ -282,9 +297,11 @@ class FileHtml (File):
 			self.text = codecs.decode (tmpByte, 'utf-8', errors='ignore')
 			response.close()
 			self.titleFromUrl()
+
 	def fromUrl (self, params=None):
 		if params == 'b': self.fromUrlVb()
 		else: self.fromUrlVa()
+
 	def titleFromUrl (self):
 		title = self.link.strip ('/')
 		pos = title.rfind ('/') +1
@@ -297,6 +314,7 @@ class FileHtml (File):
 		if title.count ('-') >1: title = title.replace ('-', ' ')
 		self.title = title.replace ('_', ' ')
 		self.cleanWeb()
+
 
 	def fromWeb (self, url):
 		self.extension = 'html'
@@ -311,9 +329,11 @@ class FileHtml (File):
 		self.metas ['link'] = self.link
 		self.toFile()
 
+
 	def cleanLocal (self):
 		FileHtml.clean()
 		self.text = findTextBetweenTag (self.text, 'body')
+
 
 	def cleanWeb (self):
 		self.clean()
@@ -335,6 +355,7 @@ class FileHtml (File):
 		self.replace ('\n')
 		self.replace ('\t')
 		self.clean()
+
 	def cleanLink (self):
 		if not self.contain ('</a>'): return
 		listText = self.split ('</a>')
@@ -361,6 +382,7 @@ class FileHtml (File):
 			while '  ' in title: title = title.replace ('  ', ' ')
 			listText [l] = listText [l] [:d] + title
 		self.text = '</a>'.join (listText)
+
 	def cleanTags (self):
 		# supprimer les attributs inutiles
 		self.replace ('<br/>', '<br>')
@@ -409,12 +431,14 @@ class FileHtml (File):
 		self.clean()
 		self.replace ('\n')
 		for tag in tagList: self.replace ('<'+ tag +'></'+ tag +'>')
+
 	def cleanTagsSpecial (self, tag, attributeList):
 		if tag == '\a':
 			return self.keepAttribute ('\a', 'href', attributeList)
 		elif tag == 'img': return self.keepAttribute ('img', 'src', attributeList)
 		elif tag == 'input': return self.keepAttributeInput (attributeList)
 		elif tag == 'form': return self.keepAttributeForm (attributeList)
+
 	def keepAttribute (self, tag, attr, attributeList):
 		if attr in attributeList:
 			tag = tag +' '+ attr +"='"
@@ -427,6 +451,7 @@ class FileHtml (File):
 				d-=1
 				tag = tag + attributeList [d:] +"'"
 		return tag
+
 	def keepAttributeInput (self, attributeList):
 		tag = 'input'
 		for attr in ('type', 'name', 'value', 'placeholder'):
@@ -441,6 +466,7 @@ class FileHtml (File):
 					d-=1
 					tag = tag + attributeList [d:] +"'"
 		return tag
+
 	def keepAttributeForm (self, attributeList):
 		tag = 'form'
 		for attr in ('action', 'method'):
@@ -455,6 +481,7 @@ class FileHtml (File):
 					d-=1
 					tag = tag + attributeList [d:] +"'"
 		return tag
+
 	def delScript (self):
 		if not self.contain ('</script>'): return
 		txtList = self.text.split ('</script>')
@@ -463,6 +490,7 @@ class FileHtml (File):
 			pos = txtList [t].rfind ('<script')
 			txtList [t] = txtList [t] [:pos]
 		self.text = "".join (txtList)
+
 	def cleanSpan (self):
 		# supprimer les span en trop
 		self.replace ('<SPAN', '<span')
@@ -499,6 +527,7 @@ class FileHtml (File):
 		self.replace ('</ ', '</')
 		self.replace (' />', '/>')
 		self.text = self.text.strip()
+
 	def delImgLink (self):
 		self.text = self.text.replace ('</div>',"")
 		self.text = self.text.replace ('<div>',"")
@@ -522,6 +551,7 @@ class FileHtml (File):
 				textList [i] = textList [i] [d:]
 			self.text = "".join (textList)
 
+
 	def test (self):
 		self.file = 'b/coucou.html'
 		self.dataFromFile()
@@ -533,6 +563,7 @@ class FileHtml (File):
 		self.toFile()
 		self.fromFile()
 		print (self)
+
 
 	def testOnline (self):
 		self.link = 'https://www.tutorialspoint.com/downloading-files-from-web-using-python'
@@ -680,4 +711,5 @@ def fileToHtml (self):
 	self.replace ('\a', '\n')
 	self.replace ('\f', '\t')
 	self.clean()
+
 setattr (File, 'toHtml', fileToHtml)
