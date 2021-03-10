@@ -75,7 +75,7 @@ class List():
 
 	def addList (self, newList):
 		if type (newList) == list: self.list.extend (newList)
-		elif type (newList) == List: self.list.extend (newList.list)
+		else: self.list.extend (newList.list)
 
 	def add (self, value, pos=-1):
 		if pos ==-1: self.list.append (value)

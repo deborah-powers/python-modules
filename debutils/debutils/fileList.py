@@ -10,12 +10,15 @@ class FileList (File, List):
 		File.__init__ (self, file)
 		List.__init__ (self)
 		self.sepLin = sepLin
+
 	def fromFile (self):
 		File.fromFile (self)
 		List.fromText (self, self.sepLin, self.text)
+
 	def toFile (self):
 		self.text = self.toText (self.sepLin)
 		File.toFile (self)
+
 	def length (self):
 		return len (self.list)
 
