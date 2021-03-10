@@ -4,11 +4,18 @@ from debutils.file import File
 
 textOrigine ="""
         requete.append(SELECT);
-        requete.append(RestitutionData.RESD_CONTENT);
-        requete.append(FROM);
-        requete.append(RestitutionData.getTableName());
-        requete.append(WHERE);
-        requete.append(RestitutionData.RESD_ID_PK).append(EQUALS).append(" ? ");
+        .from(Q_APPEL_FONDS_VERSION_DPO)
+                .leftJoin(Q_APPEL_FONDS_VERSION_DPO.appelFonds, Q_APPEL_FONDS_DPO)
+                .leftJoin(Q_APPEL_FONDS_DPO.lienFondsList, Q_LIEN_FONDS_APPEL_FONDS_DPO)
+                .leftJoin(Q_APPEL_FONDS_DPO.programme, Q_PROGRAMME_DPO)
+                .leftJoin(Q_PROGRAMME_DPO.codification, Q_CODIFICATION_DPO)
+                .leftJoin(Q_CODIFICATION_DPO.lienOperationList, Q_LIEN_CODIFICATION_OPERATION_DPO)
+                .leftJoin(Q_LIEN_CODIFICATION_OPERATION_DPO.operationVersion, Q_OPERATION_VERSION_DPO)
+                .leftJoin(Q_CODIFICATION_DPO.lienFondsList, Q_LIEN_CODIFICATION_FONDS_DPO)
+                .where(Q_APPEL_FONDS_VERSION_DPO.etat.eq(EtatFonctionnelAppelFondsEnum.AF_RENVOYE_CORRECTION),
+                        Q_OPERATION_VERSION_DPO.id.eq(idOperation),
+                        Q_LIEN_CODIFICATION_OPERATION_DPO.estPrincipale.isTrue(),
+                        Q_LIEN_FONDS_APPEL_FONDS_DPO.fonds.id.eq(Q_LIEN_CODIFICATION_FONDS_DPO.fonds.id));
 """
 
 def eraseComment (self):

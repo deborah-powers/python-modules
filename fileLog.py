@@ -1,5 +1,6 @@
 #!/usr/bin/python3.8
 # -*- coding: utf-8 -*-
+from sys import argv
 from debutils.fileList import FileList
 from debutils.file import File
 
@@ -20,8 +21,8 @@ def cleanLog (self):
 	rangeLine.reverse()
 	for l in rangeLine:
 		if ' fr.asp.synergie.core.ael.' in self[l]: trash = self.pop (l)
-		elif '	at ' in self[l] and '(<generated>)' in self[l]: trash = self.pop (l)
-		elif '	at ' in self[l] and 'fr.asp.synergie.' not in self[l]: trash = self.pop (l)
+		elif '\t' == self[l][0] and '(<generated>)' in self[l]: trash = self.pop (l)
+		elif '\t' == self[l][0] and 'fr.asp.synergie.' not in self[l]: trash = self.pop (l)
 	"""
 	countLine =0
 	lenList = len (self.list)
@@ -32,8 +33,8 @@ def cleanLog (self):
 		else: lenList -=1; trash = self.pop (l)
 	"""
 	self.toText()
-	self.replace (' fr.asp.synergie.app.',' ')
-	self.replace (' fr.asp.synergie.',' ')
+	self.replace ('fr.asp.synergie.app.')
+	self.replace ('fr.asp.synergie.')
 	# au cas où le fichier est inversé
 	if self.contain ('\tat '):
 		d= File.index (self, '[ERROR]')
@@ -49,8 +50,14 @@ def cleanLog (self):
 
 setattr (FileList, 'cleanLog', cleanLog)
 
-filePattern = 'b/mantis 1560\\mantis 1560 log 03-08 %s.txt'
-moduleNames =( 'aec', 'sbt', 'edi')
-for module in moduleNames:
-	flist = FileList ('\n', filePattern % module)
+def test():
+	filePattern = 'b/mantis 1560\\mantis 1560 log 03-08 %s.txt'
+	moduleNames =( 'aec', 'sbt', 'edi')
+	for module in moduleNames:
+		flist = FileList ('\n', filePattern % module)
+		flist.cleanLog()
+
+if len (argv) >1:
+	flist = FileList ('\n', argv[1])
 	flist.cleanLog()
+else: test()
