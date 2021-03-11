@@ -185,7 +185,7 @@ class File (Text):
 		print ('récupérer le fichier')
 		self.fromFile()
 		print ('modifier le fichier')
-		self.shape()
+		self.clean()
 		print (self.text)
 		print ('écrire le fichier')
 		self.text = 'je suis une ligne rajoutée.'

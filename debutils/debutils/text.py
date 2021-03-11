@@ -1,22 +1,12 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-# mots speciaux devant debuter par une majuscule
-wordsUpp = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'victo', 'tony', 'simplon', 'loïc', 'france', 'paris', 'rueil')
 pointsEnd = '\n\t .,;:)?!'	# liste des symboles suivant les mots spéciaux
 pointsStart = '( \n\t'
-# "dictionnaire" des majuscule prenant en compte les accents
-accents = (('a', 'A'), ('à', 'A'), ('b', 'B'), ('c', 'C'), ('\xe7', '\xc7'), ('d', 'D'), ('e', 'E'), ('é', 'E'), ('è', 'E'), ('ê', 'E'), ('ë', 'E'), ('f', 'F'), ('g', 'G'), ('h', 'H'), ('i', 'I'), ('î', 'I'), ('ï', 'I'), ('j', 'J'), ('k', 'K'), ('l', 'L'), ('m', 'M'), ('\n', '\n'), ('o', 'O'), ('xf4', 'xe4'), ('p', 'P'), ('q', 'Q'), ('r', 'R'), ('s', 'S'), ('\t', '\t'), ('u', 'U'), ('v', 'V'), ('w', 'W'), ('x', 'X'), ('y', 'Y'), ('z', 'Z'))
+majList = (('a', 'A'), ('à', 'A'), ('b', 'B'), ('c', 'C'), ('\xe7', '\xc7'), ('d', 'D'), ('e', 'E'), ('é', 'E'), ('è', 'E'), ('ê', 'E'), ('ë', 'E'), ('f', 'F'), ('g', 'G'), ('h', 'H'), ('i', 'I'), ('î', 'I'), ('ï', 'I'), ('j', 'J'), ('k', 'K'), ('l', 'L'), ('m', 'M'), ('\n', '\n'), ('o', 'O'), ('xf4', 'xe4'), ('p', 'P'), ('q', 'Q'), ('r', 'R'), ('s', 'S'), ('\t', '\t'), ('u', 'U'), ('v', 'V'), ('w', 'W'), ('x', 'X'), ('y', 'Y'), ('z', 'Z'))
 # liste des points, des chaines de caracteres suivies par une majuscule
-points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t')
-pointsShape =( '\n\t- ', '______ ', '\n------ ' )
-artefacts =(
-	('> ','>'), ('\n ','\n'), (' \n','\n'),
-	(' ______\n', ' ______\n\n'), ('\n______ ', '\n\n______ '),
- 	('\n______\n\n______ ', '\n\n________________________\n______ '),
-	('------ ', '\n------ '), (' ------', ' ------\n'), ('\n\n\n', '\n\n')
-)
-#	('\n______\n\n______ ', '\n\n________________________\n______ '),
-artefactsLowerCase = ('Deborah.powers', 'Deborah.noisetier', 'Http',
+artefacts =( ('> ','>'), ('\n ','\n'), (' \n','\n'), ('\n\n\n', '\n\n'))
+wordsBeginMaj = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'victo', 'tony', 'simplon', 'loïc', 'france', 'paris', 'rueil')
+wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nUpdate ', '\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', 'Inner join ', 'Outer join ', 'Left outer join ', 'Insert into ', 'Set schema ',
 	'\nCd ', '\nPsql ','\nPg_', '\nPython ', '\nGit ',
 	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
@@ -35,28 +25,26 @@ weirdChars =(
 # fonctions pour les textes simples
 
 def clean (text):
-	text = text.replace ('\r',"")
 	# remplacer les caractères bizzares
 	for i, j in weirdChars: text = text.replace (i, j)
-	text = text.strip ()
+	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
-	for p in pointsEnd [:-2]: text = text.replace (' '+p, p)
+	for p in pointsEnd: text = text.replace (' '+p, p)
 	for p in pointsStart: text = text.replace (p+' ', p)
-	text = text.replace ('\n ', '\n')
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	# la ponctuation
 	while '....' in text: text = text.replace ('....', '...')
-	text = text.replace ('...', '... ')
+	text = text.replace ('...', ' ... ')
 	text = text.replace ('  ', ' ')
-	lettreAppostrophe = ('c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
-	for l in lettreAppostrophe:
-		text = text.replace (' '+l+"' ", ' '+l+"'")
-		text = text.replace (' '+ l.upper () +"' ", ' '+ l.upper () +"'")
-	text = text.replace ("Qu'","Qu'")
-	points = ') !?.;,:'
+	points = '!?'
+	for p in points: text = text.replace (p, ' '+p)
+	points = '() !?.;,:'
+	for p in points: text = text.replace (p+' "', p+'"')
 	for p in points:
-		for q in points: text = text.replace (p+' '+q, p+q)
-		text = text.replace (p+' "', p+'"')
+		for q in points:
+			while p+' '+q in text: text = text.replace (p+' '+q, p+q)
+	"""
 	points = ') !?\'"'
 	for p in points:
 		text = text.replace ('? '+p, '?' +p)
@@ -65,19 +53,28 @@ def clean (text):
 	points = ' !?'
 	for p in points:
 		for q in points: text = text.replace (p+' '+q, p+q)
+	"""
+	# les appostrophes
+	lettreAppostrophe = ('c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
+	for l in lettreAppostrophe:
+		text = text.replace (' '+l+"' ", ' '+l+"'")
+		text = text.replace (' '+ l.upper() +"' ", ' '+ l.upper() +"'")
+	text = text.replace ("Qu'","Qu'")
+	text = text.strip()
+	while '  ' in text: text = text.replace ('  ', ' ')
 	return text
 
 def toUpperCase (text):
 	text ='\n'+ text
-	for i, j in accents:
+	points =( '\n', '. ', '! ', '? ', ': ', '\n\t')
+	for i, j in majList:
 		for p in points: text = text.replace (p+i, p+j)
-		for p in pointsShape: text = text.replace (p+i, p+j)
 	for p in pointsEnd:
 		for q in pointsStart:
-			for word in wordsUpp: text = text.replace (q+ word +p, q+ word.capitalize () +p)
+			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
 	for i, j in artefacts: text = text.replace (i, j)
-	for artefact in artefactsLowerCase: text = text.replace (artefact, artefact.lower ())
-	text = text.strip ()
+	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
+	text = text.strip()
 	return text
 
 def fromModel (text, model):
@@ -105,80 +102,34 @@ def fromModel (text, model):
 		elif model [d] =='f': results [r] = float (results [r])
 	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
 	return results
-class Text ():
+
+class Text():
 
 	def __init__ (self, string=""):
 		self.text = string
+
 	# ________________________ fonctions de mise en forme ________________________
 
-	def shape (self):
-		self.clean ()
-		# mettre le text en forme pour simplifier sa transformation
-		while self.contain ('_______'): self.replace ('_______', '______')
-		while self.contain ('-------'): self.replace ('-------', '------')
-		self.text = '\n'+ self.text +'\n'
-		# rajouter les majuscules apres chaque point
-		self.upperCase ()
-		self.text = '\n\n'+ self.text
-		for p in pointsShape:
-			for i, j in accents: self.replace (p+i, p+j)
-		for i, j in artefacts: self.replace (i, j)
-		self.strip ()
-		self.replace ('______\n\n______ ', '______\n______ ')
-
-	def toMd (self):
-		self.shape ()
-		self.text = '\n'+ self.text +'\n'
-		tmpList = self.split ('______\n______ ')
-		rangeList = range (1, len (tmpList))
-		for l in rangeList:
-			f= tmpList [l].find (' _')
-			tmpList [l] = tmpList [l] [:f].upper () + tmpList [l] [f:]
-		self.text = '============ '.join (tmpList)
-		self.replace ('______ ', '============ ')
-		self.replace (' ______', ' ============')
-		self.replace ('------ ', '** ')
-		self.replace (' ------', ' **')
-		while self.contain ('\n\t\t'): self.replace ('\n\t\t', '\n\t')
-		self.replace ('\n\t', '\n* ')
-		self.replace ('\n', '\n\n')
-
 	def upperCase (self):
-		if self.contain ('\n/code\n'):
-			paragraphList = self.split ('\ncode\n')
-			paragraphRange = range (1, len (paragraphList))
-			for i in paragraphRange:
-				d= paragraphList [i].find ('\n/code\n') +7
-				paragraphList [i] = paragraphList [i] [:d] + toUpperCase (paragraphList [i] [d:])
-			self.text = '\ncode\n'.join (paragraphList)
-		else: self.text = toUpperCase (self.text)
-
+		self.text = toUpperCase (self.text)
 	def clean (self):
 		self.text = clean (self.text)
-
-	def cleanEnglish (self):
-		self.clean ()
-		wordList = ('and', 'for', 'then', 'in', 'on', 'to')
-		for word in wordList:
-			self.replace (' '+ word +'\t', ' '+ word +' ')
-			self.replace (' '+ word +'\n', ' '+ word +' ')
-
 	def fromModel (self, model):
 		return fromModel (self.text, model)
 
 	def comparLines (self, otherText, keepCommon=True, toSort=False):
-		self.clean ()
-		otherText.clean ()
-		self.text = self.text.lower ()
-		otherText.text = otherText.text.lower ()
+		self.clean()
+		otherText.clean()
+		self.text = self.text.lower()
+		otherText.text = otherText.text.lower()
 		if self.text == otherText.text:
 			print ('les textes sont identiques')
 			return 'pareil'
 		listA = self.split ('\n')
 		listB = otherText.split ('\n')
 		if toSort:
-			listA.sort ()
-			listB.sort ()
+			listA.sort()
+			listB.sort()
 		listF = []
 		trash = None
 		pos =0; nbAdd =0; nbDel =0; nbCom =0
@@ -225,11 +176,11 @@ class Text ():
 			posF = self.index ('} ', posF) +1
 			ecart = self.text [posD:posF].count (' {') - self.text [posD:posF].count ('} ')
 		blockList.append (self.text [:posD])
-		newText = Text ()
+		newText = Text()
 		newText.text = self.text [posD +1:posF -1]
-		blockList.append (newText.domAccolade ())
+		blockList.append (newText.domAccolade())
 		self.text = self.text [posF:]
-		blockList.append (self.domAccolade ())
+		blockList.append (self.domAccolade())
 		return blockList
 
 	def domAccoladePlan (self):
@@ -258,7 +209,7 @@ class Text ():
 		self.text = self.text.replace (oldWord, newWord)
 
 	def strip (self):
-		self.text = self.text.strip ()
+		self.text = self.text.strip()
 
 	def contain (self, word):
 		if word in self.text: return True
@@ -282,7 +233,7 @@ class Text ():
 
 	def sliceNb (self, posStart, posEnd):
 		res =""
-		lText = self.length ()
+		lText = self.length()
 		if posStart <0: posStart += lText
 		if posEnd <0: posEnd += lText
 		if posStart < posEnd: res = self.text [posStart:posEnd]
@@ -300,11 +251,11 @@ class Text ():
 		""" nécessaire pour trier les listes """
 		return self.text < otherText.text
 
-def testText ():
+def testText():
 	textAccolade = Text ('abdefghijkmlmnopqrstuvwxyz')
 	textCoucou = Text ('coucou tu vas bien ?')
 	print ('exemple:', textCoucou)
-	print ('nb lettres:', textCoucou.length ())
+	print ('nb lettres:', textCoucou.length())
 	print ('nb o:', textCoucou.count ('o'))
 	print ('pos c:', textCoucou.index ('c'), 'et', textCoucou.rindex ('c'))
 	print ('tranche entre deux index:')
@@ -319,10 +270,10 @@ def testText ():
 	textAccolade = Text ('a {bde {fg {hij} km {lmn} o} pqrs {tuv} wx} yz')
 	print ('exemple:', textAccolade)
 	print ('domAccolade emboîté:')
-	res = textAccolade.domAccolade ()
+	res = textAccolade.domAccolade()
 	for line in res: print ('\t', line)
 	print ('domAccolade linéaire:')
-	res = textAccolade.domAccoladePlan ()
+	res = textAccolade.domAccoladePlan()
 	for line in res: print ('\t', line)
 	print ('comparaisons ligne à ligne')
 	textA = Text ('bnanencnrnuninp')
