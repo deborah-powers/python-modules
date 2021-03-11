@@ -112,17 +112,6 @@ class File (Text):
 			textBrut.write (self.text.encode ('utf-8'))
 			textBrut.close()
 
-	def toMd (self):
-		Text.toMd (self)
-		self.extension = 'md'
-		self.fileFromData()
-	#	self.toFile()
-
-	def toLiseuse (self):
-		self.clean()
-		self.replace ('\n\n', '\n')
-		self.replace ('\n', '\n\n')
-
 	""" ________________________ comparer deux fichiers ________________________ """
 
 	def compareGroom (self):

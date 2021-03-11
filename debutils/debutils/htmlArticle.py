@@ -8,6 +8,10 @@ class ArticleHtml (FileHtml, Article):
 	def __init__ (self, file =None):
 		FileHtml.__init__ (self)
 		Article.__init__ (self)
+		if file:
+			self.file = file
+			self.shortcut()
+			self.dataFromFile()
 
 	""" ________________________ manipuler des fichiers ________________________ """
 

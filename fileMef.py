@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from debutils.text import Text, toUpperCase, majList
-from debutils.file import File
+from debutils.file import File, Article
 from debutils.html import FileHtml
+from debutils.htmlArticle import ArticleHtml
 
 pointsShape =( '\n\t- ', '////// ', '====== ', '****** ', '------ ' )
 balises =(
 	('<h1>', '\n\n////// '), ('</h1>', ' //////\n\n'), ('<h2>', '\n\n====== '), ('</h2>', ' ======\n\n'), ('<h3>', '\n\n------ '), ('</h3>', ' ------\n\n'), ('<h4>', '\n\n--- '), ('</h4>', ' ---\n\n'),
 	('<hr>', '\n\n______\n\n'), ("\n<img src='", '\nImg\t'),
-	('<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'), ('<li>' '\n\t'), ('<tr>', '\n'), ('<th>', '\t'), ('<td>', '\t')
+	('<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'), ('<li>', '\n\t'), ('<tr>', '\n'), ('<th>', '\t'), ('<td>', '\t')
 )
 balisesToText =( ('<hr/>', '\n______\n'), ('<br>', '\n'), ('<br/>', '\n'))
 balisesToTextClosing =( 'li', 'tr', 'th', 'td')
@@ -191,10 +192,31 @@ def toHtml (self):
 	self.fileFromData()
 	self.toFile()
 
-def fromHtml (self):
-	fhtml = file (self.file)
+def fromHtmlArticle (self):
+	fhtml = ArticleHtml (self.file)
+	print (fhtml.file)
 	fhtml.fromFile()
 	fhtml.clean()
+	self.author = self.author.lower()
+	self.subject = self.subject.lower()
+	self.title = self.title.lower()
+	# récupérer les metadonnées
+	self.text = """<table>
+	<tr><td>Sujet:</td><td>%s</td></tr>
+	<tr><td>Auteur:</td><td>%s</td></tr>
+	<tr><td>Lien:</td><td>%s</td></tr>
+	<tr><td>Laut:</td><td>%s</td></tr>
+	</table>
+	%s""" % (self.subject, self.author, self.link, self.autlink, self.text)
+	self.fromHtml (fhtml)
+
+def fromHtmlSimple (self):
+	fhtml = FileHtml (self.file)
+	fhtml.fromFile()
+	fhtml.clean()
+	self.fromHtml (fhtml)
+
+def fromHtml (self, fhtml):
 	self.copyFile (fhtml)
 	self.extension = 'txt'
 	self.fileFromData()
@@ -203,7 +225,7 @@ def fromHtml (self):
 	for tag in container:
 		self.replace ('</'+ tag +'>')
 		self.replace ('<'+ tag +'>')
-	for html, perso in balises: self.replace (html, perso)
+	for (html, perso) in balises: self.replace (html, perso)
 	for html, perso in balisesToText: self.replace (html, perso)
 	for tag in balisesToTextClosing: self.replace ('</'+ tag +'>')
 	# les lignes
@@ -239,11 +261,17 @@ setattr (Text, 'shape', shapeText)
 setattr (File, 'shapeFile', shapeFile)
 setattr (File, 'toHtml', toHtml)
 setattr (File, 'fromHtml', fromHtml)
+setattr (File, 'fromHtmlSimple', fromHtmlSimple)
+setattr (Article, 'fromHtmlArticle', fromHtmlArticle)
 
 if len (argv) <2: print ('il manque le nom du fichier')
 else:
 	tmpFile = File (argv[1])
-	if argv[1][-4:] == 'html': tmpFile.fromHtml()
+	if argv[1][-4:] == 'html':
+		if len (argv) >2:
+			tmpFile = Article (argv[1])
+			tmpFile.fromHtmlArticle()
+		else: tmpFile.fromHtmlSimple()
 	elif argv[1][-3:] == 'txt':
 		if len (argv) >2: tmpFile.shapeFile()
 		else: tmpFile.toHtml()

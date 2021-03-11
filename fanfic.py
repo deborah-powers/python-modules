@@ -401,7 +401,7 @@ if len (argv) >=2:
 	subject = None
 	page = ArticleHtml()
 	if len (argv) >=3: subject = argv [2]
-	page.fromFic (url, subject)
+	page.ficWeb (url, subject)
 # le nom du fichier n'a pas ete donne
 else: print (help)
 
