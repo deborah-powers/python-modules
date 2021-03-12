@@ -107,7 +107,7 @@ class MantisList (ListFile):
 		rangeFile = self.range()
 		for f in rangeFile: self [f].fromFile()
 
-	def getBynumext (self, numext):
+	def getByNumext (self, numext):
 		self.get (numext)
 	def getByType (self, type):
 		newList = MantisList()
