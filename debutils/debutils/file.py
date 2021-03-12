@@ -166,7 +166,7 @@ class File (Text):
 	def test (self):
 		self.title = 'tester File'
 		self.fileFromData()
-		self.text = '________________________________________________________________________nje suis un message testnsur plusieurs lignes.nune liste:nta, ntb, ntc.'
+		self.text = '________________________________________________________________________\nje suis un message test\nsur plusieurs lignes.\nune liste:\nta, ntb, ntc.'
 		print (self)
 		print (self.text)
 		print ('écrire le fichier')
@@ -181,6 +181,7 @@ class File (Text):
 		self.toFile ('a')
 		self.fromFile()
 		print (self.text)
+
 
 modelText ="""Sujet:	%s
 Auteur:	%s
@@ -227,6 +228,8 @@ class Article (File):
 		""" nécessaire pour trier les listes """
 		struct = '%st%st%s'
 		return struct % (self.subject, self.author, self.title) < struct % (newFile.subject, newFile.author, newFile.title)
+
+
 	def test (self):
 		self.title = 'tester Article'
 		self.author = 'deborah powers'
@@ -238,6 +241,7 @@ class Article (File):
 		self.toFile()
 		self.fromFile()
 		print (self)
+
 	def tmp (self):
 		self.file = 'b/tmp.txt'
 		self.dataFromFile()

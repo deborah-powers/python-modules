@@ -24,8 +24,8 @@ htmlTemplate ="""<!DOCTYPE html><html><head>
 	<title>%s</title>
 	<meta charset='utf-8'/>
 	<meta name='viewport' content='width=device-width, initial-scale=1'/>
-	%s
 	<base target='_blank'>
+	%s
 </head><body>
 %s
 </body></html>"""
@@ -40,8 +40,6 @@ def findTextBetweenTag (originalText, tag):
 	return phrase
 
 class FileHtml (File):
-	# classe pour les fichiers html
-
 	def __init__ (self, file =None):
 		if file and file [:4] == 'http':
 			File.__init__ (self)
@@ -64,7 +62,6 @@ class FileHtml (File):
 		self.getCss()
 		self.getMetadata()
 		self.text = findTextBetweenTag (self.text, 'body')
-
 
 	def toFile (self):
 		# pas de text,""
@@ -90,7 +87,6 @@ class FileHtml (File):
 		self.text = self.text.strip()
 		self.text = htmlTemplate % (self.title, textInfos, self.text)
 		File.toFile (self)
-
 
 	def clean (self):
 		self.replace ('\t', ' ')
@@ -460,6 +456,27 @@ class FileHtml (File):
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]
 			self.text = "".join (textList)
+
+	# ________________________ conversion en texte simple ________________________
+
+	def toFileText (self):
+		self.fromHtml()
+		self.extension = 'txt'
+		self.fileFromData()
+		ftext = File (self.file)
+		ftext.text = self.text
+		ftext.toFile()
+
+	def fromFileText (self):
+		ftext = File (self.file)
+		ftext.fromFile()
+		ftext.toHtml()
+		self.text = ftext.text
+		self.extension = 'html'
+		self.fileFromData()
+		self.toFile()
+
+	# ________________________ tests ________________________
 
 	def test (self):
 		self.file = 'b/coucou.html'

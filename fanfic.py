@@ -38,7 +38,7 @@ def fromFic (self, url, subject=None):
 	self.metas = {}
 	self.replace (' <', '<')
 	self.replace ('><', '>\n<')
-	if self.contain ('</a>') or self.contain ('<img'): self.toArticle()
+	if self.contain ('</a>') or self.contain ('<img'): self.toFileText()
 	else: self.toFile()
 
 """ ________________________ pour chaque site ________________________ """

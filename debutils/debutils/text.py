@@ -22,6 +22,11 @@ weirdChars =(
 	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'"),
 	(',', ', '), ('(', ' ('), (')', ') '), ('[', ' ['), (']', '] '), ('{', ' {'), ('}', '} ')
 )
+tagHtml =(
+	('<h1>', '\n\n****** '), ('</h1>', ' ******\n\n'), ('<h2>', '\n\n====== '), ('</h2>', ' ======\n\n'), ('<h3>', '\n\n------ '), ('</h3>', ' ------\n\n'), ('<h4>', '\n\n--- '), ('</h4>', ' ---\n\n'),
+	('<hr>', '\n\n______\n\n'), ("\n<img src='", '\nImg\t'), ('<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
+	('<li>' '\n\t'), ('<tr>', '\n'), ('<th>', '\t'), ('<td>', '\t')
+)
 # fonctions pour les textes simples
 
 def clean (text):
@@ -44,16 +49,6 @@ def clean (text):
 	for p in points:
 		for q in points:
 			while p+' '+q in text: text = text.replace (p+' '+q, p+q)
-	"""
-	points = ') !?\'"'
-	for p in points:
-		text = text.replace ('? '+p, '?' +p)
-		text = text.replace ('! '+p, '!' +p)
-	while '  ' in text: text = text.replace ('  ', ' ')
-	points = ' !?'
-	for p in points:
-		for q in points: text = text.replace (p+' '+q, p+q)
-	"""
 	# les appostrophes
 	lettreAppostrophe = ('c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
 	for l in lettreAppostrophe:
@@ -66,15 +61,16 @@ def clean (text):
 
 def toUpperCase (text):
 	text ='\n'+ text
-	points =( '\n', '. ', '! ', '? ', ': ', '\n\t')
+	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t')
 	for i, j in majList:
 		for p in points: text = text.replace (p+i, p+j)
+		for p in pointsShape: text = text.replace (p+i, p+j)
 	for p in pointsEnd:
 		for q in pointsStart:
-			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
+			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize () +p)
 	for i, j in artefacts: text = text.replace (i, j)
-	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
-	text = text.strip()
+	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower ())
+	text = text.strip ()
 	return text
 
 def fromModel (text, model):
@@ -102,34 +98,63 @@ def fromModel (text, model):
 		elif model [d] =='f': results [r] = float (results [r])
 	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
 	return results
-
-class Text():
+class Text ():
 
 	def __init__ (self, string=""):
 		self.text = string
-
 	# ________________________ fonctions de mise en forme ________________________
 
+	def shape (self):
+		""" mettre le text en forme pour simplifier sa transformation
+		j'utilise une mise en forme personnelle
+		"""
+		self.clean ()
+		for char in '=*-_':
+			while self.contain (7* char): self.replace (7* char, 6* char)
+			for i,j in majList: self.replace (6* char +' '+i, '\n\n'+ 6* char +' '+j)
+			self.replace (' '+ 6* char, ' '+ 6* char +'\n\n')
+			self.replace (6* char +' ', '\n\n'+ 6* char +' ')
+		self.text = '\n'+ self.text +'\n'
+		# rajouter les majuscules apres chaque point
+		self.upperCase()
+		while self.contain ('\n\n\n'): self.replace ('\n\n\n', '\n\n')
+
 	def upperCase (self):
-		self.text = toUpperCase (self.text)
+		if self.contain ('\n/code\n'):
+			paragraphList = self.split ('\ncode\n')
+			paragraphRange = range (1, len (paragraphList))
+			for i in paragraphRange:
+				d= paragraphList [i].find ('\n/code\n') +7
+				paragraphList [i] = paragraphList [i] [:d] + toUpperCase (paragraphList [i] [d:])
+			self.text = '\ncode\n'.join (paragraphList)
+		else: self.text = toUpperCase (self.text)
+
 	def clean (self):
 		self.text = clean (self.text)
+
+	def cleanEnglish (self):
+		self.clean ()
+		wordList = ('and', 'for', 'then', 'in', 'on', 'to')
+		for word in wordList:
+			self.replace (' '+ word +'\t', ' '+ word +' ')
+			self.replace (' '+ word +'\n', ' '+ word +' ')
+
 	def fromModel (self, model):
 		return fromModel (self.text, model)
 
 	def comparLines (self, otherText, keepCommon=True, toSort=False):
-		self.clean()
-		otherText.clean()
-		self.text = self.text.lower()
-		otherText.text = otherText.text.lower()
+		self.clean ()
+		otherText.clean ()
+		self.text = self.text.lower ()
+		otherText.text = otherText.text.lower ()
 		if self.text == otherText.text:
 			print ('les textes sont identiques')
 			return 'pareil'
 		listA = self.split ('\n')
 		listB = otherText.split ('\n')
 		if toSort:
-			listA.sort()
-			listB.sort()
+			listA.sort ()
+			listB.sort ()
 		listF = []
 		trash = None
 		pos =0; nbAdd =0; nbDel =0; nbCom =0
@@ -176,11 +201,11 @@ class Text():
 			posF = self.index ('} ', posF) +1
 			ecart = self.text [posD:posF].count (' {') - self.text [posD:posF].count ('} ')
 		blockList.append (self.text [:posD])
-		newText = Text()
+		newText = Text ()
 		newText.text = self.text [posD +1:posF -1]
-		blockList.append (newText.domAccolade())
+		blockList.append (newText.domAccolade ())
 		self.text = self.text [posF:]
-		blockList.append (self.domAccolade())
+		blockList.append (self.domAccolade ())
 		return blockList
 
 	def domAccoladePlan (self):
@@ -193,6 +218,7 @@ class Text():
 		self.replace ('} ', ' {')
 		self.replace (' {', ' {')
 		return self.split (' {')
+
 	# ________________________ fonctions de bases ________________________
 
 	def length (self):
@@ -209,7 +235,7 @@ class Text():
 		self.text = self.text.replace (oldWord, newWord)
 
 	def strip (self):
-		self.text = self.text.strip()
+		self.text = self.text.strip ()
 
 	def contain (self, word):
 		if word in self.text: return True
@@ -233,7 +259,7 @@ class Text():
 
 	def sliceNb (self, posStart, posEnd):
 		res =""
-		lText = self.length()
+		lText = self.length ()
 		if posStart <0: posStart += lText
 		if posEnd <0: posEnd += lText
 		if posStart < posEnd: res = self.text [posStart:posEnd]
@@ -251,11 +277,188 @@ class Text():
 		""" nécessaire pour trier les listes """
 		return self.text < otherText.text
 
-def testText():
+	# ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________
+
+	def toHtml (self):
+		self.shape()
+		# transformer la mise en page en balises
+		for html, perso in tagHtml:
+			if perso in self.text: self.replace (perso, html)
+		# ajustement pour les grands titres et les images
+		paragraphList = self.text.split ('\n')
+		paragraphRange = range (len (paragraphList))
+		for i in paragraphRange:
+			if '<img' in paragraphList [i]: paragraphList [i] = paragraphList [i] +"'/>"
+		self.text = '\n'.join (paragraphList)
+		# les figures
+		if '<figure>' in self.text:
+			# mettre en forme le contenu des figures
+			paragraphList = self.text.split ('figure>')
+			lc= range (1, len (paragraphList), 2)
+			for i in lc:
+				# nettoyer le texte pour faciliter sa transformation
+				paragraphList [i] = paragraphList [i].strip ('\n')
+				paragraphList [i] = paragraphList [i].split ('\n')
+				paragraphRange = range (len (paragraphList [i]) -1)
+				for j in paragraphRange:
+					# les images ont deja ete modifiees precedement
+					if paragraphList [i] [j] [:4] != '<img':
+						paragraphList [i] [j] = '<figcaption>' + paragraphList [i] [j] + '</figcaption>'
+				paragraphList [i] = "".join (paragraphList [i])
+			self.text = 'figure>'.join (paragraphList)
+		# les bloc de code
+		if '<xmp>' in self.text:
+			paragraphList = self.text.split ('xmp>')
+			paragraphRange = range (1, len (paragraphList), 2)
+			for i in paragraphRange:
+				paragraphList [i] = paragraphList [i].strip()
+				paragraphList [i] = paragraphList [i].strip ('\n\t ')
+				paragraphList [i] = paragraphList [i].replace ('\n', '\a')
+				paragraphList [i] = paragraphList [i].replace ('\t', '\f')
+			self.text = 'xmp>'.join (paragraphList)
+			self.replace ('\a</xmp>', '</xmp>')
+		# les listes
+		if '<li>' in self.text:
+			self.text = '\n'+ self.text +'\n'
+			paragraphList = self.text.split ('\n')
+			lc= range (len (paragraphList))
+			# rajouter les balises fermantes
+			for l in lc:
+				if '<li>' in paragraphList [l]: paragraphList [l] = paragraphList [l] +'</li>'
+			lc= range (1, len (paragraphList) -1)
+			# rajouter les balises ouvrantes et fermantes delimitant la liste, <ul/>. reperer les listes imbriquees.
+			for l in lc:
+				if '<li>' in paragraphList [l]:
+					# compter le niveau d'imbrication (n) de l'element paragraphList [l]
+					n=0
+					while '<li>'+n*'\t' in paragraphList [l]: n+=1
+					n-=1
+					if '<li>'+n*'\t' in paragraphList [l]:
+						# debut de la liste (ou sous-liste), mettre le <ul>
+						if '<li>'+n*'\t' not in paragraphList [l-1]: paragraphList [l] = '<ul>'+ paragraphList [l]
+						# fin de la liste (ou sous-liste), mettre le </ul>
+						if '<li>'+n*'\t' not in paragraphList [l+1]:
+							while n >-1:
+								if '<li>'+n*'\t' not in paragraphList [l+1]: paragraphList [l] = paragraphList [l] + '</ul>'
+								n-=1
+			# mettre le texte au propre
+			self.text = '\n'.join (paragraphList)
+			self.text = self.text.strip ('\n')
+			while '<li>t' in self.text: self.replace ('<li>t', '<li>')
+			while '<ul>t' in self.text: self.replace ('<ul>t', '<ul>')
+		# les tableaux
+		if '\t' in self.text:
+			paragraphList = self.text.split ('\n')
+			len_chn = len (paragraphList)
+			d=-1; c=-1; i=0
+			while i< len_chn:
+				# rechercher une table
+				d=-1; c=-1
+				if d==-1 and c==-1 and '\t' in paragraphList [i]:
+					c= paragraphList [i].count ('\t')
+					d=i; i+=1
+				while i< len_chn and paragraphList [i].count ('\t') ==c: i+=1
+				c=i-d
+				# une table a ete trouve
+				if c>1 and d>0:
+					rtable = range (d, i)
+					for j in rtable:
+						# entre les cases
+						paragraphList [j] = paragraphList [j].replace ('\t', '</td><td>')
+						# bordure des cases
+						paragraphList [j] = '<tr><td>' + paragraphList [j] +'</td></tr>'
+					# les limites de la table
+					paragraphList [d] = '<table>\n' + paragraphList [d]
+					paragraphList [i-1] = paragraphList [i-1] +'\n</table>'
+				i+=1
+			self.text = '\n'.join (paragraphList)
+			# les titres de colonnes ou de lignes
+			if self.contain (':</td>'):
+				paragraphList = self.split (':</td>')
+				paragraphRange = range (len (paragraphList) -1)
+				for p in paragraphRange:
+					d= paragraphList [p].rfind ('<td>')
+					paragraphList [p] = paragraphList [p] [:d] +'<th>'+ paragraphList [p] [d+4:]
+				self.text = '</th>'.join (paragraphList)
+		# transformer les p contenant un lien en a
+		endingChars = '<;, !?\t\n'
+		paragraphList = self.text.split ('http')
+		paragraphRange = range (1, len (paragraphList))
+		for p in paragraphRange:
+			paragraphTmp = paragraphList [p]
+			e=-1; f=-1; d=-1
+			for char in endingChars:
+				if char in paragraphTmp:
+					f= paragraphTmp.find (char)
+					paragraphTmp = paragraphTmp [:f]
+			paragraphTmp = paragraphTmp.strip ('/')
+			d= paragraphTmp.rfind ('/') +1
+			e= len (paragraphTmp)
+			if '.' in paragraphTmp: e= paragraphTmp.rfind ('.')
+			paragraphList [p] = paragraphTmp +"'>"+ paragraphTmp [d:e] +'</a> '+ paragraphList [p] [f:]
+		self.text = " <a href='http".join (paragraphList)
+		# nettoyer le texte pour faciliter la suite des transformations
+		self.replace ('\t')
+		self.clean()
+		# rajouter les <p/>
+		self.replace ('\n', '</p><p>')
+		self.replace ('></p><p><', '><')
+		self.replace ('></p><p>', '><p>')
+		self.replace ('</p><p><', '</p><')
+		# rajouter d'eventuel <p/> s'il n'y a pas de balise en debut ou fin de self.text
+		if '<' not in self.text [0:3]: self.text = '<p>'+ self.text
+		if '>' not in self.text [-3:]: self.text = self.text +'</p>'
+		# mettre en forme les balises pour clarifier le texte
+		self.replace ('\n')
+		self.replace ('\t')
+		# pour les blocs de code
+		self.replace ('\a', '\n')
+		self.replace ('\f', '\t')
+		self.clean()
+
+	def fromHtml (self):
+		# les conteneurs
+		container = [ 'div', 'section', 'ol', 'ul', 'table', 'figure', 'math' ]
+		tagsBlank =( ('<hr/>', '\n______\n'), ('<hr>', '\n______\n'), ('<br>', '\n'), ('<br/>', '\n'))
+		tagsClosing =( 'li', 'tr', 'th', 'td')
+			for tag in container:
+			self.replace ('</'+ tag +'>')
+			self.replace ('<'+ tag +'>')
+		for html, perso in tagHtml: self.replace (html, perso)
+		for html, perso in tagsBlank: self.replace (html, perso)
+		for tag in tagsClosing: self.replace ('</'+ tag +'>')
+		# les lignes
+		self.replace ('</p><p>', '\n')
+		lines = [ 'p', 'caption', 'figcaption' ]
+		for tag in lines:
+			self.replace ('</'+ tag +'>', '\n')
+			self.replace ('<'+ tag +'>', '\n')
+		# les phrases
+		inner = [ 'span', 'em', 'strong' ]
+		for tag in inner:
+			self.replace ('</'+ tag +'>', ' ')
+			self.replace ('<'+ tag +'>', ' ')
+		self.replace (' \n', '\n')
+		self.replace ('\n ', '\n')
+		# les liens
+		ltext = self.split ('</a>')
+		rtext = range (len (ltext) -1)
+		for t in rtext:
+			d= ltext [t].find ('href') +6
+			f= ltext [t].find ("'", d)
+			link = ltext [t] [d:f]
+			f= ltext [t].find ('>', f) +1
+			title = ltext [t] [f:]
+			d= ltext [t].find ('<a ')
+			ltext [t] = ltext [t] [:d] +' '+ title +': '+ link
+		self.text = ' '.join (ltext)
+		self.shape()
+
+def testText ():
 	textAccolade = Text ('abdefghijkmlmnopqrstuvwxyz')
 	textCoucou = Text ('coucou tu vas bien ?')
 	print ('exemple:', textCoucou)
-	print ('nb lettres:', textCoucou.length())
+	print ('nb lettres:', textCoucou.length ())
 	print ('nb o:', textCoucou.count ('o'))
 	print ('pos c:', textCoucou.index ('c'), 'et', textCoucou.rindex ('c'))
 	print ('tranche entre deux index:')
@@ -270,10 +473,10 @@ def testText():
 	textAccolade = Text ('a {bde {fg {hij} km {lmn} o} pqrs {tuv} wx} yz')
 	print ('exemple:', textAccolade)
 	print ('domAccolade emboîté:')
-	res = textAccolade.domAccolade()
+	res = textAccolade.domAccolade ()
 	for line in res: print ('\t', line)
 	print ('domAccolade linéaire:')
-	res = textAccolade.domAccoladePlan()
+	res = textAccolade.domAccoladePlan ()
 	for line in res: print ('\t', line)
 	print ('comparaisons ligne à ligne')
 	textA = Text ('bnanencnrnuninp')

@@ -32,10 +32,7 @@ class ArticleHtml (FileHtml, Article):
 		self.metas ['autlink'] = self.autlink
 		FileHtml.toFile (self)
 
-	def toArticle (self):
-		if not self.text:
-			self.dataFromFile()
-			self.fromFile()
+	def toFileText (self):
 		self.author = self.author.lower()
 		self.subject = self.subject.lower()
 		self.title = self.title.lower()
@@ -48,19 +45,18 @@ class ArticleHtml (FileHtml, Article):
 	<tr><td>Laut:</td><td>%s</td></tr>
 </table>
 %s""" % (self.subject, self.author, self.link, self.autlink, self.text)
-		FileHtml.toFilePerso (self)
+		FileHtml.toFileText (self)
 
-	def fromArticleName (self, fileName):
-		ftext = Article (fileName)
-		self.fromArticle (ftext)
-
-	def fromArticle (self, ftext):
-		# file est un fichier txt utilisant ma mise en forme
-		if not ftext.text: ftext.fromFile()
-		ftext.shape()
+	def fromFileText (self):
+		ftext = Article (self.file)
+		ftext.fromFile()
 		ftext.toHtml()
-		Article.copyFile (self, ftext)
+		self.text = ftext.text
+		self.author = ftext.author
+		self.autlink = ftext.autlink
+		self.link = ftext.link
 		self.extension = 'html'
+		self.fileFromData()
 		self.toFile()
 
 	""" ________________________ récupérer et nettoyer les fichiers ________________________ """
