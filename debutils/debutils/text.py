@@ -23,7 +23,7 @@ weirdChars =(
 	(',', ', '), ('(', ' ('), (')', ') '), ('[', ' ['), (']', '] '), ('{', ' {'), ('}', '} ')
 )
 tagHtml =(
-	('<h1>', '\n\n****** '), ('</h1>', ' ******\n\n'), ('<h2>', '\n\n====== '), ('</h2>', ' ======\n\n'), ('<h3>', '\n\n------ '), ('</h3>', ' ------\n\n'), ('<h4>', '\n\n--- '), ('</h4>', ' ---\n\n'),
+	('<h1>', '\n\n====== '), ('</h1>', ' ======\n\n'), ('<h2>', '\n\n****** '), ('</h2>', ' ******\n\n'), ('<h3>', '\n\n------ '), ('</h3>', ' ------\n\n'), ('<h4>', '\n\n--- '), ('</h4>', ' ---\n\n'),
 	('<hr>', '\n\n______\n\n'), ("\n<img src='", '\nImg\t'), ('<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
 	('<li>' '\n\t'), ('<tr>', '\n'), ('<th>', '\t'), ('<td>', '\t')
 )
@@ -98,8 +98,8 @@ def fromModel (text, model):
 		elif model [d] =='f': results [r] = float (results [r])
 	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
 	return results
-class Text ():
 
+class Text ():
 	def __init__ (self, string=""):
 		self.text = string
 	# ________________________ fonctions de mise en forme ________________________
@@ -113,7 +113,7 @@ class Text ():
 			while self.contain (7* char): self.replace (7* char, 6* char)
 			for i,j in majList: self.replace (6* char +' '+i, '\n\n'+ 6* char +' '+j)
 			self.replace (' '+ 6* char, ' '+ 6* char +'\n\n')
-			self.replace (6* char +' ', '\n\n'+ 6* char +' ')
+			self.replace (6* char +' ', '\n\n'+ 24* char +' ')
 		self.text = '\n'+ self.text +'\n'
 		# rajouter les majuscules apres chaque point
 		self.upperCase()
@@ -281,6 +281,7 @@ class Text ():
 
 	def toHtml (self):
 		self.shape()
+		for char in '=*-_': self.replace (24* char, 6* char)
 		# transformer la mise en page en balises
 		for html, perso in tagHtml:
 			if perso in self.text: self.replace (perso, html)

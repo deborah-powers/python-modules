@@ -1,5 +1,4 @@
-__________________________
-______ pésentation ______
+====== pésentation ======
 
 message		%message%
 num ext		%numext%
@@ -7,26 +6,22 @@ num int		%numint%
 module		%module%
 type		%type%
 
-______________________
-______ temps tavaillé ______
+====== temps tavaillé ======
 
 %date%	0
-______________________
-______ solution ______
+
+====== solution ======
 
 %solution%
 
-___________________
-______ infos ______
+====== infos ======
 
-______ données ______
+****** données ******
 
-______ mache à suive ______
+****** mache à suive ******
 
-______________________________
-______ %date% apem ______
+====== %date% apem ======
 
-______________________________
-______ %date% matin ______
+====== %date% matin ======
 
 %commandes%
