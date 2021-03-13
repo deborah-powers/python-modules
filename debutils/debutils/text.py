@@ -25,7 +25,7 @@ weirdChars =(
 tagHtml =(
 	('<h1>', '\n\n====== '), ('</h1>', ' ======\n\n'), ('<h2>', '\n\n****** '), ('</h2>', ' ******\n\n'), ('<h3>', '\n\n------ '), ('</h3>', ' ------\n\n'), ('<h4>', '\n\n--- '), ('</h4>', ' ---\n\n'),
 	('<hr>', '\n\n______\n\n'), ("\n<img src='", '\nImg\t'), ('<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
-	('<li>' '\n\t'), ('<tr>', '\n'), ('<th>', '\t'), ('<td>', '\t')
+	('<li>', '\n\t'), ('<tr>', '\n'), ('<th>', '\t'), ('<td>', '\t')
 )
 # fonctions pour les textes simples
 
@@ -64,7 +64,7 @@ def toUpperCase (text):
 	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t')
 	for i, j in majList:
 		for p in points: text = text.replace (p+i, p+j)
-		for p in pointsShape: text = text.replace (p+i, p+j)
+		for html, perso in tagHtml: text = text.replace (perso +i, perso +j)
 	for p in pointsEnd:
 		for q in pointsStart:
 			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize () +p)
@@ -422,10 +422,12 @@ class Text ():
 		container = [ 'div', 'section', 'ol', 'ul', 'table', 'figure', 'math' ]
 		tagsBlank =( ('<hr/>', '\n______\n'), ('<hr>', '\n______\n'), ('<br>', '\n'), ('<br/>', '\n'))
 		tagsClosing =( 'li', 'tr', 'th', 'td')
-			for tag in container:
+		for tag in container:
 			self.replace ('</'+ tag +'>')
 			self.replace ('<'+ tag +'>')
-		for html, perso in tagHtml: self.replace (html, perso)
+		for html, perso in tagHtml:
+			self.replace (html, perso)
+			print (html, perso)
 		for html, perso in tagsBlank: self.replace (html, perso)
 		for tag in tagsClosing: self.replace ('</'+ tag +'>')
 		# les lignes
