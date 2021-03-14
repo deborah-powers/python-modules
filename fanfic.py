@@ -38,13 +38,14 @@ def fromFic (self, url, subject=None):
 	self.metas = {}
 	self.replace (' <', '<')
 	self.replace ('><', '>\n<')
-	if self.contain ('</a>') or self.contain ('<img'): self.toFileText()
-	else: self.toFile()
+	if self.contain ('</a>') or self.contain ('<img'): self.toFile()
+	else: self.toFileText()
 
 """ ________________________ pour chaque site ________________________ """
 
 def abcBourse (self):
 	self.subject = 'argent'
+	self.author = 'abc bourse'
 	d= self.index ('<h1>')
 	f= self.index ('<p>Vous avez aimé cet article')
 	self.text = self.text[d:f]

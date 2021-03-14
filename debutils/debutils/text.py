@@ -25,7 +25,7 @@ weirdChars =(
 tagHtml =(
 	('<h1>', '\n\n====== '), ('</h1>', ' ======\n\n'), ('<h2>', '\n\n****** '), ('</h2>', ' ******\n\n'), ('<h3>', '\n\n------ '), ('</h3>', ' ------\n\n'), ('<h4>', '\n\n--- '), ('</h4>', ' ---\n\n'),
 	('<hr>', '\n\n______\n\n'), ("\n<img src='", '\nImg\t'), ('<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
-	('<li>', '\n\t'), ('<tr>', '\n'), ('<th>', '\t'), ('<td>', '\t')
+	('<li>', '\n\t')
 )
 # fonctions pour les textes simples
 
@@ -108,12 +108,13 @@ class Text ():
 		""" mettre le text en forme pour simplifier sa transformation
 		j'utilise une mise en forme personnelle
 		"""
-		self.clean ()
+		Text.clean (self)
 		for char in '=*-_':
 			while self.contain (7* char): self.replace (7* char, 6* char)
 			for i,j in majList: self.replace (6* char +' '+i, '\n\n'+ 6* char +' '+j)
 			self.replace (' '+ 6* char, ' '+ 6* char +'\n\n')
 			self.replace (6* char +' ', '\n\n'+ 24* char +' ')
+			self.replace (' '+ 6* char, ' '+ 24* char +'\n\n')
 		self.text = '\n'+ self.text +'\n'
 		# rajouter les majuscules apres chaque point
 		self.upperCase()
@@ -197,7 +198,6 @@ class Text ():
 		posF = self.index ('} ') +1
 		ecart = self.text [posD:posF].count (' {') - self.text [posD:posF].count ('} ')
 		while ecart >0:
-			print (ecart, posD, posF)
 			posF = self.index ('} ', posF) +1
 			ecart = self.text [posD:posF].count (' {') - self.text [posD:posF].count ('} ')
 		blockList.append (self.text [:posD])
@@ -425,9 +425,16 @@ class Text ():
 		for tag in container:
 			self.replace ('</'+ tag +'>')
 			self.replace ('<'+ tag +'>')
-		for html, perso in tagHtml:
-			self.replace (html, perso)
-			print (html, perso)
+		# les tableaux
+		self.replace ('</td>')
+		self.replace ('</th>', ':')
+		self.replace ('</tr>')
+		self.replace ('<tr><td>', '\n')
+		self.replace ('<tr><th>', '\n')
+		self.replace ('<td>', '\t')
+		self.replace ('<th>', '\t')
+		# les tags
+		for html, perso in tagHtml: self.replace (html, perso)
 		for html, perso in tagsBlank: self.replace (html, perso)
 		for tag in tagsClosing: self.replace ('</'+ tag +'>')
 		# les lignes

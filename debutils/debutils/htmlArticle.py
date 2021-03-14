@@ -3,6 +3,7 @@
 from debutils.html import FileHtml, findTextBetweenTag
 from debutils.file import Article
 from debutils.list import List
+from debutils.file import File
 
 class ArticleHtml (FileHtml, Article):
 	def __init__ (self, file =None):
