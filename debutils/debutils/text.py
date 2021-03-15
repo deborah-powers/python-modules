@@ -23,8 +23,8 @@ weirdChars =(
 	(',', ', '), ('(', ' ('), (')', ') '), ('[', ' ['), (']', '] '), ('{', ' {'), ('}', '} ')
 )
 tagHtml =(
-	('<h1>', '\n\n====== '), ('</h1>', ' ======\n\n'), ('<h2>', '\n\n****** '), ('</h2>', ' ******\n\n'), ('<h3>', '\n\n------ '), ('</h3>', ' ------\n\n'), ('<h4>', '\n\n--- '), ('</h4>', ' ---\n\n'),
-	('<hr>', '\n\n______\n\n'), ("\n<img src='", '\nImg\t'), ('<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
+	('\n<h1>', '\n\n====== '), ('</h1>\n', ' ======\n\n'), ('\n<h2>', '\n\n****** '), ('</h2>\n', ' ******\n\n'), ('\n<h3>', '\n\n------ '), ('</h3>\n', ' ------\n\n'), ('\n<h4>', '\n\n--- '), ('</h4>\n', ' ---\n\n'),
+	('\n<hr>', '\n\n______\n\n'), ("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
 	('\n<li>', '\n\t')
 )
 # fonctions pour les textes simples
@@ -126,7 +126,7 @@ class Text ():
 			paragraphRange = range (1, len (paragraphList))
 			for i in paragraphRange:
 				d= paragraphList [i].find ('\n/code\n') +7
-				paragraphList [i] = paragraphList [i] [:d] + toUpperCase (paragraphList [i] [d:])
+				paragraphList [i] = paragraphList [i][:d] + toUpperCase (paragraphList [i][d:])
 			self.text = '\ncode\n'.join (paragraphList)
 		else: self.text = toUpperCase (self.text)
 
@@ -303,8 +303,8 @@ class Text ():
 				paragraphRange = range (len (paragraphList [i]) -1)
 				for j in paragraphRange:
 					# les images ont deja ete modifiees precedement
-					if paragraphList [i] [j] [:4] != '<img':
-						paragraphList [i] [j] = '<figcaption>' + paragraphList [i] [j] + '</figcaption>'
+					if paragraphList [i][j][:4] != '<img':
+						paragraphList [i][j] = '<figcaption>' + paragraphList [i][j] + '</figcaption>'
 				paragraphList [i] = "".join (paragraphList [i])
 			self.text = 'figure>'.join (paragraphList)
 		# les bloc de code
@@ -345,8 +345,8 @@ class Text ():
 			# mettre le texte au propre
 			self.text = '\n'.join (paragraphList)
 			self.text = self.text.strip ('\n')
-			while '<li>t' in self.text: self.replace ('<li>t', '<li>')
-			while '<ul>t' in self.text: self.replace ('<ul>t', '<ul>')
+			while '<li>\t' in self.text: self.replace ('<li>\t', '<li>')
+			while '<ul>\t' in self.text: self.replace ('<ul>\t', '<ul>')
 		# les tableaux
 		if '\t' in self.text:
 			paragraphList = self.text.split ('\n')
@@ -379,8 +379,19 @@ class Text ():
 				paragraphRange = range (len (paragraphList) -1)
 				for p in paragraphRange:
 					d= paragraphList [p].rfind ('<td>')
-					paragraphList [p] = paragraphList [p] [:d] +'<th>'+ paragraphList [p] [d+4:]
+					paragraphList [p] = paragraphList [p][:d] +'<th>'+ paragraphList [p][d+4:]
 				self.text = '</th>'.join (paragraphList)
+		# nettoyer le texte pour faciliter la suite des transformations
+		self.replace ('\t')
+		self.clean()
+		# rajouter les <p/>
+		self.replace ('\n', '</p><p>')
+		self.replace ('></p><p><', '><')
+		self.replace ('</p><p><', '</p><')
+		self.replace ('></p><p>', '><p>')
+		# rajouter d'eventuel <p/> s'il n'y a pas de balise en debut ou fin de self.text
+		if '<' not in self.text [0:3]: self.text = '<p>'+ self.text
+		if '>' not in self.text [-3:]: self.text = self.text +'</p>'
 		# transformer les p contenant un lien en a
 		endingChars = '<;, !?\t\n'
 		paragraphList = self.text.split ('http')
@@ -395,23 +406,13 @@ class Text ():
 			paragraphTmp = paragraphTmp.strip ('/')
 			d= paragraphTmp.rfind ('/') +1
 			e= len (paragraphTmp)
-			if '.' in paragraphTmp: e= paragraphTmp.rfind ('.')
-			paragraphList [p] = paragraphTmp +"'>"+ paragraphTmp [d:e] +'</a> '+ paragraphList [p] [f:]
+			if '.' in paragraphTmp[d:]: e= paragraphTmp.rfind ('.')
+			title = paragraphTmp [d:e].replace ('-',' ')
+			title = title.replace ('_',' ')
+			paragraphList [p] = paragraphTmp +"'>"+ title +'</a> '+ paragraphList [p][f:]
 		self.text = " <a href='http".join (paragraphList)
-		# nettoyer le texte pour faciliter la suite des transformations
-		self.replace ('\t')
-		self.clean()
-		# rajouter les <p/>
-		self.replace ('\n', '</p><p>')
-		self.replace ('></p><p><', '><')
-		self.replace ('></p><p>', '><p>')
-		self.replace ('</p><p><', '</p><')
-		# rajouter d'eventuel <p/> s'il n'y a pas de balise en debut ou fin de self.text
-		if '<' not in self.text [0:3]: self.text = '<p>'+ self.text
-		if '>' not in self.text [-3:]: self.text = self.text +'</p>'
-		# mettre en forme les balises pour clarifier le texte
-		self.replace ('\n')
-		self.replace ('\t')
+		self.replace ('</a> </', '</a></')
+		self.replace ('> <a ', '><a ')
 		# pour les blocs de code
 		self.replace ('\a', '\n')
 		self.replace ('\f', '\t')
@@ -456,11 +457,11 @@ class Text ():
 		for t in rtext:
 			d= ltext [t].find ('href') +6
 			f= ltext [t].find ("'", d)
-			link = ltext [t] [d:f]
+			link = ltext [t][d:f]
 			f= ltext [t].find ('>', f) +1
-			title = ltext [t] [f:]
+			title = ltext [t][f:]
 			d= ltext [t].find ('<a ')
-			ltext [t] = ltext [t] [:d] +' '+ title +': '+ link
+			ltext [t] = ltext [t][:d] +' '+ title +': '+ link
 		self.text = ' '.join (ltext)
 		self.shape()
 
