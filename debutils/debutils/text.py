@@ -23,8 +23,8 @@ weirdChars =(
 	(',', ', '), ('(', ' ('), (')', ') '), ('[', ' ['), (']', '] '), ('{', ' {'), ('}', '} ')
 )
 tagHtml =(
-	('\n<h1>', '\n\n====== '), ('</h1>\n', ' ======\n\n'), ('\n<h2>', '\n\n****** '), ('</h2>\n', ' ******\n\n'), ('\n<h3>', '\n\n------ '), ('</h3>\n', ' ------\n\n'), ('\n<h4>', '\n\n--- '), ('</h4>\n', ' ---\n\n'),
-	('\n<hr>', '\n\n______\n\n'), ("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
+	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n--- '), ('</h4>\n', ' ---\n'),
+	('\n<hr>', '\n______\n'), ("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
 	('\n<li>', '\n\t')
 )
 # fonctions pour les textes simples
@@ -291,12 +291,26 @@ class Text ():
 		for i in paragraphRange:
 			if '<img' in paragraphList [i]: paragraphList [i] = paragraphList [i] +"'/>"
 		self.text = '\n'.join (paragraphList)
+		# les formules
+		if self.contain ('\nM\t'):
+			paragraphList = self.text.split ('\n')
+			paragraphRange = range (1, len (paragraphList))
+			for i in paragraphRange:
+				if paragraphList[i][:2] == 'M\t':
+					if 'f/' in paragraphList[i]:
+						paragraphList[i] = paragraphList[i].replace (' f/ ', '<mfrac><mrow>')
+						paragraphList[i] = paragraphList[i].replace ('\tf/ ', '<mfrac><mrow>')
+						paragraphList[i] = paragraphList[i].replace (' /f', '</mrow></mfrac>')
+						if '</mfrac>' not in paragraphList[i]: paragraphList[i] = paragraphList[i] + '</mrow></mfrac>'
+						paragraphList[i] = paragraphList[i].replace (' / ', '</mrow><mrow>')
+					paragraphList[i] = '<math>' + paragraphList[i][2:] + '</math>'
+			self.text = '\n'.join (paragraphList)
 		# les figures
 		if '<figure>' in self.text:
 			# mettre en forme le contenu des figures
 			paragraphList = self.text.split ('figure>')
-			lc= range (1, len (paragraphList), 2)
-			for i in lc:
+			paragraphRange= range (1, len (paragraphList), 2)
+			for i in paragraphRange:
 				# nettoyer le texte pour faciliter sa transformation
 				paragraphList [i] = paragraphList [i].strip ('\n')
 				paragraphList [i] = paragraphList [i].split ('\n')
@@ -411,12 +425,12 @@ class Text ():
 			title = title.replace ('_',' ')
 			paragraphList [p] = paragraphTmp +"'>"+ title +'</a> '+ paragraphList [p][f:]
 		self.text = " <a href='http".join (paragraphList)
-		self.replace ('</a> </', '</a></')
 		self.replace ('> <a ', '><a ')
 		# pour les blocs de code
 		self.replace ('\a', '\n')
 		self.replace ('\f', '\t')
 		self.clean()
+		self.replace (' </', '</')
 
 	def fromHtml (self):
 		# les conteneurs
