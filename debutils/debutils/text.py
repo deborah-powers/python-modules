@@ -25,7 +25,7 @@ weirdChars =(
 tagHtml =(
 	('<h1>', '\n\n====== '), ('</h1>', ' ======\n\n'), ('<h2>', '\n\n****** '), ('</h2>', ' ******\n\n'), ('<h3>', '\n\n------ '), ('</h3>', ' ------\n\n'), ('<h4>', '\n\n--- '), ('</h4>', ' ---\n\n'),
 	('<hr>', '\n\n______\n\n'), ("\n<img src='", '\nImg\t'), ('<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
-	('<li>', '\n\t')
+	('\n<li>', '\n\t')
 )
 # fonctions pour les textes simples
 
