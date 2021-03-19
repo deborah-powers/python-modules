@@ -8,6 +8,8 @@ import debutils.logger as log
 types = ('ano', 'ddt', 'evo')
 refName = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\mantis-base.txt'
 refFile = File (refName)
+sqlName = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\su_cdm.sql'
+sqlFile = File (sqlName)
 
 class Mantis():
 	def __init__ (self, numext ='0', message ='?', module = '?', numint ='0', type ='?'):
@@ -57,6 +59,19 @@ class MantisFile (Mantis, File):
 		refFile.dataFromFile()
 		refFile.replace (' ______\n', ' ______\n\n')
 		refFile.toFile()
+		if self.type == 'ddt': self.createDdt (dateStr)
+
+	def createDdt (self, dateStr):
+		if self.module in 'aec can sif':
+			sqlFile.file = sqlFile.file.replace ('_cdm', '_sif');
+			sqlFile.dataFromFile()
+		sqlFile.fromFile()
+		sqlFile.replace ('%numero%', self.numext)
+		sqlFile.replace ('%date%', dateStr)
+		sqlFile.path = self.path
+		sqlFile.title = sqlFile.title.replace ('su_', 'su_'+ self.numext +'_')
+		sqlFile.fileFromData()
+		sqlFile.toFile()
 
 	def fromFile (self):
 		File.fromFile (self)
