@@ -449,7 +449,7 @@ class Text ():
 		self.replace ('<td>', '\t')
 		self.replace ('<th>', '\t')
 		# les tags
-		for html, perso in tagHtml: self.replace (html, perso)
+		for html, perso in tagHtml: self.replace (html.strip(), perso)
 		for html, perso in tagsBlank: self.replace (html, perso)
 		for tag in tagsClosing: self.replace ('</'+ tag +'>')
 		# les lignes

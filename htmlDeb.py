@@ -15,7 +15,9 @@ if len (argv) >=2:
 	url = argv [1]
 	page = FileHtml (url)
 	if len (argv) >=3: page = ArticleHtml (url)
-	if url [-5:] == '.html': page.toFileText()
+	if url [-5:] == '.html':
+		page.fromFile()
+		page.toFileText()
 	elif url [-4:] == '.txt': page.fromFileText()
 # le nom du fichier n'a pas ete donne
 else: print (help)
