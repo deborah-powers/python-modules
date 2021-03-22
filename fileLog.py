@@ -9,16 +9,14 @@ def cleanLog (self):
 	# préparer le texte
 	self.toText()
 	self.clean()
-	self.replace (' com.',' ')
-	self.replace (' org.',' ')
-	self.replace ('<label>Voir</label>')
-	self.replace ('</label>')
-	self.replace ('</xmlResult>]) sur la Queue queue://ord-com-out...')
-	artefacts =( 'ac', 'cdm', 'aec', 'sif', 'can')
+	artefacts =( 'com', 'org')
+	for word in artefacts: self.replace (' '+ word +'.',' ')
+	artefacts =( '<label>Voir</label>', '</label>', '</xmlResult>]) sur la Queue queue://ord-com-out ...')
+	for word in artefacts: self.replace (word)
+	artefacts =( 'ac', 'cdm', 'aec', 'sif', 'can', 'cdm-batch', 'sif-batch', 'cdm-ech', 'sif-ech')
 	for word in artefacts: self.replace ('['+ word +'] ')
 	artefacts =( 'DEBUG', 'INFO', 'WARN', 'ERROR')
 	for word in artefacts: self.replace ('['+ word +']', word)
-	self.replace ('[DEBUG]', '')
 	self.clean()
 	# supprimer les lignes inutiles
 	self.fromText()
@@ -30,15 +28,6 @@ def cleanLog (self):
 		elif "could not locate the message resource with key " in self[l]: trash = self.pop (l)
 		elif '\t' == self[l][0] and '(<generated>)' in self[l]: trash = self.pop (l)
 		elif '\t' == self[l][0] and 'fr.asp.synergie.' not in self[l]: trash = self.pop (l)
-	"""
-	countLine =0
-	lenList = len (self.list)
-	l=0
-	while l< lenList:
-		if '	at ' not in self[l]: l+=1; countLine =0
-		elif countLine <4: l+=1; countLine +=1
-		else: lenList -=1; trash = self.pop (l)
-	"""
 	self.toText()
 	self.replace ('fr.asp.synergie.app.')
 	self.replace ('fr.asp.synergie.')
