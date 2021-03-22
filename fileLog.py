@@ -14,6 +14,11 @@ def cleanLog (self):
 	self.replace ('<label>Voir</label>')
 	self.replace ('</label>')
 	self.replace ('</xmlResult>]) sur la Queue queue://ord-com-out...')
+	artefacts =( 'ac', 'cdm', 'aec', 'sif', 'can')
+	for word in artefacts: self.replace ('['+ word +'] ')
+	artefacts =( 'DEBUG', 'INFO', 'WARN', 'ERROR')
+	for word in artefacts: self.replace ('['+ word +']', word)
+	self.replace ('[DEBUG]', '')
 	self.clean()
 	# supprimer les lignes inutiles
 	self.fromText()
@@ -21,6 +26,8 @@ def cleanLog (self):
 	rangeLine.reverse()
 	for l in rangeLine:
 		if ' fr.asp.synergie.core.ael.' in self[l]: trash = self.pop (l)
+		elif "' was evaluated and did not match a property. The literal value '" in self[l]: trash = self.pop (l)
+		elif "could not locate the message resource with key " in self[l]: trash = self.pop (l)
 		elif '\t' == self[l][0] and '(<generated>)' in self[l]: trash = self.pop (l)
 		elif '\t' == self[l][0] and 'fr.asp.synergie.' not in self[l]: trash = self.pop (l)
 	"""
