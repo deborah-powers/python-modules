@@ -114,8 +114,8 @@ class Text ():
 			while self.contain (7* char): self.replace (7* char, 6* char)
 			for i,j in majList: self.replace (6* char +' '+i, '\n\n'+ 6* char +' '+j)
 			self.replace (' '+ 6* char, ' '+ 6* char +'\n\n')
-			self.replace (6* char +' ', '\n\n'+ 24* char +' ')
-			self.replace (' '+ 6* char, ' '+ 24* char +'\n\n')
+			self.replace (6* char +' ', '\n\n'+ 12* char +' ')
+			self.replace (' '+ 6* char, ' '+ 12* char +'\n\n')
 		self.text = '\n'+ self.text +'\n'
 		# rajouter les majuscules apres chaque point
 		self.upperCase()
@@ -282,7 +282,7 @@ class Text ():
 
 	def toHtml (self):
 		self.shape()
-		for char in '=*-_': self.replace (24* char, 6* char)
+		for char in '=*-_': self.replace (12* char, 6* char)
 		# transformer la mise en page en balises
 		for html, perso in tagHtml:
 			if perso in self.text: self.replace (perso, html)
