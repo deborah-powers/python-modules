@@ -1,7 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from debutils.html import FileHtml
+from debutils.list import List
+from debutils.html import FileHtml, findTextBetweenTag
 from debutils.htmlArticle import ArticleHtml
 
 help = """
@@ -40,6 +41,11 @@ def fromFic (self, url, subject=None):
 	self.replace ('><', '>\n<')
 	if self.contain ('</a>') or self.contain ('<img'): self.toFile()
 	else: self.toFileText()
+
+def findSubject (self):
+	self.subject = self.subject.lower()
+	if 'pokemon' in self.subject:
+		self.subject = 'romance, pokemon'
 
 """ ________________________ pour chaque site ________________________ """
 
@@ -192,6 +198,7 @@ def aoooFromSource (self, subject=None):
 	self.title = data [0]
 	self.author = data [1]
 	self.subject = data [2]
+	self.findSubject()
 	d= self.index ("archiveofourown.org/works") +26
 	f= self.index (" ", d)
 	self.link = 'https://archiveofourown.org/works/' + self.text [d:f]
@@ -396,6 +403,7 @@ setattr (ArticleHtml, 'ficMedium', medium)
 setattr (ArticleHtml, 'ficTheoriste', menaceTheoriste)
 setattr (ArticleHtml, 'ficFds', fds)
 setattr (ArticleHtml, 'ficWeb', fromFic)
+setattr (ArticleHtml, 'findSubject', findSubject)
 
 if len (argv) >=2:
 	url = argv [1]

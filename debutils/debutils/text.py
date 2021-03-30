@@ -57,6 +57,7 @@ def clean (text):
 	text = text.replace ("Qu'","Qu'")
 	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
+	text = text.replace ('< !', '<!')
 	return text
 
 def toUpperCase (text):
