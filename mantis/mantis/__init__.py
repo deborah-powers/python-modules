@@ -52,6 +52,9 @@ class MantisFile (Mantis, File):
 			commandesStr =""
 		refFile.replace ('%commandes%', commandesStr)
 		refFile.replace ('%solution%', solutionStr)
+		schema = 'cdm'
+		if self.module in 'aec can sif': schema = 'sif'
+		refFile.replace ('%schema%', schema)
 		date = datetime.now()
 		dateStr = '%02d/%02d/%02d' % (date.year, date.month, date.day)
 		refFile.replace ('%date%', dateStr)
