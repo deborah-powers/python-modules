@@ -6,6 +6,8 @@ from urllib import request as urlRequest
 from debutils.list import List
 from debutils.file import *
 from debutils.fileLocal import pathCss
+import debutils.logger as logger
+
 listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button']
 listTagsSpecial = [ 'a', 'img', 'form', 'input']
 listTagsKeep = [ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body']
@@ -179,37 +181,44 @@ class FileHtml (File):
 
 	""" ________________________ texte du web ________________________ """
 
-	def fromUrlVb (self):
-		self.title = 'tmp'
-		self.fileFromData()
-		urlRequest.urlretrieve (self.link, self.file)
-		self.fromFile()
-		remove (self.file)
-		self.titleFromUrl()
-		self.fileFromData()
-
 	def fromUrlVa (self, params=None):
 		# récupérer le texte. les params servent à remplir les formulaires
 		myRequest = None
 		response = None
 		paramsUrl = None
+		res = True
 		if params:
 			paramsUrl = ul.parse.urlencode (params).encode ('utf-8')
 			myRequest = urlRequest.Request (self.link, method='POST')
 		else: myRequest = urlRequest.Request (self.link)
 		try: response = urlRequest.urlopen (myRequest, paramsUrl)
-		except Exception as e:
-			print ('la récupération à échoué')
-			return
+		except Exception as e: return False
 		else:
 			tmpByte = response.read()
 			self.text = codecs.decode (tmpByte, 'utf-8', errors='ignore')
 			response.close()
 			self.titleFromUrl()
+			return True
+
+	def fromUrlVb (self):
+		res = False
+		self.title = 'tmp'
+		self.fileFromData()
+		try: urlRequest.urlretrieve (self.link, self.file)
+		except Exception as e: return False
+		else:
+			self.fromFile()
+			remove (self.file)
+			self.titleFromUrl()
+			self.fileFromData()
+			return True
 
 	def fromUrl (self, params=None):
-		if params == 'b': self.fromUrlVb()
-		else: self.fromUrlVa()
+		res = self.fromUrlVa (params)
+		if not res:
+			print ('la récupération par la première méthode à échoué, éssai avec la seconde méthode')
+			res = self.fromUrlVb()
+			if not res: print ('la récupération par la seconde méthode à échoué, impossible de récupérer les données')
 
 	def titleFromUrl (self):
 		title = self.link.strip ('/')
@@ -255,7 +264,7 @@ class FileHtml (File):
 			textList [t] = textList [t] [f:]
 			self.text = "".join (textList)
 		# effacer certaines balises
-		self.cleanSpan()
+		# self.cleanSpan()
 		self.cleanTags()
 		self.text = findTextBetweenTag (self.text, 'body')
 		self.replace ('\n')
@@ -329,9 +338,9 @@ class FileHtml (File):
 			textList.addList (self.text.split ('<a>'))
 			textRange = textList.range (1)
 			for a in textRange:
-				d= textList [a].find ('</a>')
-				textList [a] = textList [a] [:d].strip() +' '+ textList [a] [d+4:].strip()
-			#	textList [a] = textList [a] [d+4:].strip()
+				d= textList[a].find ('</a>')
+				textList[a] = textList[a] [:d].strip() +' '+ textList[a] [d+4:].strip()
+			#	textList[a] = textList[a] [d+4:].strip()
 			self.text = ' '.join (textList)
 		# retrouver les balises vides
 		self.clean()
@@ -394,6 +403,16 @@ class FileHtml (File):
 		rangeTxt = range (len (txtList) -1)
 		for t in rangeTxt:
 			pos = txtList [t].rfind ('<script')
+			txtList [t] = txtList [t] [:pos]
+		self.text = "".join (txtList)
+
+
+	def delStyle (self):
+		if not self.contain ('</style>'): return
+		txtList = self.text.split ('</style>')
+		rangeTxt = range (len (txtList) -1)
+		for t in rangeTxt:
+			pos = txtList [t].rfind ('<style')
 			txtList [t] = txtList [t] [:pos]
 		self.text = "".join (txtList)
 

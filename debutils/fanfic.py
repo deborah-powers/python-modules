@@ -4,6 +4,7 @@ from sys import argv
 from debutils.list import List
 from debutils.html import FileHtml, findTextBetweenTag
 from debutils.htmlArticle import ArticleHtml
+import debutils.logger as logger
 
 help = """
 récupérer les pages de certains sites que j'aime beaucoup
@@ -20,7 +21,7 @@ def fromFic (self, url, subject=None):
 		self.file = url
 		self.fromFile()
 	self.clean()
-	self.cleanWeb()
+	# self.cleanWeb()
 	if 'http://www.gutenberg.org/' in url:				self.ficGutemberg (subject)
 	elif 'https://www.ebooksgratuits.com/html/' in url:	self.ficEbg (subject)
 	elif 'https://archiveofourown.org/works/' in url:	self.ficAooo()
@@ -35,6 +36,8 @@ def fromFic (self, url, subject=None):
 	elif 'aooo'		in url: self.ficAoooLcl (subject)
 	elif 'ffnet'	in url: self.ficFfn (subject)
 	elif 'medium'	in url: self.ficMedium (subject)
+	elif 'logimmo'	in url: self.logicImmo()
+	elif 'seloger'	in url: self.seLoger()
 	elif 'adapt'	in url: self.adapt()
 	self.metas = {}
 	self.replace (' <', '<')
@@ -390,6 +393,97 @@ def fds (self):
 	self.replace ('<div>')
 	self.replace ('</div>')
 
+def logicImmo (self):
+	# https://www.logic-immo.com/vente-immobilier-paris-75,100_1/options/groupprptypesids=1/pricemin=40000/pricemax=200000/areamin=30
+	self.subject = 'immobilier'
+	self.author = 'logic immo'
+	self.autlink = 'https://www.logic-immo.com/'
+	self.styles =[]
+	self.metas ={}
+	self.delScript()
+	self.delStyle()
+	d= self.index ('<div id="header-offer-')
+	f= self.rindex ('<i class="li-icon li-icon--telephone">')
+	self.text = self.text[d:f]
+	"""
+	self.replace ("Vous souhaitez investir en Pinel ?</p>")
+	self.cleanWeb()
+	self.replace ('<div>')
+	self.replace ('</div>')
+	f= self.index ('</section>', d)
+	annonceList = List()
+	annonceList.fromText (" Voir l'annonce", self.text)
+	annonceList.pop (-1)
+	annonceRange = annonceList.range()
+	self.text = annonceList.toText ('<p></p>')
+	"""
+
+def seLoger (self):
+	# https://www.seloger.com/list.htm?projects=2,5&types=1&natures=1,2,4&places=[{%22subDivisions%22:[%2275%22]}]&price=NaN/200000&surface=30/NaN&enterprise=0&qsVersion=1.0&m=search_refine
+	self.subject = 'immobilier'
+	self.author = 'se loger'
+	self.autlink = 'https://www.seloger.com/'
+	self.styles =[]
+	self.metas ={}
+	d= self.index ('<div data-test="sl.title')
+	d= self.index ('<ul', d)
+	f= self.rindex ('</div>')
+	logger.log (str (d)+' '+ str (f))
+	self.text = self.text[d:f]
+	logger.log (self.text[0:10])
+	# self.cleanWeb()
+	# supprimer les attributs inutiles
+	self.replace ('<br/>', '<br>')
+	self.replace ('<hr/>', '<hr>')
+	tagList = List()
+	textList = List()
+	textList.addList (self.text.split ('<'))
+	textRange = textList.range (1)
+	# textRange.reverse()
+	for t in textRange:
+		if len (textList [t]) ==0: continue
+		elif textList [t] [0] in '/ !': continue
+		elif '>' not in textList [t]: textList [t] = textList [t] [:f] +'>'
+		f= textList [t].find ('>')
+		tag = textList [t] [:f].lower()
+		textList [t] = textList [t] [f:]
+		if ' ' in tag:
+			f= tag.find (' ')
+			attributes = tag [f:]
+			tag = tag [:f]
+			if tag in ('\a', 'img', 'form', 'input'): tag = self.cleanTagsSpecial (tag, attributes)
+			elif tag not in tagList: tagList.add (tag)
+		elif tag not in tagList: tagList.add (tag)
+		textList [t] = tag + textList [t]
+	self.text = '<'.join (textList)
+	self.replace (' <', '<')
+	# supprimer les balises inutiles
+	self.replace ('<img>')
+	while '<br><br>' in self.text: self.replace ('<br><br>', '<br>')
+	self.replace ('><br>', '>')
+	self.replace ('<br><', '<')
+	for tag in tagList:
+		if tag not in listTagsKeep:
+			self.replace ('</'+ tag +'>')
+			self.replace ('<'+ tag +'>')
+	if self.contain ('<a>'):
+		textList = List()
+		textList.addList (self.text.split ('<a>'))
+		textRange = textList.range (1)
+		for a in textRange:
+			d= textList[a].find ('</a>')
+			textList[a] = textList[a] [:d].strip() +' '+ textList[a] [d+4:].strip()
+		#	textList[a] = textList[a] [d+4:].strip()
+		self.text = ' '.join (textList)
+	# retrouver les balises vides
+	self.clean()
+	self.replace ('\n')
+	for tag in tagList: self.replace ('<'+ tag +'></'+ tag +'>')
+	logger.log (self.text[0:10])
+
+
+
+
 setattr (ArticleHtml, 'ficBourse', abcBourse)
 setattr (ArticleHtml, 'ficReddit', reddit)
 setattr (ArticleHtml, 'ficUnisciel', unisciel)
@@ -402,6 +496,8 @@ setattr (ArticleHtml, 'ficFfn', ffnet)
 setattr (ArticleHtml, 'ficMedium', medium)
 setattr (ArticleHtml, 'ficTheoriste', menaceTheoriste)
 setattr (ArticleHtml, 'ficFds', fds)
+setattr (ArticleHtml, 'logicImmo', logicImmo)
+setattr (ArticleHtml, 'seLoger', seLoger)
 setattr (ArticleHtml, 'ficWeb', fromFic)
 setattr (ArticleHtml, 'findSubject', findSubject)
 
