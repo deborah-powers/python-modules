@@ -118,7 +118,7 @@ class Text ():
 			self.replace (' '+ 6* char, ' '+ 12* char +'\n\n')
 		self.text = '\n'+ self.text +'\n'
 		# rajouter les majuscules apres chaque point
-		self.upperCase()
+		# self.upperCase()
 		while self.contain ('\n\n\n'): self.replace ('\n\n\n', '\n\n')
 
 	def upperCase (self):

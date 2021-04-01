@@ -18,10 +18,15 @@ type		%type%
 
 ****** données ******
 
+opération:
+
 ****** mache à suive ******
 
 ====== %date% aprem ======
 
 ====== %date% matin ======
+
+set schema '%schema%';
+select * from deb_xxx where operation = 'xxx';
 
 %commandes%

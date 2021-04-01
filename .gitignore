@@ -16,6 +16,8 @@ doublons-fichiers/
 */build/
 */dist/
 *.egg-info/
+*/__pycache__/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
