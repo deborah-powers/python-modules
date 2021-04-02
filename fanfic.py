@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from debutils.list import List
-from debutils.html import FileHtml, findTextBetweenTag
+from debutils.html import FileHtml, findTextBetweenTag, listTagsKeep, listTags
 from debutils.htmlArticle import ArticleHtml
 import debutils.logger as logger
 
@@ -423,66 +423,41 @@ def seLoger (self):
 	self.subject = 'immobilier'
 	self.author = 'se loger'
 	self.autlink = 'https://www.seloger.com/'
+	self.title = 'se-loger'
+	self.fileFromData()
 	self.styles =[]
 	self.metas ={}
 	d= self.index ('<div data-test="sl.title')
 	d= self.index ('<ul', d)
 	f= self.rindex ('</div>')
-	logger.log (str (d)+' '+ str (f))
 	self.text = self.text[d:f]
-	logger.log (self.text[0:10])
-	# self.cleanWeb()
-	# supprimer les attributs inutiles
-	self.replace ('<br/>', '<br>')
-	self.replace ('<hr/>', '<hr>')
-	tagList = List()
-	textList = List()
-	textList.addList (self.text.split ('<'))
-	textRange = textList.range (1)
-	# textRange.reverse()
-	for t in textRange:
-		if len (textList [t]) ==0: continue
-		elif textList [t] [0] in '/ !': continue
-		elif '>' not in textList [t]: textList [t] = textList [t] [:f] +'>'
-		f= textList [t].find ('>')
-		tag = textList [t] [:f].lower()
-		textList [t] = textList [t] [f:]
-		if ' ' in tag:
-			f= tag.find (' ')
-			attributes = tag [f:]
-			tag = tag [:f]
-			if tag in ('\a', 'img', 'form', 'input'): tag = self.cleanTagsSpecial (tag, attributes)
-			elif tag not in tagList: tagList.add (tag)
-		elif tag not in tagList: tagList.add (tag)
-		textList [t] = tag + textList [t]
-	self.text = '<'.join (textList)
-	self.replace (' <', '<')
-	# supprimer les balises inutiles
-	self.replace ('<img>')
-	while '<br><br>' in self.text: self.replace ('<br><br>', '<br>')
-	self.replace ('><br>', '>')
-	self.replace ('<br><', '<')
-	for tag in tagList:
-		if tag not in listTagsKeep:
-			self.replace ('</'+ tag +'>')
-			self.replace ('<'+ tag +'>')
-	if self.contain ('<a>'):
-		textList = List()
-		textList.addList (self.text.split ('<a>'))
-		textRange = textList.range (1)
-		for a in textRange:
-			d= textList[a].find ('</a>')
-			textList[a] = textList[a] [:d].strip() +' '+ textList[a] [d+4:].strip()
-		#	textList[a] = textList[a] [d+4:].strip()
-		self.text = ' '.join (textList)
-	# retrouver les balises vides
-	self.clean()
-	self.replace ('\n')
-	for tag in tagList: self.replace ('<'+ tag +'></'+ tag +'>')
-	logger.log (self.text[0:10])
+	self.cleanWeb()
+	self.text = self.text[4:]
+	logeList = List()
+	logeList.fromText ('Appartement<ul>', self.text)
+	logeRang = logeList.range()
+	self.text =""
+	for l in logeRang:
+		text = seLogerUnite (logeList[l])
+		if text: self.text = self.text + text
 
-
-
+def seLogerUnite (text):
+	if 'viager' in text or 'bouquet' in text: return ""
+	template = "<hr><p>ville: %s</p><p>prix: %s</p><p>surface: %s</p>"
+	f= text.find (' m²')
+	d= text[:f].rfind ('>') +1
+	surface = text[d:f]
+	f= text.find ('€<')
+	d= text[:f].rfind ('>') +1
+	prix = text[d:f]
+	d= text.find ('<span>', d) +6
+	f= text.find ('</span>', d)
+	adresse = text[d:f] +' - '
+	d= f+13
+	f= text.find ('</span>', d)
+	adresse = adresse + text[d:f]
+	template = template %( adresse, prix, surface)
+	return template
 
 setattr (ArticleHtml, 'ficBourse', abcBourse)
 setattr (ArticleHtml, 'ficReddit', reddit)

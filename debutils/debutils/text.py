@@ -68,10 +68,10 @@ def toUpperCase (text):
 		for html, perso in tagHtml: text = text.replace (perso +i, perso +j)
 	for p in pointsEnd:
 		for q in pointsStart:
-			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize () +p)
+			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
 	for i, j in artefacts: text = text.replace (i, j)
-	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower ())
-	text = text.strip ()
+	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
+	text = text.strip()
 	return text
 
 def fromModel (text, model):
@@ -100,7 +100,7 @@ def fromModel (text, model):
 	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
 	return results
 
-class Text ():
+class Text():
 	def __init__ (self, string=""):
 		self.text = string
 	# ________________________ fonctions de mise en forme ________________________
@@ -135,7 +135,7 @@ class Text ():
 		self.text = clean (self.text)
 
 	def cleanEnglish (self):
-		self.clean ()
+		self.clean()
 		wordList = ('and', 'for', 'then', 'in', 'on', 'to')
 		for word in wordList:
 			self.replace (' '+ word +'\t', ' '+ word +' ')
@@ -145,18 +145,18 @@ class Text ():
 		return fromModel (self.text, model)
 
 	def comparLines (self, otherText, keepCommon=True, toSort=False):
-		self.clean ()
-		otherText.clean ()
-		self.text = self.text.lower ()
-		otherText.text = otherText.text.lower ()
+		self.clean()
+		otherText.clean()
+		self.text = self.text.lower()
+		otherText.text = otherText.text.lower()
 		if self.text == otherText.text:
 			print ('les textes sont identiques')
 			return 'pareil'
 		listA = self.split ('\n')
 		listB = otherText.split ('\n')
 		if toSort:
-			listA.sort ()
-			listB.sort ()
+			listA.sort()
+			listB.sort()
 		listF = []
 		trash = None
 		pos =0; nbAdd =0; nbDel =0; nbCom =0
@@ -202,11 +202,11 @@ class Text ():
 			posF = self.index ('} ', posF) +1
 			ecart = self.text [posD:posF].count (' {') - self.text [posD:posF].count ('} ')
 		blockList.append (self.text [:posD])
-		newText = Text ()
+		newText = Text()
 		newText.text = self.text [posD +1:posF -1]
-		blockList.append (newText.domAccolade ())
+		blockList.append (newText.domAccolade())
 		self.text = self.text [posF:]
-		blockList.append (self.domAccolade ())
+		blockList.append (self.domAccolade())
 		return blockList
 
 	def domAccoladePlan (self):
@@ -236,7 +236,7 @@ class Text ():
 		self.text = self.text.replace (oldWord, newWord)
 
 	def strip (self):
-		self.text = self.text.strip ()
+		self.text = self.text.strip()
 
 	def contain (self, word):
 		if word in self.text: return True
@@ -260,7 +260,7 @@ class Text ():
 
 	def sliceNb (self, posStart, posEnd):
 		res =""
-		lText = self.length ()
+		lText = self.length()
 		if posStart <0: posStart += lText
 		if posEnd <0: posEnd += lText
 		if posStart < posEnd: res = self.text [posStart:posEnd]
@@ -480,11 +480,11 @@ class Text ():
 		self.text = ' '.join (ltext)
 		self.shape()
 
-def testText ():
+def testText():
 	textAccolade = Text ('abdefghijkmlmnopqrstuvwxyz')
 	textCoucou = Text ('coucou tu vas bien ?')
 	print ('exemple:', textCoucou)
-	print ('nb lettres:', textCoucou.length ())
+	print ('nb lettres:', textCoucou.length())
 	print ('nb o:', textCoucou.count ('o'))
 	print ('pos c:', textCoucou.index ('c'), 'et', textCoucou.rindex ('c'))
 	print ('tranche entre deux index:')
@@ -499,10 +499,10 @@ def testText ():
 	textAccolade = Text ('a {bde {fg {hij} km {lmn} o} pqrs {tuv} wx} yz')
 	print ('exemple:', textAccolade)
 	print ('domAccolade emboîté:')
-	res = textAccolade.domAccolade ()
+	res = textAccolade.domAccolade()
 	for line in res: print ('\t', line)
 	print ('domAccolade linéaire:')
-	res = textAccolade.domAccoladePlan ()
+	res = textAccolade.domAccoladePlan()
 	for line in res: print ('\t', line)
 	print ('comparaisons ligne à ligne')
 	textA = Text ('bnanencnrnuninp')

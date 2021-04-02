@@ -3,13 +3,17 @@
 from datetime import datetime
 from inspect import stack
 
-def traceDate ():
-	# date est un objet datetime.datetime
-	now = datetime.today ()
-	return '%02d:%02d:%02d:%02d'% (now.hour, now.minute, now.second, now.microsecond)
+addDate = True
 
-def traceLine ():
-	stackList = stack ()
+def traceDate():
+	# date est un objet datetime.datetime
+	now = datetime.today()
+	strDate = '%02d:%02d:%02d:%02d'% (now.hour, now.minute, now.second, now.microsecond)
+	while len (strDate) <15: strDate = strDate +' '
+	return strDate
+
+def traceLine():
+	stackList = stack()
 	stackLen = len (stackList)
 	i=0
 	while i< stackLen and __file__ in stackList[i].filename: i+=1
@@ -23,7 +27,8 @@ def traceLine ():
 	return '%s\t%s %s' % (strFile, strNum, stackList[i].function)
 
 def log (message=None):
-	trace = traceDate () +' '+ traceLine ()
+	trace = traceLine()
+	if addDate: trace = traceDate() +' '+ trace
 	if message: print (trace, message)
 	else: print (trace)
 
@@ -35,13 +40,13 @@ def message (message=None, obj=None):
 	elif obj: msgAffichable = str (obj)
 	log (msgAffichable)
 
-def coucou ():
+def coucou():
 	log ('coucou')
 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 letterPos =0
 
-def letter ():
+def letter():
 	log (alphabet [letterPos])
 	letterPos +=1
 	if letterPos >25: letterPos =0

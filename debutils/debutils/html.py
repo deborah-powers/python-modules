@@ -10,7 +10,7 @@ import debutils.logger as logger
 
 listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button']
 listTagsSpecial = [ 'a', 'img', 'form', 'input']
-listTagsKeep = [ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body']
+listTagsKeep = [ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body', 'span']
 listTagsKeep.extend (listTagsIntern)
 listTagsKeep.extend (listTagsSpecial)
 listTags = []
@@ -266,7 +266,7 @@ class FileHtml (File):
 		# effacer certaines balises
 		# self.cleanSpan()
 		self.cleanTags()
-		self.text = findTextBetweenTag (self.text, 'body')
+		if self.contain ('</body>'): self.text = findTextBetweenTag (self.text, 'body')
 		self.replace ('\n')
 		self.replace ('\t')
 		self.clean()
@@ -484,6 +484,7 @@ class FileHtml (File):
 		self.fileFromData()
 		ftext = File (self.file)
 		ftext.text = self.text
+		ftext.strip()
 		ftext.toFile()
 
 	def fromFileText (self):
