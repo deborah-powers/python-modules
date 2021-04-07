@@ -118,6 +118,8 @@ class Text():
 			self.replace (' '+ 6* char, ' '+ 12* char +'\n\n')
 		self.text = '\n'+ self.text +'\n'
 		# rajouter les majuscules apres chaque point
+		for i, j in majList:
+			for html, perso in tagHtml: self.replace (perso +i, perso +j)
 		# self.upperCase()
 		while self.contain ('\n\n\n'): self.replace ('\n\n\n', '\n\n')
 
