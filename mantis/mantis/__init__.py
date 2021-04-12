@@ -18,10 +18,9 @@ class Mantis():
 		self.module = module
 		self.numint = numint
 		self.type = '?'
+		print (type)
 		if type in types: self.type = type
-		else:
-			self.types = 'ano'
-			if 'ddt' in message.lower(): self.type = 'ddt'
+		elif 'ddt' in message.lower(): self.type = 'ddt'
 
 	def __lt__ (self, newMantis):
 		string = '%s %s'
