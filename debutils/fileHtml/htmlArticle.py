@@ -1,6 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from debutils.html import FileHtml, findTextBetweenTag
+from fileHtml import FileHtml, findTextBetweenTag
 from debutils.file import Article
 from debutils.list import List
 from debutils.file import File

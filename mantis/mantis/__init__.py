@@ -12,13 +12,12 @@ sqlName = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\su_cdm.sql'
 sqlFile = File (sqlName)
 
 class Mantis():
-	def __init__ (self, numext ='0', message ='?', module = '?', numint ='0', type ='?'):
+	def __init__ (self, numext ='0', message ='?', module = '?', numint ='0', type ='ano'):
 		self.message = message
 		self.numext = numext
 		self.module = module
 		self.numint = numint
-		self.type = '?'
-		print (type)
+		self.type = 'ano'
 		if type in types: self.type = type
 		elif 'ddt' in message.lower(): self.type = 'ddt'
 
@@ -30,7 +29,7 @@ class Mantis():
 		return message
 
 class MantisFile (Mantis, File):
-	def __init__ (self, numext ='0', message =' ?', module = ' ?', numint ='0', type =' ?'):
+	def __init__ (self, numext ='0', message ='?', module = '?', numint ='0', type ='ano'):
 		Mantis.__init__ (self, numext, message, module, numint, type)
 		File.__init__ (self, 'b/mantis ' + numext + '.txt')
 

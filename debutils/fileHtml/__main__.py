@@ -1,8 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from debutils.html import FileHtml
-from debutils.htmlArticle import ArticleHtml
+from fileHtml import FileHtml
+from fileHtml.htmlArticle import ArticleHtml
 
 help ="""ce script fait deux actions
 a- convertir un fichier html en txt
