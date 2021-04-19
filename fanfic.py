@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from debutils.list import List
-from debutils.html import FileHtml, findTextBetweenTag, listTagsKeep, listTags
-from debutils.htmlArticle import ArticleHtml
+from fileHtml import FileHtml, findTextBetweenTag, listTagsKeep, listTags
+from fileHtml.htmlArticle import ArticleHtml
 import debutils.logger as logger
 
 help = """

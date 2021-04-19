@@ -1,9 +1,9 @@
-﻿#!/usr/bin/python3.6
+#!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 import os
 import codecs
 from debutils.text import Text
-from debutils.fileLocal import *
+from fileSimple.fileLocal import *
 extensions = 'txt log css html xml svg md tsv csv json js py sql jpeg jpg png bmp gif pdf mp3 mp4 wav vlc avi mpg srt mkv divx ass AVI torrent Divx flv wma m4a MP3 TMP tmp mht'
 import debutils.logger as logger
 
@@ -230,7 +230,6 @@ class Article (File):
 		""" nécessaire pour trier les listes """
 		struct = '%st%st%s'
 		return struct % (self.subject, self.author, self.title) < struct % (newFile.subject, newFile.author, newFile.title)
-
 
 	def test (self):
 		self.title = 'tester Article'

@@ -1,7 +1,8 @@
 #!/usr/bin/python3.8
 # -*- coding: utf-8 -*-
-import fileClass as fc
-fileName = fc.pathDesktop + 'stack-trace.txt'
+import fileSimple as fs
+
+fileName = fs.pathDesktop + 'stack-trace.txt'
 mas = 'fr.gouv.finances.pilat.pilotcf.mas'
 app = mas + '.application'
 def clean (fileTrace):
@@ -30,7 +31,7 @@ def clean (fileTrace):
 		fileTrace.text = fileTrace.text [d:]
 	"""
 	return fileTrace
-fileTrace = fc.FileText (fileName)
+fileTrace = fs.FileText (fileName)
 fileTrace.fromFile ()
 fileTrace.clean ()
 fileTrace = clean (fileTrace)

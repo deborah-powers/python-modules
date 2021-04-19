@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from debutils.file import File, Article
+from fileSimple import File, Article
 help ="""traiter des fichiers
 utilisation
 	le script est appelable dans un fichier

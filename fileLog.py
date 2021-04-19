@@ -1,8 +1,8 @@
 #!/usr/bin/python3.8
 # -*- coding: utf-8 -*-
 from sys import argv
-from debutils.fileList import FileList
-from debutils.file import File
+from fileSimple.fileList import FileList
+from fileSimple import File
 
 def getDate (self, dateMin=None, dateMax=None):
 	if dateMin:

@@ -1,9 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from fileHtml import FileHtml, findTextBetweenTag
-from debutils.file import Article
+from fileSimple import File, Article
 from debutils.list import List
-from debutils.file import File
 import debutils.logger as logger
 
 class ArticleHtml (FileHtml, Article):

@@ -1,7 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from debutils.listFile import ListFile
+from fileSimple.listFile import ListFile
+
 help ="""
 ce script peut être appelé dans un autre script
 python %s fileName action oldArg (newArg)
@@ -12,6 +13,7 @@ les valeurs de action:
 	l	lister les fichiers
 	d	vérifier s'il y a des doublons
 """ % __file__
+
 if len (argv) <3: print (help)
 else:
 	flist = ListFile (argv [1])

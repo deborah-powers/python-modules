@@ -1,14 +1,14 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 import os
-import debutils.file as fc
+import fileSimple as fs
 from debutils.list import List
 
 class ListFile (List):
 
 	def __init__ (self, path='b/'):
 		List.__init__ (self)
-		if path: path = fc.shortcut (path)
+		if path: path = fs.shortcut (path)
 		self.path = path
 
 
@@ -25,7 +25,7 @@ class ListFile (List):
 					if TagNomfile in subList [i]: trash = subList.pop (i)
 			if subList:
 				for file in subList:
-					fileTmp = fc.File (os.path.join (dirpath, file))
+					fileTmp = fs.File (os.path.join (dirpath, file))
 					# fileTmp.dataFromFile()
 					self.add (fileTmp)
 
@@ -34,7 +34,7 @@ class ListFile (List):
 		rangeFile = self.range()
 		rangeFile.reverse()
 		for f in rangeFile:
-			if self [f].extension not in fc.extensions: trash = self.pop (f)
+			if self [f].extension not in fs.extensions: trash = self.pop (f)
 
 	def filter (self, TagNomfile, sens=True):
 		""" quand on a besoin de ré-exclure certains fichiers après le get.
@@ -85,7 +85,7 @@ class ListFile (List):
 
 	def move (self, newPath):
 		# newPath est une string
-		newPath = fc.shortcut (newPath)
+		newPath = fs.shortcut (newPath)
 		for file in self:
 			nvfile = file.file.replace (self.path, newPath, 1)
 			os.rename (file.file, nvfile)
@@ -138,20 +138,20 @@ class ArticleList (ListFile):
 
 	def __init__ (self, genre=""):
 		ListFile.__init__ (self)
-		self.path = fc.shortcut ('a/')
+		self.path = fs.shortcut ('a/')
 		self.genre = genre
 		if genre == 'fanfic' or genre == 'romance': self.path = 'a/fanfics/'
 		elif genre == 'cour': self.path = 'a/cours/'
 		elif genre == 'education': self.path = 'a/education/'
 		elif genre == 'roman': self.path = 'a/romans/'
-		self.path = fc.shortcut (self.path)
+		self.path = fs.shortcut (self.path)
 
 	def get (self):
 		tmpList = ListFile (self.path)
 		tmpList.get ('.txt')
 		lRange = tmpList.range()
 		for f in lRange:
-			self.add (fc.Article())
+			self.add (fs.Article())
 			self [f].title = tmpList [f].title
 			self [f].path = tmpList [f].path
 			self [f].fileFromData()

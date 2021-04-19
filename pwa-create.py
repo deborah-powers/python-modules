@@ -3,14 +3,15 @@
 import os
 from sys import argv
 from shutil import copyfile
-from fileLocal import *
-import fileClass as fc
+from fileSimple.fileLocal import *
+import fileSimple as fs
+
 # les fichiers modèles
 filesScript = ('text', 'debbyPlay')
 filesStyles = ('structure', 'color', 'debbyPlay')
 iconsNb = ('144', '192', '512')
 # créer l'architecture d'une pwa perso
-fc.extensions = fc.extensions +' webmanifest'
+fs.extensions = fs.extensions +' webmanifest'
 folder = shortcut ('s/')
 name = argv [1]
 desc = argv [2]
@@ -20,17 +21,17 @@ if len (argv) >3:
 	folder = folder + argv [3] +'/'
 # les dossiers
 folder = folder + name +'/'
-fc.createFolder (folder)
-fc.createFolder (folder + 'utils')
+fs.createFolder (folder)
+fs.createFolder (folder + 'utils')
 def createFile (self, title, extension, text):
 	self.title = title
 	self.extension = extension
 	self.fileFromData ()
 	self.text = text
 	self.toFile ()
-setattr (fc.File, 'createFilePwa', createFile)
+setattr (fs.File, 'createFilePwa', createFile)
 # les fichiers communs
-fileTmp = fc.File (folder + 'manifest.webmanifest')
+fileTmp = fs.File (folder + 'manifest.webmanifest')
 fileTmp.text = """ {
 	"name":"%s",
 	"short_name":"%s",

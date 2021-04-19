@@ -3,8 +3,9 @@
 import os
 from sys import argv
 from shutil import copyfile
-from fileDeb.fileLocal import *
-import fileDeb.fileClass as fc
+from fileSimple.fileLocal import *
+import fileSimple as fs
+
 pathPython = pathRoot + 'python' + os.sep
 # les templates
 templateInit ="""#!/usr/bin/python3.6
@@ -34,9 +35,9 @@ else:
 		if nbArg >3: description = argv [3]
 	# créer les dossiers
 	if folderName [-1] != os.sep: folderName = folderName + os.sep
-	fc.createFolder (pathPython + folderName)
-	fc.createFolder (pathPython + folderName + folderName)
-	tmpFile = fc.File ()
+	fs.createFolder (pathPython + folderName)
+	fs.createFolder (pathPython + folderName + folderName)
+	tmpFile = fs.File ()
 	# créer les fichiers
 	tmpFile.path = pathPython + folderName + folderName
 	tmpFile.title = '__init__'

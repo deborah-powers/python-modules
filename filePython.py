@@ -3,9 +3,9 @@
 import os
 from sys import argv
 # import codecs
-from debutils.file import File
-from debutils.fileList import FileList
-from debutils.listFile import ListFile
+from fileSimple import File
+from fileSimple.fileList import FileList
+from fileSimple.listFile import ListFile
 
 help ="""lancement: python filePy
 	python mantisDeb
