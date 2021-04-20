@@ -76,7 +76,7 @@ def cleanLog (self, dateMin=None, dateMax=None):
 setattr (File, 'getDate', getDate)
 setattr (File, 'cleanModule', cleanModule)
 setattr (FileList, 'cleanLines', cleanLines)
-setattr (FileList, 'reverseLines', reverseLines)
+setattr (FileList, 'reverseLines', reverseLines_vb)
 setattr (FileList, 'cleanLog', cleanLog)
 
 def test():
