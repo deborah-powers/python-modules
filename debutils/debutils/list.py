@@ -124,15 +124,8 @@ class List():
 		if pos < lenList: self.list[pos] = item
 		else: self.add (item)
 
-	def __getitem__va (self, pos):
-		lenList = self.length()
-		if pos <0: pos += lenList
-		if pos > lenList or pos <0: return None
-		else: return self.list [pos]
-
 	def __getitem__ (self, pos):
 		lenList = self.length()
-
 		if type (pos) == int:
 			if pos <0: pos += lenList
 			if pos > lenList or pos <0: return None
