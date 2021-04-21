@@ -1,7 +1,9 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+
 def dictGetKeyByValue (dictionnary, value):
 	return list (dictionnary.keys()) [list (dictionnary.values()).index (value) ]
+
 def rangeNb (nb, start=0, step=1):
 	rangeListTmp = range (start, nb, step)
 	rangeList = List()
@@ -9,6 +11,7 @@ def rangeNb (nb, start=0, step=1):
 	return rangeList
 
 class List():
+
 	def __init__ (self):
 		self.list = []
 
@@ -28,7 +31,7 @@ class List():
 
 	def range (self, start=0, end=0, step=1):
 		# end peut valoir -1
-		lenList = self.len()
+		lenList = self.length()
 		if end <=0: end += lenList
 		elif end > lenList: end = lenList
 		newList = []
@@ -79,9 +82,9 @@ class List():
 
 	def add (self, value, pos=-1):
 		if pos ==-1: self.list.append (value)
-		elif pos > self.len(): pass
+		elif pos > self.length(): pass
 		elif pos <0:
-			pos += self.len()
+			pos += self.length()
 			self.list.insert (pos, value)
 		else: self.list.insert (pos, value)
 
@@ -115,31 +118,33 @@ class List():
 	def __lt__ (self, newList):
 		return self.__str__() < newList.__str__()
 
-	def __setitem__ (self, pos, value):
-		if pos <0: pos += self.len()
-		if pos >0 and pos < self.len(): self.list [pos] = value
-		elif pos >= self.len(): self.add (value)
+	def __setitem__ (self, pos, item):
+		lenList = self.length()
+		if pos <0: pos += lenList
+		if pos < lenList: self.list[pos] = item
+		else: self.add (item)
 
-	def __getitem__ (self, pos):
-		if pos <0: pos += self.len()
-		if pos > self.len() or pos <0: return None
+	def __getitem__va (self, pos):
+		lenList = self.length()
+		if pos <0: pos += lenList
+		if pos > lenList or pos <0: return None
 		else: return self.list [pos]
 
-	def __getitem__vb (self, pos):
+	def __getitem__ (self, pos):
+		lenList = self.length()
+
 		if type (pos) == int:
-			if pos <0: pos += self.len()
-			if pos > self.len() or pos <0: return None
+			if pos <0: pos += lenList
+			if pos > lenList or pos <0: return None
 			else: return self.list [pos]
+
 		elif type (pos) == slice:
-			posIndex = pos.indices (self.len())
+			posIndex = pos.indices (lenList)
 			rangeList = self.range (posIndex [0], posIndex [1], posIndex [2])
 			newList = List()
 			for l in rangeList: newList.add (self [l])
 			return newList
 		else: return None
-
-	def len (self):
-		return len (self.list)
 
 	def test (self):
 		self.add ('a')
@@ -150,9 +155,11 @@ class List():
 		newList.add ('f')
 		self.addList (newList)
 		print (self)
-		print (self [2])
+		print (self[2])
+		print (self[1:4])
 
 class Table (List):
+
 	def emptyTable (self, nlin, ncol, filling=None):
 		rlin= range (nlin)
 		rcol= range (ncol)
@@ -186,26 +193,31 @@ class Table (List):
 	def addItems (self, itemList, pCol=-1):
 		# rajouter un élément à chaque ligne de la table
 		if type (itemList)!= list: return
-		elif len (itemList)!= self.len(): return
+		elif len (itemList)!= self.length(): return
 		rangitem = self.range()
 		for i in rangitem: self.list [i].add (itemList [i], pCol)
+
 	def add (self, item, pLin, pCol):
 		# rajouter un élément dans le tableau
 		self.list [pLin].add (item, pCol)
+
 	def getCol (self, pCol):
 		cases = List()
 		for line in self.list:
-			if line.len() > pCol: cases.add (line [pCol])
+			if line.length() > pCol: cases.add (line [pCol])
 			else: cases.add (None)
 		return cases
+
 	def toText (self, wordLin, wordCol):
 		newList = List()
 		for line in self.list: newList.add (line.toText (wordCol))
 		return newList.toText (wordLin)
+
 	def fromText (self, wordLin, wordCol, text):
 		newList = text.split (wordLin)
 		for line in newList:
 			self.addList (line.split (wordCol))
+
 	def test (self):
 		self.emptyTable (3, 4, 0)
 		self.addList ([1, 2, 3, 4])
@@ -215,41 +227,53 @@ class Table (List):
 		self.addItems ([9, 10, 11, 12, 13])
 		self.addItems ([14, 15, 16, 17, 18], 2)
 		print (self)
-		print (self [2] [2])
+		print (self[2][2])
+
 class Dico():
+
 	def __init__ (self):
 		self.dico = {}
 		self.keys = []
+
 	def getKeys (self):
 		for item in self.dico.keys: self.keys.append (item)
+
 	def __str__ (self):
 		return self.toText ('\n', '\t')
+
 	def fromText (self, wordLin, wordCol, text):
 		newList = text.split (wordLin)
 		rangeList = range (len (newList))
 		for l in rangeList:
 			tmpValue = newList [l].split (wordCol)
 			self [tmpValue [0] ] = tmpValue [1]
+
 	def toText (self, wordLin, wordCol):
 		newList = []
 		for key in self.keys: newList.append (key + wordCol + str (self.dico [key]))
 		return wordLin.join (newList)
+
 	def delete (self, key):
 		self.dico.pop (key)
 		pos = self.keys.index (key)
 		self.keys.pop (pos)
+
 	def __setitem__ (self, key, value):
 		self.dico [key] = value
 		if key not in self.keys: self.keys.append (key)
+
 	def __getitem__ (self, key):
 		if key in self.keys: return self.dico [key]
 		else: return None
+
 	def test (self):
 		self ['a'] = 'coucou'
 		self ['b'] = 'tvb ?'
 		print (self)
 		print (self ['c'])
+
 class DicoTabPerso (Dico):
+
 	def toText (self, wordLin, wordCol):
 		newList = []
 		tmpText =""
@@ -258,6 +282,7 @@ class DicoTabPerso (Dico):
 			for item in self.dico [key]: tmpText = tmpText + wordCol + item
 			newList.append (key + tmpText)
 		return wordLin.join (newList)
+
 	def __setitem__ (self, key, newList):
 		if type (newList) == List:
 			self.dico [key] = newList
@@ -268,6 +293,7 @@ class DicoTabPerso (Dico):
 			self.dico [key] = tmpList
 			if key not in self.keys: self.keys.append (key)
 		else: return
+
 	def test (self):
 		self ['a'] = 'coucou'
 		tmpList = List()

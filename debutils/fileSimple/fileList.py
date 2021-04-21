@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from fileSimple import File
 from debutils.list import List, Table
+from debutils.text import Text
 
 help =""" un fichier contenant une liste """
 
@@ -28,6 +29,26 @@ class FileList (File, List):
 
 	def length (self):
 		return len (self.list)
+
+	# ________________________ utiliser les fonctions de Text ________________________
+
+	def clean (self):
+		self.toText()
+		Text.clean (self)
+		self.fromText()
+
+	def replace (self, oldWord, newWord=''):
+		self.toText()
+		Text.replace (self, oldWord, newWord)
+		self.fromText()
+
+
+
+
+
+
+
+
 
 class FileTable (File, Table):
 	def __init__ (self, sepLin='\n', sepCol='\t', file =None):
