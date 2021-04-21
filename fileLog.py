@@ -44,18 +44,14 @@ def cleanLines (self):
 		elif '\t' == self[l][0] and 'fr.asp.synergie.' not in self[l]: trash = self.pop (l)
 
 def reverseLines (self):
-	if self.contain ('\tat '):
-		d= File.index (self, '[ERROR]')
-		f= File.index (self, '\tat ')
-		if d<f:
-			self.fromText()
-			self.reverse()
-			self.toText()
-
-def reverseLines_vb (self):
-	self.fromText()
-	self.reverse()
-	self.toText()
+	d= self.index ('\n2021')
+	dateMin = self.text[d:d+20]
+	f= self.index ('\n2021', d+4)
+	dateMax = self.text[f:f+20]
+	if dateMin > dateMax:
+		self.fromText()
+		self.reverse()
+		self.toText()
 
 def cleanLog (self, dateMin=None, dateMax=None):
 	if dateMin:
@@ -76,7 +72,7 @@ def cleanLog (self, dateMin=None, dateMax=None):
 setattr (File, 'getDate', getDate)
 setattr (File, 'cleanModule', cleanModule)
 setattr (FileList, 'cleanLines', cleanLines)
-setattr (FileList, 'reverseLines', reverseLines_vb)
+setattr (FileList, 'reverseLines', reverseLines)
 setattr (FileList, 'cleanLog', cleanLog)
 
 def test():
