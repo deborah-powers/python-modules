@@ -105,9 +105,13 @@ class Text():
 		self.text = string
 	# ________________________ fonctions de mise en forme ________________________
 
-	def shape (self):
+	def shape (self, addCase=""):
 		""" mettre le text en forme pour simplifier sa transformation
 		j'utilise une mise en forme personnelle
+		addCase
+			rien: je ne rajoute pas les majuscules
+			min: je supprime l'ancienne casse et je rajoute les majuscules
+			max: je garde l'ancienne casse et je rajoute les majuscules
 		"""
 		Text.clean (self)
 		for char in '=*-_':
@@ -116,32 +120,24 @@ class Text():
 			self.replace (' '+ 6* char, ' '+ 6* char +'\n\n')
 			self.replace (6* char +' ', '\n\n'+ 12* char +' ')
 			self.replace (' '+ 6* char, ' '+ 12* char +'\n\n')
-		self.text = '\n'+ self.text +'\n'
-		# rajouter les majuscules apres chaque point
-		for i, j in majList:
-			for html, perso in tagHtml: self.replace (perso +i, perso +j)
-		# self.upperCase()
 		while self.contain ('\n\n\n'): self.replace ('\n\n\n', '\n\n')
 
-	def upperCase (self):
-		if self.contain ('\n/code\n'):
-			paragraphList = self.split ('\ncode\n')
-			paragraphRange = range (1, len (paragraphList))
-			for i in paragraphRange:
-				d= paragraphList [i].find ('\n/code\n') +7
-				paragraphList [i] = paragraphList [i][:d] + toUpperCase (paragraphList [i][d:])
-			self.text = '\ncode\n'.join (paragraphList)
-		else: self.text = toUpperCase (self.text)
+	def upperCase (self, case=""):
+		if 'reset' in case: self.text = self.text.lower()
+		if 'upper' in case:
+			self.text = '\n'+ self.text +'\n'
+			if self.contain ('\n/code\n'):
+				paragraphList = self.split ('\ncode\n')
+				paragraphRange = range (1, len (paragraphList))
+				for i in paragraphRange:
+					d= paragraphList [i].find ('\n/code\n') +7
+					paragraphList [i] = paragraphList [i][:d] + toUpperCase (paragraphList [i][d:])
+				self.text = '\ncode\n'.join (paragraphList)
+			else: self.text = toUpperCase (self.text)
+			self.text = self.text.strip()
 
 	def clean (self):
 		self.text = clean (self.text)
-
-	def cleanEnglish (self):
-		self.clean()
-		wordList = ('and', 'for', 'then', 'in', 'on', 'to')
-		for word in wordList:
-			self.replace (' '+ word +'\t', ' '+ word +' ')
-			self.replace (' '+ word +'\n', ' '+ word +' ')
 
 	def fromModel (self, model):
 		return fromModel (self.text, model)

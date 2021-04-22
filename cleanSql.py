@@ -10,21 +10,17 @@ utilisation
 """
 
 def cleanSql (self):
-	self.text = self.text.lower()
 	self.shape()
-	wordBegin =('drop', 'create', 'declare', 'begin', 'select', 'case when', 'from', 'inner', 'left', 'outer', 'where', 'group by', 'order by', 'update', 'insert')
-	"""
-	wordSql =( 'or', 'replace', 'function', 'returns', 'as', 'integer', 'from', 'join', 'on', 'where', 'is', 'not', 'null', 'then', 'set', 'delete', 'into', 'values', 'nextval', 'now', 'case', 'when', 'if', 'else', 'end', 'language')
-	for word in wordBegin: self.replace (word.upper(), word)
-	for word in wordSql: self.replace (word.upper(), word)
-	"""
+	self.text = self.text.lower()
+	wordBegin =('drop', 'create', 'declare', 'begin', 'select', 'case when', 'when', 'else', 'end as', 'from', 'inner join', 'left join', 'left outer join', 'where', 'group by', 'order by', 'update', 'insert')
 	self.replace ('\t',' ')
 	self.replace ('\n',' ')
 	self.replace (',',', ')
 	self.replace (' --','\n--')
 	self.replace ('; ',';\n')
 	for word in wordBegin: self.replace (' '+ word, '\n'+ word)
-	self.replace ('\ncase when','\n\tcase when')
+	self.replace ('\ncase\nwhen','\n\tcase when')
+	self.replace ('\nwhen','\n\twhen')
 	while self.contain ('\n\n'): self.replace ('\n\n','\n')
 	while self.contain ('  '): self.replace ('  ',' ')
 	sqlList = List()
@@ -47,7 +43,8 @@ def breakLine (self, text):
 setattr (List, 'breakLine', breakLine)
 setattr (File, 'cleanSql', cleanSql)
 
-if len (argv) <2: print (help)
+if __name__ != '__main__': pass
+elif len (argv) <2: print (help)
 else:
 	fileSql = File (argv[1])
 	fileSql.fromFile()

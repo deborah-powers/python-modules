@@ -7,10 +7,9 @@ utilisation
 	le script est appelable dans un fichier
 	python3 fileClass.py fichier tag (fichierB)
 les valeurs de tag
-	maj: rajouter les majuscules dans un texte
-	mef: mettre en forme un texte utilisant ma mise en forme spécifique
-	cpr: comparer deux fichiers ligne à ligne
-	md: transformer mon fichier en md
+	clean (reset upper):	nettoyer le texte. modifier ou pas la casse.
+	mef (reset upper):		mettre en forme un texte utilisant ma mise en forme spécifique.
+	cpr:					comparer deux fichiers ligne à ligne.
 """
 nbArg = len (argv)
 if nbArg <3: print (help)
@@ -31,10 +30,10 @@ elif nbArg ==4 and argv[2][:3] == 'cpr':
 elif nbArg >2:
 	filePerso = File (argv[1])
 	filePerso.fromFile()
-	if argv[2] =='maj': filePerso.clean()
+	if argv[2] =='clean': filePerso.clean()
 	elif argv[2] =='mef': filePerso.shape()
 	# rajouter un argument afin d'empêcher l'écriture des majuscules
-	if nbArg <4: filePerso.upperCase()
+	if 'reset' in argv[2] or 'upper' in argv[2]: filePerso.upperCase (argv[2])
 	filePerso.toFile()
 # le nom du fichier n'a pas ete donne
 else: print (help)

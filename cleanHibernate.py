@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+from cleanSql import *
 from fileSimple import File
 
 textOrigine ="""
@@ -45,6 +46,8 @@ setattr (File, 'eraseComment', eraseComment)
 setattr (File, 'fromText', fromTextRequest)
 setattr (File, 'replaceAppend', replaceAppend)
 
+toReplaceAppend =( 'select', 'as', 'case', 'when', 'then', 'else', 'inner_join', 'left_join', 'on', 'where', 'and', 'group_by')
+
 fileFin = File ('b/requete.txt')
 fileFin.fromText (textOrigine)
 fileFin.eraseComment()
@@ -53,20 +56,9 @@ fileFin.replace ('\n',' ')
 fileFin.replace ('\t',' ')
 while fileFin.contain ('  '): fileFin.replace ('  ',' ')
 fileFin.replace (');', ')')
-fileFin.replaceAppend ('select')
-fileFin.replaceAppend ('as')
+for word in toReplaceAppend: fileFin.replaceAppend (word)
 fileFin.replaceAppend ('virgule', ', ')
-fileFin.replaceAppend ('case')
-fileFin.replaceAppend ('when')
-fileFin.replaceAppend ('then')
-fileFin.replaceAppend ('else')
-fileFin.replaceAppend ('inner_join')
-fileFin.replaceAppend ('left_join')
-fileFin.replaceAppend ('on')
 fileFin.replaceAppend ('equals', ' = ')
-fileFin.replaceAppend ('where')
-fileFin.replaceAppend ('and')
-fileFin.replaceAppend ('group_by')
 fileFin.replaceAppend ('" 1 "',"")
 fileFin.replace ('.append(')
 fileFin.replace (') = ', ' = ')
@@ -79,8 +71,7 @@ fileFin.replace ('.gettablename()')
 fileFin.replace ('.getchamp()')
 fileFin.replace (') ',' ')
 while fileFin.contain ('  '): fileFin.replace ('  ',' ')
-wordBegin =( 'select', 'case', 'when', 'else', 'end as', 'from', 'inner join', 'left join', 'where', 'group by')
-for w in wordBegin: fileFin.replace (' '+w+' ','\n'+w+' ')
+fileFin.cleanSql()
 addUnderscoreBefore =( 'ac', 'montant', 'version', 'operation')
 addUnderscoreAfter =( 'beneficiaire', 'comptable', 'lien', 'montant', 'personne', 'recherche', 'vue')
 for name in addUnderscoreBefore: fileFin.replace (name, '_'+ name)
