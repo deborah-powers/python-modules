@@ -1,10 +1,11 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-pointsEnd = '\n\t .,;:)?!'	# liste des symboles suivant les mots spéciaux
-pointsStart = '( \n\t'
+import debutils.logger as log
+
 majList = (('a', 'A'), ('à', 'A'), ('b', 'B'), ('c', 'C'), ('\xe7', '\xc7'), ('d', 'D'), ('e', 'E'), ('é', 'E'), ('è', 'E'), ('ê', 'E'), ('ë', 'E'), ('f', 'F'), ('g', 'G'), ('h', 'H'), ('i', 'I'), ('î', 'I'), ('ï', 'I'), ('j', 'J'), ('k', 'K'), ('l', 'L'), ('m', 'M'), ('\n', '\n'), ('o', 'O'), ('xf4', 'xe4'), ('p', 'P'), ('q', 'Q'), ('r', 'R'), ('s', 'S'), ('\t', '\t'), ('u', 'U'), ('v', 'V'), ('w', 'W'), ('x', 'X'), ('y', 'Y'), ('z', 'Z'))
+wordsBeginEnd = '\n\t .,;:)?!'	# liste des symboles suivant les mots spéciaux
+wordsBeginStart = '( \n\t'
 # liste des points, des chaines de caracteres suivies par une majuscule
-artefacts =( ('> ','>'), ('\n ','\n'), (' \n','\n'), ('\n\n\n', '\n\n'))
 wordsBeginMaj = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'victo', 'tony', 'simplon', 'loïc', 'france', 'paris', 'rueil')
 wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nUpdate ', '\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', 'Inner join ', 'Outer join ', 'Left outer join ', 'Insert into ', 'Set schema ',
@@ -34,8 +35,8 @@ def clean (text):
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
-	for p in pointsEnd: text = text.replace (' '+p, p)
-	for p in pointsStart: text = text.replace (p+' ', p)
+	for p in wordsBeginEnd: text = text.replace (' '+p, p)
+	for p in wordsBeginStart: text = text.replace (p+' ', p)
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	# la ponctuation
@@ -61,15 +62,15 @@ def clean (text):
 	return text
 
 def toUpperCase (text):
+	log.log ('upp')
 	text ='\n'+ text
-	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t')
+	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '______ ', '------ ', '****** ', '====== ')
 	for i, j in majList:
+		print (i,j)
 		for p in points: text = text.replace (p+i, p+j)
-		for html, perso in tagHtml: text = text.replace (perso +i, perso +j)
-	for p in pointsEnd:
-		for q in pointsStart:
+	for p in wordsBeginEnd:
+		for q in wordsBeginStart:
 			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
-	for i, j in artefacts: text = text.replace (i, j)
 	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
 	text = text.strip()
 	return text

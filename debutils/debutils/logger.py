@@ -20,10 +20,15 @@ def traceLine():
 	strNum = str (stackList[i].lineno)
 	while len (strNum) <3: strNum = strNum +' '
 	strFile = stackList[i].filename
+	"""
 	strFile = strFile.replace ('/home/lenovo/Bureau/python/debutils/', "")
 	strFile = strFile.replace ('/home/lenovo/Bureau/python/', "")
 	strFile = strFile.replace ('/home/lenovo/Bureau/', "")
 	strFile = strFile.replace ('/home/lenovo/', "")
+	"""
+	strFile = strFile.replace ('C:\\Users\\deborah.powers\\python\\debutils\\', "")
+	strFile = strFile.replace ('C:\\Users\\deborah.powers\\python\\', "")
+	strFile = strFile.replace ('C:\\Users\\deborah.powers\\', "")
 	return '%s\t%s %s' % (strFile, strNum, stackList[i].function)
 
 def log (message=None):

@@ -12,31 +12,49 @@ new JPAQuery(this.entityManager).from(Q_AVIS_COMITE_OPERATION_DPO);
                 .list(Q_AVIS_COMITE_OPERATION_DPO);
 """
 
+def cleanJoin (line):
+	if ' join ' not in line: return line;
+	d= line.find (' join ') +6
+	newLine = line[:d]
+	d= line.find (', ') +2
+	table = line[d:]
+	newLine = newLine + table +' on '+ table +'_pk = '+ table +'_fk'
+	return newLine
+
 def fromTextRequest (self, textOrigine):
 	self.text = textOrigine
 	self.text = self.text.lower()
-	while self.contain ('  '): self.replace ('  ',' ')
+	self.replace ('\n'," ")
+	self.replace ('\t'," ")
+	self.clean()
 	artefacts =( ' q_', '(q_' )
 	for a in artefacts: self.replace (a, a[0])
-	artefacts =( '\n ', '\n', ';', '_dpo' )
+	artefacts =( ';', '_dpo' )
 	for a in artefacts: self.replace (a)
 	artefacts =('from', 'innerjoin', 'where', 'groupby', 'orderby')
-	for w in artefacts: self.replace (').'+w+'(', ' '+w+' ')
+	for w in artefacts: self.replace (').'+w+' (', ' '+w+' ')
+	artefacts =('desc', 'asc')
+	for w in artefacts: self.replace ('.'+w+' ()', ' '+w+' ')
 	artefacts =(('eq', '='), ('ne', '!='))
-	for v,w in artefacts: self.replace ('.'+v+'(', ' '+w+' ')
+	for v,w in artefacts: self.replace ('.'+v+' (', ' '+w+' ')
 	artefacts =('inner join', 'group by', 'order by')
 	for w in artefacts: self.replace (w.replace (' ',""), w)
-
-	self.replace ('innerjoin', 'inner join')
+	artefacts =( ('new jpaquery (this.entitymanager', 'select *'), ('.id', '_pk'), ('dpo_pk', '_pk'))
+	for v,w in artefacts: self.replace (v,w)
 
 setattr (File, 'fromText', fromTextRequest)
 
 fileFin = File ('b/requete.txt')
 fileFin.fromText (textOrigine)
 
-
 while fileFin.contain ('  '): fileFin.replace ('  ',' ')
-wordBegin =( 'select', 'case', 'when', 'else', 'end as', 'from', 'inner join', 'left join', 'where', 'group by')
+wordBegin =( 'select', 'case', 'when', 'else', 'end as', 'from', 'inner join', 'left join', 'where', 'group by', 'order by')
 for w in wordBegin: fileFin.replace (' '+w+' ','\n'+w+' ')
+
+textList = fileFin.text.split ('\n')
+textRange = range (len (textList))
+for l in textRange: textList[l] = cleanJoin (textList[l])
+fileFin.text = '\n'.join (textList)
+
 fileFin.fileFromData()
 fileFin.toFile()
