@@ -1,8 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-import debutils.logger as log
 
-majList = (('a', 'A'), ('à', 'A'), ('b', 'B'), ('c', 'C'), ('\xe7', '\xc7'), ('d', 'D'), ('e', 'E'), ('é', 'E'), ('è', 'E'), ('ê', 'E'), ('ë', 'E'), ('f', 'F'), ('g', 'G'), ('h', 'H'), ('i', 'I'), ('î', 'I'), ('ï', 'I'), ('j', 'J'), ('k', 'K'), ('l', 'L'), ('m', 'M'), ('\n', '\n'), ('o', 'O'), ('xf4', 'xe4'), ('p', 'P'), ('q', 'Q'), ('r', 'R'), ('s', 'S'), ('\t', '\t'), ('u', 'U'), ('v', 'V'), ('w', 'W'), ('x', 'X'), ('y', 'Y'), ('z', 'Z'))
+majList = (('a', 'A'), ('à', 'A'), ('b', 'B'), ('c', 'C'), ('\xe7', '\xc7'), ('d', 'D'), ('e', 'E'), ('é', 'E'), ('è', 'E'), ('ê', 'E'), ('ë', 'E'), ('f', 'F'), ('g', 'G'), ('h', 'H'), ('i', 'I'), ('î', 'I'), ('ï', 'I'), ('j', 'J'), ('k', 'K'), ('l', 'L'), ('m', 'M'), ('n', 'N'), ('o', 'O'), ('\xf4', '\xe4'), ('p', 'P'), ('q', 'Q'), ('r', 'R'), ('s', 'S'), ('t', 'T'), ('u', 'U'), ('v', 'V'), ('w', 'W'), ('x', 'X'), ('y', 'Y'), ('z', 'Z'))
 wordsBeginEnd = '\n\t .,;:)?!'	# liste des symboles suivant les mots spéciaux
 wordsBeginStart = '( \n\t'
 # liste des points, des chaines de caracteres suivies par une majuscule
@@ -62,11 +61,9 @@ def clean (text):
 	return text
 
 def toUpperCase (text):
-	log.log ('upp')
 	text ='\n'+ text
 	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '______ ', '------ ', '****** ', '====== ')
 	for i, j in majList:
-		print (i,j)
 		for p in points: text = text.replace (p+i, p+j)
 	for p in wordsBeginEnd:
 		for q in wordsBeginStart:
