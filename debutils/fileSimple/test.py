@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from debutils.file import File
+from fileSimple import File
 
 help = """pour tester mes classes.
 utilisation: l'appeler dans un autre fichier.

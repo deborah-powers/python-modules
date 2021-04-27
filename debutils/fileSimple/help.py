@@ -1,6 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from debutils.file import File
+from fileSimple import File
+
 wordImport = (('import ', 7), ('from ', 5))
 wordFunction = (('class ', 6), ('def ', 4), ('\t""" ', 5), ('\treturn', 7), ('\tdef ', 5), ('\t\t""" ', 6), ('\t\treturn', 8))
 filePython = File ()
@@ -9,6 +10,7 @@ filePython.extension = 'py'
 fileHelp = File ()
 fileHelp.path = 'b/'
 fileHelp.extension = 'txt'
+
 def printHelp (pythonFile):
 #	obtenir le code python
 	if '/' in pythonFile:

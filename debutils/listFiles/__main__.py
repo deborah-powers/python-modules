@@ -1,11 +1,11 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from fileSimple.listFile import ListFile
+from listFiles import ListFile
 
 help ="""
 ce script peut être appelé dans un autre script
-python %s fileName action oldArg (newArg)
+python -m listFiles fileName action oldArg (newArg)
 les valeurs de action:
 	n	renommer les fichiers en remplacant un motif par un autre
 	c	remplacer un motif par un autre dans le contenu du fichier

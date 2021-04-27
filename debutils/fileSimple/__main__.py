@@ -28,12 +28,14 @@ elif nbArg ==4 and argv[2][:3] == 'cpr':
 	fpB = File (argv[3])
 	if argv[2] == 'cprs': fpA.compare (fpB, 'lsort')
 	else: fpA.compare (fpB)
+elif argv[2] == 'help':
+	from fileSimple.help import printHelp
+	printHelp (argv[1])
 elif nbArg >2:
 	filePerso = File (argv[1])
 	filePerso.fromFile()
 	if 'clean' in argv: filePerso.clean()
-	elif 'mef' in argv:
-		filePerso.shape()
+	elif 'mef' in argv: filePerso.shape()
 	# rajouter un argument afin d'empêcher l'écriture des majuscules
 	if 'reset' in argv and 'upper' in argv: filePerso.upperCase ('upper reset')
 	elif 'reset' in argv: filePerso.upperCase ('reset')

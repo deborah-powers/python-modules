@@ -1,6 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from fileSimple import File
+import cleanSql as cs
 
 textOrigine ="""
 new JPAQuery(this.entityManager).from(Q_AVIS_COMITE_OPERATION_DPO);
@@ -21,6 +22,19 @@ def cleanJoin (line):
 	newLine = newLine + table +' on '+ table +'_pk = '+ table +'_fk'
 	return newLine
 
+def cleanWhere (line):
+	if 'where ' != line[:6]: return line;
+	line = line.replace ('), ', ' and ')
+	return line
+
+def getResult (line):
+	if ' list ' not in line: return line, ""
+	d= line.find (' list ')
+	newLine = line[:d]
+	line = line[d+6:]
+	return newLine, line
+
+
 def fromTextRequest (self, textOrigine):
 	self.text = textOrigine
 	self.text = self.text.lower()
@@ -31,7 +45,7 @@ def fromTextRequest (self, textOrigine):
 	for a in artefacts: self.replace (a, a[0])
 	artefacts =( ';', '_dpo' )
 	for a in artefacts: self.replace (a)
-	artefacts =('from', 'innerjoin', 'where', 'groupby', 'orderby')
+	artefacts =('from', 'innerjoin', 'where', 'groupby', 'orderby', 'list')
 	for w in artefacts: self.replace (').'+w+' (', ' '+w+' ')
 	artefacts =('desc', 'asc')
 	for w in artefacts: self.replace ('.'+w+' ()', ' '+w+' ')
@@ -39,22 +53,29 @@ def fromTextRequest (self, textOrigine):
 	for v,w in artefacts: self.replace ('.'+v+' (', ' '+w+' ')
 	artefacts =('inner join', 'group by', 'order by')
 	for w in artefacts: self.replace (w.replace (' ',""), w)
-	artefacts =( ('new jpaquery (this.entitymanager', 'select *'), ('.id', '_pk'), ('dpo_pk', '_pk'))
+	artefacts =( ('new jpaquery (this.entitymanager', 'select *'), ('.id', '_pk'), ('dpo_pk', '_pk'), (' list ', '\nlist '))
 	for v,w in artefacts: self.replace (v,w)
 
 setattr (File, 'fromText', fromTextRequest)
+setattr (File, 'cleanSql', cs.cleanSql)
 
 fileFin = File ('b/requete.txt')
 fileFin.fromText (textOrigine)
-
-while fileFin.contain ('  '): fileFin.replace ('  ',' ')
-wordBegin =( 'select', 'case', 'when', 'else', 'end as', 'from', 'inner join', 'left join', 'where', 'group by', 'order by')
-for w in wordBegin: fileFin.replace (' '+w+' ','\n'+w+' ')
-
+fileFin.cleanSql()
+toSelect =""
 textList = fileFin.text.split ('\n')
 textRange = range (len (textList))
-for l in textRange: textList[l] = cleanJoin (textList[l])
+for l in textRange:
+	textList[l] = cleanJoin (textList[l])
+	textList[l] = cleanWhere (textList[l])
+	if not toSelect:
+		tmp = getResult (textList[l])
+		textList[l] = tmp[0]
+		toSelect = tmp[1]
 fileFin.text = '\n'.join (textList)
-
+if toSelect:
+	if ', ' not in toSelect: toSelect = toSelect +'.*'
+	fileFin.replace ('select *', 'select '+ toSelect)
+fileFin.replace (')')
 fileFin.fileFromData()
 fileFin.toFile()
