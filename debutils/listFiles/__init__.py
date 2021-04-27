@@ -5,7 +5,6 @@ import fileSimple as fs
 from debutils.list import List
 
 class ListFile (List):
-
 	def __init__ (self, path='b/'):
 		List.__init__ (self)
 		if path: path = fs.shortcut (path)
@@ -14,6 +13,7 @@ class ListFile (List):
 
 	def get (self, TagNomfile=None, sens=True):
 		for dirpath, SousListDossiers, subList in os.walk (self.path):
+			print ('oui')
 			if not subList: continue
 			if TagNomfile and sens:
 				range_tag = range (len (subList) -1, -1, -1)

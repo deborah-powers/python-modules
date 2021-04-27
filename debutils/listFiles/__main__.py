@@ -12,7 +12,7 @@ les valeurs de action:
 	m	déplacer les fichiers
 	l	lister les fichiers
 	d	vérifier s'il y a des doublons
-""" % __file__
+"""
 
 if len (argv) <3: print (help)
 else:
