@@ -35,7 +35,7 @@ def getResult (line):
 	return newLine, line
 
 
-def fromTextRequest (self, textOrigine):
+def cleanJpa (self, textOrigine):
 	self.text = textOrigine
 	self.text = self.text.lower()
 	self.replace ('\n'," ")
