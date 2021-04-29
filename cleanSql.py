@@ -163,17 +163,22 @@ class SqlFile (FileList):
 			self.replace ('select *', 'select '+ toSelect)
 		self.replace (')')
 
+	def main (self, tag):
+	self.fromFile()
+	if tag == 'jpa':
+		self.prepareJpa()
+		self.cleanJpa()
+	elif tag == 'hib': self.cleanHibernate()
+	else:
+		self.prepare()
+		self.clean()
+	self.toFile()
+
 nbArgs = len (argv)
 if __name__ != '__main__': pass
 elif nbArgs <2: print (help)
 else:
 	fileSql = fileSql (argv[1])
-	fileSql.fromFile()
-	if nbArgs >2 and argv[2] == 'jpa':
-		fileSql.prepareJpa()
-		fileSql.cleanJpa()
-	elif nbArgs >2 and argv[2] == 'hib': self.cleanHibernate()
-	else:
-		self.prepare()
-		self.clean()
-	fileSql.toFile()
+	tag = None
+	if nbArgs >2: tag = argv[2]
+	fileSql.main (tag)
