@@ -1,8 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from debutils.file import File
-from debutils.listFile import ListFile
+from fileSimple import File
+from listFiles import ListFile
 import debutils.logger as log
 
 types = ('ano', 'ddt', 'evo')
