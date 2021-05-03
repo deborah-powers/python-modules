@@ -18,8 +18,8 @@ source:
 
 class Event():
 	def __init__ (self):
-		self.date		= Date()
-		self.duration	= Date()
+		self.date		= Date.now()
+		self.duration	= Date.now()
 		self.location	=""
 		self.category	=""
 		self.title		=""
@@ -42,6 +42,10 @@ class Event():
 	def toStrDay (self):
 		strEvt = self.date.toStrDay() +'\t'+ self.category +'\t'+ self.title +'\t'+ self.location +'\n\t'+ self.infos.text
 		return strEvt
+
+class DateVb():
+	def __init__ (self):
+		self.date = datetime
 
 class Date (datetime):
 	def gap (self, newDate):
@@ -94,27 +98,14 @@ class Date (datetime):
 
 	def fromStrUtz (self, dateStr):
 		""" dateStr ressemble à 2018-01-29T12:00:00+01:00 """
-		dateList = dateStr.split ('T')
-		dateListTmp = dateList [0].split ('-')
-		self.year = int (dateListTmp [0])
-		self.month = int (dateListTmp [1])
-		self.day = int (dateListTmp [2])
-		self.isBissextile()
-		if len (dateList) ==1: return
-		dateListTmp = dateList [1].split (':')
-		self.hour = int (dateListTmp [0])
-		self.minute = int (dateListTmp [1])
+		dateStr = dateStr.replace ('T', '/')
+		self.fromStr (dateStr)
 
 	def fromStr (self, dateStr):
 		dateStr = dateStr.replace ('-', '/')
 		dateStr = dateStr.replace (' ', '/')
 		dateStr = dateStr.replace (':', '/')
 		dateList = dateStr.split ('/')
-		self.year = int (dateList [0])
-		self.month = int (dateList [1])
-		self.day = int (dateList [2])
-		if len (dateList) ==5:
-			self.hour = int (dateList [3])
-			self.minute = int (dateList [3])
-		self.isBissextile()
+		self = datetime (int (dateList [0]), int (dateList [1]), int (dateList [2]))
+		if len (dateList) ==5: self = self.replace (hour= int (dateList [3]), minute= int (dateList [4]))
 

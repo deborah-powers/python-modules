@@ -5,7 +5,6 @@ def dictGetKeyByValue (dictionnary, value):
 	return list (dictionnary.keys()) [list (dictionnary.values()).index (value) ]
 
 class Dico():
-
 	def __init__ (self):
 		self.dico = {}
 		self.keys = []

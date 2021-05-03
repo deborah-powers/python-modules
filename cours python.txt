@@ -32,3 +32,16 @@ p.terminate()
 applis:
 	vlc	vlc
 	eog	visionneuse d'image
+
+====== récupérer les éléments de mes calendriers google ======
+
+cf quickstart.py
+
+ModuleNotFoundError: No module named 'googleapiclient'
+pip install --upgrade google-api-python-client
+ModuleNotFoundError: No module named 'google_auth_oauthlib'
+pip install google-auth-oauthlib
+
+
+
+
