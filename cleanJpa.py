@@ -46,7 +46,9 @@ def cleanJpa (self, textOrigine):
 	artefacts =( ';', '_dpo' )
 	for a in artefacts: self.replace (a)
 	artefacts =('from', 'innerjoin', 'where', 'groupby', 'orderby', 'list')
-	for w in artefacts: self.replace (').'+w+' (', ' '+w+' ')
+	for w in artefacts:
+		self.replace (').'+w+' (', ' '+w+' ')
+		self.replace ('.'+w+' (', ' '+w+' ')
 	artefacts =('desc', 'asc')
 	for w in artefacts: self.replace ('.'+w+' ()', ' '+w+' ')
 	artefacts =(('eq', '='), ('ne', '!='))

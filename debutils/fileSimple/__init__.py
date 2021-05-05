@@ -5,7 +5,6 @@ import codecs
 from debutils.text import Text
 from fileSimple.fileLocal import *
 extensions = 'txt log css html xml svg md tsv csv json js py sql jpeg jpg png bmp gif pdf mp3 mp4 wav vlc avi mpg srt mkv divx ass AVI torrent Divx flv wma m4a MP3 TMP tmp mht'
-import debutils.logger as logger
 
 def createFolder (folder):
 	if not os.path.exists (folder): os.mkdir (folder)
@@ -54,7 +53,7 @@ class File (Text):
 		self.shortcut()
 
 	def dataFromFile (self):
-		self.shortcut()
+		self.file = shortcut (self.file)
 		if os.sep not in self.file or '.' not in self.file:
 			print ('fichier malformé:\n' + self.file)
 			return
@@ -72,7 +71,7 @@ class File (Text):
 	""" ________________________ utiliser un fichier ________________________ """
 
 	def fromFile (self):
-		self.shortcut()
+		self.file = shortcut (self.file)
 		if not os.path.exists (self.file): return
 		self.dataFromFile()
 		# ouvrir le file et recuperer le texte au format str

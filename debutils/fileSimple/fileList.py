@@ -24,7 +24,7 @@ class FileList (File, List):
 		self.fromText()
 
 	def toFile (self):
-		self.text = self.toText()
+		self.toText()
 		File.toFile (self)
 
 	def length (self):

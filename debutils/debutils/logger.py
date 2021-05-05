@@ -53,5 +53,5 @@ letterPos =0
 
 def letter():
 	log (alphabet [letterPos])
-	letterPos +=1
+	letterPos = letterPos +1
 	if letterPos >25: letterPos =0
