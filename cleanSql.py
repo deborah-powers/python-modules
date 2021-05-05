@@ -7,7 +7,7 @@ wordBegin =('drop', 'create', 'declare', 'begin', 'select', 'case when', 'when',
 
 help ="""nettoyer les fichiers sql
 utilisation
-	python3 cleanSql.py fichier
+	python3 cleanSql.py fichier (tag)
 """
 # ________________________ fonctions pour jpa ________________________
 
