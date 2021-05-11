@@ -8,8 +8,8 @@ import debutils.logger as log
 types = ('ano', 'ddt', 'evo')
 refName = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\mantis-base.txt'
 refFile = File (refName)
-sqlName = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\su_cdm.sql'
-sqlFile = File (sqlName)
+refSqlCdm = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\su_cdm.sql'
+refSqlSif = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\su_sif.sql'
 
 class Mantis():
 	def __init__ (self, numext ='0', message ='?', module = '?', numint ='0', type ='ano'):
@@ -54,20 +54,24 @@ class MantisFile (Mantis, File):
 		if self.module in 'aec can sif': schema = 'sif'
 		refFile.replace ('%schema%', schema)
 		date = datetime.now()
-		dateStr = '%02d/%02d/%02d' % (date.year, date.month, date.day)
+		dateStr = '%02d/%02d' % (date.month, date.day)
 		refFile.replace ('%date%', dateStr)
 		refFile.file = self.file
 		refFile.dataFromFile()
 		refFile.replace (' ______\n', ' ______\n\n')
 		refFile.toFile()
-		if self.type == 'ddt': self.createDdt (dateStr)
+		if self.type == 'ddt':
+			if 'cdm' in self.module: self.createDdt (date, 'cdm')
+			if 'sif' in self.module: self.createDdt (date, 'sif')
 
-	def createDdt (self, dateStr):
-		if self.module in 'aec can sif':
-			sqlFile.file = sqlFile.file.replace ('_cdm', '_sif');
-			sqlFile.dataFromFile()
+	def createDdt (self, dtime, module='cdm'):
+		sqlFile = File()
+		if module == 'sif': sqlFile.file = refSqlSif
+		else: sqlFile.file = refSqlCdm
+		sqlFile.dataFromFile()
 		sqlFile.fromFile()
 		sqlFile.replace ('%numero%', self.numext)
+		dateStr = '%02d/%02d/%02d' % (dtime.day, dtime.month, dtime.year)
 		sqlFile.replace ('%date%', dateStr)
 		sqlFile.path = self.path
 		sqlFile.title = sqlFile.title.replace ('su_', 'su_'+ self.numext +'_')

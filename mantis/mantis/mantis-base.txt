@@ -16,11 +16,7 @@ type		%type%
 
 ====== infos ======
 
-****** données ******
-
 opération:
-
-****** mache à suive ******
 
 ====== %date% aprem ======
 
