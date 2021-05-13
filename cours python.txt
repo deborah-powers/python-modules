@@ -1,19 +1,29 @@
 
-****** lancer un package comme un script, mais de partout ******
+====== lancer un package comme un script, mais de partout ======
 
 dans mon package, j'ai
 monPackage/
 	__init__.py
 	__main__.py
 
+****** installer le package ******
+
+sudo apt-get install python3-setuptools
+sudo chmod -R 774 /usr/local/lib/python3.8/
+
+cd monPackage/
+python setup.py install
+
+****** lancer le package ******
+
+python -m monPackage args
+
 init est lancé quand on invoque le package la première fois, c'est une sorte de chargeur.
 main contient l'action, le script à lancer.
 les arguments sont récupérés via sys.argv, comme pour les scripts.
 
-python -m monPackage args
 
-
-****** lancer une application ******
+====== lancer une application ======
 
 pour l'utiliser moi-même
 

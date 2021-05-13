@@ -17,11 +17,11 @@ class ListFile (List):
 			if TagNomfile and sens:
 				range_tag = range (len (subList) -1, -1, -1)
 				for i in range_tag:
-					if TagNomfile not in subList [i]: trash = subList.pop (i)
+					if TagNomfile not in subList[i]: trash = subList.pop(i)
 			elif TagNomfile:
 				range_tag = range (len (subList) -1, -1, -1)
 				for i in range_tag:
-					if TagNomfile in subList [i]: trash = subList.pop (i)
+					if TagNomfile in subList[i]: trash = subList.pop(i)
 			if subList:
 				for file in subList:
 					fileTmp = fs.File (os.path.join (dirpath, file))
@@ -33,7 +33,7 @@ class ListFile (List):
 		rangeFile = self.range()
 		rangeFile.reverse()
 		for f in rangeFile:
-			if self [f].extension not in fs.extensions: trash = self.pop (f)
+			if self[f].extension not in fs.extensions: trash = self.pop(f)
 
 	def filter (self, TagNomfile, sens=True):
 		""" quand on a besoin de ré-exclure certains fichiers après le get.
@@ -42,27 +42,37 @@ class ListFile (List):
 		rangeFile.reverse()
 		if sens:
 			for f in rangeFile:
-				if TagNomfile not in self [f].file: trash = self.list.pop (f)
+				if TagNomfile not in self[f].file: trash = self.list.pop(f)
 		else:
 			for f in rangeFile:
-				if TagNomfile in self [f].file: trash = self.list.pop (f)
+				if TagNomfile in self[f].file: trash = self.list.pop(f)
+
+	def openAll (self):
+		rangeFile = self.range()
+		rangeFile.reverse()
+		for f in rangeFile: self[f].fromFile()
+
+	def closeAll (self):
+		rangeFile = self.range()
+		rangeFile.reverse()
+		for f in rangeFile: self[f].toFile()
 
 	def doublons (self, inText=False):
 		listDbl = ListFile (self.path)
 		rangeFile = self.range()
 		for f in rangeFile:
 			for g in rangeFile [f+1:]:
-				if self [f].title == self [g].title:
-					# print ('doublons pour', self [f].title, '\n\t', self [f].path, '\n\t', self [g].path)
-					listDbl.add (self [f])
+				if self[f].title == self[g].title:
+					# print ('doublons pour', self[f].title, '\n\t', self[f].path, '\n\t', self[g].path)
+					listDbl.add (self[f])
 			if inText:
 				for f in rangeFile:
-					self [f].fromFile()
-					if self [f].text:
+					self[f].fromFile()
+					if self[f].text:
 						for g in rangeFile [f+1:]:
-							if self [f].text == self [g].text:
-								# print ('doublons pournt', self [f].file, '\n\t', self [g].file)
-								listDbl.add (self [f])
+							if self[f].text == self[g].text:
+								# print ('doublons pournt', self[f].file, '\n\t', self[g].file)
+								listDbl.add (self[f])
 		return listDbl
 
 	def compare (self, pathNew):
@@ -75,9 +85,9 @@ class ListFile (List):
 		rangeTmp.reverse()
 		for fref in self:
 			for f in rangeTmp:
-				if fref.title == listNew [f].title:
-					# print ('doublons pour', fref.title, '\n\t', fref.path, '\n\t', listNew [f].path)
-					listDbl.add (listNew [f])
+				if fref.title == listNew[f].title:
+					# print ('doublons pour', fref.title, '\n\t', fref.path, '\n\t', listNew[f].path)
+					listDbl.add (listNew[f])
 		for fnew in listNew:
 			if fnew not in listDbl: listUnq.add (fnew)
 		return listUnq
@@ -151,10 +161,10 @@ class ArticleList (ListFile):
 		lRange = tmpList.range()
 		for f in lRange:
 			self.add (fs.Article())
-			self [f].title = tmpList [f].title
-			self [f].path = tmpList [f].path
-			self [f].fileFromData()
-			self [f].fromFile()
+			self[f].title = tmpList[f].title
+			self[f].path = tmpList[f].path
+			self[f].fileFromData()
+			self[f].fromFile()
 		self.sort()
 
 	def __str__ (self):

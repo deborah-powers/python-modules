@@ -77,7 +77,7 @@ class ArticleHtml (FileHtml, Article):
 		self.metas = {}
 		self.replace (' <', '<')
 		self.replace ('><', '>\n<')
-		if toText: self.toArticle()
+		if toText: self.toFileText()
 		else: self.toFile()
 
 	def findSubject (self, subject=None):
@@ -130,8 +130,8 @@ class ArticleHtml (FileHtml, Article):
 		placeholders = ('y/n', 'e/c', 'h/c', 'l/n')
 		for ph in placeholders:
 			self.replace (ph.upper(), ph)
-			self.replace (' ('+ ph +') ', ph)
-			self.replace (' ['+ ph +'] ', ph)
+			self.replace ('('+ ph +')', ph)
+			self.replace ('['+ ph +']', ph)
 		self.replace ('y/n', 'Deborah')
 		self.replace ('e/c', 'grey')
 		self.replace ('h/c', 'dark blond')

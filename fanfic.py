@@ -197,11 +197,13 @@ def aoooFromSource (self, subject=None):
 	data = self.title.split (' - ')
 	if len (data) >3:
 		print ('trop de blocks dans le titre', self.title)
-		if 'hapter' in data [1]: self.author = data.pop (1)
-	self.title = data [0]
-	self.author = data [1]
-	self.subject = data [2]
+		if 'hapter' in data[1]: self.author = data.pop (1)
+	self.title = data[0]
+	self.author = data[1]
+	self.subject = data[2]
+	self.subject = self.subject.replace (' [Archive of Our Own]', "")
 	self.findSubject()
+	self.cleanWeb()
 	d= self.index ("archiveofourown.org/works") +26
 	f= self.index (" ", d)
 	self.link = 'https://archiveofourown.org/works/' + self.text [d:f]
@@ -218,11 +220,13 @@ def aoooFromSource (self, subject=None):
 	self.delImgLink()
 	self.replace ('<div>')
 	self.replace ('</div>')
+	"""
 	if self.contain ('<h3>Chapter Text</h3>'):
 		chapters = List()
 		chapters.fromText ('<h3>Chapter Text</h3>', self.text)
-		chapterRange = chapters.range (end=-1)
+		chapterRange = chapters.range()
 		for c in chapterRange:
+			logger.log (str(c) +'\t'+ chapters[c][:100])
 			if '<h3>Notes:</h3>' in chapters[c]:
 				f= chapters[c].rfind ('<h3>Notes:</h3>')
 				chapters[c] = chapters[c][:f]
@@ -230,6 +234,7 @@ def aoooFromSource (self, subject=None):
 					f= chapters[c].rfind ('<h3>Notes:</h3>')
 					if f>500: chapters[c] = chapters[c][:f]
 		self.text = chapters.toText ("")
+	"""
 	self.replace ('</blockquote><h3>Notes:</h3><blockquote>')
 	self.replace ('</h3><hr>', '</h3>')
 	self.replace ('</h2><hr>', '</h2>')

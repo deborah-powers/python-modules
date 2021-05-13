@@ -216,9 +216,8 @@ class FileHtml (File):
 	def fromUrl (self, params=None):
 		res = self.fromUrlVa (params)
 		if not res:
-			print ('la récupération par la première méthode à échoué, éssai avec la seconde méthode')
 			res = self.fromUrlVb()
-			if not res: print ('la récupération par la seconde méthode à échoué, impossible de récupérer les données')
+			if not res: print ('la récupération à échoué, impossible de récupérer les données')
 
 	def titleFromUrl (self):
 		title = self.link.strip ('/')
