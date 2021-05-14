@@ -24,6 +24,9 @@ class ListFile (List):
 					if TagNomfile in subList[i]: trash = subList.pop(i)
 			if subList:
 				for file in subList:
+					d=1+ file.rfind ('.')
+					if d<=1: continue
+					if file[d:] not in fs.extensions: continue
 					fileTmp = fs.File (os.path.join (dirpath, file))
 					# fileTmp.dataFromFile()
 					self.add (fileTmp)
