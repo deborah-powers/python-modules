@@ -3,6 +3,7 @@
 import os
 import fileSimple as fs
 from debutils.list import List
+import debutils.logger as logger
 
 class ListFile (List):
 	def __init__ (self, path='b/'):
@@ -177,16 +178,16 @@ class ArticleList (ListFile):
 
 	def show (self, genre=None):
 		if genre:
-			print (len (self), 'histoires de', genre)
+			print (self.length(), 'histoires de', genre)
 			for article in self: print ('%s\t%s' % (article.author, article.title))
 		else:
-			print (len (self), 'histoires')
+			print (self.length(), 'histoires')
 			print (self)
 
-	def getByGenre (self, genre=None):
-		if not genre: return self
+	def getBySubject (self, subject=None):
+		if not subject: return self
 		else:
 			aList = ArticleList()
 			for article in self:
-				if genre in article.subject: aList.add (article)
+				if subject in article.subject: aList.add (article)
 			return aList
