@@ -13,26 +13,25 @@ les valeurs de action:
 	l	lister les fichiers
 	d	vérifier s'il y a des doublons
 """
-
 if len (argv) <3: print (help)
 else:
-	flist = ListFile (argv [1])
-	action = argv [2]
+	flist = ListFile (argv[1])
+	action = argv[2]
 	if action in 'd l':
-		if len (argv) >3: flist.get (argv [3])
+		if len (argv) >3: flist.get (argv[3])
 		else: flist.get ()
 		if action == 'd': flist.doublons ()
 		else: print (flist)
 	elif len (argv) <4: print (help)
 	else:
-		wordOld = argv [3]
+		wordOld = argv[3]
 		wordNew =""
-		if len (argv) >4: wordNew = argv [4]
+		if len (argv) >4: wordNew = argv[4]
 		if action =='n':
 			flist.get (wordOld)
 			flist.rename (wordOld, wordNew)
 		elif action =='c':
-			if (len (argv) >5): flist.get (argv [5])
+			if (len (argv) >5): flist.get (argv[5])
 			else: flist.get ()
 			flist.replace (wordOld, wordNew)
 		elif action =='m':
