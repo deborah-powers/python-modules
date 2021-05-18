@@ -330,8 +330,9 @@ class FileHtml (File):
 		self.replace ('<br><', '<')
 		for tag in tagList:
 			if tag not in listTagsKeep:
-				self.replace ('</'+ tag +'>')
-				self.replace ('<'+ tag +'>')
+				self.replace ('</'+ tag +'>', " ")
+				self.replace ('<'+ tag +'>', " ")
+		while self.contain ("  "): self.replace ("  "," ")
 		if self.contain ('<a>'):
 			textList = List()
 			textList.addList (self.text.split ('<a>'))
@@ -344,7 +345,8 @@ class FileHtml (File):
 		# retrouver les balises vides
 		self.clean()
 		self.replace ('\n')
-		for tag in tagList: self.replace ('<'+ tag +'></'+ tag +'>')
+		for tag in tagList: self.replace ('<'+ tag +'></'+ tag +'>', " ")
+		while self.contain ("  "): self.replace ("  "," ")
 
 	def cleanTagsSpecial (self, tag, attributeList):
 		if tag == '\a':
