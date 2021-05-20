@@ -5,13 +5,14 @@ from listFiles import ListFile
 
 help ="""
 ce script peut être appelé dans un autre script
-python -m listFiles fileName action oldArg (newArg)
+python -m listFiles folderName action oldArg (newArg)
 les valeurs de action:
 	n	renommer les fichiers en remplacant un motif par un autre
 	c	remplacer un motif par un autre dans le contenu du fichier
 	m	déplacer les fichiers
 	l	lister les fichiers
 	d	vérifier s'il y a des doublons
+	v	identifier les fichiers modifiés entre un dossier et sa sauvegarde
 """
 if len (argv) <3: print (help)
 else:
@@ -19,10 +20,11 @@ else:
 	action = argv[2]
 	if action in 'd l':
 		if len (argv) >3: flist.get (argv[3])
-		else: flist.get ()
-		if action == 'd': flist.doublons ()
+		else: flist.get()
+		if action == 'd': flist.doublons()
 		else: print (flist)
 	elif len (argv) <4: print (help)
+	elif action == 'v': flist.compareGit (argv[3])
 	else:
 		wordOld = argv[3]
 		wordNew =""
@@ -32,10 +34,10 @@ else:
 			flist.rename (wordOld, wordNew)
 		elif action =='c':
 			if (len (argv) >5): flist.get (argv[5])
-			else: flist.get ()
+			else: flist.get()
 			flist.replace (wordOld, wordNew)
 		elif action =='m':
 			if (wordNew): flist.get (wordNew)
-			else: flist.get ()
+			else: flist.get()
 			flist.move (wordOld)
 		else: print (help)

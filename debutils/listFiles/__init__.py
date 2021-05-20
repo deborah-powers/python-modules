@@ -79,6 +79,54 @@ class ListFile (List):
 								listDbl.add (self[f])
 		return listDbl
 
+
+	def compareGit (self, pathNew):
+		# identifier les fichiers modifiés par rapport à la référence
+		fnote = fs.File ('b/comparaison des dossiers.txt')
+		listNew = ListFile (pathNew)
+		listNew.get()
+		listNew.openAll()
+		if not self.list: self.openAll()
+		a= self.length() -1
+		while a>=0:
+			b= listNew.length() -1
+			while b>=0:
+				if self[a].title == listNew[b].title and self[a].extension == listNew[b].extension:
+					if self[a].text != listNew[b].text:
+						print ('modification dans', self[a].file.replace (self.path, ""))
+						fnote.text = fnote.text + 'modification dans %s\n' % self[a].file.replace (self.path, "")
+					self.pop (a)
+					listNew.pop (b)
+					b=0
+				b-=1
+			a-=1
+		a= self.length() -1
+		while a>=0:
+			b= listNew.length() -1
+			while b>=0:
+				if self[a].title == listNew[b].title:
+					if self[a].text != listNew[b].text:
+						print ('modification dans', self[a].file.replace (self.path, ""), "/", listNew[b].extension)
+						fnote.text = fnote.text + 'modification dans %s / %s\n' %( self[a].file.replace (self.path, ""), listNew[b].extension)
+					self.pop (a)
+					listNew.pop (b)
+					b=0
+				b-=1
+			a-=1
+		a= self.length() -1
+		while a>=0:
+			b= listNew.length() -1
+			while b>=0:
+				if self[a].extension == listNew[b].extension and self[a].text == listNew[b].text:
+					print ('fichiers identiques:', self[a].file.replace (self.path, ""), '\t', listNew[b].file.replace (listNew.path, ""))
+					fnote.text = fnote.text + 'fichiers identiques: %s\t%s\n' %( self[a].file.replace (self.path, ""), listNew[b].file.replace (listNew.path, ""))
+					self.pop (a)
+					listNew.pop (b)
+					b=0
+				b-=1
+			a-=1
+		fnote.toFile()
+
 	def compare (self, pathNew):
 		# identifier les films présents dans pathNew mais absent de la référence
 		listNew = ListFile (pathNew)
