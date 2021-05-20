@@ -371,7 +371,7 @@ class FileHtml (File):
 	def keepAttributeInput (self, attributeList):
 		tag = 'input'
 		for attr in ('type', 'name', 'value', 'placeholder'):
-			if attr in attributeList:
+			if attr +'=' in attributeList:
 				tag = tag +' '+ attr +"='"
 				d= attributeList.find (attr) +2+ len (attr)
 				quote = attributeList [d-1]
