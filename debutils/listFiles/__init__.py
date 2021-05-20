@@ -86,7 +86,9 @@ class ListFile (List):
 		listNew = ListFile (pathNew)
 		listNew.get()
 		listNew.openAll()
-		if not self.list: self.openAll()
+		if not self.list:
+			self.get()
+			self.openAll()
 		a= self.length() -1
 		while a>=0:
 			b= listNew.length() -1
