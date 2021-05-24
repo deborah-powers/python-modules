@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 majList = (('a', 'A'), ('à', 'A'), ('b', 'B'), ('c', 'C'), ('\xe7', '\xc7'), ('d', 'D'), ('e', 'E'), ('é', 'E'), ('è', 'E'), ('ê', 'E'), ('ë', 'E'), ('f', 'F'), ('g', 'G'), ('h', 'H'), ('i', 'I'), ('î', 'I'), ('ï', 'I'), ('j', 'J'), ('k', 'K'), ('l', 'L'), ('m', 'M'), ('n', 'N'), ('o', 'O'), ('\xf4', '\xe4'), ('p', 'P'), ('q', 'Q'), ('r', 'R'), ('s', 'S'), ('t', 'T'), ('u', 'U'), ('v', 'V'), ('w', 'W'), ('x', 'X'), ('y', 'Y'), ('z', 'Z'))
-wordsBeginEnd = '\n\t .,;:)?!'	# liste des symboles suivant les mots spéciaux
-wordsBeginStart = '( \n\t'
+wordsEnd = '\n\t .,;:)?!'	# liste des symboles suivant les mots spéciaux
 # liste des points, des chaines de caracteres suivies par une majuscule
 wordsBeginMaj = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'victo', 'tony', 'simplon', 'loïc', 'france', 'paris', 'rueil')
 wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
@@ -28,36 +27,34 @@ tagHtml =(
 	('\n<li>', '\n\t')
 )
 # fonctions pour les textes simples
-
 def clean (text):
 	# remplacer les caractères bizzares
 	for i, j in weirdChars: text = text.replace (i, j)
+	# nettoyage simple
 	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
-	for p in wordsBeginEnd: text = text.replace (' '+p, p)
-	for p in wordsBeginStart: text = text.replace (p+' ', p)
+	points = '([{\t\n'
+	for p in points: text = text.replace (p+' ', p)
+	points = ')]}\t\n.:,'
+	for p in points: text = text.replace (' '+p, p)
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	# la ponctuation
 	while '....' in text: text = text.replace ('....', '...')
 	text = text.replace ('...', ' ... ')
-	text = text.replace ('  ', ' ')
-	points = '!?'
-	for p in points: text = text.replace (p, ' '+p)
-	points = '() !?.;,:'
-	for p in points: text = text.replace (p+' "', p+'"')
-	for p in points:
-		for q in points:
-			while p+' '+q in text: text = text.replace (p+' '+q, p+q)
+	text = text.replace ('!', ' !')
+	while '  ' in text: text = text.replace ('  ', ' ')
+	while '! !' in text: text = text.replace ('! !', '!!')
+	for p in points: text = text.replace (' '+p, p)
 	# les appostrophes
-	lettreAppostrophe = ('c', 'd', 'j', 'l', 'm', 'n', 'qu', 'r', 's', 't')
-	for l in lettreAppostrophe:
-		text = text.replace (' '+l+"' ", ' '+l+"'")
-		text = text.replace (' '+ l.upper() +"' ", ' '+ l.upper() +"'")
-	text = text.replace ("Qu'","Qu'")
+	points = 'cdjlmnrst'
+	for p in points:
+		text = text.replace (' '+p+"' ", ' '+p+"'")
+		text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
+	text = text.replace ("Qu' ","Qu'")
+	text = text.replace ("qu' ","qu'")
 	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
-	text = text.replace ('< !', '<!')
 	return text
 
 def toUpperCase (text):
@@ -65,7 +62,8 @@ def toUpperCase (text):
 	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '______ ', '------ ', '****** ', '====== ')
 	for i, j in majList:
 		for p in points: text = text.replace (p+i, p+j)
-	for p in wordsBeginEnd:
+	wordsBeginStart = '( \n\t'
+	for p in wordsEnd:
 		for q in wordsBeginStart:
 			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
 	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
@@ -136,6 +134,10 @@ class Text():
 
 	def clean (self):
 		self.text = clean (self.text)
+
+	def cleanText (self):
+		self.text = clean (self.text)
+
 
 	def fromModel (self, model):
 		return fromModel (self.text, model)

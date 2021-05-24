@@ -197,11 +197,10 @@ class ListFile (List):
 		for file in self: strList = strList +'\n'+ file.title
 		return strList
 
-class ArticleList (ListFile):
+class ListArticle (ListFile):
 
 	def __init__ (self, genre=""):
 		ListFile.__init__ (self)
-		self.path = fs.shortcut ('a/')
 		self.genre = genre
 		if genre == 'fanfic' or genre == 'romance': self.path = 'a/fanfics/'
 		elif genre == 'cour': self.path = 'a/cours/'
