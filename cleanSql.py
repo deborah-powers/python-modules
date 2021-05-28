@@ -135,7 +135,7 @@ class SqlFile (File):
 		for a in artefacts: self.replace (a, a[0])
 		artefacts =( ';', '_dpo' )
 		for a in artefacts: self.replace (a)
-		artefacts =('from', 'innerjoin', 'leftjoin', 'where', 'groupby', 'orderby', 'list', 'uniqueresult')
+		artefacts =('from', 'innerjoin', 'leftjoin', 'where', 'groupby', 'orderby', 'list', 'uniqueresult', 'and', 'or')
 		for w in artefacts:
 			self.replace (').'+w+' (', ' '+w+' ')
 			self.replace ('.'+w+' (', ' '+w+' ')
