@@ -6,6 +6,11 @@ from listFiles import ListFile
 import debutils.logger as log
 
 types = ('ano', 'ddt', 'evo')
+modules ={
+	'cdm': ('cdm', 'ac'),
+	'sif': ('aec', 'sif', 'can'),
+	'edi': ('edi', 'ord')
+}
 refName = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\mantis-base.txt'
 refFile = File (refName)
 refSqlCdm = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\su_cdm.sql'
@@ -16,6 +21,12 @@ class Mantis():
 		self.message = message
 		self.numext = numext
 		self.module = module
+		self.projet =""
+		for pj in modules.keys:
+			for md in modules[pj]:
+				if md in module: self.projet = self.projet +', '+pj
+		if self.projet: self.projet = self.projet[2:]
+		else: self.projet = '?'
 		self.numint = numint
 		self.type = 'ano'
 		if type in types: self.type = type
@@ -44,6 +55,7 @@ class MantisFile (Mantis, File):
 		refFile.replace ('%message%', self.message)
 		refFile.replace ('%numext%', self.numext)
 		refFile.replace ('%numint%', self.numint)
+		refFile.replace ('%projet%', self.projet)
 		refFile.replace ('%module%', self.module)
 		refFile.replace ('%type%', self.type)
 		commandesStr = 'log.debug ("________________________ requete ________________________");\nlog.debug (obj.getA() +"\t"+ obj.getB());'
