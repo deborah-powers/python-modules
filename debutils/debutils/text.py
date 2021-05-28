@@ -10,14 +10,52 @@ wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nCd ', '\nPsql ','\nPg_', '\nPython ', '\nGit ',
 	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
 	'\nLog.', '\tLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
-tml =(
+weirdChars =(
+	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
+	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
+	('\\u00c2', 'Â'), ('\\u00ca', 'Ê'), ('\\u00cb', 'Ë'), ('\\u00ce', 'Î'), ('\\u00cf', 'Ï'), ('\\u00d4', 'Ô'), ('\\u00d6', 'Ö'), ('\\u00db', 'Û'), ('\\u00e0', 'à'), ('\\u00e2', 'â'), ('\\u00e7', 'ç'), ('\\u00e8', 'è'), ('\\u00e9', 'é'), ('\\u00ea', 'ê'), ('\\u00eb', 'ë'), ('\\u00ee', 'î'), ('\\u00ef', 'ï'), ('\\u00f4', 'ô'), ('\\u00f6', 'ö'), ('\\u00fb', 'û'),
+	('\\', ''),
+	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x97', "'"), ('\x9c', ' '), ('\xa0', ' '),
+	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'),
+	('&mdash;', ' '), ('&nbsp;', ''), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"),
+	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'"),
+	(',', ', '), ('(', ' ('), (')', ') '), ('[', ' ['), (']', '] '), ('{', ' {'), ('}', '} ')
+)
+tagHtml =(
 	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n--- '), ('</h4>\n', ' ---\n'),
 	('\n<hr>', '\n______\n'), ("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
 	('\n<li>', '\n\t')
 )
-
-
 # fonctions pour les textes simples
+def clean (text):
+	# remplacer les caractères bizzares
+	for i, j in weirdChars: text = text.replace (i, j)
+	# nettoyage simple
+	text = text.strip()
+	while '  ' in text: text = text.replace ('  ', ' ')
+	points = '([{\t\n'
+	for p in points: text = text.replace (p+' ', p)
+	points = ')]}\t\n.:,'
+	for p in points: text = text.replace (' '+p, p)
+	while '\t\n' in text: text = text.replace ('\t\n', '\n')
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	# la ponctuation
+	while '....' in text: text = text.replace ('....', '...')
+	text = text.replace ('...', ' ... ')
+	text = text.replace ('!', ' !')
+	while '  ' in text: text = text.replace ('  ', ' ')
+	while '! !' in text: text = text.replace ('! !', '!!')
+	for p in points: text = text.replace (' '+p, p)
+	# les appostrophes
+	points = 'cdjlmnrst'
+	for p in points:
+		text = text.replace (' '+p+"' ", ' '+p+"'")
+		text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
+	text = text.replace ("Qu' ","Qu'")
+	text = text.replace ("qu' ","qu'")
+	text = text.strip()
+	while '  ' in text: text = text.replace ('  ', ' ')
+	return text
 
 def toUpperCase (text):
 	text ='\n'+ text
@@ -32,10 +70,77 @@ def toUpperCase (text):
 	text = text.strip()
 	return text
 
+def fromModel (text, model):
+	# remplacer scanf
+	# préparer le modèle
+	typeList = ['d', 'f', 's']
+	model = model.replace ('%%', '$')
+	modelTmp = model
+	for t in typeList: modelTmp = modelTmp.replace ('%'+t, '%')
+	# récupérer les données du message sous forme de string
+	modelList = modelTmp.split ('%')
+	results = []
+	textTmp = text
+	for line in modelList:
+		d= textTmp.find (line)
+		if d>0: results.append (textTmp [:d])
+		d+= len (line)
+		textTmp = textTmp [d:]
+	if len (textTmp) >0: results.append (textTmp)
+	d=0
+	rangeRes = range (len (results))
+	for r in rangeRes:
+		d= model.find ('%', d) +1
+		if model [d] =='d': results [r] = int (results [r])
+		elif model [d] =='f': results [r] = float (results [r])
+	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
+	return results
+
 class Text():
 	def __init__ (self, string=""):
 		self.text = string
 	# ________________________ fonctions de mise en forme ________________________
+
+	def shape (self, addCase=""):
+		""" mettre le text en forme pour simplifier sa transformation
+		j'utilise une mise en forme personnelle
+		addCase
+			rien: je ne rajoute pas les majuscules
+			min: je supprime l'ancienne casse et je rajoute les majuscules
+			max: je garde l'ancienne casse et je rajoute les majuscules
+		"""
+		Text.clean (self)
+		for char in '=*-_':
+			while self.contain (7* char): self.replace (7* char, 6* char)
+			for i,j in majList: self.replace (6* char +' '+i, '\n\n'+ 6* char +' '+j)
+			self.replace (' '+ 6* char, ' '+ 6* char +'\n\n')
+			self.replace (6* char +' ', '\n\n'+ 12* char +' ')
+			self.replace (' '+ 6* char, ' '+ 12* char +'\n\n')
+		while self.contain ('\n\n\n'): self.replace ('\n\n\n', '\n\n')
+
+	def upperCase (self, case=""):
+		if 'reset' in case: self.text = self.text.lower()
+		if 'upper' in case:
+			self.text = '\n'+ self.text +'\n'
+			if self.contain ('\n/code\n'):
+				paragraphList = self.split ('\ncode\n')
+				paragraphRange = range (1, len (paragraphList))
+				for i in paragraphRange:
+					d= paragraphList [i].find ('\n/code\n') +7
+					paragraphList [i] = paragraphList [i][:d] + toUpperCase (paragraphList [i][d:])
+				self.text = '\ncode\n'.join (paragraphList)
+			else: self.text = toUpperCase (self.text)
+			self.text = self.text.strip()
+
+	def clean (self):
+		self.text = clean (self.text)
+
+	def cleanText (self):
+		self.text = clean (self.text)
+
+
+	def fromModel (self, model):
+		return fromModel (self.text, model)
 
 	def comparLines (self, otherText, keepCommon=True, toSort=False):
 		self.clean()
@@ -115,17 +220,41 @@ class Text():
 
 	# ________________________ fonctions de bases ________________________
 
+	def length (self):
+		return len (self.text)
+
+	def __str__ (self):
+		if self.text: return self.text
+		else: return ""
 
 	def split (self, word):
 		return self.text.split (word)
 
+	def replace (self, oldWord, newWord=''):
+		self.text = self.text.replace (oldWord, newWord)
+
 	def strip (self):
 		self.text = self.text.strip()
+
+	def contain (self, word):
+		if word in self.text: return True
+		else: return False
 
 	def countWord (self, word):
 		nb=0
 		if word in self.text: nb= self.text.count (word)
 		return nb
+
+	def index (self, word, pos=0):
+		posFind =-1
+		if pos <0: pos = len (self.text) -pos
+		if self.contain (word): posFind = self.text.find (word, pos)
+		return posFind
+
+	def rindex (self, word):
+		posFind =-1
+		if self.contain (word): posFind = self.text.rfind (word)
+		return posFind
 
 	def sliceNb (self, posStart, posEnd):
 		res =""
@@ -142,6 +271,10 @@ class Text():
 			f= self.index (wordEnd, d)
 			if f>0 and f>d: res = self.sliceNb (d, f)
 		return res
+
+	def __lt__ (self, otherText):
+		""" nécessaire pour trier les listes """
+		return self.text < otherText.text
 
 	# ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________
 
