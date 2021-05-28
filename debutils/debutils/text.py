@@ -62,9 +62,9 @@ def toUpperCase (text):
 	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '______ ', '------ ', '****** ', '====== ')
 	for i, j in majList:
 		for p in points: text = text.replace (p+i, p+j)
-	wordsBeginStart = '( \n\t'
+	wordsStart = '( \n\t'
 	for p in wordsEnd:
-		for q in wordsBeginStart:
+		for q in wordsStart:
 			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
 	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
 	text = text.strip()

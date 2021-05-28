@@ -1,10 +1,10 @@
 ====== pésentation ======
 
-message		%message%
-num ext		%numext%
-num int		%numint%
-module		%module%
-type		%type%
+message	%message%
+numéro	%numext%	%numint%
+module	%projet%	%module%
+type	%type%
+livraison	nom-liv	date-liv
 
 ====== temps tavaillé ======
 
