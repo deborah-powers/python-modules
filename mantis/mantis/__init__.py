@@ -22,7 +22,7 @@ class Mantis():
 		self.numext = numext
 		self.module = module
 		self.projet =""
-		for pj in modules.keys:
+		for pj in modules.keys():
 			for md in modules[pj]:
 				if md in module: self.projet = self.projet +', '+pj
 		if self.projet: self.projet = self.projet[2:]
