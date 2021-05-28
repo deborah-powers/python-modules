@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 from debutils.text import Text
+from debutils.logger import log
 """
 champs intéressants de datetime
 self.year, self.month, self.day, self.hour, self.minute, self.second
@@ -98,14 +99,17 @@ class Date (datetime):
 
 	def fromStrUtz (self, dateStr):
 		""" dateStr ressemble à 2018-01-29T12:00:00+01:00 """
+		dateStr = dateStr[:19]
 		dateStr = dateStr.replace ('T', '/')
-		self.fromStr (dateStr)
+		return self.fromStr (dateStr)
 
 	def fromStr (self, dateStr):
 		dateStr = dateStr.replace ('-', '/')
 		dateStr = dateStr.replace (' ', '/')
 		dateStr = dateStr.replace (':', '/')
-		dateList = dateStr.split ('/')
-		self = datetime (int (dateList [0]), int (dateList [1]), int (dateList [2]))
-		if len (dateList) ==5: self = self.replace (hour= int (dateList [3]), minute= int (dateList [4]))
-
+		dateTmp = None
+		if dateStr.count ('/') ==5: dateTmp = datetime.strptime (dateStr, '%Y/%m/%d/%H/%M/%S')
+		elif dateStr.count ('/') ==2: dateTmp = datetime.strptime (dateStr, '%Y/%m/%d')
+		dateNew = Date (dateTmp.year, dateTmp.month, dateTmp.day)
+		dateNew = dateNew.replace (hour=dateTmp.hour, minute=dateTmp.minute)
+		return dateNew
