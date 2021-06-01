@@ -10,7 +10,13 @@ set schema 'cdm';
 do $$ begin
 	delete from suivi_integration_flux where suvi_inte_flx_typ_msg = 'FLUX_F3' and suvi_inte_flx_id_obj = 00000;
 	update csf_versionne set
-		motivation_ac = null, etat_precedent = null, date_decision_valnc = null, commentaire_decision_valnc = null,
+		date_decision_ac = null, commentaire_decision_ac = null,
+		date_decision_encac = null, commentaire_decision_encac = null,
+		date_decision_valnc = null, commentaire_decision_valnc = null,
+		date_decision_comac = null, commentaire_decision_comac = null,
+		date_devalidation_ac = null, devalidation_commentaire = null,
+		date_envoi_validation = null, emetteur_validation_ac = null, fonction_emetteur_validation_ac = null,
+		motivation_ac = null, etat_precedent = null,
 		etat = 'EAVAC' where csf_versionne_pk = 00000;
 
 	-- Mise à jour des flags de transfert vers l'agrégateur. quand je modifie une opération ou un objet qui en dépend
