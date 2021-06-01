@@ -236,7 +236,7 @@ class ListArticle (ListFile):
 	def getBySubject (self, subject=None):
 		if not subject: return self
 		else:
-			aList = ArticleList()
+			aList = ListArticle()
 			for article in self:
 				if subject in article.subject: aList.add (article)
 			return aList

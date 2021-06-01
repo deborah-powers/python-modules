@@ -4,7 +4,7 @@ from sys import argv
 from debutils.list import List
 from fileHtml import FileHtml, findTextBetweenTag, listTagsKeep, listTags
 from fileHtml.htmlArticle import ArticleHtml
-from listFiles import ArticleList
+from listFiles import ListArticle
 import debutils.logger as logger
 
 help = """
@@ -467,8 +467,8 @@ def seLogerUnite (text):
 	template = template %( adresse, prix, surface)
 	return template
 
-
-lfic = ArticleList ('fanfic')
+"""
+lfic = ListArticle ('fanfic')
 lfic.get()
 nfic = lfic.getBySubject ('batverse')
 nfic.show ('batman')
@@ -481,4 +481,3 @@ if len (argv) >=2:
 	page.ficWeb (url, subject)
 # le nom du fichier n'a pas ete donne
 else: print (help)
-"""
