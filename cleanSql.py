@@ -18,6 +18,7 @@ def cleanJoin (line):
 	newLine = line[:d]
 	d= line.find (', ') +2
 	table = line[d:]
+	table = table.strip()
 	newLine = newLine + table +' on '+ table +'_pk = '+ table +'_fk'
 	return newLine
 
@@ -27,6 +28,7 @@ def cleanWhere (line):
 	return line
 
 def getResult (line):
+	coucou()
 	if line[:5] == 'list ':
 		return line[5:]
 	elif line[:13] == 'uniqueresult ':
@@ -41,15 +43,29 @@ class SqlFile (File):
 	def prepare (self):
 		self.fromFile()
 		self.text = self.text.lower()
-		self.clean()
 		self.replace ('\t',' ')
+		self.clean()
+		self.eraseComment()
 		self.replace ('\n',' ')
 		self.replace (',',', ')
-		while self.contain ('  '): self.replace ('  ',' ')
 		# self.replace (' (','(')
 		self.replace (' .','.')
+		self.clean()
 
 	def finish (self):
+		addUnderscoreBefore =( 'ac', 'montant', 'version', 'operation')
+		addUnderscoreAfter =( 'beneficiaire', 'comptable', 'lien', 'montant', 'personne', 'recherche', 'vue')
+		for name in addUnderscoreBefore: self.replace (name, '_'+ name)
+		for name in addUnderscoreAfter:
+			self.replace (' '+ name, ' '+ name +'_')
+			self.replace ('.'+ name, '.'+ name +'_')
+		tables =( ('vue_recherchecsf_ac', 'vue_recherche_csf_ac'), )
+		for (nameWrong, nameGood) in tables: self.replace (nameWrong, nameGood)
+		while self.contain ('__'): self.replace ('__','_')
+		self.replace ('_ ',' ')
+		self.replace (' _',' ')
+		self.replace ('_.','.')
+		self.replace ('._','.')
 		self.replace (' --','\n--')
 		self.replace ('; ',';\n')
 		for word in wordBegin: self.replace (' '+ word, '\n'+ word)
@@ -78,13 +94,12 @@ class SqlFile (File):
 			sqlList = self.text.split ('\n')
 			sqlRange = range (len (sqlList) -1, 0, -1)
 			for l in sqlRange:
-				if sqlList[l][:3] =='// ': trash = self.pop(l)
+				if sqlList[l][:3] =='// ': trash = sqlList.pop(l)
 			self.text = '\n'.join (sqlList)
 
 	# ________________________ fonctions pour hibernate ________________________
 
 	def cleanHibernate (self):
-		self.eraseComment()
 		self.replace ('\nrequete')
 		self.replace ('\n',' ')
 		self.replace ('\t',' ')
@@ -104,21 +119,9 @@ class SqlFile (File):
 		self.replace ('.gettablename()')
 		self.replace ('.getchamp()')
 		self.replace (') ',' ')
+		self.replace ('dpo ',' ')
 		while self.contain ('  '): self.replace ('  ',' ')
 		self.prepare()
-		addUnderscoreBefore =( 'ac', 'montant', 'version', 'operation')
-		addUnderscoreAfter =( 'beneficiaire', 'comptable', 'lien', 'montant', 'personne', 'recherche', 'vue')
-		for name in addUnderscoreBefore: self.replace (name, '_'+ name)
-		for name in addUnderscoreAfter:
-			self.replace (' '+ name, ' '+ name +'_')
-			self.replace ('.'+ name, '.'+ name +'_')
-		tables =( ('vue_recherchecsf_ac', 'vue_recherche_csf_ac'), )
-		for (nameWrong, nameGood) in tables: self.replace (nameWrong, nameGood)
-		while self.contain ('__'): self.replace ('__','_')
-		self.replace ('_ ',' ')
-		self.replace (' _',' ')
-		self.replace ('_.','.')
-		self.replace ('._','.')
 		self.finish()
 
 	def replaceAppend (self, word, newWord=None):
@@ -130,7 +133,12 @@ class SqlFile (File):
 	# ________________________ fonctions pour jpa ________________________
 
 	def prepareJpa (self):
+		# lavage de base
 		self.eraseComment()
+		self.replace ('\n',' ')
+		while self.contain ('  '): self.replace ('  ',' ')
+		# laver le jpa
+		self.replace ('query.', '.')
 		artefacts =( ' q_', '(q_' )
 		for a in artefacts: self.replace (a, a[0])
 		artefacts =( ';', '_dpo' )
@@ -145,30 +153,38 @@ class SqlFile (File):
 		for v,w in artefacts: self.replace ('.'+v+' (', ' '+w+' ')
 		artefacts =('inner join', 'left join', 'group by', 'order by')
 		for w in artefacts: self.replace (w.replace (' ',""), w)
-		artefacts =( ('return ', ""), ('new jpaquery (', ""), ('this.entitymanager', 'select *'), ('.id', '_pk'), ('dpo_pk', '_pk'),
+		artefacts =( ('return ', ""), ('new jpaquery (', ""), ('this.entitymanager', 'select *'), ('.id', '_pk'), ('_pkfonctionnel', '.id_fonctionnel'), ('dpo_pk', '_pk'),
 			(' list ', '\nlist '), (' uniqueresult ', '\nuniqueresult '))
 		for v,w in artefacts: self.replace (v,w)
 
 	def cleanJpa (self):
-		toSelect =""
 		self.finish()
 		sqlList = self.text.split ('\n')
 		sqlRange = range (len (sqlList))
 		for l in sqlRange:
 			sqlList[l] = cleanJoin (sqlList[l])
 			sqlList[l] = cleanWhere (sqlList[l])
-			if not toSelect:
-				toSelect = getResult (sqlList[l])
-				if toSelect: sqlList[l] =""
 		self.text = '\n'.join (sqlList)
-		if toSelect:
+		toSelect = 'select '
+		if self.contain ('uniqueresult'):
+			d= self.index ('uniqueresult')
+			toSelect = toSelect + self.text[d+13:]
+			self.text = self.text[:d]
+			self.text = self.text.strip()
 			if ', ' not in toSelect: toSelect = toSelect +'.*'
-			self.replace ('select *', 'select '+ toSelect)
+		else: toSelect = toSelect +'*'
+		self.text = toSelect +'\n'+ self.text
 		self.replace (')')
 		self.replace ('(')
+		self.replace ('dpo ',' ')
+		self.clean()
 
 	def main (self, tag):
-		self.prepare()
+		# lavage de base
+		self.fromFile()
+		self.text = self.text.lower()
+		self.replace ('\t',' ')
+		self.clean()
 		if tag == 'jpa':
 			self.prepareJpa()
 			self.cleanJpa()
