@@ -29,6 +29,9 @@ def traceLine():
 	strFile = strFile.replace ('C:\\Users\\deborah.powers\\python\\debutils\\', "")
 	strFile = strFile.replace ('C:\\Users\\deborah.powers\\python\\', "")
 	strFile = strFile.replace ('C:\\Users\\deborah.powers\\', "")
+	strFile = strFile.replace ('AppData\\Local\\Programs\\Python\\Python38\\lib\\site-packages\\', "")
+	strFile = strFile.replace ('\\__init__.py', "")
+	strFile = strFile.replace ('mantis-0.1-py3.8.egg\\mantis', 'mantis')
 	return '%s\t%s %s' % (strFile, strNum, stackList[i].function)
 
 def log (message=None):

@@ -5,16 +5,17 @@ from fileSimple import File
 from listFiles import ListFile
 import debutils.logger as log
 
-types = ('ano', 'ddt', 'evo')
+types = ('ano', 'ddt', 'evo', 'ana', 'rcsf')
 modules ={
 	'cdm': ('cdm', 'ac'),
 	'sif': ('aec', 'sif', 'can'),
 	'edi': ('edi', 'ord')
 }
-refName = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\mantis-base.txt'
+refPath = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\'
+refName = refPath + 'mantis-base.txt'
 refFile = File (refName)
-refSqlCdm = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\su_cdm.sql'
-refSqlSif = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\su_sif.sql'
+refSqlCdm = refPath + 'su_cdm.sql'
+refSqlSif = refPath + 'su_sif.sql'
 
 class Mantis():
 	def __init__ (self, numext ='0', message ='?', module = '?', numint ='0', type ='ano'):
@@ -31,6 +32,9 @@ class Mantis():
 		self.type = 'ano'
 		if type in types: self.type = type
 		elif 'ddt' in message.lower(): self.type = 'ddt'
+		if module == 'rcsf':
+			self.projet = 'cdm, sif'
+			self.type = 'ddt'
 
 	def __lt__ (self, newMantis):
 		string = '%s %s'
@@ -76,13 +80,14 @@ class MantisFile (Mantis, File):
 		refFile.replace (' ______\n', ' ______\n\n')
 		refFile.toFile()
 		if self.type == 'ddt':
-			if 'cdm' in self.module: self.createDdt (date, 'cdm')
-			if 'sif' in self.module: self.createDdt (date, 'sif')
+			if 'cdm' in self.projet: self.createDdt (date, 'cdm')
+			if 'sif' in self.projet: self.createDdt (date, 'sif')
 
 	def createDdt (self, dtime, module='cdm'):
 		sqlFile = File()
 		if module == 'sif': sqlFile.file = refSqlSif
-		else: sqlFile.file = refSqlCdm
+		elif module == 'cdm': sqlFile.file = refSqlCdm
+		if self.module == 'rcsf': sqlFile.file = sqlFile.file.replace ('su_', 'su_rcsf_')
 		sqlFile.dataFromFile()
 		sqlFile.fromFile()
 		sqlFile.replace ('%numero%', self.numext)
