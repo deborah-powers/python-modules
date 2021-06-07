@@ -46,10 +46,7 @@ class Mantis():
 class MantisFile (Mantis, File):
 	def __init__ (self, numext ='0', message ='?', module = '?', numint ='0', type ='ano'):
 		Mantis.__init__ (self, numext, message, module, numint, type)
-		File.__init__ (self, 'b/mantis ' + numext + '.txt')
-		if self.type == 'ddt':
-			self.title = 'ddt '+ numext
-			self.fileFromData()
+		File.__init__ (self, 'b/'+ self.type +' '+ numext + '.txt')
 
 	def createFile (self):
 		refFile.fromFile()
