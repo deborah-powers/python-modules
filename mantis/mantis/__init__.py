@@ -3,6 +3,7 @@
 from datetime import datetime
 from fileSimple import File
 from listFiles import ListFile
+from fileHtml import FileHtml
 import debutils.logger as log
 
 types = ('ano', 'ddt', 'evo', 'ana', 'rcsf')
@@ -120,6 +121,49 @@ class MantisFile (Mantis, File):
 		from debutils.html import FileHtml
 		fhtml = FileHtml()
 		fhtml.fromFileName (self.file)
+
+	def fromHtml (self, fhtml):
+		# self.file est un fichier téléchargé de https://mantis2.axyus.com/view.php?id=3165
+		self.file = fhtml
+		File.fromFile (self)
+		# le message
+		d= self.index ('<title')
+		d= self.index ('>',d) +1
+		f= self.index ('</title>')
+		self.message = self.text[d:f]
+		d= self.message.find (': ')
+		self.numext = self.message[:d]
+		self.numext = self.numext.lstrip ('0')
+		self.message = self.text[d+2:]
+		# le module
+		d= self.index ('<th>Sous-module</th>')
+		d= self.index ('- ', d)+2
+		f= self.index ('-', d)
+		self.module = self.text[d:f].lower()
+		# la livraison
+		d= self.index ('<th>Version ciblée</th>')
+		d= self.index ('<td>', d)+4
+		f= self.index ('</td>', d)
+		livraison = self.text[d:f]
+		log.coucou()
+		# les images
+		images = self.text.split ('<img src=')
+		trash = images.pop (0)
+		trash = images.pop (-1)
+		rangeImg = range (len (images))
+		for i in rangeImg:
+			f= images[i].find ('>') -1
+			d= images[i][:f].rfind ('/') +1
+			images[i] = images[i][d:f]
+		textImg =""
+		if images:
+			textImg = '	'.join (images)
+			textImg = 'images:	'+ textImg
+		# créer le fichier
+		self.createFile()
+		if livraison: refFile.replace ('nom-liv', livraison)
+		if textImg: refFile.replace ('====== infos ======', '====== infos ======\n\n' + textImg)
+		if livraison or textImg: refFile.toFile()
 
 class MantisList (ListFile):
 	def __init__ (self):
