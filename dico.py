@@ -12,8 +12,6 @@ newPoints = "-' () /_\"\n\t<> [](){}|%#$@=+*°"
 fileRefName = 'b/dico.txt'
 lang = None
 
-print ('dodu')
-
 class FileRef (FileTable):
 	def __init__ (self):
 		FileTable.__init__ (self, 'n', ' ', fileRefName)
