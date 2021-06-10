@@ -8,11 +8,11 @@ from listClass import List
 from listFile import ListFile
 suffix = ('ations', 'itions', 'trices', 'ables', 'aires', 'amant', 'ament', 'ances', 'aient', 'ation', 'asmes', 'elles', 'ement', 'ences', 'esses', 'ettes', 'euses', 'ibles', 'ières', 'iques', 'ismes', 'ition', 'tions', 'trice', 'able', 'ages', 'aire', 'ance', 'asme', 'bles', 'eaux', 'elle', 'ence', 'esse', 'ères', 'ette', 'eurs', 'euse', 'ible', 'ière', 'iers', 'ions', 'ique', 'isme', 'ités', 'mant', 'ment', 'ques', 'sses', 'tion', 'age', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'ère', 'eur', 'ées', 'ier', 'ion', 'ité', 'nes', 'ont', 'ons', 'que', 'sse', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'a', 'e', 'é', 's', 't', 'x')
 prefix = ('imm', 'inn', 'pré', 'dé', 'im', 'in', 're', 'ré', 'sur')
-newPoints = "-' () /_"nt<> [] () {} |%#$@=+*°"
+newPoints = "-' () /_\"\n\t<> [](){}|%#$@=+*°"
 fileRefName = 'b/dico.txt'
 lang = None
 
-print ('coucou')
+print ('dodo')
 
 class FileRef (FileTable):
 	def __init__ (self):
