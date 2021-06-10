@@ -11,6 +11,9 @@ prefix = ('imm', 'inn', 'pré', 'dé', 'im', 'in', 're', 'ré', 'sur')
 newPoints = "-' () /_"nt<> [] () {} |%#$@=+*°"
 fileRefName = 'b/dico.txt'
 lang = None
+
+print ('coucou')
+
 class FileRef (FileTable):
 	def __init__ (self):
 		FileTable.__init__ (self, 'n', ' ', fileRefName)
