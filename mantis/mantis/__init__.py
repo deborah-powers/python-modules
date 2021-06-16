@@ -8,7 +8,7 @@ import debutils.logger as log
 
 types = ('ano', 'ddt', 'evo', 'ana', 'rcsf')
 modules ={
-	'cdm': ('cdm', 'ac'),
+	'cdm': ('cdm', 'gd', 'ac'),
 	'sif': ('aec', 'sif', 'can'),
 	'edi': ('edi', 'ord')
 }
