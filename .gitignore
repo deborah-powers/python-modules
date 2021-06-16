@@ -12,6 +12,7 @@ temp.py
 *.json
 *.log
 doublons-fichiers/
+mantis/
 */dist/
 */build/
 */dist/

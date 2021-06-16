@@ -15,8 +15,10 @@ modules ={
 refPath = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\'
 refName = refPath + 'mantis-base.txt'
 refFile = File (refName)
-refSqlCdm = refPath + 'su_cdm.sql'
-refSqlSif = refPath + 'su_sif.sql'
+refSqlCdm = refPath + '01_CDM_DDT-00000_xxx.sql'
+refSqlSif = refPath + '01_SIF_DDT-00000_xxx.sql'
+refSqlCdmRcsf = refPath + '01_CDM_DDT-00000_reprise_csf.sql'
+refSqlSifRcsf = refPath + '01_SIF_DDT-00000_suppression_csf.sql'
 
 class Mantis():
 	def __init__ (self, numext ='0', message ='?', module = '?', numint ='0', type ='ano'):
@@ -83,16 +85,19 @@ class MantisFile (Mantis, File):
 
 	def createDdt (self, dtime, module='cdm'):
 		sqlFile = File()
-		if module == 'sif': sqlFile.file = refSqlSif
-		elif module == 'cdm': sqlFile.file = refSqlCdm
-		if self.module == 'rcsf': sqlFile.file = sqlFile.file.replace ('su_', 'su_rcsf_')
+		if module == 'sif':
+			if self.module == 'rcsf': sqlFile.file = refSqlSifRcsf
+			else: sqlFile.file = refSqlSif
+		elif module == 'cdm':
+			if self.module == 'rcsf': sqlFile.file = refSqlCdmRcsf
+			else: sqlFile.file = refSqlCdm
 		sqlFile.dataFromFile()
 		sqlFile.fromFile()
 		sqlFile.replace ('%numero%', self.numext)
 		dateStr = '%02d/%02d/%02d' % (dtime.day, dtime.month, dtime.year)
 		sqlFile.replace ('%date%', dateStr)
 		sqlFile.path = self.path
-		sqlFile.title = sqlFile.title.replace ('su_', 'su_'+ self.numext +'_')
+		sqlFile.title = sqlFile.title.replace ('00000', self.numext)
 		sqlFile.fileFromData()
 		sqlFile.toFile()
 
