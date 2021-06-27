@@ -88,10 +88,10 @@ class Fanfic (ArticleHtml):
 		textList = List()
 		textList.fromText ('<h3>', self.text)
 		textRange = textList.range (1)
+		"""
 		for t in textRange:
 			logger.log (str(t) +'\t'+ textList[t])
 
-		"""
 		self.replace ('><span>', '>')
 		self.replace ('</span><', '<')
 		"""

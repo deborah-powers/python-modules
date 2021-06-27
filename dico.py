@@ -1,95 +1,71 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from fileClass import File
-from fileList import FileList, FileTable
-from textClass import pointsEnd
-from listClass import List
-from listFile import ListFile
-suffix = ('ations', 'itions', 'trices', 'ables', 'aires', 'amant', 'ament', 'ances', 'aient', 'ation', 'asmes', 'elles', 'ement', 'ences', 'esses', 'ettes', 'euses', 'ibles', 'ières', 'iques', 'ismes', 'ition', 'tions', 'trice', 'able', 'ages', 'aire', 'ance', 'asme', 'bles', 'eaux', 'elle', 'ence', 'esse', 'ères', 'ette', 'eurs', 'euse', 'ible', 'ière', 'iers', 'ions', 'ique', 'isme', 'ités', 'mant', 'ment', 'ques', 'sses', 'tion', 'age', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'ère', 'eur', 'ées', 'ier', 'ion', 'ité', 'nes', 'ont', 'ons', 'que', 'sse', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'a', 'e', 'é', 's', 't', 'x')
-prefix = ('imm', 'inn', 'pré', 'dé', 'im', 'in', 're', 'ré', 'sur')
-newPoints = "-' () /_\"\n\t<> [](){}|%#$@=+*°"
-fileRefName = 'b/dico.txt'
-lang = None
+from debutils.text import wordsEnd
+from fileSimple import File
+from debutils.list import List
+from fileSimple.fileList import FileList, FileTable
+# import debutils.logger as logger
+
+suffix = ('ations', 'ennant', 'ennent', 'itions', 'trices', 'ables', 'aires', 'amant', 'ament', 'ances', 'aient', 'ation', 'asmes', 'âtres', 'elles', 'ement', 'ences', 'èques', 'esses', 'ettes', 'euses', 'ibles', 'ières', 'iques', 'ismes', 'ition', 'tions', 'trice', 'able', 'ages', 'aire', 'ance', 'asme', 'âmes', 'âtre', 'bles', 'eaux', 'elle', 'ence', 'esse', 'èque', 'ères', 'ette', 'eurs', 'euse', 'ible', 'ière', 'iers', 'ions', 'ique', 'isme', 'ités', 'îmes', 'mant', 'ment', 'ques', 'sses', 'tion', 'age', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'ère', 'eur', 'ées', 'ier', 'ion', 'ité', 'nes', 'ont', 'ons', 'que', 'sse', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'a', 'e', 'é', 's', 't', 'x')
+prefix = ('dés', 'imm', 'inn', 'mal', 'més', 'pré', 'dé', 'im', 'in', 'mé', 're', 'ré', 'sur')
+newPoints = "-'() /_\"\n\t<> [](){}|%#$@=+*°&0123456789"
 
 class FileRef (FileTable):
 	def __init__ (self):
-		FileTable.__init__ (self, 'n', ' ', fileRefName)
-		self.fromFile ()
-		if self.length () <3: self.add (List ())
+		FileTable.__init__ (self, '\n', ' ', 'b/dico.txt')
+		self.fromFile()
+		while self.length() <3: self.addLine (List())
+
 	def sort (self):
-		tmpRange = self.range ()
-		for l in tmpRange: self [l].sort ()
-class ListSrc (ListFile):
-	def get (self):
-		ListFile.get (self)
-		rangeFile = self.range ()
-		rangeFile.reverse ()
-		for f in rangeFile:
-			if self [f].extension not in 'txt html': trash = self.pop (f)
-class FileSrc (FileList):
+		tmpRange = self.range()
+		for l in tmpRange: self[l].sort()
+
+ref = FileRef()
+
+class ListSrc (List):
+	def __init__ (self, text):
+		List.__init__ (self)
+		List.fromText (self, ' ', text)
+		self.sort()
+		self.rg = self.range()
+		self.rg.reverse()
+
+	def delDouble (self):
+		for t in self.rg:
+			d= self.count (self.list[t])
+			if d>1: trash = self.pop (t)
+		self.rg = self.range()
+		self.rg.reverse()
+
+	def delKnown (self):
+		refText = ref.toText (ref.sepLin, ref.sepCol)
+		for t in self.rg:
+			if self.list[t] in refText: trash = self.pop (t)
+
+class FileSrc (File):
 	def __init__ (self, fileName=None):
-		FileList.__init__ (self, ' ')
-		if fileName:
-			self.file = fileName
-			self.fromFile ()
-	def listWords (self):
-		for p in pointsEnd: self.replace (p, ' ')
+		File.__init__ (self, fileName)
+		if fileName: self.fromFile()
+
+	def clean (self):
+		self.text = self.text.lower()
 		for p in newPoints: self.replace (p, ' ')
-		self.clean ()
-		self.addList (self.text.split (' '))
-		self.delDouble ()
-		self.list.sort ()
-	def fromFile (self):
-		File.fromFile (self)
-		self.listWords ()
-	def toFile (self, message=None):
-		self.list.sort ()
-		self.text = ' '.join (self.list)
-		if not message: message = 'dico'
-		self.title = self.title +' '+ message
-		self.path = 'b/'
-		self.fileFromData ()
-		File.toFile (self)
-	def checkWordLen (self, lang):
-		if not self.list: self.fromFile ()
-		tmpRange = self.range ()
-		tmpRange.reverse ()
-		wordLen =10
-		if lang == 'fr': wordLen =17
-		for w in tmpRange:
-			if len (self.list [w]) < wordLen: trash = self.list.pop (w)
-		self.toFile ('mots longs')
-	def dictPrep (self):
-		if not self.text: self.fromFile ()
-		self.text = self.sep.join (self.list)
-		for p in suffix: self.replace (p+' ', ' ')
-		for p in prefix: self.replace (' '+p, ' ')
-		numbers = '0123456789'
-		for n in numbers: self.replace (n)
-		while ' ' in self.text: self.replace (' ', ' ')
-		self.text = self.text.lower ()
-		self.list = self.text.split (self.sep)
-		self.delDouble ()
-	def dictList (self):
-		self.dictPrep ()
-		dictRef = FileRef ()
-		tmpRange = self.range ()
-		tmpRange.reverse ()
-		for w in tmpRange:
-			if self [w] not in dictRef [0] and self [w] not in dictRef [1] and self [w] not in dictRef [2]:
-				dictRef [2].add (self [w])
-		dictRef [2].sort ()
-		dictRef.toFile ()
-fileTstName = argv [1]
-if fileTstName == 'tri':
-	dictRef = FileRef ()
-	dictRef.sort ()
-	dictRef.toFile ()
-else:
-	fileTstName = 'a/romans/' + fileTstName + '.txt'
-	dictSrc = FileSrc (fileTstName)
-	if len (argv) >2 and argv [2] in 'fr an':
-		lang = argv [2]
-		dictSrc.checkWordLen (lang)
-	else: dictSrc.dictList ()
+		for p in wordsEnd: self.replace (p, ' ')
+		File.clean (self)
+		self.text =' '+ self.text +' '
+		for ext in suffix: self.replace (ext +' ',' ')
+		for ext in prefix: self.replace (' '+ ext,' ')
+
+
+srcf = FileSrc ('a/romans/quand la terre hurla.txt')
+srcf.clean()
+srcl = ListSrc (srcf.text)
+srcl.delDouble()
+srcl.delKnown()
+for word in srcl.list: ref.list[2].add (word)
+ref.sort()
+ref.toFile()
+
+
+

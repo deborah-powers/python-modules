@@ -42,20 +42,13 @@ class FileList (File, List):
 		Text.replace (self, oldWord, newWord)
 		self.fromText()
 
-
-
-
-
-
-
-
-
 class FileTable (File, Table):
 	def __init__ (self, sepLin='\n', sepCol='\t', file =None):
 		File.__init__ (self, file)
 		Table.__init__ (self)
 		self.sepLin = sepLin
 		self.sepCol = sepCol
+
 	def fromFile (self):
 		tmpList = FileList ()
 		tmpList.copyFile (self)
@@ -65,10 +58,13 @@ class FileTable (File, Table):
 			tmp = List ()
 			tmp.fromText (self.sepCol, tmpList [l])
 			self.addLine (tmp)
+
 	def toFile (self):
 		self.text = self.toText (self.sepLin, self.sepCol)
 		File.toFile (self)
+
 	def length (self):
 		return len (self.list)
+
 	def __str__ (self):
 		return self.toText ('\n', '\t')
