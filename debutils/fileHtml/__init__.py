@@ -8,9 +8,9 @@ from fileSimple import *
 from fileSimple.fileLocal import pathCss
 import debutils.logger as logger
 
-listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button']
+listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button', 'span']
 listTagsSpecial = [ 'a', 'img', 'form', 'input']
-listTagsKeep = [ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body', 'span']
+listTagsKeep = [ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body']
 listTagsKeep.extend (listTagsIntern)
 listTagsKeep.extend (listTagsSpecial)
 listTags = []
@@ -269,8 +269,11 @@ class FileHtml (File):
 		self.replace ('\n')
 		self.replace ('\t')
 		self.clean()
+		for tag in listTags:
+			while self.contain ('<'+tag+'></'+tag+'>'): self.replace ('<'+tag+'></'+tag+'>',"")
 
 	def cleanLink (self):
+		logger.coucou()
 		if not self.contain ('</a>'): return
 		listText = self.split ('</a>')
 		rangeTxt = range (len (listText) -1)

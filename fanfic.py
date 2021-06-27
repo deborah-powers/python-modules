@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from debutils.list import List
-from fileHtml import FileHtml, findTextBetweenTag, listTagsKeep, listTags
+from fileHtml import FileHtml, findTextBetweenTag, listTags
 from fileHtml.htmlArticle import ArticleHtml
 from listFiles import ListArticle
 import debutils.logger as logger
@@ -13,6 +13,12 @@ utilisation: python %s url
 l'url peut correspondre à une page ou un fichier local
 """ % __file__
 
+class VideGrenier():
+	def __init__ (self):
+		self.title =""
+		self.city =""
+		self.distance =""
+		self.location =""
 
 class Fanfic (ArticleHtml):
 	def ficWeb (self, url, subject=None):
@@ -28,12 +34,13 @@ class Fanfic (ArticleHtml):
 		if 'http://www.gutenberg.org/' in url:				self.ficficGutemberg (subject)
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ficEbg (subject)
 		elif 'https://archiveofourown.org/works/' in url:	self.ficAooo()
-		elif 'https://www.ficDev.com/' in url:			self.ficDev()
+		elif 'https://www.ficDev.com/' in url:				self.ficDev()
 		elif 'https://menace-theoriste.fr/' in url:			self.ficTheoriste()
 		elif 'https://www.ficReddit.com/r/' in url:			self.ficficReddit()
 		elif 'https://www.therealfemaledatingstrategy.com/' in url:	self.ficFds()
 		elif 'https://www.ficBourse.com/' in url:			self.ficBourse()
-		elif 'http://uel.ficUnisciel.fr/' in url:				self.ficficUnisciel (subject)
+		elif 'http://uel.ficUnisciel.fr/' in url:			self.ficficUnisciel (subject)
+		elif 'https://vide-greniers.org/' in url:			self.ficVg()
 		elif 'gtb'		in url: self.ficficGutemberg (subject)
 		elif 'egb'		in url: self.ficEbg (subject)
 		elif 'aooo'		in url: self.ficAoooLcl (subject)
@@ -45,8 +52,11 @@ class Fanfic (ArticleHtml):
 		self.metas = {}
 		self.replace (' <', '<')
 		self.replace ('><', '>\n<')
+		self.toFile()
+		"""
 		if self.contain ('</a>') or self.contain ('<img'): self.toFile()
 		else: self.toFileText()
+		"""
 
 	def findSubject (self):
 		self.subject = self.subject.lower()
@@ -66,6 +76,25 @@ class Fanfic (ArticleHtml):
 			self.text = self.text[0:f]
 			f= self.rindex ('</p>') +4
 			self.text = self.text[0:f]
+
+	def ficVg (self):
+		self.subject = 'sortie'
+		self.author = 'vide-grenier'
+		d= self.index ('<h2>')
+		f= self.rindex ('<span>Voir les prochaines')
+		self.text = self.text[d:f]
+		toReplace =( ('<h2><span>', '<h2>'), ('</span></h2>', '</h2>'), ('<span><span>', '<span>'), ('</span></span>', '</span>') )
+		for i,j in toReplace: self.replace (i,j)
+		textList = List()
+		textList.fromText ('<h3>', self.text)
+		textRange = textList.range (1)
+		for t in textRange:
+			logger.log (str(t) +'\t'+ textList[t])
+
+		"""
+		self.replace ('><span>', '>')
+		self.replace ('</span><', '<')
+		"""
 
 	def ficReddit (self):
 		if 'FemaleDatingStrategy' in self.link:
@@ -149,10 +178,8 @@ class Fanfic (ArticleHtml):
 		if (self.contain ('<h2>Footnotes:</h2>')):
 			f= self.index ('<h2>Footnotes:</h2>')
 			self.text = self.text [:f]
-		for tag in listTags: self.replace ('<'+tag+'></'+tag+'>',"")
 		self.delImgLink()
 		self.metas = {}
-		self.toFile()
 
 	def ficEbg (self, subject=None):
 		self.delImgLink()
