@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+# https://fr.wiktionary.org/wiki/Wiktionnaire:Liste_de_1750_mots_fran%C3%A7ais_les_plus_courants
 from sys import argv
 from debutils.text import wordsEnd
 from fileSimple import File
@@ -7,9 +8,10 @@ from debutils.list import List
 from fileSimple.fileList import FileList, FileTable
 # import debutils.logger as logger
 
-suffix = ('ations', 'ennant', 'ennent', 'itions', 'trices', 'ables', 'aires', 'amant', 'ament', 'ances', 'aient', 'ation', 'asmes', 'âtres', 'elles', 'ement', 'ences', 'èques', 'esses', 'ettes', 'euses', 'ibles', 'ières', 'iques', 'ismes', 'ition', 'tions', 'trice', 'able', 'ages', 'aire', 'ance', 'asme', 'âmes', 'âtre', 'bles', 'eaux', 'elle', 'ence', 'esse', 'èque', 'ères', 'ette', 'eurs', 'euse', 'ible', 'ière', 'iers', 'ions', 'ique', 'isme', 'ités', 'îmes', 'mant', 'ment', 'ques', 'sses', 'tion', 'age', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'ent', 'ère', 'eur', 'ées', 'ier', 'ion', 'ité', 'nes', 'ont', 'ons', 'que', 'sse', 'ai', 'al', 'au', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'a', 'e', 'é', 's', 't', 'x')
+suffix =( 'ionnelles', 'ionnelle', 'ionnels', 'ateurs', 'ations', 'ennant', 'ennent', 'ionnel', 'itions', 'trices', 'ables', 'aires', 'amant', 'ament', 'ances', 'aient', 'ation', 'asmes', 'ateur', 'âtres', 'elles', 'ement', 'ences', 'èques', 'esses', 'ettes', 'euses', 'ibles', 'ières', 'iques', 'ismes', 'ition', 'oires', 'teurs', 'tions', 'trice', 'able', 'ages', 'aire', 'ance', 'asme', 'âmes', 'âtre', 'bles', 'eaux', 'elle', 'ence', 'esse', 'èque', 'ères', 'ette', 'eurs', 'euse', 'ible', 'ière', 'iers', 'ions', 'ique', 'isme', 'ités', 'îmes', 'mant', 'ment', 'oire', 'ques', 'sses', 'teur', 'tion', 'age', 'ais', 'ait', 'ant', 'aux', 'ble', 'eau', 'els', 'ent', 'ère', 'eur', 'ées', 'ier', 'ion', 'ité', 'nes', 'ont', 'ons', 'que', 'sse', 'ai', 'al', 'au', 'el', 'er', 'es', 'et', 'ez', 'ée', 'ne', 'a', 'e', 'é', 's', 't', 'x')
 prefix = ('dés', 'imm', 'inn', 'mal', 'més', 'pré', 'dé', 'im', 'in', 'mé', 're', 'ré', 'sur')
 newPoints = "-'() /_\"\n\t<> [](){}|%#$@=+*°&0123456789"
+
 
 class FileRef (FileTable):
 	def __init__ (self):
