@@ -101,8 +101,9 @@ class List():
 
 	def toText (self, word):
 		newList =""
-		for item in self.list: newList = newList + word + str (item)
-		newList = newList.replace (word,"", 1)
+		for item in self.list: newList = newList + word + item
+		# for item in self.list: newList = newList + word + str (item)
+		newList = newList.replace (word, "", 1)
 		return newList
 
 	def reverse (self):

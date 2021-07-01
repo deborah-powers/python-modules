@@ -17,7 +17,9 @@ class FileList (File, List):
 		List.fromText (self, self.sepLin, self.text)
 
 	def toText (self):
-		self.text = List.toText (self, self.sepLin)
+		self.text =""
+		for item in self.list: self.text = self.text + self.sepLin + item
+		self.text = self.text.replace (self.sepLin, "", 1)
 
 	def fromFile (self):
 		File.fromFile (self)

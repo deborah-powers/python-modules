@@ -45,9 +45,9 @@ def cleanLines (self):
 
 def reverseLines (self):
 	d= self.index ('\n2021')
-	dateMin = self.text[d:d+20]
-	f= self.index ('\n2021', d+4)
-	dateMax = self.text[f:f+20]
+	dateMin = self.text[d:d+24]
+	f= self.rindex ('\n2021')
+	dateMax = self.text[f:f+24]
 	if dateMin > dateMax:
 		self.fromText()
 		self.reverse()

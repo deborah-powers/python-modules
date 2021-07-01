@@ -21,7 +21,53 @@ pathPython = pathRoot + 'python' + os.sep
 wordImport = (('import ', 7), ('from ', 5))
 wordFunction = (('import ', 7), ('from ', 5), ('class ', 6), ('def ', 4), ('\t""" ', 5), ('\treturn', 7), ('\tdef ', 5), ('\t\t""" ', 6), ('\t\treturn', 8))
 
-class FilePy (File):
+class FilePy (FileList):
+	def __init__ (self, file =None):
+		if file:
+			if pathRoot not in file: file = pathPython + file
+			if file[-3:] != '.py': file = file + '.py'
+			if os.sep != '/': file = file.replace ('/', os.sep)
+		FileList.__init__ (self, '\n', file)
+		self.extension = 'py'
+
+	def clean (self):
+		self.text = self.text.strip()
+		self.replace ('\r')
+		self.replace ('(', ' (')
+		while self.contain ('   '): self.replace ('   ','  ')
+		while self.contain ('\n\n'): self.replace ('\n\n','\n')
+		self.replace ('  (', ' (')
+		self.replace (' ()', '()')
+		blankSpaces = '\n \t'
+		for char in blankSpaces:
+			while self.contain (char +'\n'): self.replace (char +'\n','\n')
+		while self.contain ('\n '): self.replace ('\n ','\n')
+		self.replace ('\ndef ', '\n\ndef ')
+		self.replace ('\n\tdef ', '\n\n\tdef ')
+		self.replace ('\nclass ', '\n\nclass ')
+		self.fromText()
+
+	def fromFile (self):
+		FileList.fromFile (self)
+		self.clean()
+
+	def helpPy (self):
+		self.file = 'b/' + self.title + '-help.txt'
+		self.dataFromFile()
+		rangePy = self.range()
+		rangePy.reverse()
+		for p in rangePy:
+			flag = False
+			for (word, width) in wordFunction:
+				if word == self[p][:width] and 'def __' not in self[p]:
+					flag = True
+					if word in '\t\treturn ':
+						self[p] = self[p] +'\n'
+			if flag == False: self.pop (p)
+		self.toFile()
+
+
+class FilePyVa (File):
 	def __init__ (self, file =None):
 		if file:
 			if pathRoot not in file: file = pathPython + file
