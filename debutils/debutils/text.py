@@ -21,25 +21,6 @@ weirdChars =(
 	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'"),
 	(',', ', '), ('(', ' ('), (')', ') '), ('[', ' ['), (']', '] '), ('{', ' {'), ('}', '} ')
 )
-badLetterPairs =( 'aa', 'ae', 'bb', 'bd', 'bf', 'bg', 'bh', 'bk', 'bm', 'bn', 'bp', 'bq', 'bt', 'bv', 'bw', 'bx', 'bz',
-	'cb', 'cd', 'cf', 'cg', 'cj', 'ck', 'cm', 'cp', 'cq', 'cs', 'ct', 'cv', 'cw', 'cx', 'cz',
-	'db', 'dc', 'dd', 'df', 'dg', 'dh', 'dj', 'dk', 'dl', 'dm', 'dn', 'dp', 'dq', 'ds', 'dt', 'dv', 'dw', 'dx', 'dz', 'ea',
-	'fb', 'fc', 'fd', 'ff', 'fg', 'fh', 'fj', 'fk', 'fl', 'fm', 'fn', 'fp', 'fq', 'fs', 'ft', 'fv', 'fw', 'fx', 'fy', 'fz',
-	'gb', 'gc', 'gd', 'gf', 'gg', 'gh', 'gj', 'gk', 'gm', 'gp', 'gq', 'gs', 'gt', 'gv', 'gw', 'gx', 'gz',
-	'hb', 'hc', 'hd', 'hf', 'hg', 'hh', 'hj', 'hk', 'hl', 'hm', 'hn', 'hp', 'hq', 'hr', 'hs', 'ht', 'hv', 'hw', 'hx', 'hz', 'ii', 'ik', 'iy',
-	'jb', 'jc', 'jd', 'jf', 'jg', 'jh', 'jj', 'jk', 'jl', 'jm', 'jn', 'jp', 'jq', 'jr', 'js', 'jt', 'jv', 'jw', 'jx', 'jy', 'jz',
-	'kb', 'kc', 'kd', 'kf', 'kg', 'kh', 'kj', 'kk', 'km', 'kn', 'kp', 'kq', 'kr', 'ks', 'kt', 'kv', 'kw', 'kx', 'ky', 'kz',
-	'lf', 'lh', 'lj', 'lk', 'lr', 'lw', 'lx', 'ly', 'lz', 'mc', 'md', 'mf', 'mg', 'mh', 'mj', 'mk', 'ml', 'mq', 'mr', 'ms', 'mt', 'mv', 'mw', 'mx', 'mz',
-	'nb', 'nf', 'nm', 'np', 'nw', 'ow', 'pb', 'pc', 'pd', 'pf', 'pg', 'pj', 'pk', 'pm', 'pq', 'pt', 'pv', 'pw', 'px', 'pz',
-	'qa', 'qb', 'qc', 'qd', 'qe', 'qf', 'qg', 'qh', 'qi', 'qj', 'qk', 'ql', 'qm', 'qn', 'qo', 'qp', 'qq', 'qr', 'qs', 'qt', 'qv', 'qw', 'qx', 'qy', 'qz',
-	'rf', 'rj', 'rk', 'rx', 'rz', 'sb', 'sd', 'sf', 'sg', 'sh', 'sj', 'sk', 'sv', 'sx', 'sz',
-	'tb', 'tc', 'td', 'tf', 'tg', 'tj', 'tk', 'tl', 'tm', 'tn', 'tp', 'tq', 'tv', 'tx', 'uu', 'uw', 'uz',
-	'vb', 'vc', 'vd', 'vf', 'vg', 'vh', 'vj', 'vk', 'vm', 'vn', 'vp', 'vq', 'vs', 'vt', 'vv', 'vw', 'vx', 'vz',
-	'wb', 'wc', 'wd', 'wf', 'wg', 'wh', 'wj', 'wk', 'wl', 'wm', 'wn', 'wo', 'wp', 'wq', 'wr', 'ws', 'wt', 'wu', 'wv', 'ww', 'wx', 'wy', 'wz',
-	'xb', 'xd', 'xf', 'xg', 'xh', 'xj', 'xk', 'xl', 'xm', 'xn', 'xo', 'xq', 'xr', 'xs', 'xv', 'xw', 'xx', 'xz',
-	'ya', 'yb', 'yd', 'yf', 'yh', 'yi', 'yj', 'yk', 'yq', 'yt', 'yu', 'yv', 'yw', 'yx', 'yy', 'yz',
-	'zb', 'zc', 'zd', 'zf', 'zg', 'zh', 'zj', 'zk', 'zl', 'zm', 'zn', 'zp', 'zq', 'zr', 'zs', 'zt', 'zu', 'zv', 'zw', 'zx', 'zy'
-)
 tagHtml =(
 	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n--- '), ('</h4>\n', ' ---\n'),
 	('\n<hr>', '\n______\n'), ("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
@@ -158,17 +139,6 @@ class Text():
 	def cleanText (self):
 		self.text = clean (self.text)
 
-	def stickedWords (self):
-		c=0; d=0
-		for p in badLetterPairs:
-			if self.contain (p):
-				d=0
-				c= self.text.count (p)
-				while c>0:
-					d= self.index (p,d+1)
-					c-=1
-
-
 	def fromModel (self, model):
 		return fromModel (self.text, model)
 
@@ -270,7 +240,7 @@ class Text():
 		if word in self.text: return True
 		else: return False
 
-	def countWord (self, word):
+	def count (self, word):
 		nb=0
 		if word in self.text: nb= self.text.count (word)
 		return nb
@@ -286,15 +256,15 @@ class Text():
 		if self.contain (word): posFind = self.text.rfind (word)
 		return posFind
 
-	def sliceNb (self, posStart, posEnd):
+	def slice (self, posStart=0, posEnd=0):
 		res =""
 		lText = self.length()
 		if posStart <0: posStart += lText
-		if posEnd <0: posEnd += lText
+		if posEnd <=0: posEnd += lText
 		if posStart < posEnd: res = self.text [posStart:posEnd]
 		return res
 
-	def slice (self, wordStart, wordEnd):
+	def sliceWord (self, wordStart, wordEnd):
 		res =""
 		if self.contain (wordStart) and self.contain (wordEnd):
 			d= self.index (wordStart) + len (wordStart)

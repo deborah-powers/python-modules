@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from fileSimple import File
 from debutils.list import List, Table
-from debutils.text import Text
 import debutils.logger as logger
 
 help =""" un fichier contenant une liste """
@@ -33,16 +32,17 @@ class FileList (File, List):
 
 	# ________________________ utiliser les fonctions de Text ________________________
 
+"""
 	def clean (self):
 		self.toText()
-		Text.clean (self)
+		File.clean (self)
 		self.fromText()
 
 	def replace (self, oldWord, newWord=''):
 		self.toText()
-		Text.replace (self, oldWord, newWord)
+		File.replace (self, oldWord, newWord)
 		self.fromText()
-
+"""
 class FileTable (File, Table):
 	def __init__ (self, sepLin='\n', sepCol='\t', file =None):
 		File.__init__ (self, file)
