@@ -17,12 +17,12 @@ class List():
 		tmpRange.reverse()
 		trash =0
 		for w in tmpRange:
-			if self.list.count (self.list [w]) >1: trash = self.list.pop (w)
+			if self.list.count (self.list[w]) >1: trash = self.list.pop (w)
 
 	def iterate (self, function):
 		rangeList = self.range()
 		newList = List()
-		for i in rangeList: newList.append (function (self.list [i]))
+		for i in rangeList: newList.append (function (self.list[i]))
 		return newList
 
 	def range (self, start=0, end=0, step=1):
@@ -30,7 +30,7 @@ class List():
 		lenList = self.length()
 		if end <=0: end += lenList
 		elif end > lenList: end = lenList
-		newList = []
+		newList =[]
 		while start <end:
 			newList.append (start)
 			start += step

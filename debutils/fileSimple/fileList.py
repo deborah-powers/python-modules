@@ -3,6 +3,7 @@
 from fileSimple import File
 from debutils.list import List, Table
 from debutils.text import Text
+import debutils.logger as logger
 
 help =""" un fichier contenant une liste """
 

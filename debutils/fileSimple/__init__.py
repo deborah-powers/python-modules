@@ -26,9 +26,7 @@ class File (Text):
 		self.title =""
 		self.extension = 'txt'
 		self.path = pathDesktop
-		if file:
-			self.shortcut()
-			self.dataFromFile()
+		if file: self.dataFromFile()
 
 	def copyFile (self, newFile):
 		self.file = newFile.file
@@ -73,9 +71,8 @@ class File (Text):
 	""" ________________________ utiliser un fichier ________________________ """
 
 	def fromFile (self):
-		self.file = shortcut (self.file)
+		# self.dataFromFile()
 		if not os.path.exists (self.file): return
-		self.dataFromFile()
 		# ouvrir le file et recuperer le texte au format str
 		"""
 		textBrut = open (self.file, 'r')
