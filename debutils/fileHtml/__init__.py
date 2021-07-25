@@ -255,12 +255,13 @@ class FileHtml (File):
 		self.replace ('<hr/>', '<hr>')
 		# supprimer les commentaires
 		self.replace ('< ! --', '<!--')
+		self.replace ('< !--', '<!--')
 		textList = List()
 		textList.addList (self.text.split ('<!--'))
 		textRange = textList.range (1)
 		for t in textRange:
-			f= textList [t].find ('-->') +3
-			textList [t] = textList [t] [f:]
+			f= textList[t].find ('-->') +3
+			textList[t] = textList[t] [f:]
 			self.text = "".join (textList)
 		# effacer certaines balises
 		# self.cleanSpan()
@@ -310,20 +311,20 @@ class FileHtml (File):
 		textRange = textList.range (1)
 		# textRange.reverse()
 		for t in textRange:
-			if len (textList [t]) ==0: continue
-			elif textList [t] [0] in '/ !': continue
-			elif '>' not in textList [t]: textList [t] = textList [t] [:f] +'>'
-			f= textList [t].find ('>')
-			tag = textList [t] [:f].lower()
-			textList [t] = textList [t] [f:]
+			if len (textList[t]) ==0: continue
+			elif textList[t] [0] in '/ !': continue
+			elif '>' not in textList[t]: textList[t] = textList[t] [:f] +'>'
+			f= textList[t].find ('>')
+			tag = textList[t][:f].lower()
+			textList[t] = textList[t][f:]
 			if ' ' in tag:
 				f= tag.find (' ')
-				attributes = tag [f:]
-				tag = tag [:f]
-				if tag in ('\a', 'img', 'form', 'input'): tag = self.cleanTagsSpecial (tag, attributes)
+				attributes = tag[f:]
+				tag = tag[:f]
+				if tag in ('a', 'img', 'form', 'input'): tag = self.cleanTagsSpecial (tag, attributes)
 				elif tag not in tagList: tagList.add (tag)
 			elif tag not in tagList: tagList.add (tag)
-			textList [t] = tag + textList [t]
+			textList[t] = tag + textList[t]
 		self.text = '<'.join (textList)
 		self.replace (' <', '<')
 		# supprimer les balises inutiles
@@ -352,8 +353,7 @@ class FileHtml (File):
 		while self.contain ("  "): self.replace ("  "," ")
 
 	def cleanTagsSpecial (self, tag, attributeList):
-		if tag == '\a':
-			return self.keepAttribute ('\a', 'href', attributeList)
+		if tag == 'a': return self.keepAttribute ('a', 'href', attributeList)
 		elif tag == 'img': return self.keepAttribute ('img', 'src', attributeList)
 		elif tag == 'input': return self.keepAttributeInput (attributeList)
 		elif tag == 'form': return self.keepAttributeForm (attributeList)
@@ -406,8 +406,8 @@ class FileHtml (File):
 		txtList = self.text.split ('</script>')
 		rangeTxt = range (len (txtList) -1)
 		for t in rangeTxt:
-			pos = txtList [t].rfind ('<script')
-			txtList [t] = txtList [t] [:pos]
+			pos = txtList[t].rfind ('<script')
+			txtList[t] = txtList[t] [:pos]
 		self.text = "".join (txtList)
 
 
@@ -416,8 +416,8 @@ class FileHtml (File):
 		txtList = self.text.split ('</style>')
 		rangeTxt = range (len (txtList) -1)
 		for t in rangeTxt:
-			pos = txtList [t].rfind ('<style')
-			txtList [t] = txtList [t] [:pos]
+			pos = txtList[t].rfind ('<style')
+			txtList[t] = txtList[t] [:pos]
 		self.text = "".join (txtList)
 
 	def cleanSpan (self):
@@ -429,8 +429,8 @@ class FileHtml (File):
 		textRange = textList.range (1)
 		textRange.reverse()
 		for t in textRange:
-			f= textList [t].find ('>')
-			textList [t] = textList [t] [f:]
+			f= textList[t].find ('>')
+			textList[t] = textList[t] [f:]
 		self.text = '<span'.join (textList)
 		self.replace ('</span>=', '=')
 		self.replace ('<</span>', '<')
@@ -443,8 +443,8 @@ class FileHtml (File):
 		textRange = textList.range (1)
 		textRange.reverse()
 		for t in textRange:
-			f= textList [t].find ('</a>"') +4
-			textList [t] = textList [t] [f:]
+			f= textList[t].find ('</a>"') +4
+			textList[t] = textList[t] [f:]
 		self.text = '="'.join (textList)
 		self.replace (' href=""')
 		# nettoyer

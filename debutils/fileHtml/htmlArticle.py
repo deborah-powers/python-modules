@@ -80,29 +80,6 @@ class ArticleHtml (FileHtml, Article):
 		if toText: self.toFileText()
 		else: self.toFile()
 
-	def findSubject (self, subject=None):
-		storyData = self.title.lower() +'\t'+ self.subject.lower() +'\t'+ self.author.lower()
-		subjectList =""
-		if subject:
-			subject = subject.replace ('/', ', ')
-			subject = subject.replace (', ', ', ')
-			subject = subject.replace ('-', ', ')
-			subject = subject.replace (' ', ' ')
-			subjectList = subject
-		subjectDict = {
-			'romance': ('romance', ' sex', 'vampire', 'naga', 'x reader'),
-			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
-			'tricot': ('tricot', 'point', 'crochet')
-		}
-		subjectKeys = subjectDict.keys()
-		for subject in subjectKeys:
-			for word in subjectDict [subject]:
-				if word in storyData:
-					subjectList = subjectList +', '+ subject
-					break
-		if subjectList: self.subject = subjectList [2:]
-		else: self.subject = 'histoire'
-
 	def delImgLink (self):
 		self.replace ('</div>',"")
 		self.replace ('<div>',"")

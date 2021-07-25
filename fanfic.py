@@ -28,6 +28,7 @@ class Fanfic (ArticleHtml):
 			FileHtml.fromUrl (self)
 		else:
 			self.file = url
+			self.dataFromFile()
 			self.fromFile()
 		self.clean()
 		# self.cleanWeb()
@@ -52,16 +53,31 @@ class Fanfic (ArticleHtml):
 		self.metas = {}
 		self.replace (' <', '<')
 		self.replace ('><', '>\n<')
-		self.toFile()
-		"""
 		if self.contain ('</a>') or self.contain ('<img'): self.toFile()
 		else: self.toFileText()
-		"""
 
-	def findSubject (self):
-		self.subject = self.subject.lower()
-		if 'pokemon' in self.subject:
-			self.subject = 'romance, pokemon'
+	def findSubject (self, subject=None):
+		storyData = self.title.lower() +'\t'+ self.subject.lower() +'\t'+ self.author.lower()
+		subjectList =""
+		if subject:
+			subject = subject.replace ('/', ', ')
+			subject = subject.replace (', ', ', ')
+			subject = subject.replace ('-', ', ')
+			subjectList = subject
+		subjectDict = {
+			'romance': ('romance', ' sex', 'x reader'),
+			'monstres': ('mythology', 'vampire', 'naga', 'pokemon'),
+			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
+			'tricot': ('tricot', 'point', 'crochet')
+		}
+		subjectKeys = subjectDict.keys()
+		for subject in subjectKeys:
+			for word in subjectDict [subject]:
+				if word in storyData:
+					subjectList = subjectList +', '+ subject
+					break
+		if subjectList: self.subject = subjectList [2:]
+		else: self.subject = 'histoire'
 
 	""" ________________________ pour chaque site ________________________ """
 
@@ -225,51 +241,20 @@ class Fanfic (ArticleHtml):
 		self.styles =[]
 		self.metas ={}
 		data = self.title.split (' - ')
-		if len (data) >3:
-			print ('trop de blocks dans le titre', self.title)
-			if 'hapter' in data[1]: self.author = data.pop (1)
+		if len (data) >3 and 'hapter' in data[1]: self.author = data.pop (1)
 		self.title = data[0]
-		self.author = data[1]
+		# self.author = data[1]
 		self.subject = data[2]
 		self.subject = self.subject.replace (' [Archive of Our Own]', "")
-		self.findSubject()
 		self.cleanWeb()
+		# le lien
 		d= self.index ("archiveofourown.org/works") +26
 		f= self.index (" ", d)
-		self.link = 'https://archiveofourown.org/works/' + self.text [d:f]
+		self.link = 'https://archiveofourown.org/works/' + self.text[d:f]
 		if "'" in self.link: f= self.link.find ("'")
 		else: f= self.link.find ('"')
 		self.link = self.link[:f]
-		self.autlink = 'https://archiveofourown.org/users/' + self.author
-		# trouver le texte
-		self.delScript()
-		d= self.index ('<h2>')
-		d= self.index ('</h3>', d) +5
-		f= self.rindex ('<h3>Actions</h3>')
-		self.text = self.text [d:f]
-		self.delImgLink()
-		self.replace ('<div>')
-		self.replace ('</div>')
-		"""
-		if self.contain ('<h3>Chapter Text</h3>'):
-			chapters = List()
-			chapters.fromText ('<h3>Chapter Text</h3>', self.text)
-			chapterRange = chapters.range()
-			for c in chapterRange:
-				logger.log (str(c) +'\t'+ chapters[c][:100])
-				if '<h3>Notes:</h3>' in chapters[c]:
-					f= chapters[c].rfind ('<h3>Notes:</h3>')
-					chapters[c] = chapters[c][:f]
-					if '<h3>Notes:</h3>' in chapters[c]:
-						f= chapters[c].rfind ('<h3>Notes:</h3>')
-						if f>500: chapters[c] = chapters[c][:f]
-			self.text = chapters.toText ("")
-		"""
-		self.replace ('</blockquote><h3>Notes:</h3><blockquote>')
-		self.replace ('</h3><hr>', '</h3>')
-		self.replace ('</h2><hr>', '</h2>')
-		if not self.contain ('</h2>'): self.replace ('h3>', 'h2>')
-		self.usePlaceholders()
+		self.ficAoooCommon()
 
 	def ficAooo (self, subject=None):
 		if 'This work could have adult content. If you proceed you have agreed that you are willing to see such content' in self.text:
@@ -284,20 +269,33 @@ class Fanfic (ArticleHtml):
 		self.title = self.text [d:f]
 		self.title = self.title.strip()
 		self.title = self.title.strip ('.')
-		# l'auteur et sa page
-		d= self.index ("<a href='/users/", f) +9
-		f= self.index ("'", d)
-		self.autlink = self.text [d:f]
+		self.ficAoooCommon()
+
+	def ficAoooCommon (self):
+		# le sujet
+		if self.subject: self.subject = ', '+ self.subject
+		if subject and subject not in self.subject: self.subject = self.subject +', '+ subject
+		d= self.index ('Category:<ul><li><a') +20
 		d= self.index ('>', d) +1
 		f= self.index ('</a>', d)
+		if self.text[d:f] in ('F/M', 'F/F') and 'romance' not in self.subject: self.subject = self.subject +', romance'
+		d= self.index ('Fandoms:<ul><li><a', f) +20
+		d= self.index ('>', d) +1
+		f= self.index ('</a>', d)
+		if self.text[d:f] not in self.subject: self.subject = self.subject +', '+ self.text[d:f]
+		self.subject = self.subject.replace (' - Fandom', "")
+		self.subject = self.subject[2:]
+		# l'auteur
+		d= self.index ("<h3><a href='/users/") +13
+		f= self.index ('>', d) -1
+		self.autlink = self.text[d:f]
+		d= f+2
+		f= self.index ('<', d)
 		self.author = self.text [d:f]
-		# le sujet
-		self.findSubject (subject)
-		if self.subject == 'histoire':
-			d= self.index ('Additional Tags:<ul>') +24
-			d= self.index ('>', d) +1
-			f= self.index ('<', d)
-			self.subject = self.text [d:f]
+		self.author = self.author.replace ('-',' ')
+		self.author = self.author.replace ('_',' ')
+		self.author = self.author.strip()
+		self.replace ('<h3>Chapter Text</h3>')
 		# le texte ne compte qu'un seul chapître
 		d= self.index ('<h3>Work Text:</h3>') +19
 		# le texte compte plusieurs chapîtres
@@ -306,7 +304,6 @@ class Fanfic (ArticleHtml):
 		self.text = self.text [d:f]
 		self.replace ('<div>')
 		self.replace ('</div>')
-		self.replace ('<h3>Chapter Text</h3>')
 		if self.contain ("<h3><a href='/works/"):
 			chapters = List()
 			chapters.fromText ("<h3><a href='/works/", self.text)
@@ -331,7 +328,6 @@ class Fanfic (ArticleHtml):
 			d= self.index ('<h3>Notes:</h3>')
 			if d> halfText: self.text = self.text [:d]
 		self.usePlaceholders()
-	#	self.title = 'tmp'
 
 	def ficFfn (self, subject=None):
 		# trouver les meta
