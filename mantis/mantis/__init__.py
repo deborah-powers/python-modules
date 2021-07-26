@@ -65,7 +65,7 @@ class MantisFile (Mantis, File):
 		commandesStr = 'log.debug ("________________________ requete ________________________");\nlog.debug (obj.getA() +"\t"+ obj.getB());'
 		solutionStr = 'commit sur %s,\nbranche mantis-%s\nreprise de donnée nécessaire: ?' % (self.module, self.numext)
 		if self.type == 'ddt':
-			solutionStr = 'su_%s_' % self.numext
+			solutionStr = '01_%s_DDT-%s_' %( self.projet.upper(), self.numext)
 			commandesStr =""
 		refFile.replace ('%commandes%', commandesStr)
 		refFile.replace ('%solution%', solutionStr)

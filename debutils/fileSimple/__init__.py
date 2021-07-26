@@ -153,7 +153,7 @@ class File (Text):
 				lenB = len (otherFile.title)
 				t=0
 				while t< lenA and t< lenB:
-					if self.title [t] == otherFile [t]: titleFinal = titleFinal + self.title [t]
+					if self.title [t] == otherFile.title [t]: titleFinal = titleFinal + self.title [t]
 					else: t= lenA +10
 					t+=1
 				if len (titleFinal) <12: titleFinal = 'compare '+ self.title +' - '+ otherFile.title
