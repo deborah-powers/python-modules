@@ -246,6 +246,7 @@ class Fanfic (ArticleHtml):
 		# self.author = data[1]
 		self.subject = data[2]
 		self.subject = self.subject.replace (' [Archive of Our Own]', "")
+		self.subject = self.subject.replace (' (band)', "")
 		self.cleanWeb()
 		# le lien
 		d= self.index ("archiveofourown.org/works") +26
