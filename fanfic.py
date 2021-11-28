@@ -26,6 +26,7 @@ class Fanfic (ArticleHtml):
 		if url[:4] == 'http':
 			self.link = url
 			FileHtml.fromUrl (self)
+			self.fileFromData()
 		else:
 			self.file = url
 			self.dataFromFile()
@@ -50,6 +51,8 @@ class Fanfic (ArticleHtml):
 		elif 'logimmo'	in url: self.logicImmo()
 		elif 'seloger'	in url: self.seLoger()
 		elif 'adapt'	in url: self.adapt()
+		elif 'jmdoudoux.fr'	in url: self.jmdoudoux()
+		else: self.cleanWeb()
 		self.metas = {}
 		self.replace (' <', '<')
 		self.replace ('><', '>\n<')
@@ -424,6 +427,15 @@ class Fanfic (ArticleHtml):
 		self.text = self.text [d:]
 		self.replace ('<div>')
 		self.replace ('</div>')
+
+	def jmdoudoux (self):
+		self.subject = 'programmation'
+		self.author = 'jean-michel doudoux'
+		self.autlink = 'http://www.jmdoudoux.fr/'
+		self.text = self.text.lower()
+		d= self.index ('</h1>') +5
+		f= self.rindex ('<hr>')
+		self.text = self.text[d:f]
 
 	def logicImmo (self):
 		# https://www.logic-immo.com/vente-immobilier-paris-75,100_1/options/groupprptypesids=1/pricemin=40000/pricemax=200000/areamin=30
