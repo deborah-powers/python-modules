@@ -434,7 +434,7 @@ class Text():
 	def fromHtml (self):
 		# les conteneurs
 		container = [ 'div', 'section', 'ol', 'ul', 'table', 'figure', 'math' ]
-		tagsBlank =( ('<hr/>', '\n______\n'), ('<hr>', '\n______\n'), ('<br>', '\n'), ('<br/>', '\n'))
+		tagsBlank =( ('<hr/>', '\n************\n'), ('<hr>', '\n************\n'), ('<br>', '\n'), ('<br/>', '\n'))
 		tagsClosing =( 'li', 'tr', 'th', 'td')
 		for tag in container:
 			self.replace ('</'+ tag +'>')

@@ -236,7 +236,7 @@ class Article (File):
 		self.link = 'http://deborah-powers.fr/doudou'
 		self.autlink = 'http://deborah-powers.fr/'
 		self.fileFromData()
-		self.text = '________________________________________________________________________nje suis un message testnsur plusieurs lignes.nune liste:nta, ntb, ntc.'
+		self.text = '________________________________________________________________________\nje suis un message testnsur plusieurs lignes.\nune liste:\n\ta, \n\tb, \n\tc.'
 		self.toFile()
 		self.fromFile()
 		print (self)
