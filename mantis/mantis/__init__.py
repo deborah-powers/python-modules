@@ -12,7 +12,7 @@ modules ={
 	'sif': ('aec', 'sif', 'can'),
 	'edi': ('edi', 'ord')
 }
-refPath = 'C:\\Users\\deborah.powers\\python\\mantis\\mantis\\'
+refPath = 'C:\\Users\\deborah.powers\\Desktop\\python\\mantis\\mantis\\'
 refName = refPath + 'mantis-base.txt'
 refFile = File (refName)
 refSqlCdm = refPath + '01_CDM_DDT-00000_xxx.sql'
