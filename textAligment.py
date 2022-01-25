@@ -11,13 +11,16 @@ def groomForAlignment (self):
 	self.replace ('n', ' ')
 	self.replace ('t', ' ')
 	self.text =' '+ self.text
+
 def toListForAlignment (self):
 	listObj = List ()
 #	listObj.addList (self.text.split ())
 	listObj.addList (list (self.text))
 	return listObj
+
 setattr (Text, 'groom', groomForAlignment)
 setattr (Text, 'toList', toListForAlignment)
+
 def alignment (self, newText):
 	self.groom ()
 	newText.groom ()
@@ -68,7 +71,9 @@ def alignment (self, newText):
 			lenB -=1
 	textA = textA +'n'+ textB
 	return textA
+
 setattr (Text, 'comparScore', alignment)
+
 def alignment_va (self, newText):
 	self.clean ()
 	newText.clean ()
@@ -126,15 +131,22 @@ def alignment_va (self, newText):
 			lenB -=1
 	textA = textA +'n'+ textB
 	return textA
-def createScoreMatrix ():
-	all = 'abcdefghijklmnopqrstuvwxyz tn0123456789"'/*°_-. ?!:;, %$@&# {} () [] '
+
+def createScoreMatrix():
+	allLetters = 'abcdefghijklmnopqrstuvwxyz tn0123456789"\'/\\*°_-.?!:;,%$@&# {}()[]'
 	alphabet = 'abcdefghijklmnopqrstuvwxyz'
-	voyels = 'aeiouy'; consomns = 'bcdfghjklmnpqrstvwxz'
+	voyels = 'aeiouy';
+	consomns = 'bcdfghjklmnpqrstvwxz'
 	numbers = '0123456789'
-	spaces = ' tn'; quotes = '"''; brackets = ' {} () [] '; slashs = '/'; tirets = '_-'; points = '. ?!:;, '
+	spaces = ' tn';
+	quotes = '"\'';
+	brackets = '{}()[]';
+	slashs = '/\\';
+	tirets = '_-';
+	points = '. ?!:;, '
 	scoreMatrix = {}
-	for la in all:
-		for lb in all:
+	for la in allLetters:
+		for lb in allLetters:
 		#	if la==lb: scoreMatrix [la+la] =6
 			if la==lb: continue
 			elif (la in consomns and lb in consomns) or (la in voyels and lb in voyels):
