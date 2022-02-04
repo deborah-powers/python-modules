@@ -1,8 +1,10 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 
-majList = (('a', 'A'), ('à', 'A'), ('b', 'B'), ('c', 'C'), ('\xe7', '\xc7'), ('d', 'D'), ('e', 'E'), ('é', 'E'), ('è', 'E'), ('ê', 'E'), ('ë', 'E'), ('f', 'F'), ('g', 'G'), ('h', 'H'), ('i', 'I'), ('î', 'I'), ('ï', 'I'), ('j', 'J'), ('k', 'K'), ('l', 'L'), ('m', 'M'), ('n', 'N'), ('o', 'O'), ('\xf4', '\xe4'), ('p', 'P'), ('q', 'Q'), ('r', 'R'), ('s', 'S'), ('t', 'T'), ('u', 'U'), ('v', 'V'), ('w', 'W'), ('x', 'X'), ('y', 'Y'), ('z', 'Z'))
-wordsEnd = '\n\t .,;:)?!'	# liste des symboles suivant les mots spéciaux
+letters = 'abcdefghijkmlmnopqrstuvwxyz0123456789'
+punctuation = '({[\n\t.,;:]})?!'
+uppercase = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
+
 # liste des points, des chaines de caracteres suivies par une majuscule
 wordsBeginMaj = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'victo', 'tony', 'simplon', 'loïc', 'france', 'paris', 'rueil')
 wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
@@ -18,8 +20,7 @@ weirdChars =(
 	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x97', "'"), ('\x9c', ' '), ('\xa0', ' '),
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'), ('&apos;', "'"),
 	('&mdash;', ' '), ('&nbsp;', ''), ('&oelig;', 'oe'), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"),
-	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'"),
-	(',', ', '), ('(', ' ('), (')', ') '), ('[', ' ['), (']', '] '), ('{', ' {'), ('}', '} ')
+	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'")
 )
 tagHtml =(
 	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n--- '), ('</h4>\n', ' ---\n'),
@@ -28,24 +29,19 @@ tagHtml =(
 )
 # fonctions pour les textes simples
 def clean (text):
-	# remplacer les caractères bizzares
 	for i, j in weirdChars: text = text.replace (i, j)
-	# nettoyage simple
 	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
-	points = '([{\t\n'
-	for p in points: text = text.replace (p+' ', p)
-	points = ')]}\t\n.:,'
-	for p in points: text = text.replace (' '+p, p)
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
-	# la ponctuation
+	for p in punctuation:
+		text = text.replace (' '+p, p)
+		text = text.replace (p+' ', p)
 	while '....' in text: text = text.replace ('....', '...')
-	text = text.replace ('...', ' ... ')
-	text = text.replace ('!', ' !')
-	while '  ' in text: text = text.replace ('  ', ' ')
-	while '! !' in text: text = text.replace ('! !', '!!')
-	for p in points: text = text.replace (' '+p, p)
+	for l in letters:
+		for p in punctuation[0:3]: text = text.replace (l+p, l+' '+p)
+		for p in punctuation[-2:]: text = text.replace (l+p, l+' '+p)
+		for p in punctuation[-9:]: text = text.replace (p+l, p+' '+l)
 	# les appostrophes
 	points = 'cdjlmnrst'
 	for p in points:
@@ -53,18 +49,15 @@ def clean (text):
 		text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
 	text = text.replace ("Qu' ","Qu'")
 	text = text.replace ("qu' ","qu'")
-	text = text.strip()
-	while '  ' in text: text = text.replace ('  ', ' ')
 	return text
 
 def toUpperCase (text):
 	text ='\n'+ text
 	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '______ ', '------ ', '****** ', '====== ')
-	for i, j in majList:
+	for i, j in uppercase:
 		for p in points: text = text.replace (p+i, p+j)
-	wordsStart = '( \n\t'
-	for p in wordsEnd:
-		for q in wordsStart:
+	for p in " "+ punctuation[-11:]:
+		for q in " "+ punctuation[0:5]:
 			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
 	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
 	text = text.strip()
@@ -112,7 +105,7 @@ class Text():
 		Text.clean (self)
 		for char in '=*-_':
 			while self.contain (7* char): self.replace (7* char, 6* char)
-			for i,j in majList: self.replace (6* char +' '+i, '\n\n'+ 6* char +' '+j)
+			for i,j in uppercase: self.replace (6* char +' '+i, '\n\n'+ 6* char +' '+j)
 			self.replace (' '+ 6* char, ' '+ 6* char +'\n\n')
 			self.replace (6* char +' ', '\n\n'+ 12* char +' ')
 			self.replace (' '+ 6* char, ' '+ 12* char +'\n\n')
@@ -479,7 +472,7 @@ class Text():
 		self.shape()
 
 def testText():
-	textAccolade = Text ('abdefghijkmlmnopqrstuvwxyz')
+	textAccolade = Text ('abcdefghijkmlmnopqrstuvwxyz')
 	textCoucou = Text ('coucou tu vas bien ?')
 	print ('exemple:', textCoucou)
 	print ('nb lettres:', textCoucou.length())

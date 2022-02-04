@@ -44,9 +44,9 @@ def cleanLines (self):
 		elif '\t' == self[l][0] and 'fr.asp.synergie.' not in self[l]: trash = self.pop (l)
 
 def reverseLines (self):
-	d= self.index ('\n2021')
+	d= self.index ('\n2022')
 	dateMin = self.text[d:d+24]
-	f= self.rindex ('\n2021')
+	f= self.rindex ('\n2022')
 	dateMax = self.text[f:f+24]
 	if dateMin > dateMax:
 		self.fromText()
