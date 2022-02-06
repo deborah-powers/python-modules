@@ -14,6 +14,7 @@ les valeurs de action:
 	d	vérifier s'il y a des doublons
 	v	identifier les fichiers modifiés entre un dossier et sa sauvegarde
 """
+
 if len (argv) <3: print (help)
 else:
 	flist = ListFile (argv[1])
