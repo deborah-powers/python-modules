@@ -1,10 +1,10 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from debutils.list import List
+from list import List
 from fileHtml import FileHtml, findTextBetweenTag, listTags
 from fileHtml.htmlArticle import ArticleHtml
 from listFiles import ListArticle
-import debutils.logger as logger
+import logger
 
 class Fanfic (ArticleHtml):
 	def ficWeb (self, url, subject=None):

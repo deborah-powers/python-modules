@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
-from debutils.text import Text
+from datetime import datetime
+from text import Text
 
 help ="""
 classe de gestion facile des dates

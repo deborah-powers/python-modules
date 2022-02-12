@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import os
 import fileSimple as fs
-from debutils.list import List
-import debutils.logger as logger
+from list import List
+import logger
 
 class ListFile (List):
 	def __init__ (self, path='b/'):

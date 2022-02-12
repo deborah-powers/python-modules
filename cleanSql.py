@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from fileSimple.fileList import File
-from debutils.logger import log, coucou, message
+from logger import log, coucou, message
 
 wordBegin =('drop', 'create', 'declare', 'begin', 'select', 'case when', 'when', 'else', 'end as', 'from', 'inner join', 'left join', 'left outer join', 'where', 'group by', 'order by', 'update', 'insert')
 

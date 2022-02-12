@@ -3,10 +3,10 @@
 from os import remove
 import urllib as ul
 from urllib import request as urlRequest
-from debutils.list import List
+from list import List
 from fileSimple import *
 from fileSimple.fileLocal import pathCss
-import debutils.logger as logger
+import logger
 
 listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button', 'span']
 listTagsSpecial = [ 'a', 'img', 'form', 'input']

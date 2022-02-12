@@ -1,62 +1,77 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-# http://www.pallier.org/extra/liste.de.mots.francais.frgut.txt
-from sys import argv
-from debutils.text import wordsEnd
-from fileSimple import File
-from fileSimple.fileList import FileList
-import debutils.logger as logger
 
-newPoints = "-'() /_\"\n\t<> [](){}|%#$@=+*°&0123456789"
-ref = File ('b/liste-mots.txt')
+def dictGetKeyByValue (dictionnary, value):
+	return list (dictionnary.keys()) [list (dictionnary.values()).index (value) ]
 
-class FileSrc (FileList):
-	def log (self):
-		d= self.index ('mcehywkh')
-		print (self.text[d-20:d+20])
+class Dico():
+	def __init__ (self):
+		self.dico = {}
+		self.keys = []
 
-	def clean (self):
-		self.text = self.text.lower()
-		FileList.clean (self)
-		for p in newPoints: self.replace (p, ' ')
-		for p in wordsEnd: self.replace (p, ' ')
-		self.text =' '+ self.text +' '
-		self.fromText()
+	def getKeys (self):
+		for item in self.dico.keys: self.keys.append (item)
 
-	def groom (self):
-		self.sort()
-		self.delDouble()
-		tmpRange = self.range()
-		tmpRange.reverse()
-		trash =0
-		for w in tmpRange:
-			if ref.contain (self.list[w]): trash = self.list.pop (w)
+	def __str__ (self):
+		return self.toText ('\n', '\t')
 
-	def unknowWords (self):
-		print ('liste des mots inconnus')
-		for word in self.list: print (word)
+	def fromText (self, wordLin, wordCol, text):
+		newList = text.split (wordLin)
+		rangeList = range (len (newList))
+		for l in rangeList:
+			tmpValue = newList [l].split (wordCol)
+			self [tmpValue [0] ] = tmpValue [1]
 
-	def full (self):
-		self.fromFile()
-		self.clean()
-		self.groom()
-		self.unknowWords()
+	def toText (self, wordLin, wordCol):
+		newList = []
+		for key in self.keys: newList.append (key + wordCol + str (self.dico [key]))
+		return wordLin.join (newList)
 
-if len (argv) <2: print ('il manque le fichier')
-elif argv[1] == 'tri':
-	refSort = FileList (' ', 'b/liste-mots.txt')
-	refSort.fromFile()
-	refSort.sort()
-	print ('c')
-	refSort.text =""
-	for item in refSort.list: refSort.text = refSort.text +' '+ item
-	File.toFile (refSort)
-	print ('d')
-elif argv[1] == 'test':
-	ref.fromFile()
-	src = FileSrc (' ', 'C:\\Users\\deborah.powers\\Desktop\\journal.txt')
-	src.full()
-else:
-	ref.fromFile()
-	src = FileSrc (' ', 'C:\\Users\\deborah.powers\\Desktop\\articles\\' + argv[1] +'.txt')
-	src.full()
+	def delete (self, key):
+		self.dico.pop (key)
+		pos = self.keys.index (key)
+		self.keys.pop (pos)
+
+	def __setitem__ (self, key, value):
+		self.dico [key] = value
+		if key not in self.keys: self.keys.append (key)
+
+	def __getitem__ (self, key):
+		if key in self.keys: return self.dico [key]
+		else: return None
+
+	def test (self):
+		self ['a'] = 'coucou'
+		self ['b'] = 'tvb ?'
+		print (self)
+		print (self ['c'])
+
+class DicoTabPerso (Dico):
+
+	def toText (self, wordLin, wordCol):
+		newList = []
+		tmpText =""
+		for key in self.keys:
+			tmpText =""
+			for item in self.dico [key]: tmpText = tmpText + wordCol + item
+			newList.append (key + tmpText)
+		return wordLin.join (newList)
+
+	def __setitem__ (self, key, newList):
+		if type (newList) == List:
+			self.dico [key] = newList
+			if key not in self.keys: self.keys.append (key)
+		elif type (newList) == list:
+			tmpList = List()
+			tmpList.addList (newList)
+			self.dico [key] = tmpList
+			if key not in self.keys: self.keys.append (key)
+		else: return
+
+	def test (self):
+		self ['a'] = 'coucou'
+		tmpList = List()
+		tmpList.addList ([ 'a', 'b', 'c', 'd' ])
+		self ['b'] = tmpList
+		print (self)
+		print (self ['c'])

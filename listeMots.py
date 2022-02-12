@@ -1,7 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from fileClass import FileText
-from listClass import List
+from file import File
+from list import List
+
 nameTxt = "a/opinions/curiosites.html"
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ tn'

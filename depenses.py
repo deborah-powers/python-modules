@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from fileList import FileTable
-from listClass import List
-from dateClass import DatePerso
+from list import List
+from event import DatePerso
+
 depFileName = '/home/lenovo/Bureau/divers/perso/depenses.tsv'
 class DepenseList (FileTable):
 	def __init__ (self):

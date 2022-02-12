@@ -1,8 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from fileSimple import File
-from debutils.list import List, Table
-import debutils.logger as logger
+from list import List, Table
+import logger
 
 help =""" un fichier contenant une liste """
 

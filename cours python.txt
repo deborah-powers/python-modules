@@ -1,10 +1,44 @@
+====== ajouter un dossier à sys.path ======
 
-====== lancer un package comme un script, mais de partout ======
+je veux utiliser les scripts de /home/deborah/python partout.
 
-dans mon package, j'ai
+from sys import path
+print (path)
+
+repérer le chemin de site-packages,
+/home/deborah/.local/lib/python3.8/site-packages
+
+créer /site-packages/my-paths.pth
+
+/home/deborah/python
+
+====== créer un package ======
+
 monPackage/
-	__init__.py
-	__main__.py
+	setup.py
+	monPackage/
+		__init__.py
+		autre.py
+
+dans setup.py
+
+#!/usr/bin/python3.6
+# -*- coding: utf-8 -*-
+from setuptools import setup, find_packages
+
+author = 'deborah noisetier'
+name = 'utilitaires'
+description = "mes petits scripts utilitaires"
+version = '0.1'
+
+setup (
+	name = name, version = version, description = description,
+	author = author,
+	packages = find_packages()
+)
+
+__init__.py contient les trucs chargés à l'appel du package. il est obligatoire.
+
 
 ****** installer le package ******
 
@@ -12,14 +46,31 @@ sudo apt-get install python3-setuptools
 sudo chmod -R 774 /usr/local/lib/python3.8/
 
 cd monPackage/
-python setup.py install
+python setup.py
+
+****** appeler mes objets ******
+
+from monPackage import TrucDansInit
+from monPackage.autre import TrucDansAutre
+
+
+====== lancer un package comme un script, mais de partout ======
+
+dans mon package, j'ai
+
+monPackage/
+	setup.py
+	monPackage/
+		__init__.py
+		__main__.py
+		autre.py
+
+__main__.py contient le l'action, le script à lancer.
+
 
 ****** lancer le package ******
 
 python -m monPackage args
-
-init est lancé quand on invoque le package la première fois, c'est une sorte de chargeur.
-main contient l'action, le script à lancer.
 les arguments sont récupérés via sys.argv, comme pour les scripts.
 
 

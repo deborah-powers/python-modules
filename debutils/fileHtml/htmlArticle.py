@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from fileHtml import FileHtml, findTextBetweenTag
 from fileSimple import File, Article
-from debutils.list import List
-import debutils.logger as logger
+from list import List
+import logger
 
 class ArticleHtml (FileHtml, Article):
 	def __init__ (self, file =None):
