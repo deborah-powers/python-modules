@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from listFiles import ListFile
+from listFiles import ListFile, ListArticle
 
 help ="""
 ce script peut être appelé dans un autre script
@@ -13,6 +13,7 @@ les valeurs de action:
 	l	lister les fichiers
 	d	vérifier s'il y a des doublons
 	v	identifier les fichiers modifiés entre un dossier et sa sauvegarde
+	s	lister les sujets
 """
 
 if len (argv) <3: print (help)
@@ -26,6 +27,9 @@ else:
 		else: print (flist)
 	elif len (argv) <4: print (help)
 	elif action == 'v': flist.compareGit (argv[3])
+	elif action == 's':
+		flist = ListArticle (argv[1])
+		flist.listSubjects()
 	else:
 		wordOld = argv[3]
 		wordNew =""

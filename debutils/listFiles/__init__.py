@@ -3,7 +3,6 @@
 import os
 import fileSimple as fs
 from list import List
-import logger
 
 class ListFile (List):
 	def __init__ (self, path='b/'):
@@ -199,8 +198,8 @@ class ListFile (List):
 
 class ListArticle (ListFile):
 
-	def __init__ (self, genre=""):
-		ListFile.__init__ (self)
+	def __init__ (self, path='b/', genre=""):
+		ListFile.__init__ (self, path)
 		self.genre = genre
 		if genre == 'fanfic' or genre == 'romance': self.path = 'a/fanfics/'
 		elif genre == 'cour': self.path = 'a/cours/'
@@ -232,6 +231,16 @@ class ListArticle (ListFile):
 		else:
 			print (self.length(), 'histoires')
 			print (self)
+
+	def listSubjects (self):
+		self.get()
+		subjectList ={}
+		for article in self:
+			if article.subject not in subjectList.keys(): subjectList[article.subject] =[ article.title, ]
+			else: subjectList[article.subject].append (article.title)
+		for subject in subjectList.keys():
+			subjectList[subject].sort()
+			print (subject +'\t', subjectList[subject])
 
 	def getBySubject (self, subject=None):
 		if not subject: return self

@@ -4,7 +4,6 @@ import os
 import codecs
 from text import Text
 from fileSimple.fileLocal import *
-import logger
 
 extensions = 'txt log css html xml svg md tsv csv json js py php sql jpeg jpg png bmp gif pdf mp3 mp4 wav vlc avi mpg srt mkv divx ass AVI torrent Divx flv wma m4a MP3 TMP tmp mht'
 
