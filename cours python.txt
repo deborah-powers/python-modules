@@ -7,10 +7,12 @@ print (path)
 
 repérer le chemin de site-packages,
 /home/deborah/.local/lib/python3.8/site-packages
+C:\Users\deborah.powers\AppData\Local\Programs\Python\Python36\lib\site-packages
 
 créer /site-packages/my-paths.pth
 
 /home/deborah/python
+C:\Users\deborah.powers\Desktop\python
 
 ====== créer un package ======
 
