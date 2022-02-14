@@ -18,7 +18,7 @@ def getDate (self, dateMin=None, dateMax=None):
 def cleanModule (self):
 	artefacts =( 'com', 'org')
 	for word in artefacts: self.replace (' '+ word +'.',' ')
-	self.clean()
+	# self.clean()
 	nbList = '0123456789'
 	for nb in nbList: self.replace (', '+nb, ','+nb)
 	artefacts =( '<label>Voir</label>', '</label>', '</xmlResult>]) sur la Queue queue://ord-com-out ...', 'fr.asp.synergie.app.', 'fr.asp.synergie.')
@@ -27,7 +27,7 @@ def cleanModule (self):
 	for word in artefacts: self.replace ('['+ word +']', word)
 	artefacts =( 'DEBUG', 'INFO', 'WARN', 'ERROR')
 	for word in artefacts: self.replace ('['+ word +']', word)
-	self.clean()
+	# self.clean()
 	for nb in nbList: self.replace (', '+nb, ','+nb)
 
 def cleanLines (self):
@@ -42,6 +42,7 @@ def cleanLines (self):
 		elif "could not locate the message resource with key " in self[l]: trash = self.pop (l)
 		elif '\t' == self[l][0] and '(<generated>)' in self[l]: trash = self.pop (l)
 		elif '\t' == self[l][0] and 'fr.asp.synergie.' not in self[l]: trash = self.pop (l)
+		elif "INFO" in self[l]: trash = self.pop (l)
 
 def reverseLines (self):
 	d= self.index ('\n2022')
