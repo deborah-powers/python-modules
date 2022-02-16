@@ -10,7 +10,6 @@ class ListFile (List):
 		if path: path = fs.shortcut (path)
 		self.path = path
 
-
 	def get (self, TagNomfile=None, sens=True):
 		for dirpath, SousListDossiers, subList in os.walk (self.path):
 			if not subList: continue
@@ -182,8 +181,9 @@ class ListFile (List):
 		""" remplacer un motif dans le texte """
 		for file in self:
 			if close: file.fromFile()
-			file.replace (wordOld, wordNew)
-			if close: file.toFile()
+			if (file.contain (wordOld)):
+				file.replace (wordOld, wordNew)
+				if close: file.toFile()
 
 	def modify (self, funcText, close=True):
 		for file in self:

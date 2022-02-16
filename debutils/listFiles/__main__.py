@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from listFiles import ListFile, ListArticle
+import logger
 
 help ="""
 ce script peut être appelé dans un autre script
@@ -15,7 +16,6 @@ les valeurs de action:
 	v	identifier les fichiers modifiés entre un dossier et sa sauvegarde
 	s	lister les sujets
 """
-
 if len (argv) <3: print (help)
 else:
 	flist = ListFile (argv[1])
