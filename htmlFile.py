@@ -5,7 +5,7 @@ import urllib as ul
 from urllib import request as urlRequest
 from list import List
 from fileSimple import *
-from fileSimple.fileLocal import pathCss
+from fileLocal import pathCss
 import logger
 
 listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button', 'span']

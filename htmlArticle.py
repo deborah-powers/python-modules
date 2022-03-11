@@ -1,6 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from fileHtml import FileHtml, findTextBetweenTag
+from htmlFile import FileHtml, findTextBetweenTag
 from fileSimple import File, Article
 from list import List
 import logger
