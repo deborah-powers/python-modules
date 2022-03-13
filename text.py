@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+from logger import log
 
 letters = 'abcdefghijkmlmnopqrstuvwxyz0123456789'
 punctuation = '({[\n\t.,;:]})?!'
@@ -12,6 +13,7 @@ wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nCd ', '\nPsql ','\nPg_', '\nPython ', '\nGit ',
 	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
 	'\nLog.', '\tLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
+
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
@@ -28,6 +30,21 @@ tagHtml =(
 	('\n<li>', '\n\t')
 )
 # fonctions pour les textes simples
+def cleanUrl (text, s=False):
+	word = '\nhttp://'
+	if s: word = '\nhttps://'
+	textList = text.split (word)
+	textRange = range (1, len (textList))
+	for l in textRange:
+		a= textList[l].find ('\n')
+		url = textList[l][:a]
+		textList[l] = textList[l][a:]
+		url = url.lower()
+		url = url.replace (' ',"")
+		textList[l] = url + textList[l]
+	text = word.join (textList)
+	return text
+
 def clean (text):
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip()
@@ -49,6 +66,8 @@ def clean (text):
 		text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
 	text = text.replace ("Qu' ","Qu'")
 	text = text.replace ("qu' ","qu'")
+	text = cleanUrl (text, True)
+	text = cleanUrl (text, False)
 	return text
 
 def toUpperCase (text):
