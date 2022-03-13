@@ -3,7 +3,7 @@
 from datetime import datetime
 from inspect import stack
 
-addDate = True
+addDate = False
 
 def traceDate():
 	# date est un objet datetime.datetime
@@ -47,6 +47,10 @@ def message (message=None, obj=None):
 		if obj: msgAffichable = msgAffichable +'\t'+ str (obj)
 	elif obj: msgAffichable = str (obj)
 	log (msgAffichable)
+
+def exists (obj):
+	if (obj): log (obj)
+	else: log ('objet null')
 
 def coucou():
 	log ('coucou')

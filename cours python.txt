@@ -98,6 +98,8 @@ applis:
 
 ====== récupérer les éléments de mes calendriers google ======
 
+https://developers.google.com/calendar/api/quickstart/python
+
 cf quickstart.py
 
 ModuleNotFoundError: No module named 'googleapiclient'
@@ -106,5 +108,27 @@ ModuleNotFoundError: No module named 'google_auth_oauthlib'
 pip install google-auth-oauthlib
 
 
+https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleEvents=true&orderBy=startTime&timeMin=2022-1-2022T1%3A31%3A00Z&timeMax=2022-1-2022T2%3A31%3A00Z&alt=json
+error
+	code	403
+	message	"The request is missing a valid API key."
+errors	0
+	message	"The request is missing a valid API key."
+	domain	"global"
+	reason	"forbidden"
+	status	"PERMISSION_DENIED"
+
+File "quickstart.py", line 231, in fromCalendar
+	evtListTmp = evtListTmp2.execute()
+File "/home/deborah/.local/lib/python3.8/site-packages/googleapiclient/_helpers.py", line 134, in positional_wrapper
+	return wrapped(*args, **kwargs)
+File "/home/deborah/.local/lib/python3.8/site-packages/googleapiclient/http.py", line 935, in execute
+	raise HttpError(resp, content, uri=self.uri)
+googleapiclient.errors.HttpError: <HttpError 400 when requesting https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleEvents=true&orderBy=startTime&timeMin=2022-1-2022T1%3A31%3A00Z&timeMax=2022-1-2022T2%3A31%3A00Z&alt=json returned "Bad Request". Details: "[{'domain': 'global', 'reason': 'badRequest', 'message': 'Bad Request'}]">
+deborah@deborah-ThinkPad-T420:~/python$
+
+https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4@group.calendar.google.com/events?singleEvents=true&orderBy=startTime&timeMin=2022-1-2022T1%3A31%3A00Z&timeMax=2022-1-2022T2%3A31%3A00Z&alt=json
+
+https://www.googleapis.com/calendar/v3/calendars/33akjnknr3mp1oletdkm8tdjog@group.calendar.google.com/events?singleEvents=true&orderBy=startTime&timeMin=2022-1-2022T1%3A31%3A00Z&timeMax=2022-1-2022T3%3A11%3A00Z&alt=json
 
 

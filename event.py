@@ -108,17 +108,17 @@ class DatePerso():
 		return self.toStrHour()
 
 	def toStrFileName (self):
-		return '%d-%d-%d-%d-%d' % (self.year, self.month, self.day, self.hour, self.minute)
+		return '%d-%02d-%02d-%02d-%02d' % (self.year, self.month, self.day, self.hour, self.minute)
 
 	def toStrUtz (self):
 		""" 2018-01-29T12:00:00+01:00 """
-		return '%d-%d-%dT%d:%d:00' % (self.year, self.month, self.day, self.hour, self.minute)
+		return '%d-%02d-%02dT%02d:%02d:00.0' % (self.year, self.month, self.day, self.hour, self.minute)
 
 	def toStrDay (self):
-		return '%d/%d/%d' % (self.year, self.month, self.day)
+		return '%d/%02d/%02d' % (self.year, self.month, self.day)
 
 	def toStrHour (self):
-		return '%d/%d/%d %d:%d:00' % (self.year, self.month, self.day, self.hour, self.minute)
+		return '%d/%02d/%02d %02d:%02d:00' % (self.year, self.month, self.day, self.hour, self.minute)
 
 	def fromStrUtz (self, dateStr):
 		""" dateStr ressemble à 2018-01-29T12:00:00+01:00 """
