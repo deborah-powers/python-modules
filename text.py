@@ -14,6 +14,7 @@ wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
 	'\nLog.', '\tLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
 
+wordUrl =( ('. com/', '.com/'), ('. org/', '.org/'), ('. fr/', '.fr/'), ('www. ', 'www.') )
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
@@ -68,6 +69,7 @@ def clean (text):
 	text = text.replace ("qu' ","qu'")
 	text = cleanUrl (text, True)
 	text = cleanUrl (text, False)
+	for wOld, wNew in wordUrl: text = text.replace (wOld, wNew)
 	return text
 
 def toUpperCase (text):

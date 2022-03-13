@@ -1,8 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from list import List
-from fileHtml import FileHtml, findTextBetweenTag, listTags
-from fileHtml.htmlArticle import ArticleHtml
+from htmlFile import FileHtml, findTextBetweenTag, listTags
+from htmlArticle import ArticleHtml
 from listFiles import ListArticle
 import logger
 
@@ -31,7 +31,7 @@ class Fanfic (ArticleHtml):
 		elif 'http://uel.unisciel.fr/' in url:			self.ficUnisciel (subject)
 		elif 'gtb'		in url: self.ficGutemberg (subject)
 		elif 'egb'		in url: self.ficEbg (subject)
-		elif 'aooo'		in url: self.ficAoooLcl (subject)
+		elif 'b/aooo.html' == url: self.ficAoooLcl (subject)
 		elif 'ficFfn'	in url: self.ficFfn (subject)
 		elif 'medium'	in url: self.ficMedium (subject)
 		elif 'adapt'	in url: self.adapt()
@@ -52,7 +52,8 @@ class Fanfic (ArticleHtml):
 			subject = subject.replace ('-', ', ')
 			subjectList = subject
 		subjectDict = {
-			'romance': ('romance', ' sex', 'x reader'),
+			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki'),
+			'rockers': ('rasmus', 'ville valo', 'jyrki'),
 			'monstres': ('mythology', 'vampire', 'naga', 'pokemon'),
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
 			'tricot': ('tricot', 'point', 'crochet')
@@ -266,11 +267,15 @@ class Fanfic (ArticleHtml):
 		d= self.index ('Category:<ul><li><a') +20
 		d= self.index ('>', d) +1
 		f= self.index ('</a>', d)
-		if self.text[d:f] in ('F/M', 'F/F') and 'romance' not in self.subject: self.subject = self.subject +', romance'
+		if self.text[d:f] in ('F/M', 'F/F') and 'romance' not in self.subject: self.subject = ', romance'+ self.subject
+		self.findSubject (subject)
+		"""
 		d= self.index ('Fandoms:<ul><li><a', f) +20
 		d= self.index ('>', d) +1
 		f= self.index ('</a>', d)
 		if self.text[d:f] not in self.subject: self.subject = self.subject +', '+ self.text[d:f]
+		"""
+		logger.log (self.subject)
 		self.subject = self.subject.replace (' - Fandom', "")
 		self.subject = self.subject[2:]
 		# l'auteur
