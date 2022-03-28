@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import codecs
+import logger
 from text import Text
 from fileLocal import *
 
@@ -182,13 +183,17 @@ class File (Text):
 		print (self.text)
 
 
-modelText ="""Sujet:	%s
+
+templateText ="""Sujet:	%s
 Auteur:	%s
 Lien:	%s
 Laut:	%s
 %s"""
+
+templateHtml ="<!DOCTYPE html><html><head><title>%s</title><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><base target='_blank'><meta name='author' content='%s'/><meta name='subject' content='%s'/><meta name='link' content='%s'/><meta name='autlink' content='%s'/>%s</head><body>%s</body></html>"
+
 class Article (File):
-	# classe pour les fichiers txt
+	# classe pour les fichiers txt et html
 	def __init__ (self, file =None):
 		File.__init__ (self, file)
 		self.author =""
@@ -205,18 +210,29 @@ class Article (File):
 
 	def fromFile (self):
 		File.fromFile (self)
-		metadata = self.fromModel (modelText)
-		self.subject = metadata [0]
-		self.author = metadata [1]
-		self.link = metadata [2]
-		self.autlink = metadata [3]
-		self.text = metadata [4]
+		if self.extension == 'html':
+			self.replace ('\n')
+			self.replace ('\t')
+			metadata = self.fromModel (templateHtml)
+			self.subject = metadata [2]
+			self.author = metadata [1]
+			self.link = metadata [3]
+			self.autlink = metadata [4]
+			self.text = metadata [6]
+		else:
+			metadata = self.fromModel (templateText)
+			self.subject = metadata [0]
+			self.author = metadata [1]
+			self.link = metadata [2]
+			self.autlink = metadata [3]
+			self.text = metadata [4]
 
-	def toFile (self, mode='w'):
-		# self.replace ('\n', '\n\n')
-		text = modelText % (self.subject, self.author, self.link, self.autlink, self.text)
+	def toFile (self):
+		text =""
+		if self.extension in 'xhtml': text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
+		else: text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		self.text = text
-		File.toFile (self, mode)
+		File.toFile (self, 'w')
 
 	def __str__ (self):
 		strShow = 'Titre: %s\tDossier: %s\nSujet: %s\tAuteur: %s' % (self.title, self.path, self.subject, self.author)
@@ -228,28 +244,4 @@ class Article (File):
 		struct = '%st%st%s'
 		return struct % (self.subject, self.author, self.title) < struct % (newFile.subject, newFile.author, newFile.title)
 
-	def test (self):
-		self.title = 'tester Article'
-		self.author = 'deborah powers'
-		self.subject = 'test'
-		self.link = 'http://deborah-powers.fr/doudou'
-		self.autlink = 'http://deborah-powers.fr/'
-		self.fileFromData()
-		self.text = '________________________________________________________________________\nje suis un message testnsur plusieurs lignes.\nune liste:\n\ta, \n\tb, \n\tc.'
-		self.toFile()
-		self.fromFile()
-		print (self)
 
-	def tmp (self):
-		self.file = 'b/tmp.txt'
-		self.dataFromFile()
-		self.shortcut()
-		self.fromFile()
-		self.clean()
-		self.replace ('\n')
-		self.replace ('\t')
-		self.replace ('> <', '><')
-		self.replace ('><', '>\n<')
-		self.replace ('>\n</p>', '></p>')
-		self.replace ('$ ', '\n')
-		self.toFile()

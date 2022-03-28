@@ -1,7 +1,9 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 import os
+import logger
 import fileSimple as fs
+from htmlArticle import ArticleHtml
 from list import List
 
 class ListFile (List):
@@ -209,14 +211,18 @@ class ListArticle (ListFile):
 
 	def get (self):
 		tmpList = ListFile (self.path)
-		tmpList.get ('.txt')
+		tmpList.get()
 		lRange = tmpList.range()
 		for f in lRange:
-			self.add (fs.Article())
-			self[f].title = tmpList[f].title
-			self[f].path = tmpList[f].path
-			self[f].fileFromData()
-			self[f].fromFile()
+			if tmpList[f].extension == 'html':
+				self.add (ArticleHtml())
+				self[-1].extension = 'html'
+			elif tmpList[f].extension == 'txt': self.add (fs.Article())
+			else: continue
+			self[-1].title = tmpList[f].title
+			self[-1].path = tmpList[f].path
+			self[-1].fileFromData()
+			self[-1].fromFile()
 		self.sort()
 
 	def __str__ (self):

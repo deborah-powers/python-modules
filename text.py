@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from logger import log
 
-letters = 'abcdefghijkmlmnopqrstuvwxyz0123456789'
+letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmlmnopqrstuvwxyz0123456789'
 punctuation = '({[\n\t.,;:]})?!'
 uppercase = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
@@ -14,7 +14,7 @@ wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
 	'\nLog.', '\tLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
 
-wordUrl =( ('. com/', '.com/'), ('. org/', '.org/'), ('. fr/', '.fr/'), ('www. ', 'www.') )
+wordUrl =( ('. com', '.com'), ('. org', '.org'), ('. fr/', '.fr/'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png') )
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),

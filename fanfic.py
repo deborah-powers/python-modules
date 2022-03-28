@@ -52,8 +52,8 @@ class Fanfic (ArticleHtml):
 			subject = subject.replace ('-', ', ')
 			subjectList = subject
 		subjectDict = {
-			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki'),
-			'rockers': ('rasmus', 'ville valo', 'jyrki'),
+			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki', 'him (band)'),
+			'rockers': ('rasmus', 'ville valo', 'jyrki', 'him (band)'),
 			'monstres': ('mythology', 'vampire', 'naga', 'pokemon'),
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
 			'tricot': ('tricot', 'point', 'crochet')
@@ -64,7 +64,7 @@ class Fanfic (ArticleHtml):
 				if word in storyData:
 					subjectList = subjectList +', '+ subject
 					break
-		if subjectList: self.subject = subjectList [2:]
+		if subjectList: self.subject = subjectList[2:]
 		else: self.subject = 'histoire'
 
 	""" ________________________ pour chaque site ________________________ """
@@ -237,14 +237,11 @@ class Fanfic (ArticleHtml):
 		self.subject = self.subject.replace (' (band)', "")
 		self.cleanWeb()
 		# le lien
-		d= self.index ("archiveofourown.org/works") +26
-		f= self.index (" ", d)
+		d= self.index ("<a href='/downloads/") +20
+		f= self.index ('/', d)
 		self.link = 'https://archiveofourown.org/works/' + self.text[d:f]
-		if "'" in self.link: f= self.link.find ("'")
-		else: f= self.link.find ('"')
-		self.link = self.link[:f]
 		self.ficAoooCommon (subject)
-
+		
 	def ficAooo (self, subject=None):
 		if 'This work could have adult content. If you proceed you have agreed that you are willing to see such content' in self.text:
 			print ('fichier protégé', self.title)
@@ -262,7 +259,6 @@ class Fanfic (ArticleHtml):
 
 	def ficAoooCommon (self, subject=None):
 		# le sujet
-		if self.subject: self.subject = ', '+ self.subject
 		if subject and subject not in self.subject: self.subject = self.subject +', '+ subject
 		d= self.index ('Category:<ul><li><a') +20
 		d= self.index ('>', d) +1
@@ -275,9 +271,8 @@ class Fanfic (ArticleHtml):
 		f= self.index ('</a>', d)
 		if self.text[d:f] not in self.subject: self.subject = self.subject +', '+ self.text[d:f]
 		"""
-		logger.log (self.subject)
 		self.subject = self.subject.replace (' - Fandom', "")
-		self.subject = self.subject[2:]
+	#	self.subject = self.subject[2:]
 		# l'auteur
 		d= self.index ("<h3><a href='/users/") +13
 		f= self.index ('>', d) -1
