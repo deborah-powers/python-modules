@@ -317,6 +317,9 @@ class Fanfic (ArticleHtml):
 			if d> halfText: self.text = self.text [:d]
 		self.usePlaceholders()
 		self.replace ('h2>', 'h1>')
+		if self.contain ('<h3>Series this work belongs to:</h3>'):
+			f= self.index ('<h3>Series this work belongs to:</h3>')
+			self.text = self.text[:f]
 
 	def ficFfn (self, subject=None):
 		# trouver les meta

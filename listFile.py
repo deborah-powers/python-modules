@@ -51,6 +51,12 @@ class ListFile (List):
 			for f in rangeFile:
 				if TagNomfile in self[f].file: trash = self.list.pop(f)
 
+	def iterate (self, function):
+		rangeList = self.range()
+		newList = ListFile()
+		for i in rangeList: newList.add (function (self.list[i]))
+		return newList
+
 	def openAll (self):
 		rangeFile = self.range()
 		rangeFile.reverse()
@@ -229,6 +235,12 @@ class ListArticle (ListFile):
 		string =""
 		for article in self: string = string +'\n%s\t%s\t%s' % (article.subject, article.author, article.title)
 		return string [1:]
+
+	def iterate (self, function):
+		rangeList = self.range()
+		newList = ListArticle()
+		for i in rangeList: newList.add (function (self.list[i]))
+		return newList
 
 	def show (self, genre=None):
 		if genre:
