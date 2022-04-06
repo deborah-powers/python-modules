@@ -47,13 +47,13 @@ class List():
 		listEnd = List()
 		item = choice (self.list)
 		for l in self:
-			if funcSort (item, l): listEnd.add (l)
-			else: listStart.add (l)
+			if funcSort (item, l): listEnd.append (l)
+			else: listStart.append (l)
 		if listStart.length() >1: listStart.sortFunc (funcSort)
 		if listEnd.length() >1: listEnd.sortFunc (funcSort)
 		self.list = []
-		if listStart: self.addList (listStart)
-		if listEnd: self.addList (listEnd)
+		if listStart: self.extend (listStart)
+		if listEnd: self.extend (listEnd)
 
 	def sort (self, funcSort=None):
 		if sortFunc:
@@ -72,11 +72,11 @@ class List():
 	def __str__ (self):
 		return self.toText ('\n')
 
-	def addList (self, newList):
+	def extend (self, newList):
 		if type (newList) == list: self.list.extend (newList)
 		else: self.list.extend (newList.list)
 
-	def add (self, value, pos=-1):
+	def append (self, value, pos=-1):
 		if pos ==-1: self.list.append (value)
 		elif pos > self.length(): pass
 		elif pos <0:
@@ -87,17 +87,17 @@ class List():
 	def pop (self, item, isIndex=True):
 		if isIndex: trash = self.list.pop (item)
 		else:
-			id= self.index (item)
-			trash = self.list.pop (id)
+			i= self.index (item)
+			trash = self.list.pop (i)
 
 	def copy (self):
 		newList = List()
-		for line in self: newList.add (line)
+		for line in self: newList.append (line)
 		return newList
 
 	def fromText (self, word, text):
 		newList = text.split (word)
-		self.addList (newList)
+		self.extend (newList)
 
 	def toText (self, word):
 		newList =""
@@ -117,9 +117,19 @@ class List():
 
 	def __setitem__ (self, pos, item):
 		lenList = self.length()
-		if pos <0: pos += lenList
-		if pos < lenList: self.list[pos] = item
-		else: self.add (item)
+		if type (pos) == int:
+			if pos <0: pos += lenList
+			if pos < lenList: self.list[pos] = item
+			else: self.append (item)
+
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenList)
+			rangeList = self.range (posIndex [0], posIndex [1], posIndex [2])
+			if type (item) in (tuple, list) and len (item) >= len (rangeList):
+				i=0
+				for l in rangeList:
+					self.list[l] = item[i]
+					i+=1
 
 	def __getitem__ (self, pos):
 		lenList = self.length()
@@ -132,18 +142,18 @@ class List():
 			posIndex = pos.indices (lenList)
 			rangeList = self.range (posIndex [0], posIndex [1], posIndex [2])
 			newList = List()
-			for l in rangeList: newList.add (self [l])
+			for l in rangeList: newList.append (self.list[l])
 			return newList
 		else: return None
 
 	def test (self):
-		self.add ('a')
-		self.add ('b')
-		self.addList (['c', 'd'])
+		self.append ('a')
+		self.append ('b')
+		self.extend (['c', 'd'])
 		newList = List()
-		newList.add ('e')
-		newList.add ('f')
-		self.addList (newList)
+		newList.append ('e')
+		newList.append ('f')
+		self.extend (newList)
 		print (self)
 		print (self[2])
 		print (self[1:4])
@@ -155,66 +165,66 @@ class Table (List):
 		rcol= range (ncol)
 		for l in rlin:
 #			creer une ligne
-			self.addList (List())
+			self.extend (List())
 			for c in rcol:
 #				creer une case
-				self [-1].add (filling)
+				self [-1].append (filling)
 
 	def __str__ (self):
 		return self.toText ('\n', '\t')
 
-	def addTable (self, itemTable):
+	def appendTable (self, itemTable):
 		# regrouper deux tables
 		if type (itemTable) == Table: self.list.extend (itemTable)
 		elif type (itemTable) == List: self.list.append (itemTable)
 		elif type (itemTable) == list:
 			newList = List()
-			newList.addList (itemTable)
-			self.addList (newList, pLin)
+			newList.extend (itemTable)
+			self.extend (newList, pLin)
 
-	def addLine (self, itemList, pLin =-1):
+	def appendLine (self, itemList, pLin =-1):
 		# rajouter une ligne au tableau
-		if type (itemList) == List: List.add (self, itemList, pLin)
+		if type (itemList) == List: List.append (self, itemList, pLin)
 		elif type (itemList) == list:
 			newList = List()
-			newList.addList (itemList)
-			List.add (self, newList, pLin)
+			newList.extend (itemList)
+			List.append (self, newList, pLin)
 
-	def addItems (self, itemList, pCol=-1):
+	def appendItems (self, itemList, pCol=-1):
 		# rajouter un élément à chaque ligne de la table
 		if type (itemList)!= list: return
 		elif len (itemList)!= self.length(): return
 		rangitem = self.range()
-		for i in rangitem: self.list [i].add (itemList [i], pCol)
+		for i in rangitem: self.list [i].append (itemList [i], pCol)
 
-	def add (self, item, pLin, pCol):
+	def append (self, item, pLin, pCol):
 		# rajouter un élément dans le tableau
-		self.list [pLin].add (item, pCol)
+		self.list [pLin].append (item, pCol)
 
 	def getCol (self, pCol):
 		cases = List()
 		for line in self.list:
-			if line.length() > pCol: cases.add (line [pCol])
-			else: cases.add (None)
+			if line.length() > pCol: cases.append (line [pCol])
+			else: cases.append (None)
 		return cases
 
 	def toText (self, wordLin, wordCol):
 		newList = List()
-		for line in self.list: newList.add (line.toText (wordCol))
+		for line in self.list: newList.append (line.toText (wordCol))
 		return newList.toText (wordLin)
 
 	def fromText (self, wordLin, wordCol, text):
 		newList = text.split (wordLin)
 		for line in newList:
-			self.addList (line.split (wordCol))
+			self.extend (line.split (wordCol))
 
 	def test (self):
 		self.emptyTable (3, 4, 0)
-		self.addList ([1, 2, 3, 4])
+		self.extend ([1, 2, 3, 4])
 		newList = List()
-		newList.addList ([5, 6, 7, 8])
-		self.addList (newList)
-		self.addItems ([9, 10, 11, 12, 13])
-		self.addItems ([14, 15, 16, 17, 18], 2)
+		newList.extend ([5, 6, 7, 8])
+		self.extend (newList)
+		self.appendItems ([9, 10, 11, 12, 13])
+		self.appendItems ([14, 15, 16, 17, 18], 2)
 		print (self)
 		print (self[2][2])

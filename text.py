@@ -293,6 +293,21 @@ class Text():
 		""" nécessaire pour trier les listes """
 		return self.text < otherText.text
 
+	def __getitem__ (self, pos):
+		lenText = len (self.text)
+		if type (pos) == int:
+			while pos <0: pos += lenText
+			while pos > lenText: pos -= lenText
+			return self.text [pos]
+
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenText)
+			rangeList = range (posIndex [0], posIndex [1], posIndex [2])
+			newList =[]
+			for l in rangeList: newList.append (self.text[l])
+			return newList
+		else: return None
+
 	# ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________
 
 	def toHtml (self):

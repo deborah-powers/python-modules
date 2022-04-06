@@ -32,6 +32,11 @@ class FileList (File, List):
 	def length (self):
 		return len (self.list)
 
+	def replace (self, oldWord, newWord='', toText=''):
+		if 'deb' in toText: self.toText()
+		self.text = self.text.replace (oldWord, newWord)
+		if 'fin' in toText: self.fromText()
+
 	# ________________________ utiliser les fonctions de Text ________________________
 
 """
@@ -60,7 +65,7 @@ class FileTable (File, Table):
 		for l in rangeLin:
 			tmp = List ()
 			tmp.fromText (self.sepCol, tmpList [l])
-			self.addLine (tmp)
+			self.appendLine (tmp)
 
 	def toFile (self):
 		self.text = self.toText (self.sepLin, self.sepCol)

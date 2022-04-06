@@ -30,7 +30,7 @@ class ListFile (List):
 					if file[d:] not in fs.extensions: continue
 					fileTmp = fs.File (os.path.join (dirpath, file))
 					# fileTmp.dataFromFile()
-					self.add (fileTmp)
+					self.append (fileTmp)
 
 		self.sort()
 		# eliminer les fichiers de format inconnu
@@ -54,7 +54,7 @@ class ListFile (List):
 	def iterate (self, function):
 		rangeList = self.range()
 		newList = ListFile()
-		for i in rangeList: newList.add (function (self.list[i]))
+		for i in rangeList: newList.append (function (self.list[i]))
 		return newList
 
 	def openAll (self):
@@ -74,7 +74,7 @@ class ListFile (List):
 			for g in rangeFile [f+1:]:
 				if self[f].title == self[g].title:
 					# print ('doublons pour', self[f].title, '\n\t', self[f].path, '\n\t', self[g].path)
-					listDbl.add (self[f])
+					listDbl.append (self[f])
 			if inText:
 				for f in rangeFile:
 					self[f].fromFile()
@@ -82,7 +82,7 @@ class ListFile (List):
 						for g in rangeFile [f+1:]:
 							if self[f].text == self[g].text:
 								# print ('doublons pournt', self[f].file, '\n\t', self[g].file)
-								listDbl.add (self[f])
+								listDbl.append (self[f])
 		return listDbl
 
 
@@ -147,9 +147,9 @@ class ListFile (List):
 			for f in rangeTmp:
 				if fref.title == listNew[f].title:
 					# print ('doublons pour', fref.title, '\n\t', fref.path, '\n\t', listNew[f].path)
-					listDbl.add (listNew[f])
+					listDbl.append (listNew[f])
 		for fnew in listNew:
-			if fnew not in listDbl: listUnq.add (fnew)
+			if fnew not in listDbl: listUnq.append (fnew)
 		return listUnq
 
 	def move (self, newPath):
@@ -221,9 +221,9 @@ class ListArticle (ListFile):
 		lRange = tmpList.range()
 		for f in lRange:
 			if tmpList[f].extension == 'html':
-				self.add (ArticleHtml())
+				self.append (ArticleHtml())
 				self[-1].extension = 'html'
-			elif tmpList[f].extension == 'txt': self.add (fs.Article())
+			elif tmpList[f].extension == 'txt': self.append (fs.Article())
 			else: continue
 			self[-1].title = tmpList[f].title
 			self[-1].path = tmpList[f].path
@@ -239,7 +239,7 @@ class ListArticle (ListFile):
 	def iterate (self, function):
 		rangeList = self.range()
 		newList = ListArticle()
-		for i in rangeList: newList.add (function (self.list[i]))
+		for i in rangeList: newList.append (function (self.list[i]))
 		return newList
 
 	def show (self, genre=None):
@@ -265,5 +265,5 @@ class ListArticle (ListFile):
 		else:
 			aList = ListArticle()
 			for article in self:
-				if subject in article.subject: aList.add (article)
+				if subject in article.subject: aList.append (article)
 			return aList
