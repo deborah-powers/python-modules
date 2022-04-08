@@ -1,7 +1,7 @@
 #!/usr/bin/python3.8
 # -*- coding: utf-8 -*-
 from sys import argv
-from fileSimple.fileList import FileList
+from fileList import FileList
 from fileSimple import File
 
 def getDate (self, dateMin=None, dateMax=None):
@@ -49,6 +49,7 @@ def reverseLines (self):
 	dateMin = self.text[d:d+24]
 	f= self.rindex ('\n2022')
 	dateMax = self.text[f:f+24]
+	print (d,f)
 	if dateMin > dateMax:
 		self.fromText()
 		self.reverse()
@@ -63,7 +64,9 @@ def cleanLog (self, dateMin=None, dateMax=None):
 		self.fromText()
 	else: self.fromFile()
 	self.cleanLines()
+	print (self.text[900:])
 	self.toText()
+	print (self.text[900:])
 	self.cleanModule()
 	self.reverseLines()
 	self.title = self.title + ' bis'

@@ -113,6 +113,26 @@ def fromModel (text, model):
 	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
 	return results
 
+def findCommonLines (textA, textB, seedSize=5):
+	# retrouver des passages identiques entre deux textes
+	a=0; b=-1; bRef =0
+	lenA = len (textA)
+	lenAseed = lenA - seedSize
+	lenB = len (textB)
+	seedList =[]
+
+	while a< lenAseed and b< lenB:
+		b= textB.find (textA[a:a+ seedSize], bRef)
+		if b>= bRef:
+			seed = textA[a:a+ seedSize]
+			a+= seedSize; b+= seedSize
+			while a< lenA and b< lenB and textA[a] == textB[b]:
+				seed += textA[a]
+				a+=1; b+=1
+			seedList.append (seed)
+		else: a+=1
+	return seedList
+
 class Text():
 	def __init__ (self, string=""):
 		self.text = string
@@ -158,6 +178,11 @@ class Text():
 
 	def fromModel (self, model):
 		return fromModel (self.text, model)
+
+	def findCommonLines (self, otherText, seedSize=5):
+		return findCommonLines (self.text, otherText.text, seedSize)
+
+
 
 	def comparLines (self, otherText, keepCommon=True, toSort=False):
 		self.clean()
