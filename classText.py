@@ -398,7 +398,7 @@ class Text (str):
 		print ('forme\t', self.shape ('upper'))
 		print ('toHtml\t', self.toHtml())
 		print ('fromHtml\t', self.fromHtml())
-
+"""
 textA = Text ('<p>nknlfzemofkjiejgozvslvlcaajnajfzfzaednfzkgnetihjpzvsl,cqkcnqsknciuovvfpmopl</p>')
 textA.test()
-
+"""
