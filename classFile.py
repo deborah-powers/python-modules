@@ -193,17 +193,50 @@ class Folder():
 		self.path = path
 		self.list = List()
 
-	def get (self, TagNomfile=None, sens=True):
+	# ________________________ agir sur les fichiers ________________________
+
+	def rename (self, wordOld, wordNew=""):
+		for file in self.list:
+			if wordOld not in file.title: continue
+			file.fromPath()
+			newFile = File()
+			newFile.title = file.title.replace (wordOld, wordNew)
+			newFile.path = file.path
+			newFile.toPath()
+			file.toPath()
+			os.rename (self.path + file.path, self.path + newFile.path)
+
+	def move (self, newPath):
+		# newPath est une string
+		if newPath[-1] != os.sep: newPath = newPath + os.sep
+		newPath = shortcut (newPath)
+		for file in self.list:
+			file.fromPath()
+			file.toPath()
+			os.rename (self.path + file.path, newPath + file.path)
+		self.path = newPath
+
+	def replace (self, wordOld, wordNew, close=True):
+		""" remplacer un motif dans le texte """
+		for file in self.list:
+			if close: file.fromFile()
+			if wordOld in file.text:
+				file.text = file.text.replace (wordOld, wordNew)
+				if close: file.toFile()
+
+	# ________________________ fonctions de base ________________________
+
+	def get (self, tagName=None, sens=True):
 		for dirpath, SousListDossiers, subList in os.walk (self.path):
 			if not subList: continue
-			if TagNomfile and sens:
+			if tagName and sens:
 				range_tag = range (len (subList) -1, -1, -1)
 				for i in range_tag:
-					if TagNomfile not in subList[i]: trash = subList.pop(i)
-			elif TagNomfile:
+					if tagName not in subList[i]: trash = subList.pop(i)
+			elif tagName:
 				range_tag = range (len (subList) -1, -1, -1)
 				for i in range_tag:
-					if TagNomfile in subList[i]: trash = subList.pop(i)
+					if tagName in subList[i]: trash = subList.pop(i)
 			if subList:
 				for file in subList:
 					if '.' not in file: continue
@@ -213,27 +246,94 @@ class Folder():
 					self.list.append (fileTmp)
 				self.list.sort()
 
-	def filter (self, TagNomfile, sens=True):
+	def filter (self, tagName, sens=True):
 		""" quand on a besoin de ré-exclure certains fichiers après le get.
 		quand je veux exclure sur plusieurs mots-clefs """
 		rangeFile = self.list.range()
 		rangeFile.reverse()
 		if sens:
 			for f in rangeFile:
-				if TagNomfile not in self.list[f].path and TagNomfile not in self.list[f].title: trash = self.list.pop(f)
+				if tagName not in self.list[f].path and tagName not in self.list[f].title: trash = self.list.pop(f)
 		else:
 			for f in rangeFile:
-				if TagNomfile in self.list[f].path or TagNomfile in self.list[f].title: trash = self.list.pop(f)
+				if tagName in self.list[f].path or tagName in self.list[f].title: trash = self.list.pop(f)
 
 	def iterate (self, function):
-		rangeList = self.list.range()
 		newList = Folder()
-		for i in rangeList: newList.append (function (self.list[i]))
+		for file in self.list:
+			res = function (file)
+			if res: newList.append (res)
 		return newList
 
 	def append (self, file):
 		file.shortcut()
 		file.path = file.path.replace (self.path, "")
 		self.list.append (file)
+
+	def __str__ (self):
+		strList = 'Dossier: '+ self.path +'\nListe:'
+		for file in self: strList = strList +'\n'+ file.toPath()
+		return strList
+
+	def __setitem__ (self, pos, item):
+		lenList = len (self.list)
+		if type (pos) == int:
+			if pos <0: pos += lenList
+			if pos < lenList: self.list[pos] = item
+			else: self.append (item)
+
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenList)
+			rangeList = self.range (posIndex [0], posIndex [1], posIndex [2])
+			if type (item) in (tuple, list) and len (item) >= len (rangeList):
+				i=0
+				for l in rangeList:
+					self.list[l] = item[i]
+					i+=1
+			elif type (item) == Folder and len (item.list) >= len (rangeList):
+				i=0
+				for l in rangeList:
+					self.list[l] = item.list[i]
+					i+=1
+
+	def __getitem__ (self, pos):
+		lenList = len (self.list)
+		if type (pos) == int:
+			if pos <0: pos += lenList
+			if pos > lenList or pos <0: return None
+			else: return self.list [pos]
+
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenList)
+			rangeList = self.range (posIndex [0], posIndex [1], posIndex [2])
+			newList = Folder (self.path)
+			for l in rangeList: newList.append (self.list[l])
+			return newList
+		else: return None
+
+class FolderArticle (Folder):
+	def __init__ (self, path='a/', genre=""):
+		Folder.__init__(self, path)
+		self.genre = genre
+		if genre == 'fanfic' or genre == 'romance': self.path = 'a/fanfics/'
+		elif genre == 'cour': self.path = 'a/cours/'
+		elif genre == 'education': self.path = 'a/education/'
+		elif genre == 'roman': self.path = 'a/romans/'
+		self.path = shortcut (self.path)
+
+	def get (self, tagName=None, sens=True):
+		tmpList = ListFile (self.path)
+		tmpList.get (tagName, sens)
+		for file in tmpList.list:
+			file.toPath()
+			article = Article (file)
+			article.fromPath()
+			if article.type in ('html', 'txt'): self.append (article)
+		self.list.sort()
+
+
+
+
+
 
 
