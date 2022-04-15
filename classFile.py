@@ -187,6 +187,9 @@ file.test()
 
 from classList import List
 
+class FileList (File, List):
+	pass
+
 class Folder():
 	def __init__ (self, path='b/'):
 		if path: path = shortcut (path)
@@ -211,8 +214,9 @@ class Folder():
 		if newPath[-1] != os.sep: newPath = newPath + os.sep
 		newPath = shortcut (newPath)
 		for file in self.list:
-			file.fromPath()
 			file.toPath()
+			logger.log (self.path + file.path)
+			logger.log (newPath + file.path)
 			os.rename (self.path + file.path, newPath + file.path)
 		self.path = newPath
 
@@ -272,7 +276,9 @@ class Folder():
 
 	def __str__ (self):
 		strList = 'Dossier: '+ self.path +'\nListe:'
-		for file in self: strList = strList +'\n'+ file.toPath()
+		for file in self:
+			file.toPath()
+			strList = strList +'\n'+ file.path
 		return strList
 
 	def __setitem__ (self, pos, item):
@@ -311,6 +317,32 @@ class Folder():
 			return newList
 		else: return None
 
+	def test (self):
+		self.path = shortcut ('a/')
+		self.get ('built on')
+		"""
+		print (self)
+		print (self[1])
+		self[0] = self[3]
+		"""
+		self.rename ('built', 'dodo')
+		self.move ('b/temp/')
+		self.filter ('the')
+	#	print (self)
+		file = File ('fanfics/a doctor calls.txt')
+		self.append (file)
+		"""
+		print (self)
+		self[0].path = self.path + self[0].path
+		self[0].read()
+		print (len (self[0].text), 'caractères')
+		"""
+
+"""
+folder = Folder()
+folder.test()
+"""
+
 class FolderArticle (Folder):
 	def __init__ (self, path='a/', genre=""):
 		Folder.__init__(self, path)
@@ -322,7 +354,7 @@ class FolderArticle (Folder):
 		self.path = shortcut (self.path)
 
 	def get (self, tagName=None, sens=True):
-		tmpList = ListFile (self.path)
+		tmpList = Folder (self.path)
 		tmpList.get (tagName, sens)
 		for file in tmpList.list:
 			file.toPath()
