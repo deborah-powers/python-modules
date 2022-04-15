@@ -331,6 +331,21 @@ class FolderArticle (Folder):
 			if article.type in ('html', 'txt'): self.append (article)
 		self.list.sort()
 
+	def __getitem__ (self, pos):
+		lenList = len (self.list)
+		if type (pos) == int:
+			if pos <0: pos += lenList
+			if pos > lenList or pos <0: return None
+			else: return self.list [pos]
+
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenList)
+			rangeList = self.range (posIndex [0], posIndex [1], posIndex [2])
+			newList = FolderArticle (self.path)
+			for l in rangeList: newList.append (self.list[l])
+			return newList
+		else: return None
+
 
 
 
