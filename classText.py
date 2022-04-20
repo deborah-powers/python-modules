@@ -92,6 +92,9 @@ class Text (str):
 		text = text.replace (' \n', '\n')
 		while '\t\n' in text: text = text.replace ('\t\n', '\n')
 		while '\n\n' in text: text = text.replace ('\n\n', '\n')
+		text = Text (text)
+		text = text.protectUrl (True)
+		text = text.protectUrl (False)
 		for p in punctuation:
 			text = text.replace (' '+p, p)
 			text = text.replace (p+' ', p)
@@ -110,10 +113,29 @@ class Text (str):
 			text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
 		text = text.replace ("Qu' ","Qu'")
 		text = text.replace ("qu' ","qu'")
+		"""
 		text = text.cleanUrl (True)
 		text = text.cleanUrl (False)
+		"""
+		self.text = self.text.replace ('$$$', '.')
 		for wOld, wNew in wordUrl: text = text.replace (wOld, wNew)
 		return text
+
+	def protectUrl (self, s=False):
+		word = '\nhttp://'
+		if s: word = '\nhttps://'
+		textList = self.split (word)
+		textRange = range (1, len (textList))
+		for l in textRange:
+			end =[]
+			end.append (textList[l].find ('\n'))
+			end.append (textList[l].find ('\t'))
+			end.append (textList[l].find (' '))
+			f= min (end)
+			urlProtected = textList[l][:f].replace ('.', '$$$')
+			textList[l] = textList[l].replace (textList[l][:f], urlProtected)
+		text = word.join (textList)
+		return Text (text)
 
 	def cleanUrl (self, s=False):
 		word = '\nhttp://'
