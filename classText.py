@@ -191,7 +191,25 @@ class Text (str):
 		posFind =-1
 		if pos <0: pos = len (self) -pos
 		if word in self: posFind = str.find (self, word, pos)
+		elif '"' in word:
+			word = word.replace ('"', "'")
+			posFind = str.find (self, word, pos)
+		elif "'" in word:
+			word = word.replace ("'", '"')
+			posFind = str.find (self, word, pos)
 		return posFind
+
+	def rfind (self, word):
+		posFind =-1
+		if word in self: posFind = str.rfind (self, word)
+		elif '"' in word:
+			word = word.replace ('"', "'")
+			posFind = str.rfind (self, word)
+		elif "'" in word:
+			word = word.replace ("'", '"')
+			posFind = str.rfind (self, word)
+		return posFind
+
 
 	def sliceWord (self, wordStart, wordEnd):
 		res =""

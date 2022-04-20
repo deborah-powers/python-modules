@@ -2,6 +2,16 @@
 # -*- coding: utf-8 -*-
 from classFile import File, Article, templateHtml
 from classText import Text
+from classList import List
+
+listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button', 'span']
+listTagsSpecial = [ 'a', 'img', 'form', 'input']
+listTagsKeep = [ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body']
+listTagsKeep.extend (listTagsIntern)
+listTagsKeep.extend (listTagsSpecial)
+listTags = []
+listTags.extend (listTagsKeep)
+listTags.extend (listTagsSpecial)
 
 def findTextBetweenTag (originalText, tag):
 	lTag = len (tag)
@@ -67,6 +77,8 @@ class Html (Article):
 		self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, textInfos, self.text)
 		File.write (self)
 
+	""" ________________________ netoyer le texte ________________________ """
+
 	def clean (self):
 		self.text = self.text.replace ('\t', ' ')
 		self.text = self.text.replace ('\n', ' ')
@@ -77,6 +89,134 @@ class Html (Article):
 		self.text = self.text.replace (' />', '/>')
 		self.text = self.text.strip()
 		self.text = self.text.replace ("''", '"')
+		self.text = Text (self.text)
+
+	def cleanLocal (self):
+		self.clean()
+		self.text = findTextBetweenTag (self.text, 'body')
+
+	def cleanWeb (self):
+		self.clean()
+		self.text = self.text.replace ('<br/>', '<br>')
+		self.text = self.text.replace ('<hr/>', '<hr>')
+		# supprimer les commentaires
+		self.text = self.text.replace ('< ! --', '<!--')
+		self.text = self.text.replace ('< !--', '<!--')
+		textList = List()
+		textList.extend (self.text.split ('<!--'))
+		textRange = textList.range (1)
+		for t in textRange:
+			f= textList[t].find ('-->') +3
+			textList[t] = textList[t] [f:]
+			self.text = "".join (textList)
+		# effacer certaines balises
+		# self.cleanSpan()
+		self.cleanTags()
+		if '</body>' in self.text: self.text = findTextBetweenTag (self.text, 'body')
+		self.clean()
+		for tag in listTags:
+			while '<'+tag+'></'+tag+'>' in self.text: self.text = self.text.replace ('<'+tag+'></'+tag+'>',"")
+		self.text = Text (self.text)
+
+	def cleanTags (self):
+		# supprimer les attributs inutiles
+		self.text = self.text.replace ('<br/>', '<br>')
+		self.text = self.text.replace ('<hr/>', '<hr>')
+		tagList = List()
+		textList = List()
+		textList.extend (self.text.split ('<'))
+		textRange = textList.range (1)
+		# textRange.reverse()
+		for t in textRange:
+			if len (textList[t]) ==0: continue
+			elif textList[t] [0] in '/ !': continue
+			elif '>' not in textList[t]: textList[t] = textList[t] [:f] +'>'
+			f= textList[t].find ('>')
+			tag = textList[t][:f].lower()
+			textList[t] = textList[t][f:]
+			if ' ' in tag:
+				f= tag.find (' ')
+				attributes = tag[f:]
+				tag = tag[:f]
+				if tag in ('a', 'img', 'form', 'input'): tag = self.cleanTagsSpecial (tag, attributes)
+				elif tag not in tagList: tagList.append (tag)
+			elif tag not in tagList: tagList.append (tag)
+			textList[t] = tag + textList[t]
+		self.text = '<'.join (textList)
+		self.text = self.text.replace (' <', '<')
+		# supprimer les balises inutiles
+		self.text = self.text.replace ('<img>', "")
+		while '<br><br>' in self.text: self.text = self.text.replace ('<br><br>', '<br>')
+		self.text = self.text.replace ('><br>', '>')
+		self.text = self.text.replace ('<br><', '<')
+		for tag in tagList:
+			if tag not in listTagsKeep:
+				self.text = self.text.replace ('</'+ tag +'>', " ")
+				self.text = self.text.replace ('<'+ tag +'>', " ")
+		while "  " in self.text: self.text = self.text.replace ("  "," ")
+		if '<a>' in self.text:
+			textList = List()
+			textList.extend (self.text.split ('<a>'))
+			textRange = textList.range (1)
+			for a in textRange:
+				d= textList[a].find ('</a>')
+				textList[a] = textList[a] [:d].strip() +' '+ textList[a] [d+4:].strip()
+			#	textList[a] = textList[a] [d+4:].strip()
+			self.text = ' '.join (textList)
+		# retrouver les balises vides
+		self.clean()
+		self.text = self.text.replace ('\n')
+		for tag in tagList: self.text = self.text.replace ('<'+ tag +'></'+ tag +'>', " ")
+		while "  " in self.text: self.text = self.text.replace ("  "," ")
+
+	def cleanTagsSpecial (self, tag, attributeList):
+		if tag == 'a': return self.keepAttribute ('a', 'href', attributeList)
+		elif tag == 'img': return self.keepAttribute ('img', 'src', attributeList)
+		elif tag == 'input': return self.keepAttributeInput (attributeList)
+		elif tag == 'form': return self.keepAttributeForm (attributeList)
+
+	def keepAttribute (self, tag, attr, attributeList):
+		if attr in attributeList:
+			tag = tag +' '+ attr +"='"
+			d= attributeList.find (attr) +2+ len (attr)
+			quote = attributeList [d-1]
+			if quote in '"\'':
+				f= attributeList.find (quote, d)
+				tag = tag + attributeList [d:f] +"'"
+			else:
+				d-=1
+				tag = tag + attributeList [d:] +"'"
+		return tag
+
+	def keepAttributeInput (self, attributeList):
+		tag = 'input'
+		for attr in ('type', 'name', 'value', 'placeholder'):
+			if attr +'=' in attributeList:
+				tag = tag +' '+ attr +"='"
+				d= attributeList.find (attr) +2+ len (attr)
+				quote = attributeList [d-1]
+				if quote in '"\'':
+					f= attributeList.find (quote, d)
+					tag = tag + attributeList [d:f] +"'"
+				else:
+					d-=1
+					tag = tag + attributeList [d:] +"'"
+		return tag
+
+	def keepAttributeForm (self, attributeList):
+		tag = 'form'
+		for attr in ('action', 'method'):
+			if attr in attributeList:
+				tag = tag +' '+ attr +"='"
+				d= attributeList.find (attr) +2+ len (attr)
+				quote = attributeList [d-1]
+				if quote in '"\'':
+					f= attributeList.find (quote, d)
+					tag = tag + attributeList [d:f] +"'"
+				else:
+					d-=1
+					tag = tag + attributeList [d:] +"'"
+		return tag
 
 	""" ________________________ texte du web ________________________ """
 
@@ -202,7 +342,7 @@ class Html (Article):
 		self.text = self.text.replace ('</div>',"")
 		self.text = self.text.replace ('<div>',"")
 		# supprimer les liens
-		if self.contain ('<a href='):
+		if '<a href=' in self.text:
 			textList = List()
 			textList.addList (self.text.split ('<a href='))
 			textRange = textList.range (1)
@@ -212,7 +352,7 @@ class Html (Article):
 			self.text = "".join (textList)
 			self.text = self.text.replace ('</a>',"")
 		# supprimer les images
-		if self.contain ('<img src='):
+		if '<img src=' in self.text:
 			textList = List()
 			textList.addList (self.text.split ('<img src='))
 			textRange = textList.range (1)

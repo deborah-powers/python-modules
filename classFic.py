@@ -12,6 +12,7 @@ récupérer les pages de certains sites que j'aime beaucoup
 utilisation: python fanfic url
 l'url peut correspondre à une page ou un fichier local
 """
+
 class Fanfic (Html):
 	def fromWeb (self, url, subject=None):
 		if url[:4] == 'http':
@@ -42,8 +43,6 @@ class Fanfic (Html):
 		self.text = self.text.replace (' <', '<')
 		self.text = self.text.replace ('><', '>\n<')
 		article = self.toArticle()
-		logger.log (article.autlink)
-		logger.log (article.link)
 		article.write()
 
 	def findSubject (self):
@@ -266,6 +265,7 @@ class Fanfic (Html):
 	def aoooLocal (self):
 		self.styles =[]
 		self.metas ={}
+		self.cleanWeb()
 		self.title = self.title.replace (' [Archive of Our Own]', "")
 		data = self.title.split (' - ')
 		self.title = data[0]
@@ -285,6 +285,7 @@ class Fanfic (Html):
 			print ('fichier protégé', self.title)
 			return
 		self.clean()
+		self.cleanWeb()
 		self.text = self.text.replace ('<br>', '</p><p>')
 		self.text = findTextBetweenTag (self.text, 'body')
 		# le titre
@@ -309,13 +310,7 @@ class Fanfic (Html):
 		if self.text[d:f] not in self.subject: self.subject = self.subject +', '+ self.text[d:f]
 		"""
 		self.subject = self.subject.replace (' - Fandom', "")
-	#	self.subject = self.subject[2:]
-		# l'auteur
-		d= self.text.find ("<h3><a href='/users/") +13
-		f= self.text.find ('>', d) -1
-		self.autlink = self.text[d:f]
-		d= f+2
-		f= self.text.find ('<', d)
+		self.autlink = 'https://archiveofourown.org/users/' + self.author
 		self.author = self.author.replace ('-',' ')
 		self.author = self.author.replace ('_',' ')
 		self.author = self.author.strip()
@@ -330,8 +325,11 @@ class Fanfic (Html):
 		self.text = self.text.replace ('</div>')
 		if "<h3><a href='/works/" in self.text:
 			chapters = List()
+			logger.log (self.text.find ("<h3><a href='/works/"))
 			chapters.fromText ("<h3><a href='/works/", self.text)
+			logger.coucou()
 			chapterRange = chapters.range (1)
+			logger.coucou()
 			for c in chapterRange:
 				d= chapters [c].find ('>') +1
 				chapters [c] = chapters [c] [d:]
