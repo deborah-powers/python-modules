@@ -22,6 +22,21 @@ class Html (Article):
 		self.styles = []
 		self.metas = {}
 
+	def toArticle (self):
+		article = Article()
+		article.text = self.text
+		article.path = self.path
+		article.title = self.title
+		article.type = self.type
+		article.link = self.link
+		article.author = self.author
+		article.autlink = self.autlink
+		return article
+
+	def toText (self):
+		article = self.toArticle()
+		return article.toText()
+
 	def read (self):
 		Article.read (self)
 		self.text = self.text.clean()
@@ -86,14 +101,14 @@ class Html (Article):
 	def fromUrlVb (self):
 		res = False
 		self.title = 'tmp'
-		self.fileFromData()
+		self.toPath()
 		try: urlRequest.urlretrieve (self.link, self.path)
 		except Exception as e: return False
 		else:
-			self.fromFile()
+			self.read()
 			remove (self.path)
 			self.titleFromUrl()
-			self.fileFromData()
+			self.toPath()
 			return True
 
 	def fromUrl (self, params=None):
@@ -117,17 +132,16 @@ class Html (Article):
 		self.cleanWeb()
 
 	def fromWeb (self, url):
-		self.extension = 'html'
-		self.path = 'b/'
+		self.path = 'b/\t.html'
 		self.title = 'tmp'
-		self.fileFromData()
+		self.toPath()
 		self.link = url
 		self.fromUrl()
 		# self.cleanWeb()
 		self.metas = {}
 		self.styles = []
 		self.metas ['link'] = self.link
-		self.toFile()
+		self.write()
 
 	""" ________________________ récupérer les métadonnées ________________________ """
 

@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import os
 import codecs
+from classList import List
 from classText import Text
 from fileLocal import *
-import logger
 
 class File():
 	def __init__ (self, file =None):
@@ -119,6 +119,20 @@ class Article (File):
 		self.autlink =""
 		self.type =""
 
+	def toText (self):
+		if self.type == 'txt': return self
+		article = Article()
+		article.text = self.text
+		article.path = self.path
+		article.title = self.title
+		article.type = 'txt'
+		article.link = self.link
+		article.author = self.author
+		article.autlink = self.autlink
+		article.text = article.text.fromHtml()
+		if '</' in article.text: return self
+		else: return article
+
 	def fromPath (self):
 		File.fromPath (self)
 		if self.path[-3:] == 'txt': self.type = 'txt'
@@ -185,10 +199,24 @@ file = Article ('b/artest.txt')
 file.test()
 """
 
-from classList import List
+class FileList (File):
+	def __init__(self, file=None, sep='\n'):
+		File.__init__(self, file)
+		self.list = List()
+		self.sep = sep
 
-class FileList (File, List):
-	pass
+	def toText (self, sep):
+		self.text = self.list.toText (self.sep)
+
+	def fromText (self, text=None):
+		if text: self.text = Text (text)
+		self.list = self.text.split (self.sep)
+
+	def range (self, start=0, end=0, step=1):
+		return self.list.range (start, end, step)
+
+	def iterate (self, function):
+		return self.list.iterate (function)
 
 class Folder():
 	def __init__ (self, path='b/'):
@@ -215,8 +243,6 @@ class Folder():
 		newPath = shortcut (newPath)
 		for file in self.list:
 			file.toPath()
-			logger.log (self.path + file.path)
-			logger.log (newPath + file.path)
 			os.rename (self.path + file.path, newPath + file.path)
 		self.path = newPath
 
@@ -344,13 +370,13 @@ folder.test()
 """
 
 class FolderArticle (Folder):
-	def __init__ (self, path='a/', genre=""):
+	def __init__ (self, path='a/', subject=""):
 		Folder.__init__(self, path)
-		self.genre = genre
-		if genre == 'fanfic' or genre == 'romance': self.path = 'a/fanfics/'
-		elif genre == 'cour': self.path = 'a/cours/'
-		elif genre == 'education': self.path = 'a/education/'
-		elif genre == 'roman': self.path = 'a/romans/'
+		self.subject = subject
+		if subject == 'fanfic' or subject == 'romance': self.path = 'a/fanfics/'
+		elif subject == 'cour': self.path = 'a/cours/'
+		elif subject == 'education': self.path = 'a/education/'
+		elif subject == 'roman': self.path = 'a/romans/'
 		self.path = shortcut (self.path)
 
 	def get (self, tagName=None, sens=True):
