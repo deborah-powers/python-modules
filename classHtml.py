@@ -27,6 +27,7 @@ class Html (Article):
 		article.text = self.text
 		article.path = self.path
 		article.title = self.title
+		article.subject = self.subject
 		article.type = self.type
 		article.link = self.link
 		article.author = self.author
@@ -38,7 +39,7 @@ class Html (Article):
 		return article.toText()
 
 	def read (self):
-		Article.read (self)
+		File.read (self)
 		self.text = self.text.clean()
 		tmpTitle = findTextBetweenTag (self.text, 'title')
 		if tmpTitle and '>' not in tmpTitle and '<' not in tmpTitle: self.title = tmpTitle
@@ -196,4 +197,27 @@ class Html (Article):
 				tmpMeta = "<meta name='%s' content='%s'/>\n\t" % (meta, self.metas [meta])
 				textInfos = textInfos + tmpMeta
 		return textInfos
+
+	def delImgLink (self):
+		self.text = self.text.replace ('</div>',"")
+		self.text = self.text.replace ('<div>',"")
+		# supprimer les liens
+		if self.contain ('<a href='):
+			textList = List()
+			textList.addList (self.text.split ('<a href='))
+			textRange = textList.range (1)
+			for i in textRange:
+				d= textList [i].find ('>') +1
+				textList [i] = textList [i] [d:]
+			self.text = "".join (textList)
+			self.text = self.text.replace ('</a>',"")
+		# supprimer les images
+		if self.contain ('<img src='):
+			textList = List()
+			textList.addList (self.text.split ('<img src='))
+			textRange = textList.range (1)
+			for i in textRange:
+				d= textList [i].find ('>') +1
+				textList [i] = textList [i] [d:]
+			self.text = "".join (textList)
 

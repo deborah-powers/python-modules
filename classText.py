@@ -117,7 +117,7 @@ class Text (str):
 		text = text.cleanUrl (True)
 		text = text.cleanUrl (False)
 		"""
-		self.text = self.text.replace ('$$$', '.')
+		text = text.replace ('$$$', '.')
 		for wOld, wNew in wordUrl: text = text.replace (wOld, wNew)
 		return text
 

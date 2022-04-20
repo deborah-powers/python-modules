@@ -143,7 +143,7 @@ class Article (File):
 		if self.type == 'html':
 			self.text = self.text.replace ('\n')
 			self.text = self.text.replace ('\t')
-			metadata = self.fromModel (templateHtml)
+			metadata = self.text.fromModel (templateHtml)
 			self.subject = metadata [2]
 			self.author = metadata [1]
 			self.link = metadata [3]

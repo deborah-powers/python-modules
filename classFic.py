@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from classList import List
+from classText import Text
 from classFile import Article
 from classHtml import Html, findTextBetweenTag
+import logger
 
 help = """
 récupérer les pages de certains sites que j'aime beaucoup
@@ -20,7 +22,7 @@ class Fanfic (Html):
 			self.toPath()
 		else:
 			if url[-5:] != '.html': url = 'b/' + url + '.html'
-			self.file = url
+			self.path = url
 			self.fromPath()
 			self.read()
 		self.clean()
@@ -36,12 +38,12 @@ class Fanfic (Html):
 		elif 'b/aooo.html' == url: self.aoooLocal()
 		elif 'ffNet'	in url: self.ffNet()
 		elif 'medium'	in url: self.medium()
-		else: self.cleanWeb()
 		self.metas = {}
 		self.text = self.text.replace (' <', '<')
 		self.text = self.text.replace ('><', '>\n<')
 		article = self.toArticle()
-		article = article.toText()
+		logger.log (article.autlink)
+		logger.log (article.link)
 		article.write()
 
 	def findSubject (self):
@@ -52,8 +54,8 @@ class Fanfic (Html):
 		storyData = self.title.lower() +'\t'+ self.subject.lower() +'\t'+ self.author.lower()
 		subjectList =""
 		subjectDict = {
-			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki', 'him (band)'),
-			'rockers': ('rasmus', 'ville valo', 'jyrki', 'him (band)'),
+			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars'),
+			'rockers': ('rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars'),
 			'monstres': ('mythology', 'vampire', 'naga', 'pokemon'),
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
 			'tricot': ('tricot', 'point', 'crochet')
@@ -67,11 +69,22 @@ class Fanfic (Html):
 		if subjectList: self.subject = subjectList[2:]
 		else: self.subject = 'histoire'
 
+	def usePlaceholders (self):
+		placeholders = ('y/n', 'e/c', 'h/c', 'l/n')
+		for ph in placeholders:
+			self.text = self.text.replace (ph.upper(), ph)
+			self.text = self.text.replace ('('+ ph +')', ph)
+			self.text = self.text.replace ('['+ ph +']', ph)
+		self.text = self.text.replace ('y/n', 'Deborah')
+		self.text = self.text.replace ('e/c', 'grey')
+		self.text = self.text.replace ('h/c', 'dark blond')
+		self.text = self.text.replace ('l/n', 'Powers')
+
 	def unisciel (self, subject):
 		self.subject = 'cours'
 		self.author = 'unisciel'
 		self.text = findTextBetweenTag (self.text, 'body')
-		self.cleanWeb()
+		self.clean()
 		self.delScript()
 		d= self.text.find ('<td>') +4
 		f= self.text.find ('</td>', d)
@@ -134,7 +147,7 @@ class Fanfic (Html):
 		f= self.text.find ('</title>', d)
 		self.title = self.text [d:f].lower()
 		# le texte
-		self.cleanWeb()
+		self.clean()
 		f= self.text.find ('<h1>À propos de cette édition électronique</h1>')
 		self.text = self.text [:f]
 		# le sujet
@@ -142,7 +155,7 @@ class Fanfic (Html):
 
 	def menaceTheoriste (self):
 		self.subject = 'sciences'
-		self.cleanWeb()
+		self.clean()
 		self.text = self.text.replace ('<div>')
 		self.text = self.text.replace ('</div>')
 		d= self.text.find ("par<a href='https://menace-theoriste.fr/author/") +12
@@ -187,7 +200,7 @@ class Fanfic (Html):
 			self.subject = 'feminisme'
 			self.title = 'fds '+ self.title
 		else: self.subject = 'opinion'
-		self.cleanWeb()
+		self.clean()
 		self.cleanLink()
 		d= self.text.find ('<h1>')
 		d= self.text.find ('<p>', d)
@@ -222,10 +235,10 @@ class Fanfic (Html):
 		if d<0:
 			d= self.text.find ('https://www.fictionpress.com/u/')
 			self.link = 'https://www.fictionpress.com/s/'
-		f= self.text.find ('>', d) -1
-		self.autlink = self.text [d:f]
-		d= self.text.find ('<', f)
-		self.author = self.text [f+2:d]
+			f= self.text.find ('>', d) -1
+			self.autlink = self.text [d:f]
+			d= self.text.find ('<', f)
+			self.author = self.text [f+2:d]
 		else:
 			self.subject = data [1] [2:]
 			if ' fanfic' in self.subject:
@@ -253,14 +266,14 @@ class Fanfic (Html):
 	def aoooLocal (self):
 		self.styles =[]
 		self.metas ={}
+		self.title = self.title.replace (' [Archive of Our Own]', "")
 		data = self.title.split (' - ')
-		if len (data) >3 and 'hapter' in data[1]: self.author = data.pop (1)
 		self.title = data[0]
-		# self.author = data[1]
+		if len (data) >3 and 'hapter' in data[1]: self.author = data.pop (1)
+		self.author = data[1]
 		self.subject = data[2]
-		self.subject = self.subject.replace (' [Archive of Our Own]', "")
 		self.subject = self.subject.replace (' (band)', "")
-		self.cleanWeb()
+		self.clean()
 		# le lien
 		d= self.text.find ("<a href='/downloads/") +20
 		f= self.text.find ('/', d)
@@ -271,7 +284,7 @@ class Fanfic (Html):
 		if 'This work could have adult content. If you proceed you have agreed that you are willing to see such content' in self.text:
 			print ('fichier protégé', self.title)
 			return
-		self.cleanWeb()
+		self.clean()
 		self.text = self.text.replace ('<br>', '</p><p>')
 		self.text = findTextBetweenTag (self.text, 'body')
 		# le titre
@@ -284,7 +297,6 @@ class Fanfic (Html):
 
 	def aoooCommon (self):
 		# le sujet
-		if subject and subject not in self.subject: self.subject = self.subject +', '+ subject
 		d= self.text.find ('Category:<ul><li><a') +20
 		d= self.text.find ('>', d) +1
 		f= self.text.find ('</a>', d)
@@ -304,7 +316,6 @@ class Fanfic (Html):
 		self.autlink = self.text[d:f]
 		d= f+2
 		f= self.text.find ('<', d)
-		self.author = self.text [d:f]
 		self.author = self.author.replace ('-',' ')
 		self.author = self.author.replace ('_',' ')
 		self.author = self.author.strip()
@@ -314,7 +325,7 @@ class Fanfic (Html):
 		# le texte compte plusieurs chapîtres
 		if d==18: d= self.text.find ("<h3><a href='/works/")
 		f= self.text.rfind ('<h3>Actions</h3>')
-		self.text = self.text [d:f]
+		self.text = Text (self.text [d:f])
 		self.text = self.text.replace ('<div>')
 		self.text = self.text.replace ('</div>')
 		if "<h3><a href='/works/" in self.text:
