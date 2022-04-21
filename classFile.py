@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import os
 import codecs
-from classList import List
-from classText import Text
+import funcList
+import funcText
 from fileLocal import *
 import logger
 
@@ -11,7 +11,7 @@ class File():
 	def __init__ (self, file =None):
 		self.path = file
 		self.title =""
-		self.text = Text()
+		self.text =""
 		if file: self.fromPath()
 
 	def fromPath (self):
@@ -43,7 +43,7 @@ class File():
 			except UnicodeDecodeError: pass
 			else: break
 		textBrut.close()
-		if text: self.text = Text (text)
+		if text: self.text = text
 		self.fromPath()
 
 	def write (self, mode='w'):
@@ -94,7 +94,7 @@ fkz,fzkl,fam; v adbazjkbdafaef"""
 		self.title = 'coco'
 		self.toPath()
 		print ('modifier le titre\t', self.path)
-		self.text = self.text.shape ('reset')
+		self.text = funcText.shape (self.text, 'reset')
 		print (self.text[:200])
 		self.write()
 """
@@ -130,7 +130,7 @@ class Article (File):
 		article.link = self.link
 		article.author = self.author
 		article.autlink = self.autlink
-		article.text = article.text.fromHtml()
+		article.text = funcText.fromHtml (article.text)
 		if '</' in article.text: return self
 		else: return article
 
@@ -142,27 +142,25 @@ class Article (File):
 	def read (self):
 		File.read (self)
 		if self.type == 'html':
-			self.text = self.text.replace ('\n')
-			self.text = self.text.replace ('\t')
-			metadata = self.text.fromModel (templateHtml)
+			self.text = self.text.replace ('\n', "")
+			self.text = self.text.replace ('\t', "")
+			metadata = funcText.fromModel (self.text, templateHtml)
 			self.subject = metadata [2]
 			self.author = metadata [1]
 			self.link = metadata [3]
 			self.autlink = metadata [4]
-			self.text = Text (metadata [6])
+			self.text = metadata [6]
 		elif self.type == 'txt':
-			metadata = self.text.fromModel (templateText)
+			metadata = funcText.fromModel (self.text, templateText)
 			self.subject = metadata [0]
 			self.author = metadata [1]
 			self.link = metadata [2]
 			self.autlink = metadata [3]
-			self.text = Text (metadata [4])
+			self.text = metadata [4]
 
 	def write (self):
-		text =""
-		if self.type == 'html': text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
-		elif self.type == 'txt': text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
-		self.text = Text (text)
+		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
+		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
 
 	def __str__ (self):
@@ -191,39 +189,35 @@ fkz,fzkl,fam; v adbazjkbdafaef"""
 		print ('lecture\t', self.text[:200])
 		print ('conversion en html')
 		self.path = self.path.replace ('.txt', '.html')
-		self.text = self.text.toHtml()
+		self.text = funcText.toHtml (self.text)
 		self.type = 'html'
 		print ('text html\t', self.text)
 		self.write()
-"""
-file = Article ('b/artest.txt')
-file.test()
-"""
 
 class FileList (File):
 	def __init__(self, file=None, sep='\n'):
 		File.__init__(self, file)
-		self.list = List()
+		self.list =[]
 		self.sep = sep
 
 	def toText (self, sep):
-		self.text = self.list.toText (self.sep)
+		self.text = funcList.toText (self.list, self.sep)
 
 	def fromText (self, text=None):
-		if text: self.text = Text (text)
+		if text: self.text = text
 		self.list = self.text.split (self.sep)
 
 	def range (self, start=0, end=0, step=1):
-		return self.list.range (start, end, step)
+		return range (self.list, start, end, step)
 
 	def iterate (self, function):
-		return self.list.iterate (function)
+		return iterate (self.list, function)
 
 class Folder():
 	def __init__ (self, path='b/'):
 		if path: path = shortcut (path)
 		self.path = path
-		self.list = List()
+		self.list =[]
 
 	# ________________________ agir sur les fichiers ________________________
 
@@ -280,7 +274,7 @@ class Folder():
 	def filter (self, tagName, sens=True):
 		""" quand on a besoin de ré-exclure certains fichiers après le get.
 		quand je veux exclure sur plusieurs mots-clefs """
-		rangeFile = self.list.range()
+		rangeFile = funcList.range (self.list)
 		rangeFile.reverse()
 		if sens:
 			for f in rangeFile:
@@ -290,7 +284,7 @@ class Folder():
 				if tagName in self.list[f].path or tagName in self.list[f].title: trash = self.list.pop(f)
 
 	def read (self):
-		rangeList = self.list.range()
+		rangeList = funcList.range (self.list)
 		if self.path not in self[0].path:
 			for i in rangeList: self[i].path = self.path + self[i].path
 		for i in rangeList:
@@ -298,7 +292,7 @@ class Folder():
 			self[i].path = self[i].path.replace (self.path, "")
 
 	def write (self):
-		rangeList = self.list.range()
+		rangeList = funcList.range (self.list)
 		if self.path not in self[0].path:
 			for i in rangeList: self[i].path = self.path + self[i].path
 		for i in rangeList:
@@ -381,10 +375,8 @@ class Folder():
 		print (len (self[0].text), 'caractères')
 		"""
 
-"""
 folder = Folder()
 folder.test()
-"""
 
 class FolderArticle (Folder):
 	def __init__ (self, path='a/', subject=""):

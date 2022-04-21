@@ -150,7 +150,7 @@ def shape (text, case=""):
 		text = text.replace (6* char +' ', '\n\n'+ 12* char +' ')
 		text = text.replace (' '+ 6* char, ' '+ 12* char +'\n\n')
 	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
-	if case: text = text.upperCase (case)
+	if case: text = upperCase (text, case)
 	return text
 
 	# ________________________ fonctions de bases ________________________
@@ -166,7 +166,7 @@ def fromModel (text, model):
 	modelList = modelTmp.split ('%')
 	results = []
 	for line in modelList:
-		d= text.find (line)
+		d= find (text, line)
 		if d>0: results.append (text [:d])
 		d+= len (line)
 		text = text [d:]
@@ -175,6 +175,7 @@ def fromModel (text, model):
 	rangeRes = range (len (results))
 	for r in rangeRes:
 		d= model.find ('%', d) +1
+		if d==0: continue
 		if model [d] =='d': results [r] = int (results [r])
 		elif model [d] =='f': results [r] = float (results [r])
 	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
@@ -210,13 +211,6 @@ def sliceWord (text, wordStart, wordEnd):
 		f= text.find (wordEnd, d)
 		if f>0 and f>d: res = text[d:f]
 	return res
-
-def test():
-	text ="""nfznvvz
-,zef,zofkv,sknvdzklfnzkg
-"""
-	print ('clean\t', clean (text))
-
 
 	# ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________
 
@@ -421,3 +415,27 @@ def fromHtml (text):
 	text = ' '.join (ltext)
 	text = shape (text)
 	return text
+
+
+def test():
+	text = """nfznvvz
+zef,z "ofk" v,sknvdzkl.fnz fk" g
+à 50:30:60
+adresse: http://www.fr
+"""
+	model = """fznvvz
+%ssknvdzkl.fnz %s
+"""
+	text = clean (text)
+	print ('clean\t', text)
+	text = upperCase (text, 'upper')
+	print ('upperCase\t', text)
+	print ('find\t', find (text, "fk'", 20))
+	print ('rfind\t', rfind (text, "fk'"))
+	text = toHtml (text)
+	print ('toHtml\t', text)
+	text = fromHtml (text)
+	print ('fromHtml\t', text)
+	textList = fromModel (text, model)
+	print (textList)
+
