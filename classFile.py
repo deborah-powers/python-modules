@@ -5,6 +5,7 @@ import codecs
 from classList import List
 from classText import Text
 from fileLocal import *
+import logger
 
 class File():
 	def __init__ (self, file =None):
@@ -287,6 +288,22 @@ class Folder():
 		else:
 			for f in rangeFile:
 				if tagName in self.list[f].path or tagName in self.list[f].title: trash = self.list.pop(f)
+
+	def read (self):
+		rangeList = self.list.range()
+		if self.path not in self[0].path:
+			for i in rangeList: self[i].path = self.path + self[i].path
+		for i in rangeList:
+			self[i].read()
+			self[i].path = self[i].path.replace (self.path, "")
+
+	def write (self):
+		rangeList = self.list.range()
+		if self.path not in self[0].path:
+			for i in rangeList: self[i].path = self.path + self[i].path
+		for i in rangeList:
+			self[i].write()
+			self[i].path = self[i].path.replace (self.path, "")
 
 	def iterate (self, function):
 		newList = Folder()

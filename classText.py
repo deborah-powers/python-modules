@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+import logger
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmlmnopqrstuvwxyz0123456789'
 punctuation = '({[\n\t.,;:]})?!'
@@ -29,6 +30,13 @@ tagHtml =(
 	('\n<hr>', '\n\n************************************************\n\n'), ("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
 	('\n<li>', '\n\t')
 )
+def findEnd (text, pos=0):
+	end =[]
+	if '\n' in text[pos:]: end.append (text.find ('\n', pos))
+	if '\t' in text[pos:]: end.append (text.find ('\t', pos))
+	if ' ' in text[pos:]: end.append (text.find (' ', pos))
+	if end: return min (end)
+	else: return -1
 
 class Text (str):
 	# ________________________ ma mise en forme perso ________________________
@@ -95,6 +103,7 @@ class Text (str):
 		text = Text (text)
 		text = text.protectUrl (True)
 		text = text.protectUrl (False)
+		text = text.protectHour()
 		for p in punctuation:
 			text = text.replace (' '+p, p)
 			text = text.replace (p+' ', p)
@@ -117,22 +126,42 @@ class Text (str):
 		text = text.cleanUrl (True)
 		text = text.cleanUrl (False)
 		"""
-		text = text.replace ('$$$', '.')
+		# nettoyer les urls et les dates
+		text = text.replace ('***', '.')
+		text = text.replace ('$$$', '?')
+		text = text.replace ('§§§', ':')
+		text = text.replace ('£££', ',')
 		for wOld, wNew in wordUrl: text = text.replace (wOld, wNew)
 		return text
 
+	def protectHour (self):
+		if ':' not in self: return self
+		text = self
+		d=0
+		while d< len (text) -4 and d>=0:
+			d= text.find (':', d)
+			if d<0: continue
+			if text[d+3] == ':':
+				f= findEnd (text, d)
+				if f>=0:
+					dateProtected = text[d:f].replace (':', '§§§')
+					dateProtected = dateProtected.replace (',', '£££')
+					text = text.replace (text[d:f], dateProtected)
+			d=d+4
+		return Text (text)
+
 	def protectUrl (self, s=False):
+		if '\nhttp' not in self: return self
 		word = '\nhttp://'
 		if s: word = '\nhttps://'
+		if 'word' not in self: return self
 		textList = self.split (word)
 		textRange = range (1, len (textList))
 		for l in textRange:
-			end =[]
-			end.append (textList[l].find ('\n'))
-			end.append (textList[l].find ('\t'))
-			end.append (textList[l].find (' '))
-			f= min (end)
-			urlProtected = textList[l][:f].replace ('.', '$$$')
+			f= findEnd (textList[l])
+			urlProtected = textList[l][:f].replace ('.', '***')
+			urlProtected = urlProtected.replace ('?', '$$$')
+			urlProtected = urlProtected.replace (':', '§§§')
 			textList[l] = textList[l].replace (textList[l][:f], urlProtected)
 		text = word.join (textList)
 		return Text (text)

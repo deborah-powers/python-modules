@@ -4,12 +4,14 @@ from sys import argv
 from classText import Text
 from classFile import File
 from classList import List
+import logger
 
 def cleanLog (self):
 	self.read()
 	self.text = self.text.clean()
 	self.text = self.text.replace ('. ','.')
 	self.text = self.text.replace ('\nat ', '\n\tat ')
+	self.text ='\n'+ self.text
 	self.reverseLines()
 	listLine = List()
 	listLine = listLine.fromText ('\n', self.text)
@@ -26,12 +28,26 @@ def cleanLog (self):
 		elif '\t' == listLine[l][0] and '(<generated>)' in listLine[l]: trash = listLine.pop (l)
 		elif '\t' == listLine[l][0] and 'fr.asp.synergie.' not in listLine[l]: trash = listLine.pop (l)
 		elif 'core.web.' in listLine[l]: trash = listLine.pop (l)
-		elif "INFO" in listLine[l] and ("INFO" in listLine[l+1] or "WARN" in listLine[l+1] or "ERROR" in listLine[l+1]): trash = listLine.pop (l)
+	#	elif "INFO" in listLine[l] and ("INFO" in listLine[l+1] or "WARN" in listLine[l+1] or "ERROR" in listLine[l+1]): trash = listLine.pop (l)
 	self.text = Text ('\n'.join (listLine))
 	self.text = self.text.replace ('com.opensymphony.xwork2.util.logging.commons.')
 	self.text = self.text.replace ('fr.asp.synergie.app.')
 	self.text = self.text.replace ('fr.asp.synergie.')
-	self.cleanDate()
+	self.text = self.text.replace (': 8080/', ':8080/')
+	self.text = self.text.replace ('[DEBUG] ', 'DEBUG ')
+	self.text = self.text.replace ('[INFO] ', 'INFO ')
+	self.text = self.text.replace ('[WARN] ', 'WARN ')
+	self.text = self.text.replace ('[ERROR] ', 'ERROR ')
+	self.text = self.text.replace ('[edi]')
+	self.text = self.text.replace ('[ord]')
+	self.text = self.text.replace ('[cdm-batch]')
+	self.text = self.text.replace ('[cdm]')
+	self.text = self.text.replace ('[cdm-lb-0]')
+	self.text = self.text.replace ('[cdm-lb-1]')
+	self.text = self.text.replace ('[cdm-backend]')
+	self.text = self.text.replace ('[cdm-backend-lb-0]')
+	self.text = self.text.replace ('[cdm-backend-lb-1]')
+	# self.cleanDate()
 	self.title = self.title +' bis'
 	self.write()
 
