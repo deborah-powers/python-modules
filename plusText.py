@@ -4,7 +4,7 @@ import logger
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmlmnopqrstuvwxyz0123456789'
 punctuation = '({[\n\t.,;:]})?!'
-uppercase = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
+uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
 # liste des points, des chaines de caracteres suivies par une majuscule
 wordsBeginMaj = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'victo', 'tony', 'simplon', 'loïc', 'france', 'paris', 'rueil')
@@ -30,7 +30,38 @@ tagHtml =(
 	('\n<hr>', '\n\n************************************************\n\n'), ("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
 	('\n<li>', '\n\t')
 )
+# ________________________ ma mise en forme perso ________________________
 
+def upperCaseIntern (text):
+	text ='\n'+ text
+	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '______ ', '------ ', '****** ', '====== ')
+	for i, j in uppercaseLetters:
+		for p in points: text = text.replace (p+i, p+j)
+	for p in " "+ punctuation[-11:]:
+		for q in " "+ punctuation[0:5]:
+			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
+	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
+	text = text.strip()
+	return text
+
+def upperCase (text, case=""):
+	"""	rest: je supprime l'ancienne casse
+		upper: je rajoute les majuscules
+	log (type (text))
+	"""
+	if 'reset' in case: text = text.lower()
+	if 'upper' in case:
+		text = '\n'+ text +'\n'
+		if '\n/code\n' in text:
+			paragraphList = text.split ('\ncode\n')
+			paragraphRange = range (1, len (paragraphList))
+			for i in paragraphRange:
+				d= paragraphList [i].find ('\n/code\n') +7
+				paragraphList [i] = paragraphList [i][:d] + upperCaseIntern (paragraphList [i][d:])
+			text = '\ncode\n'.join (paragraphList)
+		else: text = upperCaseIntern (text)
+	text = text.strip()
+	return text
 
 def findEnd (text, pos=0):
 	end =[]
@@ -39,47 +70,10 @@ def findEnd (text, pos=0):
 	if ' ' in text: end.append (text.find (' ', pos))
 	return min (end)
 
-	# ________________________ ma mise en forme perso ________________________
-
-def upperCaseIntern (text):
-	text ='\n'+ text
-	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '______ ', '------ ', '****** ', '====== ')
-	for i, j in uppercase:
-		for p in points: text = text.replace (p+i, p+j)
-	for p in " "+ punctuation[-11:]:
-		for q in " "+ punctuation[0:5]:
-			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
-	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
-	text = text.strip()
-	return Text (text)
-
-def upperCase (text, case=""):
-	"""	rest: je supprime l'ancienne casse
-		upper: je rajoute les majuscules
-	log (type (text))
-	"""
-	text = text
-	if 'reset' in case: text = text.lower()
-	if 'upper' in case:
-		text = Text ('\n'+ text +'\n')
-		if '\n/code\n' in text:
-			paragraphList = text.split ('\ncode\n')
-			paragraphRange = range (1, len (paragraphList))
-			for i in paragraphRange:
-				d= paragraphList [i].find ('\n/code\n') +7
-				paragraphList [i] = paragraphList [i][:d] + toUpperCase (paragraphList [i][d:])
-			text = '\ncode\n'.join (paragraphList)
-		else: text = text.upperCaseIntern()
-	text = text.strip()
-	return text
-
 def protectHour (text):
 	if ':' not in text: return text
-	nbChar = len (text) -3
-	text = text
-	#logger.log (nbChar)
 	d=0
-	while d< nbChar and d>=0:
+	while d< len (text) -3 and d>=0:
 		d= text.find (':', d)
 		if d<0: continue
 		if text[d+3] == ':':
@@ -88,7 +82,7 @@ def protectHour (text):
 			dateProtected = dateProtected.replace (',', '£££')
 			text = text.replace (text[d:f], dateProtected)
 		d=d+4
-	return Text (text)
+	return text
 
 def protectUrl (text, s=False):
 	word = '\nhttp://'
@@ -102,25 +96,9 @@ def protectUrl (text, s=False):
 		urlProtected = urlProtected.replace (':', '§§§')
 		textList[l] = textList[l].replace (textList[l][:f], urlProtected)
 	text = word.join (textList)
-	return Text (text)
-
-def cleanUrl (text, s=False):
-	word = '\nhttp://'
-	if s: word = '\nhttps://'
-	textList = text.split (word)
-	textRange = range (1, len (textList))
-	for l in textRange:
-		a= textList[l].find ('\n')
-		url = textList[l][:a]
-		textList[l] = textList[l][a:]
-		url = url.lower()
-		url = url.replace (' ',"")
-		textList[l] = url + textList[l]
-	text = word.join (textList)
-	return Text (text)
+	return text
 
 def clean (text):
-	text = text
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
@@ -128,9 +106,9 @@ def clean (text):
 	text = text.replace (' \n', '\n')
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
-	text = text.protectUrl (True)
-	text = text.protectUrl (False)
-	text = text.protectHour()
+	text = protectUrl (text, True)
+	text = protectUrl (text, False)
+	text = protectHour (text)
 	for p in punctuation:
 		text = text.replace (' '+p, p)
 		text = text.replace (p+' ', p)
@@ -149,10 +127,6 @@ def clean (text):
 		text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
 	text = text.replace ("Qu' ","Qu'")
 	text = text.replace ("qu' ","qu'")
-	"""
-	text = text.cleanUrl (True)
-	text = text.cleanUrl (False)
-	"""
 	# nettoyer les urls et les dates
 	text = text.replace ('***', '.')
 	text = text.replace ('$$$', '?')
@@ -169,7 +143,7 @@ def shape (text, case=""):
 		rest: je supprime l'ancienne casse
 		upper: je rajoute les majuscules
 	"""
-	text = text.clean()
+	text = clean (text)
 	for char in '=*-_':
 		while 7* char in text: text = text.replace (7* char, 6* char)
 		text = text.replace (' '+ 6* char, ' '+ 6* char +'\n\n')
@@ -191,7 +165,6 @@ def fromModel (text, model):
 	# récupérer les données du message sous forme de string
 	modelList = modelTmp.split ('%')
 	results = []
-	text = text
 	for line in modelList:
 		d= text.find (line)
 		if d>0: results.append (text [:d])
@@ -206,13 +179,6 @@ def fromModel (text, model):
 		elif model [d] =='f': results [r] = float (results [r])
 	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
 	return results
-
-def replace (text, oldWord, newWord=''):
-	return Text (str.replace (text, oldWord, newWord))
-
-def strip (text, chars=""):
-	if chars: return Text (str.strip (text, chars))
-	else: return Text (str.strip (text))
 
 def find (text, word, pos=0):
 	posFind =-1
@@ -237,19 +203,25 @@ def rfind (text, word):
 		posFind = str.rfind (text, word)
 	return posFind
 
-
 def sliceWord (text, wordStart, wordEnd):
 	res =""
 	if wordStart in text and wordEnd in text:
 		d= text.find (wordStart) + len (wordStart)
 		f= text.find (wordEnd, d)
 		if f>0 and f>d: res = text[d:f]
-	return Text (res)
+	return res
+
+def test():
+	text ="""nfznvvz
+,zef,zofkv,sknvdzklfnzkg
+"""
+	print ('clean\t', clean (text))
+
 
 	# ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________
 
 def toHtml (text):
-	text = text.shape()
+	text = shape (text)
 	for char in '=*-_': text = text.replace (12* char, 6* char)
 	# transformer la mise en page en balises
 	for html, perso in tagHtml:
@@ -365,8 +337,8 @@ def toHtml (text):
 				paragraphList [p] = paragraphList [p][:d] +'<th>'+ paragraphList [p][d+4:]
 			text = '</th>'.join (paragraphList)
 	# nettoyer le texte pour faciliter la suite des transformations
-	text = text.replace ('\t')
-	text = text.clean()
+	text = text.replace ('\t', "")
+	text = clean (text)
 	# rajouter les <p/>
 	text = text.replace ('\n', '</p><p>')
 	text = text.replace ('></p><p><', '><')
@@ -398,7 +370,7 @@ def toHtml (text):
 	# pour les blocs de code
 	text = text.replace ('\a', '\n')
 	text = text.replace ('\f', '\t')
-	text = text.clean()
+	text = clean (text)
 	text = text.replace (' </', '</')
 	return text
 
@@ -407,14 +379,13 @@ def fromHtml (text):
 	container = [ 'div', 'section', 'ol', 'ul', 'table', 'figure', 'math' ]
 	tagsBlank =( ('<hr/>', '\n************\n'), ('<hr>', '\n************\n'), ('<br>', '\n'), ('<br/>', '\n'))
 	tagsClosing =( 'li', 'tr', 'th', 'td')
-	text = text
 	for tag in container:
-		text = text.replace ('</'+ tag +'>')
-		text = text.replace ('<'+ tag +'>')
+		text = text.replace ('</'+ tag +'>', "")
+		text = text.replace ('<'+ tag +'>', "")
 	# les tableaux
-	text = text.replace ('</td>')
+	text = text.replace ('</td>', "")
 	text = text.replace ('</th>', ':')
-	text = text.replace ('</tr>')
+	text = text.replace ('</tr>', "")
 	text = text.replace ('<tr><td>', '\n')
 	text = text.replace ('<tr><th>', '\n')
 	text = text.replace ('<td>', '\t')
@@ -422,7 +393,7 @@ def fromHtml (text):
 	# les tags
 	for html, perso in tagHtml: text = text.replace (html.strip(), perso)
 	for html, perso in tagsBlank: text = text.replace (html, perso)
-	for tag in tagsClosing: text = text.replace ('</'+ tag +'>')
+	for tag in tagsClosing: text = text.replace ('</'+ tag +'>', "")
 	# les lignes
 	text = text.replace ('</p><p>', '\n')
 	lines = [ 'p', 'caption', 'figcaption' ]
@@ -447,6 +418,6 @@ def fromHtml (text):
 		title = ltext [t][f:]
 		d= ltext [t].find ('<a ')
 		ltext [t] = ltext [t][:d] +' '+ title +': '+ link
-	text = Text (' '.join (ltext))
-	text = text.shape()
+	text = ' '.join (ltext)
+	text = shape (text)
 	return text
