@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from random import choice
 
-
 def range (liste, start=0, end=0, step=1):
 	# end peut valoir -1
 	lenList = len (liste)

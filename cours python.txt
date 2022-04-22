@@ -1,3 +1,15 @@
+====== divers ======
+
+object.__dir__()	récupère les fonctions d'un objet
+object.__module__	nom du fichier contenant la classe de l'objet
+object.__class__	nom de la classe de l'objet
+object.__dict__		renvoi les champs et leurs valeurs sous la forme d'un dictionnaire
+
+if __name__ == 'main': pass
+else: xxx
+empêche de lancer certaines actions quand le script est une dépendance
+
+
 ====== ajouter un dossier à sys.path ======
 
 je veux utiliser les scripts de /home/deborah/python partout.

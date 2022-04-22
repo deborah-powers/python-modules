@@ -1,25 +1,22 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from fileSimple import File
+from sys import argv
+from classFile import File
 
 wordImport = (('import ', 7), ('from ', 5))
 wordFunction = (('class ', 6), ('def ', 4), ('\t""" ', 5), ('\treturn', 7), ('\tdef ', 5), ('\t\t""" ', 6), ('\t\treturn', 8))
-filePython = File ()
-filePython.path = 'b/python'
-filePython.extension = 'py'
-fileHelp = File ()
-fileHelp.path = 'b/'
-fileHelp.extension = 'txt'
+filePython = File ('b/python/\t.py')
+fileHelp = File ('b/\t.txt')
 
 def printHelp (pythonFile):
-#	obtenir le code python
-	if '/' in pythonFile:
-		end = pythonFile.rfind ('/') +1
-		filePython.path += pythonFile [:end]
-		pythonFile = pythonFile [end:]
 	filePython.title = pythonFile
-	filePython.fileFromData ()
-	filePython.fromFile ()
+	filePython.shortcut()
+	filePython.toPath()
+	fileHelp.title = 'aide '+ pythonFile
+	fileHelp.shortcut()
+	fileHelp.toPath()
+#	obtenir le code python
+	filePython.read()
 	while '\n\n' in filePython.text: filePython.text = filePython.text.replace ('\n\n', '\n')
 	listHelp = []
 	listHelpRaw = filePython.text.split ('\n')
@@ -49,22 +46,18 @@ def printHelp (pythonFile):
 				break
 	fileHelp.text = '\n'.join (listHelp)
 	fileHelp.text = fileHelp.text.replace ('\nclass', '\n\nclass')
-	fileHelp.title = 'aide '+ filePython.title
-	fileHelp.replace ('\n\n\n', '\n\n')
-	fileHelp.toFile ()
+	fileHelp.text = fileHelp.text.replace ('\n\n\n', '\n\n')
+	fileHelp.write()
 	print ('lire "'+ fileHelp.title +'" sur le bureau')
-"""
-ancienne méthode
-from sys import argv
-if __\name__ == '__main__': pass
-elif len (argv) >1: printHelp (argv [1])
-else: print ("entrez le nom du script à analyser")
-"""
+
 help = """
 préciser le chemin du dossier python dans ce fichier.
 par défaut, il vaut... /bureau/python
 utilisation:
 	printHelp (pythonFile)
-	printHelp ('debutils/debutils/text.py')
+
+j'ai /bureau/python/pythonFile.py sur mon ordi.
 """
-print (help)
+if __name__ == 'main':
+	if len (argv) >1: printHelp (argv [1])
+	else: print (help)

@@ -1,21 +1,19 @@
 #!/usr/bin/python3.8
 # -*- coding: utf-8 -*-
 from sys import argv
-from classText import Text
+import funcList
+import funcText
 from classFile import File
-from classList import List
-import logger
 
 def cleanLog (self):
 	self.read()
-	self.text = self.text.clean()
+	self.text = funcText.clean (self.text)
 	self.text = self.text.replace ('. ','.')
-	self.text = self.text.replace ('\nat ', '\n\tat ')
 	self.text ='\n'+ self.text
+	self.text = self.text.replace ('\nat ', '\n\tat ')
 	self.reverseLines()
-	listLine = List()
-	listLine = listLine.fromText ('\n', self.text)
-	rangeLine = listLine.range (end=-1)
+	listLine = funcList.fromText (self.text, '\n')
+	rangeLine = funcList.range (listLine, end=-1)
 	rangeLine.reverse()
 	for l in rangeLine:
 		if not listLine[l]: trash = listLine.pop (l)
@@ -29,7 +27,7 @@ def cleanLog (self):
 		elif '\t' == listLine[l][0] and 'fr.asp.synergie.' not in listLine[l]: trash = listLine.pop (l)
 		elif 'core.web.' in listLine[l]: trash = listLine.pop (l)
 	#	elif "INFO" in listLine[l] and ("INFO" in listLine[l+1] or "WARN" in listLine[l+1] or "ERROR" in listLine[l+1]): trash = listLine.pop (l)
-	self.text = Text ('\n'.join (listLine))
+	self.text = '\n'.join (listLine)
 	self.text = self.text.replace ('com.opensymphony.xwork2.util.logging.commons.')
 	self.text = self.text.replace ('fr.asp.synergie.app.')
 	self.text = self.text.replace ('fr.asp.synergie.')
@@ -47,21 +45,8 @@ def cleanLog (self):
 	self.text = self.text.replace ('[cdm-backend]')
 	self.text = self.text.replace ('[cdm-backend-lb-0]')
 	self.text = self.text.replace ('[cdm-backend-lb-1]')
-	# self.cleanDate()
 	self.title = self.title +' bis'
 	self.write()
-
-def cleanDate (self):
-	listLine = List()
-	listLine = listLine.fromText ('\n2022-', self.text)
-	rangeLine = listLine.range()
-	trash = rangeLine.pop (0)
-	rangeLine.reverse()
-	for l in rangeLine:
-		tmpDate = listLine[l][:21].replace (': ',':')
-		tmpDate = tmpDate.replace (', ',',')
-		listLine[l] = tmpDate + listLine[l][21:]
-	self.text = Text ('\n2022-'.join (listLine))
 
 def reverseLines (self):
 	d= self.text.find ('\n2022')
@@ -69,10 +54,10 @@ def reverseLines (self):
 	f= self.text.rfind ('\n2022')
 	dateMax = self.text[f:f+27]
 	if dateMin > dateMax:
-		listLine = List()
-		listLine = listLine.fromText ('\n', self.text)
+		listLine =[]
+		listLine = funcList.fromText (self.text, '\n')
 		listLine.reverse()
-		self.text = Text ('\n'.join (listLine))
+		self.text = '\n'.join (listLine)
 
 
 setattr (File, 'reverseLines', reverseLines)

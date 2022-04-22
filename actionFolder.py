@@ -1,8 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from listFiles import ListFile, ListArticle
-import logger
+from classFile import Folder, FolderArticle
 
 help ="""
 ce script peut être appelé dans un autre script
@@ -18,7 +17,7 @@ les valeurs de action:
 """
 if len (argv) <3: print (help)
 else:
-	flist = ListFile (argv[1])
+	flist = Folder (argv[1])
 	action = argv[2]
 	if action in 'd l':
 		if len (argv) >3: flist.get (argv[3])
@@ -28,7 +27,7 @@ else:
 	elif len (argv) <4: print (help)
 	elif action == 'v': flist.compareGit (argv[3])
 	elif action == 's':
-		flist = ListArticle (argv[1])
+		flist = FolderArticle (argv[1])
 		flist.listSubjects()
 	else:
 		wordOld = argv[3]

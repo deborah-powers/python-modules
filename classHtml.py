@@ -1,8 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from classFile import File, Article, templateHtml
-from classText import Text
-from classList import List
+import funcList
+import funcText
 
 listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button', 'span']
 listTagsSpecial = [ 'a', 'img', 'form', 'input']
@@ -20,7 +20,7 @@ def findTextBetweenTag (originalText, tag):
 	f= originalText.find ('</'+ tag +'>', d)
 	phrase = originalText [d:f]
 	phrase = phrase.strip()
-	return Text (phrase)
+	return phrase
 
 class Html (Article):
 	def __init__ (self, file=None):
@@ -89,7 +89,6 @@ class Html (Article):
 		self.text = self.text.replace (' />', '/>')
 		self.text = self.text.strip()
 		self.text = self.text.replace ("''", '"')
-		self.text = Text (self.text)
 
 	def cleanLocal (self):
 		self.clean()
@@ -116,7 +115,6 @@ class Html (Article):
 		self.clean()
 		for tag in listTags:
 			while '<'+tag+'></'+tag+'>' in self.text: self.text = self.text.replace ('<'+tag+'></'+tag+'>',"")
-		self.text = Text (self.text)
 
 	def cleanTags (self):
 		# supprimer les attributs inutiles
@@ -165,7 +163,7 @@ class Html (Article):
 			self.text = ' '.join (textList)
 		# retrouver les balises vides
 		self.clean()
-		self.text = self.text.replace ('\n')
+		self.text = self.text.replace ('\n', "")
 		for tag in tagList: self.text = self.text.replace ('<'+ tag +'></'+ tag +'>', " ")
 		while "  " in self.text: self.text = self.text.replace ("  "," ")
 

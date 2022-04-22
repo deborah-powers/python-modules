@@ -1,11 +1,13 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
+import funcList
+import funcText
 from classList import List
 from classText import Text
 from classFile import Article
 from classHtml import Html, findTextBetweenTag
-import logger
+import funcLogger as logger
 
 help = """
 récupérer les pages de certains sites que j'aime beaucoup
@@ -320,15 +322,14 @@ class Fanfic (Html):
 		# le texte compte plusieurs chapîtres
 		if d==18: d= self.text.find ("<h3><a href='/works/")
 		f= self.text.rfind ('<h3>Actions</h3>')
-		self.text = Text (self.text [d:f])
+		self.text = self.text [d:f]
 		self.text = self.text.replace ('<div>')
 		self.text = self.text.replace ('</div>')
 		if "<h3><a href='/works/" in self.text:
-			chapters = List()
 			logger.log (self.text.find ("<h3><a href='/works/"))
-			chapters.fromText ("<h3><a href='/works/", self.text)
+			chapters = fromText (self.text, "<h3><a href='/works/")
 			logger.coucou()
-			chapterRange = chapters.range (1)
+			chapterRange = range (chapters, start=1)
 			logger.coucou()
 			for c in chapterRange:
 				d= chapters [c].find ('>') +1
@@ -336,9 +337,8 @@ class Fanfic (Html):
 			self.text = '<h2>'.join (chapters)
 			self.text = self.text.replace ('</a></h3>', '</h2>')
 		if '<h2>Chapter ' in self.text and not '</h2>' in self.text:
-			chapters = List()
-			chapters.fromText ('<h2>Chapter ', self.text)
-			chapterRange = chapters.range (1)
+			chapters = fromText (self.text, "<h2>Chapter ")
+			chapterRange = range (chapters, start=1)
 			for c in chapterRange:
 				d= chapters [c].find ('</a>: ') +6
 				chapters [c] = chapters [c] [d:]
@@ -346,14 +346,13 @@ class Fanfic (Html):
 			self.text = '<h2>'.join (chapters)
 		# nettoyer le texte
 		if '<h3>Notes:</h3>' in self.text:
-			halfText = self.length() /2
+			halfText = len (self.text) /2
 			d= self.text.find ('<h3>Notes:</h3>')
 			if d> halfText: self.text = self.text [:d]
 		self.usePlaceholders()
 		self.text = self.text.replace ('h2>', 'h1>')
-		if '<h3>Series this work belongs to:</h3>' in self.text:
-			f= self.text.find ('<h3>Series this work belongs to:</h3>')
-			self.text = self.text[:f]
+		f= funcText.find (self.text, '<h3>Series this work belongs to:</h3>')
+		if f>0: self.text = self.text[:f]
 
 if len (argv) >=2:
 	url = argv[1]

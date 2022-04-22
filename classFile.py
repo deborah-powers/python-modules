@@ -5,7 +5,6 @@ import codecs
 import funcList
 import funcText
 from fileLocal import *
-import logger
 
 class File():
 	def __init__ (self, file =None):
@@ -80,6 +79,9 @@ class File():
 		newFile.toPath()
 		return self.path < newFile.path
 
+	def __len__(self):
+		return len (self.text)
+
 	def test (self):
 		self.path = 'b/test-file.txt'
 		print ('fromPath\t', self.path)
@@ -97,10 +99,6 @@ fkz,fzkl,fam; v adbazjkbdafaef"""
 		self.text = funcText.shape (self.text, 'reset')
 		print (self.text[:200])
 		self.write()
-"""
-file = File ('b/ddt local\\ajout-etat-4350.sql')
-file.test()
-"""
 
 templateText ="""Sujet:	%s
 Auteur:	%s
@@ -133,6 +131,20 @@ class Article (File):
 		article.text = funcText.fromHtml (article.text)
 		if '</' in article.text: return self
 		else: return article
+
+	def toHtml (self):
+		if self.type == 'html': return self
+		article = Article()
+		article.text = self.text
+		article.path = self.path
+		article.title = self.title
+		article.type = 'html'
+		article.link = self.link
+		article.author = self.author
+		article.autlink = self.autlink
+		article.text = funcText.toHtml (article.text)
+		if '</' in article.text: return article
+		else: return self
 
 	def fromPath (self):
 		File.fromPath (self)
@@ -374,9 +386,6 @@ class Folder():
 		self[0].read()
 		print (len (self[0].text), 'caractères')
 		"""
-
-folder = Folder()
-folder.test()
 
 class FolderArticle (Folder):
 	def __init__ (self, path='a/', subject=""):

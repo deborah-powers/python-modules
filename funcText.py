@@ -1,6 +1,5 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-import logger
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmlmnopqrstuvwxyz0123456789'
 punctuation = '({[\n\t.,;:]})?!'
