@@ -1,6 +1,5 @@
 #!/usr/bin/python3.8
 # -*- coding: utf-8 -*-
-from sys import argv
 import funcList
 import funcText
 from classFile import File
