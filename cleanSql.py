@@ -13,7 +13,8 @@ sql.text = sql.text.replace ('\t', ' ')
 sql.text = funcText.clean (sql.text)
 sql.text = funcText.upperCase (sql.text, 'reset')
 
-wordSql = ('where', 'innerjoin', '')
+wordSql = ('where')
+wordSqlSpace = ('inner join', 'left join')
 
 sql.text = sql.text.replace (';', "")
 sql.text = sql.text.replace ('_dpo', "")

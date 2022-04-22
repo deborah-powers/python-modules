@@ -5,6 +5,7 @@ import codecs
 import funcList
 import funcText
 from fileLocal import *
+import funcLogger
 
 class File():
 	def __init__ (self, file =None):
@@ -17,10 +18,10 @@ class File():
 		if '\t' in self.path: return
 		self.path = shortcut (self.path)
 		if os.sep not in self.path or '.' not in self.path:
-			print ('fichier malformé:\n' + self.path)
+			# print ('fichier malformé:\n' + self.path)
 			return
 		elif self.path.rfind (os.sep) > self.path.rfind ('.'):
-			print ('fichier malformé:\n' + self.path)
+			# print ('fichier malformé:\n' + self.path)
 			return
 		posS = self.path.rfind (os.sep) +1
 		posE = self.path.rfind ('.')
@@ -28,7 +29,9 @@ class File():
 		self.path = self.path.replace (self.title, '\t')
 
 	def toPath (self):
-		if '\t' in self.path: self.path = self.path.replace ('\t', self.title)
+		if '\t' in self.path:
+			self.path = self.path.replace ('\t', self.title)
+			self.path = shortcut (self.path)
 
 	def read (self):
 		self.toPath()
@@ -106,7 +109,19 @@ Lien:	%s
 Laut:	%s
 %s"""
 
-templateHtml ="<!DOCTYPE html><html><head><title>%s</title><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><base target='_blank'><meta name='author' content='%s'/><meta name='subject' content='%s'/><meta name='link' content='%s'/><meta name='autlink' content='%s'/>%s</head><body>%s</body></html>"
+templateHtml = """<!DOCTYPE html><html><head>
+	<title>%s</title>
+	<base target='_blank'>
+	<meta charset='utf-8'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1'/>
+	<meta name='author' content='%s'/>
+	<meta name='subject' content='%s'/>
+	<meta name='link' content='%s'/>
+	<meta name='autlink' content='%s'/>
+	%s
+</head><body>
+%s
+</body></html>"""
 
 class Article (File):
 	# classe pour les fichiers txt et html
@@ -122,8 +137,9 @@ class Article (File):
 		if self.type == 'txt': return self
 		article = Article()
 		article.text = self.text
-		article.path = self.path
+		article.path = self.path.replace ('.html', '.txt')
 		article.title = self.title
+		article.subject = self.subject
 		article.type = 'txt'
 		article.link = self.link
 		article.author = self.author
@@ -136,8 +152,9 @@ class Article (File):
 		if self.type == 'html': return self
 		article = Article()
 		article.text = self.text
-		article.path = self.path
+		article.path = self.path.replace ('.txt', '.html')
 		article.title = self.title
+		article.subject = self.subject
 		article.type = 'html'
 		article.link = self.link
 		article.author = self.author
@@ -154,14 +171,17 @@ class Article (File):
 	def read (self):
 		File.read (self)
 		if self.type == 'html':
+			"""
 			self.text = self.text.replace ('\n', "")
 			self.text = self.text.replace ('\t', "")
+			"""
 			metadata = funcText.fromModel (self.text, templateHtml)
 			self.subject = metadata [2]
 			self.author = metadata [1]
 			self.link = metadata [3]
 			self.autlink = metadata [4]
-			self.text = metadata [6]
+			if len (metadata) ==6: self.text = metadata [5]
+			elif len (metadata) ==7: self.text = metadata [6]
 		elif self.type == 'txt':
 			metadata = funcText.fromModel (self.text, templateText)
 			self.subject = metadata [0]
@@ -174,6 +194,9 @@ class Article (File):
 		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
+
+	def replace (self, wordOld, wordNew=""):
+		self.text = self.text.replace (wordOld, wordNew)
 
 	def __str__ (self):
 		strShow = 'Titre: %s\tSujet: %s\tAuteur: %s' % (self.title, self.subject, self.author)
@@ -373,20 +396,23 @@ class Folder():
 		print (self)
 		print (self[1])
 		self[0] = self[3]
-		"""
 		self.rename ('built', 'dodo')
-		self.move ('b/temp/')
-		self.filter ('the')
-	#	print (self)
+		print (self)
+		"""
 		file = File ('fanfics/a doctor calls.txt')
 		self.append (file)
-		"""
+		self.move ('b/temp/')
+		self.filter ('the')
 		print (self)
+		"""
 		self[0].path = self.path + self[0].path
 		self[0].read()
 		print (len (self[0].text), 'caractères')
 		"""
-
+"""
+folder = Folder()
+folder.test()
+"""
 class FolderArticle (Folder):
 	def __init__ (self, path='a/', subject=""):
 		Folder.__init__(self, path)
@@ -402,7 +428,7 @@ class FolderArticle (Folder):
 		tmpList.get (tagName, sens)
 		for file in tmpList.list:
 			file.toPath()
-			article = Article (file)
+			article = Article (file.path)
 			article.fromPath()
 			if article.type in ('html', 'txt'): self.append (article)
 		self.list.sort()

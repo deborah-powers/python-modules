@@ -1,10 +1,15 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+import codecs
+from os import remove
+import urllib as ul
+from urllib import request as urlRequest
 from classFile import File, Article, templateHtml
 import funcList
 import funcText
+import funcLogger
 
-listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button', 'span']
+listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button']
 listTagsSpecial = [ 'a', 'img', 'form', 'input']
 listTagsKeep = [ 'hr', 'br', 'tr', 'table', 'figure', 'figcaption', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body']
 listTagsKeep.extend (listTagsIntern)
@@ -50,7 +55,7 @@ class Html (Article):
 
 	def read (self):
 		File.read (self)
-		self.text = self.text.clean()
+		self.text = funcText.clean (self.text)
 		tmpTitle = findTextBetweenTag (self.text, 'title')
 		if tmpTitle and '>' not in tmpTitle and '<' not in tmpTitle: self.title = tmpTitle
 		self.styles = []
@@ -82,7 +87,7 @@ class Html (Article):
 	def clean (self):
 		self.text = self.text.replace ('\t', ' ')
 		self.text = self.text.replace ('\n', ' ')
-		self.text = Text.clean (self.text)
+		self.text = funcText.clean (self.text)
 		while '  ' in self.text: self.text = self.text.replace ('  ', ' ')
 		self.text = self.text.replace ('> ', '>')
 		self.text = self.text.replace (' <', '<')
@@ -101,9 +106,9 @@ class Html (Article):
 		# supprimer les commentaires
 		self.text = self.text.replace ('< ! --', '<!--')
 		self.text = self.text.replace ('< !--', '<!--')
-		textList = List()
+		textList =[]
 		textList.extend (self.text.split ('<!--'))
-		textRange = textList.range (1)
+		textRange = funcList.range (textList, start=1)
 		for t in textRange:
 			f= textList[t].find ('-->') +3
 			textList[t] = textList[t] [f:]
@@ -120,10 +125,9 @@ class Html (Article):
 		# supprimer les attributs inutiles
 		self.text = self.text.replace ('<br/>', '<br>')
 		self.text = self.text.replace ('<hr/>', '<hr>')
-		tagList = List()
-		textList = List()
-		textList.extend (self.text.split ('<'))
-		textRange = textList.range (1)
+		tagList =[]
+		textList = (self.text.split ('<'))
+		textRange = funcList.range (textList, start=1)
 		# textRange.reverse()
 		for t in textRange:
 			if len (textList[t]) ==0: continue
@@ -153,9 +157,8 @@ class Html (Article):
 				self.text = self.text.replace ('<'+ tag +'>', " ")
 		while "  " in self.text: self.text = self.text.replace ("  "," ")
 		if '<a>' in self.text:
-			textList = List()
-			textList.extend (self.text.split ('<a>'))
-			textRange = textList.range (1)
+			textList = self.text.split ('<a>')
+			textRange = funcList.range (textList, start=1)
 			for a in textRange:
 				d= textList[a].find ('</a>')
 				textList[a] = textList[a] [:d].strip() +' '+ textList[a] [d+4:].strip()
@@ -270,11 +273,10 @@ class Html (Article):
 		self.title = title.replace ('_', ' ')
 		self.cleanWeb()
 
-	def fromWeb (self, url):
-		self.path = 'b/\t.html'
-		self.title = 'tmp'
-		self.toPath()
-		self.link = url
+	def fromWeb (self, url=None):
+		self.path = 'b/tmp.html'
+		self.fromPath()
+		if url: self.link = url
 		self.fromUrl()
 		# self.cleanWeb()
 		self.metas = {}
@@ -341,9 +343,9 @@ class Html (Article):
 		self.text = self.text.replace ('<div>',"")
 		# supprimer les liens
 		if '<a href=' in self.text:
-			textList = List()
+			textList =[]
 			textList.addList (self.text.split ('<a href='))
-			textRange = textList.range (1)
+			textRange = funcList.range (textList, start=1)
 			for i in textRange:
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]
@@ -351,9 +353,9 @@ class Html (Article):
 			self.text = self.text.replace ('</a>',"")
 		# supprimer les images
 		if '<img src=' in self.text:
-			textList = List()
+			textList =[]
 			textList.addList (self.text.split ('<img src='))
-			textRange = textList.range (1)
+			textRange = funcList.range (textList, start=1)
 			for i in textRange:
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]

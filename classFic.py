@@ -3,8 +3,6 @@
 from sys import argv
 import funcList
 import funcText
-from classList import List
-from classText import Text
 from classFile import Article
 from classHtml import Html, findTextBetweenTag
 import funcLogger as logger
@@ -19,10 +17,7 @@ class Fanfic (Html):
 	def fromWeb (self, url, subject=None):
 		if url[:4] == 'http':
 			self.link = url
-			html = Html()
-			html.link = url
-			html.fromWeb()
-			self.toPath()
+			Html.fromWeb (self)
 		else:
 			if url[-5:] != '.html': url = 'b/' + url + '.html'
 			self.path = url
@@ -93,15 +88,15 @@ class Fanfic (Html):
 		d= self.text.find ('<p>')
 		f= self.text.rfind ('</p>') +4
 		self.text = self.text [d:f]
-		self.text = self.text.replace ('<div>')
-		self.text = self.text.replace ('</div>')
+		self.text = self.text.replace ('<div>', "")
+		self.text = self.text.replace ('</div>', "")
 		self.text = self.text.replace ('<img', '</p><img')
 		self.text = self.text.replace ("png'>","png'><p>")
 		self.text = self.text.replace ('<p><p>', '<p>')
 		self.text = self.text.replace ('</p></p>', '</p>')
 		self.text = self.text.replace ('<p>', '</p><p>')
 		self.text = self.text.replace ('</p>', '</p><p>')
-		self.text = self.text.replace ('<p></p>')
+		self.text = self.text.replace ('<p></p>', "")
 		self.text = self.text.replace ('<p><p>', '<p>')
 		self.text = self.text.replace ('<p><img', '<img')
 		self.text = self.text.replace ("png'></p>","png'>")
@@ -157,8 +152,8 @@ class Fanfic (Html):
 	def menaceTheoriste (self):
 		self.subject = 'sciences'
 		self.clean()
-		self.text = self.text.replace ('<div>')
-		self.text = self.text.replace ('</div>')
+		self.text = self.text.replace ('<div>', "")
+		self.text = self.text.replace ('</div>', "")
 		d= self.text.find ("par<a href='https://menace-theoriste.fr/author/") +12
 		f= self.text.find ('>', d) -1
 		self.autlink = self.text [d:f]
@@ -192,8 +187,8 @@ class Fanfic (Html):
 		self.text = self.text [d:f]
 		f= self.text.rfind ('</p>') +4
 		self.text = self.text [:f]
-		self.text = self.text.replace ('<div>')
-		self.text = self.text.replace ('</div>')
+		self.text = self.text.replace ('<div>', "")
+		self.text = self.text.replace ('</div>', "")
 	#	self.delImgLink()
 
 	def reddit (self):
@@ -207,8 +202,8 @@ class Fanfic (Html):
 		d= self.text.find ('<p>', d)
 		f= self.text.find ('<div>reddit Inc')
 		self.text = self.text [d:f]
-		self.text = self.text.replace ('<div>')
-		self.text = self.text.replace ('</div>')
+		self.text = self.text.replace ('<div>', "")
+		self.text = self.text.replace ('</div>', "")
 		# auteur
 		f= self.link.find ('/', 26)
 		self.autlink = self.link [:f]
@@ -316,29 +311,26 @@ class Fanfic (Html):
 		self.author = self.author.replace ('-',' ')
 		self.author = self.author.replace ('_',' ')
 		self.author = self.author.strip()
-		self.text = self.text.replace ('<h3>Chapter Text</h3>')
+		self.text = self.text.replace ('<h3>Chapter Text</h3>', "")
 		# le texte ne compte qu'un seul chapître
 		d= self.text.find ('<h3>Work Text:</h3>') +19
 		# le texte compte plusieurs chapîtres
 		if d==18: d= self.text.find ("<h3><a href='/works/")
 		f= self.text.rfind ('<h3>Actions</h3>')
 		self.text = self.text [d:f]
-		self.text = self.text.replace ('<div>')
-		self.text = self.text.replace ('</div>')
+		self.text = self.text.replace ('<div>', "")
+		self.text = self.text.replace ('</div>', "")
 		if "<h3><a href='/works/" in self.text:
-			logger.log (self.text.find ("<h3><a href='/works/"))
-			chapters = fromText (self.text, "<h3><a href='/works/")
-			logger.coucou()
-			chapterRange = range (chapters, start=1)
-			logger.coucou()
+			chapters = funcList.fromText (self.text, "<h3><a href='/works/")
+			chapterRange = funcList.range (chapters, start=1)
 			for c in chapterRange:
 				d= chapters [c].find ('>') +1
 				chapters [c] = chapters [c] [d:]
 			self.text = '<h2>'.join (chapters)
 			self.text = self.text.replace ('</a></h3>', '</h2>')
 		if '<h2>Chapter ' in self.text and not '</h2>' in self.text:
-			chapters = fromText (self.text, "<h2>Chapter ")
-			chapterRange = range (chapters, start=1)
+			chapters = funcList.fromText (self.text, "<h2>Chapter ")
+			chapterRange = funcList.range (chapters, start=1)
 			for c in chapterRange:
 				d= chapters [c].find ('</a>: ') +6
 				chapters [c] = chapters [c] [d:]

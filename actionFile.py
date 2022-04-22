@@ -22,8 +22,8 @@ elif argv[2] == 'help':
 elif argv[2] == 'convert':
 	page = Article (argv [1])
 	page.read()
-	if argv [1][-5:] == '.html': page.toText()
-	elif argv [1][-4:] == '.txt': page.fromText()
+	if argv [1][-5:] == '.html': page = page.toText()
+	elif argv [1][-4:] == '.txt': page = page.fromText()
 	page.write()
 elif nbArg >2:
 	filePerso = File (argv[1])

@@ -105,6 +105,26 @@ def clean (text):
 	text = text.replace (' \n', '\n')
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	for p in punctuation:
+		for q in punctuation: text = text.replace (p+' '+q, p+q)
+		while 4*p in text: text = text.replace (4*p, 3*p)
+	# les appostrophes
+	points = 'cdjlmnrst'
+	for p in points:
+		text = text.replace (' '+p+"' ", ' '+p+"'")
+		text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
+	text = text.replace ("Qu' ","Qu'")
+	text = text.replace ("qu' ","qu'")
+	return text
+
+def cleanOld (text):
+	for i, j in weirdChars: text = text.replace (i, j)
+	text = text.strip()
+	while '  ' in text: text = text.replace ('  ', ' ')
+	text = text.replace ('\n ', '\n')
+	text = text.replace (' \n', '\n')
+	while '\t\n' in text: text = text.replace ('\t\n', '\n')
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	text = protectUrl (text, True)
 	text = protectUrl (text, False)
 	text = protectHour (text)
