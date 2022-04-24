@@ -191,6 +191,7 @@ class Article (File):
 			self.text = metadata [4]
 
 	def write (self):
+		self.title = self.title.lower()
 		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
@@ -235,7 +236,15 @@ class FileList (File):
 		self.list =[]
 		self.sep = sep
 
-	def toText (self, sep):
+	def write (self):
+		self.toText()
+		File.write (self)
+
+	def read (self):
+		File.read (self)
+		self.fromText()
+
+	def toText (self):
 		self.text = funcList.toText (self.list, self.sep)
 
 	def fromText (self, text=None):
@@ -247,6 +256,37 @@ class FileList (File):
 
 	def iterate (self, function):
 		return iterate (self.list, function)
+
+	def __str__(self):
+		return self.path +'\n'+ self.toText()
+
+	def __len__(self):
+		return len (self.list)
+
+	def append (self, item):
+		self.list.append (item)
+
+	def extend (self, liste):
+		for item in liste: self.append (item)
+
+	def reverse (self):
+		self.list.reverse()
+
+	def pop (self, pos):
+		length = len (self)
+		while pos <0: pos += length
+		while pos >= length: pos -= length
+		trash = self.list.pop (pos)
+
+class FileTable (FileList):
+	def __init__(self, file=None, sep='\n', sepCol='\t'):
+		FileList.__init__(self, file, sep)
+		self.sepCol = sepCol
+
+	def toText (self):
+		newList = FileList (self.path, self.sep)
+		for line in self.list: newList.append (line, self.sepCol)
+		newList.toText()
 
 class Folder():
 	def __init__ (self, path='b/'):
@@ -353,6 +393,9 @@ class Folder():
 			strList = strList +'\n'+ file.path
 		return strList
 
+	def __len__(self):
+		return len (self.list)
+
 	def __setitem__ (self, pos, item):
 		lenList = len (self.list)
 		if type (pos) == int:
@@ -447,10 +490,4 @@ class FolderArticle (Folder):
 			for l in rangeList: newList.append (self.list[l])
 			return newList
 		else: return None
-
-
-
-
-
-
 
