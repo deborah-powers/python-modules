@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmlmnopqrstuvwxyz0123456789'
-punctuation = '({[\n\t.,;:]})?!'
+punctuation = '({[?!;.,:]})'
 uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
 # liste des points, des chaines de caracteres suivies par une majuscule
@@ -106,39 +106,15 @@ def clean (text):
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	for p in punctuation:
-		for q in punctuation: text = text.replace (p+' '+q, p+q)
-		while 4*p in text: text = text.replace (4*p, 3*p)
-	# les appostrophes
-	points = 'cdjlmnrst'
-	for p in points:
-		text = text.replace (' '+p+"' ", ' '+p+"'")
-		text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
-	text = text.replace ("Qu' ","Qu'")
-	text = text.replace ("qu' ","qu'")
-	return text
-
-def cleanOld (text):
-	for i, j in weirdChars: text = text.replace (i, j)
-	text = text.strip()
-	while '  ' in text: text = text.replace ('  ', ' ')
-	text = text.replace ('\n ', '\n')
-	text = text.replace (' \n', '\n')
-	while '\t\n' in text: text = text.replace ('\t\n', '\n')
-	while '\n\n' in text: text = text.replace ('\n\n', '\n')
-	text = protectUrl (text, True)
-	text = protectUrl (text, False)
-	text = protectHour (text)
-	for p in punctuation:
-		text = text.replace (' '+p, p)
 		text = text.replace (p+' ', p)
-	while '....' in text: text = text.replace ('....', '...')
+		text = text.replace (' '+p, p)
+		while 4*p in text: text = text.replace (4*p, 3*p)
+	text = protectUrl (text, False)
+	text = protectUrl (text, True)
+	text = protectHour (text)
 	for l in letters:
-		for p in punctuation[0:3]: text = text.replace (l+p, l+' '+p)
-		for p in punctuation[-2:]: text = text.replace (l+p, l+' '+p)
-		for p in punctuation[-9:]: text = text.replace (p+l, p+' '+l)
-	for l in letters[:26]:
-		text = text.replace ('."'+l, '. "'+l)
-		text = text.replace ('," '+l, '", '+l)
+		for p in punctuation[:6]: text = text.replace (l+p, l+' '+p)
+		for p in punctuation[3:]: text = text.replace (p+l, p+' '+l)
 	# les appostrophes
 	points = 'cdjlmnrst'
 	for p in points:
@@ -146,12 +122,11 @@ def cleanOld (text):
 		text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
 	text = text.replace ("Qu' ","Qu'")
 	text = text.replace ("qu' ","qu'")
-	# nettoyer les urls et les dates
+	# récupérer les urls et les dates
 	text = text.replace ('***', '.')
 	text = text.replace ('$$$', '?')
 	text = text.replace ('§§§', ':')
 	text = text.replace ('£££', ',')
-	for wOld, wNew in wordUrl: text = text.replace (wOld, wNew)
 	return text
 
 def shape (text, case=""):

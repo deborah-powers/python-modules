@@ -5,7 +5,7 @@ import funcList
 import funcText
 from classFile import Article
 from classHtml import Html, findTextBetweenTag
-import funcLogger as logger
+import funcLogger
 
 help = """
 récupérer les pages de certains sites que j'aime beaucoup
@@ -40,6 +40,7 @@ class Fanfic (Html):
 		self.text = self.text.replace (' <', '<')
 		self.text = self.text.replace ('><', '>\n<')
 		article = self.toArticle()
+		if '</a>' not in article.text and '<img' not in article.text: article = article.toText()
 		article.write()
 
 	def findSubject (self):
