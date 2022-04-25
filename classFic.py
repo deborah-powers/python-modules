@@ -286,12 +286,17 @@ class Fanfic (Html):
 		self.cleanWeb()
 		self.text = self.text.replace ('<br>', '</p><p>')
 		self.text = findTextBetweenTag (self.text, 'body')
+		self.fromPath()
 		# le titre
 		d= self.text.find ('<h2>') +4
 		f= self.text.find ('</h2>', d)
-		self.title = self.text [d:f]
+		self.title = self.text [d:f].lower()
 		self.title = self.title.strip()
 		self.title = self.title.strip ('.')
+		# l'auteur
+		d= funcText.find (self.text, "<h3><a href='/users/") +20
+		f= funcText.find (self.text, '/', d+1)
+		self.author = self.text[d:f]
 		self.aoooCommon()
 
 	def aoooCommon (self):
