@@ -71,6 +71,9 @@ class File():
 	def shortcut (self):
 		self.path = shortcut (self.path)
 
+	def replace (self, wordOld, wordNew=""):
+		self.text = self.text.replace (wordOld, wordNew)
+
 	def __str__ (self):
 		strShow = 'Titre: %s' % self.title
 		if self.text: strShow += '.\t%d caractères' % len (self.text)
@@ -195,9 +198,6 @@ class Article (File):
 		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
-
-	def replace (self, wordOld, wordNew=""):
-		self.text = self.text.replace (wordOld, wordNew)
 
 	def __str__ (self):
 		strShow = 'Titre: %s\tSujet: %s\tAuteur: %s' % (self.title, self.subject, self.author)
