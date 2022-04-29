@@ -18,7 +18,7 @@ class File():
 		if '\t' in self.path: return
 		self.path = shortcut (self.path)
 		if os.sep not in self.path or '.' not in self.path:
-			# print ('fichier malformé:\n' + self.path)
+			print ('fichier malformé:\n' + self.path)
 			return
 		elif self.path.rfind (os.sep) > self.path.rfind ('.'):
 			# print ('fichier malformé:\n' + self.path)
@@ -297,6 +297,7 @@ class Folder():
 	# ________________________ agir sur les fichiers ________________________
 
 	def rename (self, wordOld, wordNew=""):
+		print (wordOld, wordNew)
 		for file in self.list:
 			if wordOld not in file.title: continue
 			file.fromPath()
