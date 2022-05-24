@@ -23,7 +23,7 @@ class Fanfic (Html):
 			self.path = url
 			self.fromPath()
 			self.read()
-		self.clean()
+		# self.clean()
 		if subject: self.subject = subject
 		if 'http://www.gutenberg.org/' in url:				self.gutemberg()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
@@ -34,8 +34,9 @@ class Fanfic (Html):
 		elif 'gtb'		in url: self.gutemberg()
 		elif 'egb'		in url: self.ebGratuit()
 		elif 'b/aooo.html' == url: self.aoooLocal()
-		elif 'ffNet'	in url: self.ffNet()
+		elif 'ffnet'	in url: self.ffNet()
 		elif 'medium'	in url: self.medium()
+		self.cleanWeb()
 		self.metas = {}
 		self.text = self.text.replace (' <', '<')
 		self.text = self.text.replace ('><', '>\n<')
@@ -222,15 +223,28 @@ class Fanfic (Html):
 		self.text = self.text [:f]
 
 	def ffNet (self):
-		# trouver les meta
 		data = self.title.split (', ')
-		self.title = data [0]
+		funcLogger.log (self.metas)
+		self.title = data[0]
 		if 'hapter' in self.title:
 			f= self.title.find ('hapter') -2
 			self.title = self.title [:f]
+		d= funcText.find (self.text, '/u/') +3
+		f= funcText.find (self.text, "'>", d)
+		self.autlink = 'https://www.fanfiction.net/u/' + self.text[d:f]
+		d= funcText.find (self.text, '/s/') +3
+		funcLogger.log (d)
+		f= funcText.find (self.text, "'>", d)
+		self.link = 'https://www.fanfiction.net/s/' + self.text[d:f]
+
+
+
+	def ffNet_2019 (self):
 		d= self.text.find ('https://www.fanfiction.net/u/')
+		funcLogger.log (d)
 		if d<0:
 			d= self.text.find ('https://www.fictionpress.com/u/')
+			funcLogger.log (d)
 			self.link = 'https://www.fictionpress.com/s/'
 			f= self.text.find ('>', d) -1
 			self.autlink = self.text [d:f]

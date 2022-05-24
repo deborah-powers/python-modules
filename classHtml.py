@@ -306,6 +306,8 @@ class Html (Article):
 		return textCss
 
 	def getMetadata (self):
+		self.text = self.text.replace ('<META NAME', '<meta name')
+		self.text = self.text.replace ('<META ', '<meta ')
 		listText = self.text.split ('<meta ')
 		for line in listText [1:]:
 			d= line.find ('name=') +6
@@ -329,6 +331,16 @@ class Html (Article):
 				f= metaTmp [1].find ("'")
 				metaTmp [1] = metaTmp [1] [:f]
 			self.metas [metaTmp [0] ] = metaTmp [1]
+
+		listText = self.text.split ('<link ')
+		for line in listText [1:]:
+			if '.css' not in line:
+				da= line.find ('rel=') +5
+				fa= funcText.find (line, "'", da)
+				db= line.find ('href=') +6
+				fb= funcText.find (line, "'", db)
+				self.metas [line [da:fa]] = line [db:fb]
+
 
 	def setMetadata (self):
 		textInfos =""
