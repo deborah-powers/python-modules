@@ -13,7 +13,8 @@ wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
 	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
 	'\nLog.', '\tLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
 
-wordUrl =( ('. com', '.com'), ('. org', '.org'), ('. fr/', '.fr/'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png') )
+urlWord =( ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js') )
+urlEnd = '"\' \n\t/'
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
@@ -64,9 +65,11 @@ def upperCase (text, case=""):
 
 def findEnd (text, pos=0):
 	end =[]
-	if '\n' in text: end.append (text.find ('\n', pos))
-	if '\t' in text: end.append (text.find ('\t', pos))
-	if ' ' in text: end.append (text.find (' ', pos))
+	if '\n' in text [pos:]: end.append (text.find ('\n', pos))
+	if '\t' in text [pos:]: end.append (text.find ('\t', pos))
+	if ' ' in text [pos:]: end.append (text.find (' ', pos))
+	if '"' in text [pos:]: end.append (text.find ('"', pos))
+	if "'" in text [pos:]: end.append (text.find ("'", pos))
 	return min (end)
 
 def protectHour (text):
@@ -127,6 +130,11 @@ def clean (text):
 	text = text.replace ('$$$', '?')
 	text = text.replace ('§§§', ':')
 	text = text.replace ('£££', ',')
+	urlRange = range (5)
+	for u in urlRange:
+		for point in urlEnd: text = text.replace (urlWord[u][0] + point, urlWord[u][1] + point)
+	urlRange = range (5, len (urlWord))
+	for u in urlRange: text = text.replace (urlWord[u][0], urlWord[u][1])
 	return text
 
 def shape (text, case=""):

@@ -13,6 +13,15 @@ utilisation: python fanfic url
 l'url peut correspondre à une page ou un fichier local
 """
 
+def cleanTitle (title):
+	title = title.replace ('-',' ')
+	title = title.replace ('_',' ')
+	title = title.replace ('/',' ')
+	title = title.strip()
+	title = title.lower()
+	while '  ' in title: title = title.replace ('  ',' ')
+	return title
+
 class Fanfic (Html):
 	def fromWeb (self, url, subject=None):
 		if url[:4] == 'http':
@@ -34,18 +43,14 @@ class Fanfic (Html):
 		elif 'gtb'		in url: self.gutemberg()
 		elif 'egb'		in url: self.ebGratuit()
 		elif 'b/aooo.html' == url: self.aoooLocal()
-		elif 'ffnet'	in url: self.ffNet()
+		elif 'b/ffnet'	in url: self.ffNet()
 		elif 'medium'	in url: self.medium()
-		funcLogger.log (len (self.text))
 		self.cleanWeb()
-		funcLogger.log (len (self.text))
 		self.metas = {}
 		self.text = self.text.replace (' <', '<')
 		self.text = self.text.replace ('><', '>\n<')
 		article = self.toArticle()
-		funcLogger.log (article.text)
-		funcLogger.log (len (article.text))
-	#	if '</a>' not in article.text and '<img' not in article.text: article = article.toText()
+		if '</a>' not in article.text and '<img' not in article.text: article = article.toText()
 		article.write()
 
 	def findSubject (self):
@@ -56,8 +61,9 @@ class Fanfic (Html):
 		storyData = self.title.lower() +'\t'+ self.subject.lower() +'\t'+ self.author.lower()
 		subjectList =""
 		subjectDict = {
-			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars'),
+			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars', 'integra', 'axi', 'damned caeli'),
 			'rockers': ('rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars'),
+			'hellsing': ('integra', 'axi', 'damned caeli'),
 			'monstres': ('mythology', 'vampire', 'naga', 'pokemon'),
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
 			'tricot': ('tricot', 'point', 'crochet')
@@ -227,8 +233,8 @@ class Fanfic (Html):
 		self.text = self.text [:f]
 
 	def ffNet (self):
+		# les métadonnées
 		data = self.title.split (', ')
-		funcLogger.log (self.metas)
 		self.title = data[0]
 		if 'hapter' in self.title:
 			f= self.title.find ('hapter') -2
@@ -236,19 +242,25 @@ class Fanfic (Html):
 		d= funcText.find (self.text, '/u/') +3
 		f= funcText.find (self.text, "'>", d)
 		self.autlink = 'https://www.fanfiction.net/u/' + self.text[d:f]
-		d= funcText.find (self.text, '/s/') +3
-		funcLogger.log (d)
-		f= funcText.find (self.text, "'>", d)
-		self.link = 'https://www.fanfiction.net/s/' + self.text[d:f]
-
-
+		self.link = 'https:' + self.metas ['canonical']
+		d= self.autlink.rfind ('/') +1
+		self.author = cleanTitle (self.autlink[d:])
+		# le sujet
+		if '- Romance/' in self.text: self.subject = 'romance'
+		self.findSubject()
+		# le texte
+		self.replace ('<br>', '</p><p>')
+		d= self.text.find ("<div class='storytext")
+		d= self.text.find ('>',d) +1
+		f= self.text.find ("<div style='height: 5px'>", d)
+		self.text = self.text[d:f]
+		self.text = self.text.strip()
+		self.text = '<p>'+ self.text +'</p>'
 
 	def ffNet_2019 (self):
 		d= self.text.find ('https://www.fanfiction.net/u/')
-		funcLogger.log (d)
 		if d<0:
 			d= self.text.find ('https://www.fictionpress.com/u/')
-			funcLogger.log (d)
 			self.link = 'https://www.fictionpress.com/s/'
 			f= self.text.find ('>', d) -1
 			self.autlink = self.text [d:f]

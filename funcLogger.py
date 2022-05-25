@@ -20,12 +20,9 @@ def traceLine():
 	strNum = str (stackList[i].lineno)
 	while len (strNum) <3: strNum = strNum +' '
 	strFile = stackList[i].filename
-	"""
-	strFile = strFile.replace ('/home/lenovo/Bureau/python/debutils/', "")
-	strFile = strFile.replace ('/home/lenovo/Bureau/python/', "")
-	strFile = strFile.replace ('/home/lenovo/Bureau/', "")
-	strFile = strFile.replace ('/home/lenovo/', "")
-	"""
+	strFile = strFile.replace ('/home/deborah/python/', "")
+	strFile = strFile.replace ('/home/deborah/Bureau/', "")
+	strFile = strFile.replace ('/home/deborah/', "")
 	strFile = strFile.replace ('C:\\Users\\deborah.powers\\python\\debutils\\', "")
 	strFile = strFile.replace ('C:\\Users\\deborah.powers\\python\\', "")
 	strFile = strFile.replace ('C:\\Users\\deborah.powers\\', "")
@@ -37,8 +34,15 @@ def traceLine():
 def log (message=None):
 	trace = traceLine()
 	if addDate: trace = traceDate() +' '+ trace
-	if message: print (trace, message)
-	else: print (trace)
+	if not message: print (trace)
+	elif message and type (message) == dict:
+		print (trace)
+		messageKeys = message.keys()
+		for key in messageKeys: print ('\t', key, '\t', message[key])
+	elif message and type (message) == list:
+		print (trace)
+		for line in message: print ('\t', line)
+	else: print (trace +'\t', message)
 
 def message (message=None, obj=None):
 	msgAffichable =""
