@@ -36,12 +36,16 @@ class Fanfic (Html):
 		elif 'b/aooo.html' == url: self.aoooLocal()
 		elif 'ffnet'	in url: self.ffNet()
 		elif 'medium'	in url: self.medium()
+		funcLogger.log (len (self.text))
 		self.cleanWeb()
+		funcLogger.log (len (self.text))
 		self.metas = {}
 		self.text = self.text.replace (' <', '<')
 		self.text = self.text.replace ('><', '>\n<')
 		article = self.toArticle()
-		if '</a>' not in article.text and '<img' not in article.text: article = article.toText()
+		funcLogger.log (article.text)
+		funcLogger.log (len (article.text))
+	#	if '</a>' not in article.text and '<img' not in article.text: article = article.toText()
 		article.write()
 
 	def findSubject (self):
