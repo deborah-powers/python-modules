@@ -1,6 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from datetime import datetime
+import funcLogger
 
 help ="""
 classe de gestion facile des dates
@@ -128,6 +129,7 @@ class DatePerso():
 		dateStr = dateStr.replace ('-', '/')
 		dateStr = dateStr.replace (' ', '/')
 		dateStr = dateStr.replace (':', '/')
+		dateStr = dateStr.replace ('T', '/')
 		dateList = dateStr.split ('/')
 		self.year = int (dateList[0])
 		self.month = int (dateList[1])
