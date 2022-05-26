@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+import funcLogger
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmlmnopqrstuvwxyz0123456789'
 punctuation = '({[?!;.,:]})'
@@ -93,7 +94,7 @@ def protectUrl (text, s=False):
 	textRange = range (1, len (textList))
 	for l in textRange:
 		f= findEnd (textList[l])
-		urlProtected = textList[l][:f].replace ('.', '***')
+		urlProtected = textList[l][:f].replace ('.', '€€€')
 		urlProtected = urlProtected.replace ('?', '$$$')
 		urlProtected = urlProtected.replace (':', '§§§')
 		textList[l] = textList[l].replace (textList[l][:f], urlProtected)
@@ -126,7 +127,7 @@ def clean (text):
 	text = text.replace ("Qu' ","Qu'")
 	text = text.replace ("qu' ","qu'")
 	# récupérer les urls et les dates
-	text = text.replace ('***', '.')
+	text = text.replace ('€€€', '.')
 	text = text.replace ('$$$', '?')
 	text = text.replace ('§§§', ':')
 	text = text.replace ('£££', ',')

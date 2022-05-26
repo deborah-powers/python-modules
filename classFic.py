@@ -63,6 +63,7 @@ class Fanfic (Html):
 		subjectDict = {
 			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars', 'integra', 'axi', 'damned caeli'),
 			'rockers': ('rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars'),
+			'tstm': ('30 seconds to mars', ), 'him': ('him (band)', 'ville valo'), '69eyes': ('jyrki', ),
 			'hellsing': ('integra', 'axi', 'damned caeli'),
 			'monstres': ('mythology', 'vampire', 'naga', 'pokemon'),
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
@@ -83,6 +84,7 @@ class Fanfic (Html):
 			self.text = self.text.replace (ph.upper(), ph)
 			self.text = self.text.replace ('('+ ph +')', ph)
 			self.text = self.text.replace ('['+ ph +']', ph)
+			self.text = self.text.replace ('{'+ ph +'}', ph)
 		self.text = self.text.replace ('y/n', 'Deborah')
 		self.text = self.text.replace ('e/c', 'grey')
 		self.text = self.text.replace ('h/c', 'dark blond')
