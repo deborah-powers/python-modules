@@ -242,6 +242,7 @@ class FileList (File):
 
 	def read (self):
 		File.read (self)
+		self.text = funcText.clean (self.text)
 		self.fromText()
 
 	def toText (self):
@@ -262,6 +263,37 @@ class FileList (File):
 
 	def __len__(self):
 		return len (self.list)
+
+	def __setitem__ (self, pos, item):
+		lenList = len (self.list)
+		if type (pos) == int:
+			if pos <0: pos += lenList
+			if pos < lenList: self.list[pos] = item
+			else: self.append (item)
+
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenList)
+			rangeList = range (posIndex [0], posIndex [1], posIndex [2])
+			if type (item) in (tuple, list) and len (item) >= len (rangeList):
+				i=0
+				for l in rangeList:
+					self.list[l] = item[i]
+					i+=1
+
+	def __getitem__ (self, pos):
+		lenList = len (self.list)
+		if type (pos) == int:
+			if pos <0: pos += lenList
+			if pos > lenList or pos <0: return None
+			else: return self.list [pos]
+
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenList)
+			rangeList = self.range (posIndex [0], posIndex [1], posIndex [2])
+			newList =[]
+			for l in rangeList: newList.append (self.list[l])
+			return newList
+		else: return None
 
 	def append (self, item):
 		self.list.append (item)
