@@ -259,7 +259,8 @@ class FileList (File):
 		return iterate (self.list, function)
 
 	def __str__(self):
-		return self.path +'\n'+ self.toText()
+		self.toText()
+		return self.path +'\n'+ self.text
 
 	def __len__(self):
 		return len (self.list)
