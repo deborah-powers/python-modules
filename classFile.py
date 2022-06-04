@@ -246,14 +246,15 @@ class FileList (File):
 		self.fromText()
 
 	def toText (self):
-		self.text = funcList.toText (self.list, self.sep)
+		# self.text = funcList.toText (self.list, self.sep)
+		self.text = self.sep.join (self.list)
 
 	def fromText (self, text=None):
 		if text: self.text = text
 		self.list = self.text.split (self.sep)
 
 	def range (self, start=0, end=0, step=1):
-		return range (self.list, start, end, step)
+		return funcList.range (self.list, start, end, step)
 
 	def iterate (self, function):
 		return iterate (self.list, function)
@@ -306,9 +307,9 @@ class FileList (File):
 		self.list.reverse()
 
 	def pop (self, pos):
-		length = len (self)
-		while pos <0: pos += length
-		while pos >= length: pos -= length
+		length = len (self.list)
+		if pos <0: pos += length
+		elif pos >= length: pos -= length
 		trash = self.list.pop (pos)
 
 class FileTable (FileList):
@@ -317,9 +318,14 @@ class FileTable (FileList):
 		self.sepCol = sepCol
 
 	def toText (self):
-		newList = FileList (self.path, self.sep)
-		for line in self.list: newList.append (line, self.sepCol)
-		newList.toText()
+		newList =[]
+		for line in self.list: newList.append (self.sepCol.join (line))
+		self.text = self.sep.join (newList)
+
+	def fromText (self, text=None):
+		if text: self.text = text
+		newList = self.text.split (self.sep)
+		for line in newList: self.append (line.split (self.sepCol))
 
 class Folder():
 	def __init__ (self, path='b/'):
