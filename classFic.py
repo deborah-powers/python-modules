@@ -377,8 +377,11 @@ class Fanfic (Html):
 		# nettoyer le texte
 		if '<h3>Notes:</h3>' in self.text:
 			halfText = len (self.text) /2
+			funcLogger.log (halfText)
 			d= self.text.find ('<h3>Notes:</h3>')
 			if d> halfText: self.text = self.text [:d]
+		self.replace ('<h3>Notes:</h3>', '<h3>Notes</h3>')
+		self.replace ('<h3>Summary:</h3>', '<h3>Summary</h3>')
 		self.usePlaceholders()
 		self.text = self.text.replace ('h2>', 'h1>')
 		f= funcText.find (self.text, '<h3>Series this work belongs to:</h3>')

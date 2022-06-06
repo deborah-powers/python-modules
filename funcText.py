@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import funcLogger
 
-letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmlmnopqrstuvwxyz0123456789'
+letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmlmnopqrstuvwxyz0123456789-'
 punctuation = '({[?!;.,:]})'
 uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
@@ -119,6 +119,9 @@ def clean (text):
 	for l in letters:
 		for p in punctuation[:6]: text = text.replace (l+p, l+' '+p)
 		for p in punctuation[3:]: text = text.replace (p+l, p+' '+l)
+	text = text.replace ('<! --', '<!-- ')
+	text = text.replace ('-->', ' -->')
+	while '  ' in text: text = text.replace ('  ', ' ')
 	# les appostrophes
 	points = 'cdjlmnrst'
 	for p in points:
