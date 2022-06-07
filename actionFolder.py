@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from classFile import Folder, FolderArticle
+from classFolder import Folder, FolderArticle
 
 help ="""
 ce script peut être appelé dans un autre script
@@ -14,6 +14,7 @@ les valeurs de action:
 	d	vérifier s'il y a des doublons
 	v	identifier les fichiers modifiés entre un dossier et sa sauvegarde
 	s	lister les sujets
+	i	créer un index
 """
 if len (argv) <3: print (help)
 else:
@@ -29,6 +30,9 @@ else:
 	elif action == 's':
 		flist = FolderArticle (argv[1])
 		flist.listSubjects()
+	elif action == 'i':
+		flist = Folder(argv[1])
+		flist.createIndex()
 	else:
 		wordOld = argv[3]
 		wordNew =""
