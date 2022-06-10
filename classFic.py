@@ -62,10 +62,10 @@ class Fanfic (Html):
 		subjectList =""
 		subjectDict = {
 			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars', 'integra', 'axi', 'damned caeli'),
-			'rockers': ('rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars'),
+			'rocker': ('rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars'),
 			'tstm': ('30 seconds to mars', ), 'him': ('him (band)', 'ville valo'), '69eyes': ('jyrki', ),
 			'hellsing': ('integra', 'axi', 'damned caeli'),
-			'monstres': ('mythology', 'vampire', 'naga', 'pokemon'),
+			'monstre': ('mythology', 'vampire', 'naga', 'pokemon'),
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
 			'tricot': ('tricot', 'point', 'crochet')
 		}
@@ -377,7 +377,6 @@ class Fanfic (Html):
 		# nettoyer le texte
 		if '<h3>Notes:</h3>' in self.text:
 			halfText = len (self.text) /2
-			funcLogger.log (halfText)
 			d= self.text.find ('<h3>Notes:</h3>')
 			if d> halfText: self.text = self.text [:d]
 		self.replace ('<h3>Notes:</h3>', '<h3>Notes</h3>')

@@ -9,10 +9,12 @@ import funcLogger
 
 class File():
 	def __init__ (self, file =None):
-		self.path = file
+		self.path =""
 		self.title =""
 		self.text =""
-		if file: self.fromPath()
+		if file:
+			self.path = file
+			self.fromPath()
 
 	def fromPath (self):
 		if '\t' in self.path: return
@@ -135,6 +137,7 @@ class Article (File):
 		self.link =""
 		self.autlink =""
 		self.type =""
+		if file: self.fromPath()
 
 	def toText (self):
 		if self.type == 'txt': return self

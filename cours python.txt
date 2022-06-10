@@ -4,6 +4,7 @@ object.__dir__()	récupère les fonctions d'un objet
 object.__module__	nom du fichier contenant la classe de l'objet
 object.__class__	nom de la classe de l'objet
 object.__dict__		renvoi les champs et leurs valeurs sous la forme d'un dictionnaire
+__file__			nom du script s'executant
 
 if __name__ == 'main': pass
 else: xxx

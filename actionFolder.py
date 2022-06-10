@@ -5,7 +5,7 @@ from classFolder import Folder, FolderArticle
 
 help ="""
 ce script peut être appelé dans un autre script
-python -m listFiles folderName action oldArg (newArg)
+python %s folderName action oldArg (newArg)
 les valeurs de action:
 	n	renommer les fichiers en remplacant un motif par un autre
 	c	remplacer un motif par un autre dans le contenu du fichier
@@ -15,7 +15,9 @@ les valeurs de action:
 	v	identifier les fichiers modifiés entre un dossier et sa sauvegarde
 	s	lister les sujets
 	i	créer un index
-"""
+	a	créer un index pour les articles
+""" % __file__
+
 if len (argv) <3: print (help)
 else:
 	flist = Folder (argv[1])
@@ -31,7 +33,10 @@ else:
 		flist = FolderArticle (argv[1])
 		flist.listSubjects()
 	elif action == 'i':
-		flist = Folder(argv[1])
+		flist = Folder (argv[1])
+		flist.createIndex()
+	elif action == 'a':
+		flist = FolderArticle (argv[1])
 		flist.createIndex()
 	else:
 		wordOld = argv[3]

@@ -62,11 +62,12 @@ class Folder():
 			if subList:
 				for file in subList:
 					if '.' not in file: continue
+					elif 'index.html' in file: continue
 					fileTmp = File (os.path.join (dirpath, file))
 					fileTmp.fromPath()
 					fileTmp.path = fileTmp.path.replace (self.path, "")
 					self.list.append (fileTmp)
-				self.list.sort()
+		self.list.sort()
 
 	def filter (self, tagName, sens=True):
 		""" quand on a besoin de ré-exclure certains fichiers après le get.
@@ -197,14 +198,29 @@ class FolderArticle (Folder):
 		elif subject == 'roman': self.path = 'a/romans/'
 		self.path = shortcut (self.path)
 
+	def createIndex (self):
+		index = Html (self.path + 'index.html')
+		index.text = '<table>\n'
+		self.get()
+		self.read()
+		self.list.sort()
+		for file in self.list:
+			file.toPath()
+			index.text = index.text + "<tr><td>"+ file.subject + "</td><td>" + file.author + "</td><td><a href='" + self.path + file.path +"'>"+ file.title + "</a></td></tr>\n"
+		index.text = index.text + '</table>'
+		index.styles.append ('/var/www/html/site-dp/library-css/structure.css')
+		index.styles.append ('/var/www/html/site-dp/library-css/perso.css')
+		index.write()
+
 	def get (self, tagName=None, sens=True):
 		tmpList = Folder (self.path)
 		tmpList.get (tagName, sens)
 		for file in tmpList.list:
-			file.toPath()
-			article = Article (file.path)
-			article.fromPath()
-			if article.type in ('html', 'txt'): self.append (article)
+			article = Article (self.path + file.path)
+			article.toPath()
+			if article.type in ('html', 'txt'):
+				article.path = article.path.replace (self.path, "")
+				self.append (article)
 		self.list.sort()
 
 	def __getitem__ (self, pos):

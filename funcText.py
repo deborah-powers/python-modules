@@ -109,6 +109,16 @@ def clean (text):
 	text = text.replace (' \n', '\n')
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	return text
+
+def clean_20221 (text):
+	for i, j in weirdChars: text = text.replace (i, j)
+	text = text.strip()
+	while '  ' in text: text = text.replace ('  ', ' ')
+	text = text.replace ('\n ', '\n')
+	text = text.replace (' \n', '\n')
+	while '\t\n' in text: text = text.replace ('\t\n', '\n')
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	for p in punctuation:
 		text = text.replace (p+' ', p)
 		text = text.replace (' '+p, p)

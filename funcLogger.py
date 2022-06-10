@@ -42,6 +42,7 @@ def log (message=None):
 	elif message and type (message) == list:
 		print (trace)
 		for line in message: print ('\t', line)
+	elif type (message) == int and message ==0: print (trace +'\tO')
 	else: print (trace +'\t', message)
 
 def message (message=None, obj=None):
