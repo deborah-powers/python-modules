@@ -49,7 +49,10 @@ class Fanfic (Html):
 		self.metas = {}
 		self.text = self.text.replace (' <', '<')
 		self.text = self.text.replace ('><', '>\n<')
+		self.path = self.path.replace ('tmp.', self.title +'.')
 		article = self.toArticle()
+		funcLogger.log (article.title)
+		funcLogger.log (article.path)
 		if '</a>' not in article.text and '<img' not in article.text: article = article.toText()
 		article.write()
 

@@ -62,7 +62,7 @@ class Folder():
 			if subList:
 				for file in subList:
 					if '.' not in file: continue
-					elif 'index.html' in file: continue
+					elif 'index.' in file: continue
 					fileTmp = File (os.path.join (dirpath, file))
 					fileTmp.fromPath()
 					fileTmp.path = fileTmp.path.replace (self.path, "")
@@ -83,9 +83,10 @@ class Folder():
 
 	def createIndex (self):
 		index = Html (self.path + 'index.html')
+		index.text = '<h1>index du dossier' + self.path +'</h1>\n'
 		self.get()
 		for file in self.list:
-			index.text = index.text + "<p><a href='" + self.path + file.path +"'>"+ file.title +'</a></p>'
+			index.text = index.text + "<p><a href='" + self.path + file.path +"'>"+ file.title +'</a></p>\n'
 		index.styles.append ('/var/www/html/site-dp/library-css/structure.css')
 		index.styles.append ('/var/www/html/site-dp/library-css/perso.css')
 		index.write()
@@ -199,8 +200,18 @@ class FolderArticle (Folder):
 		self.path = shortcut (self.path)
 
 	def createIndex (self):
+		index = File (self.path + 'index.tsv')
+		self.get()
+		self.read()
+		self.list.sort()
+		for file in self.list:
+			file.toPath()
+			index.text = index.text + file.subject +'\t'+ file.author +'\t'+ file.title +'\t'+ file.path +'\n'
+		index.write()
+
+	def createIndex_va (self):
 		index = Html (self.path + 'index.html')
-		index.text = '<table>\n'
+		index.text = '<h1>index du dossier' + self.path +'</h1>\n<table>\n'
 		self.get()
 		self.read()
 		self.list.sort()
