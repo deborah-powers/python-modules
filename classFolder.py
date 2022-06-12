@@ -40,11 +40,12 @@ class Folder():
 
 	def replace (self, wordOld, wordNew, close=True):
 		""" remplacer un motif dans le texte """
+		if close: self.read()
 		for file in self.list:
-			if close: file.fromFile()
 			if wordOld in file.text:
-				file.text = file.text.replace (wordOld, wordNew)
-				if close: file.toFile()
+				file.replace (wordOld, wordNew)
+				file.path = self.path + file.path
+				file.write()
 
 	# ________________________ fonctions de base ________________________
 
