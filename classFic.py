@@ -51,8 +51,6 @@ class Fanfic (Html):
 		self.text = self.text.replace ('><', '>\n<')
 		self.path = self.path.replace ('tmp.', self.title +'.')
 		article = self.toArticle()
-		funcLogger.log (article.title)
-		funcLogger.log (article.path)
 		if '</a>' not in article.text and '<img' not in article.text: article = article.toText()
 		article.write()
 
@@ -377,15 +375,26 @@ class Fanfic (Html):
 				chapters [c] = chapters [c] [d:]
 				chapters [c] = chapters [c].replace ('</h3>', '</h2>', 1)
 			self.text = '<h2>'.join (chapters)
-		# nettoyer le texte
+		self.text = self.text.replace ('h2>', 'h1>')
+		# effacer les notes
 		if '<h3>Notes:</h3>' in self.text:
-			halfText = len (self.text) /2
-			d= self.text.find ('<h3>Notes:</h3>')
-			if d> halfText: self.text = self.text [:d]
+			chapters = funcList.fromText (self.text, '<h1>')
+			chapterRange = funcList.range (chapters)
+			for c in chapterRange:
+				d= chapters[c].rfind ('<h3>Notes:</h3>')
+				if d>=0 and (len (chapters[c]) -d <=650): chapters[c] = chapters[c][:d]
+			self.text = '<h1>'.join (chapters)
+		if '<p>(See the end of the chapter for' in self.text:
+			chapters = funcList.fromText (self.text, '<p>(See the end of the chapter for')
+			chapterRange = funcList.range (chapters, start=1)
+			for c in chapterRange:
+				d= chapters[c].find ('</p>') +4
+				chapters[c] = chapters[c][d:]
+			self.text = "".join (chapters)
+		# nettoyer le texte
 		self.replace ('<h3>Notes:</h3>', '<h3>Notes</h3>')
 		self.replace ('<h3>Summary:</h3>', '<h3>Summary</h3>')
 		self.usePlaceholders()
-		self.text = self.text.replace ('h2>', 'h1>')
 		f= funcText.find (self.text, '<h3>Series this work belongs to:</h3>')
 		if f>0: self.text = self.text[:f]
 

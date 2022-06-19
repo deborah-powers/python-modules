@@ -231,14 +231,15 @@ class Html (Article):
 			paramsUrl = ul.parse.urlencode (params).encode ('utf-8')
 			myRequest = urlRequest.Request (self.link, method='POST')
 		else: myRequest = urlRequest.Request (self.link)
-		try: response = urlRequest.urlopen (myRequest, paramsUrl)
-		except Exception as e: return False
-		else:
+		try:
+			response = urlRequest.urlopen (myRequest, paramsUrl)
 			tmpByte = response.read()
 			self.text = codecs.decode (tmpByte, 'utf-8', errors='ignore')
+			if not self.text: self.text = tmpByte.decode ('utf-8')
 			response.close()
 			self.titleFromUrl()
 			return True
+		except Exception as e: return False
 
 	def fromUrlVb (self):
 		res = False
