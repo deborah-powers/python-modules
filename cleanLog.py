@@ -23,8 +23,10 @@ def cleanLog (self):
 		elif "could not locate the message resource with key " in listLine[l]: trash = listLine.pop (l)
 		elif "(CommonsLogger.java: 56)" in listLine[l]: trash = listLine.pop (l)
 		elif '\t' == listLine[l][0] and '(<generated>)' in listLine[l]: trash = listLine.pop (l)
-		elif '\t' == listLine[l][0] and 'fr.asp.synergie.' not in listLine[l]: trash = listLine.pop (l)
-		elif 'core.web.' in listLine[l]: trash = listLine.pop (l)
+		elif '\t' == listLine[l][0] and 'fr.asp.synergie.' not in listLine[l]:
+			if 'cdm.' in listLine[l]: continue
+			trash = listLine.pop (l)
+		elif 'core.web.' in listLine[l] or 'core.trac.' in listLine[l]: trash = listLine.pop (l)
 	#	elif "INFO" in listLine[l] and ("INFO" in listLine[l+1] or "WARN" in listLine[l+1] or "ERROR" in listLine[l+1]): trash = listLine.pop (l)
 	self.text = '\n'.join (listLine)
 	self.replace ('com.opensymphony.xwork2.util.logging.commons.')
