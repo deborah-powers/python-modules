@@ -17,6 +17,7 @@ def cleanLog (self):
 	for l in rangeLine:
 		if not listLine[l]: trash = listLine.pop (l)
 		elif ' fr.asp.synergie.core.ael.' in listLine[l]: trash = listLine.pop (l)
+		elif ' core.web.' in listLine[l]: trash = listLine.pop (l)
 		elif ' - Choosing bean (' in listLine[l]: trash = listLine.pop (l)
 		elif 'TaskProcessNewExecutionCoordinator.onNewNotification' in listLine[l]: trash = listLine.pop (l)
 		elif "' was evaluated and did not match a property. The literal value '" in listLine[l]: trash = listLine.pop (l)
