@@ -183,10 +183,11 @@ def fromModel (text, model):
 	results = []
 	for line in modelList:
 		d= find (text, line)
-		if d>0: results.append (text [:d])
+		results.append (text [:d])
 		d+= len (line)
 		text = text [d:]
 	if len (text) >0: results.append (text)
+	if not results[0]: trash = results.pop (0)
 	d=0
 	rangeRes = range (len (results))
 	for r in rangeRes:

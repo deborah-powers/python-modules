@@ -13,12 +13,11 @@ class Folder():
 		if path: path = shortcut (path)
 		self.path = path
 		self.list =[]
-		if self.path[-1] != os.sep: self.path = self.path + os.sep
+		if self.path[-1] != os.sep: self.path = os.sep
 
 	# ________________________ agir sur les fichiers ________________________
 
 	def rename (self, wordOld, wordNew=""):
-		print (wordOld, wordNew)
 		for file in self.list:
 			if wordOld not in file.title: continue
 			file.fromPath()
@@ -27,7 +26,7 @@ class Folder():
 			newFile.path = file.path
 			newFile.toPath()
 			file.toPath()
-			os.rename (self.path + file.path, self.path + newFile.path)
+			os.rename (file.path, newFile.path)
 
 	def move (self, newPath):
 		# newPath est une string
@@ -35,7 +34,7 @@ class Folder():
 		newPath = shortcut (newPath)
 		for file in self.list:
 			file.toPath()
-			os.rename (self.path + file.path, newPath + file.path)
+			os.rename (file.path, newPath + file.path)
 		self.path = newPath
 
 	def replace (self, wordOld, wordNew):
@@ -44,7 +43,6 @@ class Folder():
 			if wordOld in file.text:
 				funcLogger.log (file.title)
 				file.replace (wordOld, wordNew)
-				if self.path not in file.path: file.path = self.path + file.path
 				file.write()
 
 	# ________________________ fonctions de base ________________________
@@ -66,7 +64,7 @@ class Folder():
 					elif 'index.' in file: continue
 					fileTmp = File (os.path.join (dirpath, file))
 					fileTmp.fromPath()
-					fileTmp.path = fileTmp.path.replace (self.path, "")
+					# fileTmp.path = fileTmp.path.replace (self.path, "")
 					self.list.append (fileTmp)
 		self.list.sort()
 
@@ -83,30 +81,22 @@ class Folder():
 				if tagName in self.list[f].path or tagName in self.list[f].title: trash = self.list.pop(f)
 
 	def createIndex (self):
-		index = Html (self.path + 'index.html')
+		index = Html ('index.html')
 		index.text = '<h1>index du dossier' + self.path +'</h1>\n'
 		self.get()
 		for file in self.list:
-			index.text = index.text + "<p><a href='" + self.path + file.path +"'>"+ file.title +'</a></p>\n'
+			index.text = index.text + "<p><a href='" + file.path +"'>"+ file.title +'</a></p>\n'
 		index.styles.append ('/var/www/html/site-dp/library-css/structure.css')
 		index.styles.append ('/var/www/html/site-dp/library-css/perso.css')
 		index.write()
 
 	def read (self):
 		rangeList = funcList.range (self.list)
-		if self.path not in self[0].path:
-			for i in rangeList: self[i].path = self.path + self[i].path
-		for i in rangeList:
-			self[i].read()
-			self[i].path = self[i].path.replace (self.path, "")
+		for i in rangeList: self[i].read()
 
 	def write (self):
 		rangeList = funcList.range (self.list)
-		if self.path not in self[0].path:
-			for i in rangeList: self[i].path = self.path + self[i].path
-		for i in rangeList:
-			self[i].write()
-			self[i].path = self[i].path.replace (self.path, "")
+		for i in rangeList: self[i].write()
 
 	def iterate (self, function):
 		newList = Folder()
@@ -117,14 +107,13 @@ class Folder():
 
 	def append (self, file):
 		file.shortcut()
-		file.path = file.path.replace (self.path, "")
 		self.list.append (file)
 
 	def __str__ (self):
 		strList = 'Dossier: '+ self.path +'\nListe:'
 		for file in self:
 			file.toPath()
-			strList = strList +'\n'+ file.path
+			strList = strList +'\n'+ file.path.replace (self.path, "")
 		return strList
 
 	def __len__(self):
@@ -182,7 +171,7 @@ class Folder():
 		self.filter ('the')
 		print (self)
 		"""
-		self[0].path = self.path + self[0].path
+		self[0].path = self[0].path
 		self[0].read()
 		print (len (self[0].text), 'caractères')
 		"""
@@ -201,7 +190,7 @@ class FolderArticle (Folder):
 		self.path = shortcut (self.path)
 
 	def createIndex (self):
-		index = File (self.path + 'index.tsv')
+		index = File ('index.tsv')
 		self.get()
 		self.read()
 		self.list.sort()
@@ -211,14 +200,14 @@ class FolderArticle (Folder):
 		index.write()
 
 	def createIndex_va (self):
-		index = Html (self.path + 'index.html')
+		index = Html ('index.html')
 		index.text = '<h1>index du dossier' + self.path +'</h1>\n<table>\n'
 		self.get()
 		self.read()
 		self.list.sort()
 		for file in self.list:
 			file.toPath()
-			index.text = index.text + "<tr><td>"+ file.subject + "</td><td>" + file.author + "</td><td><a href='" + self.path + file.path +"'>"+ file.title + "</a></td></tr>\n"
+			index.text = index.text + "<tr><td>"+ file.subject + "</td><td>" + file.author + "</td><td><a href='" + file.path +"'>"+ file.title + "</a></td></tr>\n"
 		index.text = index.text + '</table>'
 		index.styles.append ('/var/www/html/site-dp/library-css/structure.css')
 		index.styles.append ('/var/www/html/site-dp/library-css/perso.css')
@@ -228,11 +217,8 @@ class FolderArticle (Folder):
 		tmpList = Folder (self.path)
 		tmpList.get (tagName, sens)
 		for file in tmpList.list:
-			article = Article (self.path + file.path)
-			article.toPath()
-			if article.type in ('html', 'txt'):
-				article.path = article.path.replace (self.path, "")
-				self.append (article)
+			article = Article (file.path)
+			if article.type in ('html', 'txt'): self.append (article)
 		self.list.sort()
 
 	def __getitem__ (self, pos):

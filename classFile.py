@@ -139,6 +139,39 @@ class Article (File):
 		self.type =""
 		if file: self.fromPath()
 
+	def explode (self):
+		# découper une trop longue fanfic en morceaux
+		funcLogger.log (self.path)
+		if len (self.text) > 450000:
+			# créer l'article temporaire
+			idFile =0
+			ficNew = Article()
+			ficNew.subject = self.subject
+			ficNew.link = self.link
+			ficNew.author = self.author
+			ficNew.autlink = self.autlink
+			ficNew.type = self.type
+			ficNew.path = self.path
+			# récupérer le séparateur selon le type de l'article
+			sep = ""
+			if '<h1>' in self.text: sep = '<h1>'
+			elif self.type == 'txt' and '****** ' in self.text:
+				self.text = funcText.clean (self.text)
+				sep = '****** '
+			if sep:
+				ficList = self.text.split (sep)
+				if not ficList[0]: trash = ficList.pop (0)
+				ficRange = funcList.range (ficList)
+				for f in ficRange:
+					ficNew.text = ficNew.text + sep + ficList[f]
+					if len (ficNew.text) >= 300000:
+						ficNew.path = self.path
+						idFile = idFile +1
+						ficNew.title = self.title +' '+ str (idFile)
+						ficNew.write()
+						ficNew.text =""
+
+
 	def toText (self):
 		if self.type == 'txt': return self
 		article = Article()
@@ -182,12 +215,11 @@ class Article (File):
 			self.text = self.text.replace ('\t', "")
 			"""
 			metadata = funcText.fromModel (self.text, templateHtml)
-			self.subject = metadata [2]
 			self.author = metadata [1]
+			self.subject = metadata [2]
 			self.link = metadata [3]
 			self.autlink = metadata [4]
-			if len (metadata) ==6: self.text = metadata [5]
-			elif len (metadata) ==7: self.text = metadata [6]
+			self.text = metadata [6]
 		elif self.type == 'txt':
 			metadata = funcText.fromModel (self.text, templateText)
 			self.subject = metadata [0]
