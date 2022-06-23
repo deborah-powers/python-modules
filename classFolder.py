@@ -38,13 +38,13 @@ class Folder():
 			os.rename (self.path + file.path, newPath + file.path)
 		self.path = newPath
 
-	def replace (self, wordOld, wordNew, close=True):
+	def replace (self, wordOld, wordNew):
 		""" remplacer un motif dans le texte """
-		if close: self.read()
 		for file in self.list:
 			if wordOld in file.text:
+				funcLogger.log (file.title)
 				file.replace (wordOld, wordNew)
-				file.path = self.path + file.path
+				if self.path not in file.path: file.path = self.path + file.path
 				file.write()
 
 	# ________________________ fonctions de base ________________________
