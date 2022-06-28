@@ -123,7 +123,6 @@ templateHtml = """<!DOCTYPE html><html><head>
 	<meta name='subject' content='%s'/>
 	<meta name='link' content='%s'/>
 	<meta name='autlink' content='%s'/>
-	%s
 </head><body>
 %s
 </body></html>"""
@@ -141,10 +140,10 @@ class Article (File):
 
 	def explode (self):
 		# découper une trop longue fanfic en morceaux
-		funcLogger.log (self.path)
 		if len (self.text) > 450000:
 			# créer l'article temporaire
-			idFile =0
+			idFile =1
+			idText =0
 			ficNew = Article()
 			ficNew.subject = self.subject
 			ficNew.link = self.link
@@ -152,12 +151,14 @@ class Article (File):
 			ficNew.autlink = self.autlink
 			ficNew.type = self.type
 			ficNew.path = self.path
+			ficNew.text =""
 			# récupérer le séparateur selon le type de l'article
 			sep = ""
 			if '<h1>' in self.text: sep = '<h1>'
-			elif self.type == 'txt' and '****** ' in self.text:
+			elif self.type == 'txt':
 				self.text = funcText.clean (self.text)
-				sep = '****** '
+				if '****** ' in self.text: sep = '****** '
+				elif '====== ' in self.text: sep = '====== '
 			if sep:
 				ficList = self.text.split (sep)
 				if not ficList[0]: trash = ficList.pop (0)
@@ -165,12 +166,17 @@ class Article (File):
 				for f in ficRange:
 					ficNew.text = ficNew.text + sep + ficList[f]
 					if len (ficNew.text) >= 300000:
+						idText =f
 						ficNew.path = self.path
-						idFile = idFile +1
 						ficNew.title = self.title +' '+ str (idFile)
 						ficNew.write()
 						ficNew.text =""
-
+						idFile = idFile +1
+				idText = idText +1
+				self.text = sep.join (ficList[idText:])
+				self.text = sep + self.text
+				self.title = self.title +' '+ str (idFile)
+				self.write()
 
 	def toText (self):
 		if self.type == 'txt': return self
@@ -219,18 +225,18 @@ class Article (File):
 			self.subject = metadata [2]
 			self.link = metadata [3]
 			self.autlink = metadata [4]
-			self.text = metadata [6]
+			self.text = metadata [5]
 		elif self.type == 'txt':
 			metadata = funcText.fromModel (self.text, templateText)
 			self.subject = metadata [0]
 			self.author = metadata [1]
 			self.link = metadata [2]
 			self.autlink = metadata [3]
-			self.text = metadata [4]
+			self.text = metadata [5]
 
 	def write (self):
 		self.title = self.title.lower()
-		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
+		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
 
