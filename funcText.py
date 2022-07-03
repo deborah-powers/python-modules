@@ -112,7 +112,6 @@ def protectUrl (text, s=False):
 	return text
 
 def clean (text):
-	funcLogger.coucou()
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip()	
 	while '  ' in text: text = text.replace ('  ', ' ')
@@ -137,6 +136,16 @@ def clean (text):
 		d= findEndUrl (liste[l])
 		if '=' not in liste[l][:d]: liste[l-1] = liste[l-1] +' '
 	text = '?'.join (liste)
+	# restaurer les heures
+	liste = text.split (': ')
+	rliste = range (1, len (liste))
+	for l in rliste:
+		if len (liste[l]) >1 and liste[l][0] in '0123456789' and liste[l][1] in '0123456789':
+			if len (liste[l]) >2:
+				d= findEndUrl (liste[l])
+				if d!=2: liste[l] =' '+ liste[l]
+		else: liste[l] =' '+ liste[l]
+	text = ':'.join (liste)
 	return text
 
 def shape (text, case=""):
