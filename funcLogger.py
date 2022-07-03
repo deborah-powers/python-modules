@@ -35,6 +35,9 @@ def log (message=None):
 	trace = traceLine()
 	# if addDate: trace = traceDate() +' '+ trace
 	if type (message) == int and message ==0: print (trace +'\tO')
+	elif type (message) == bool:
+		if message: print (trace +'\toui')
+		else: print (trace +'\tnon')
 	elif not message: print (trace)
 	elif type (message) == dict:
 		print (trace)

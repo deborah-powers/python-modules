@@ -1,6 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
+from os import remove
 import funcList
 import funcText
 from classFile import Article
@@ -27,6 +28,7 @@ class Fanfic (Html):
 		if url[:4] == 'http':
 			self.link = url
 			Html.fromWeb (self)
+			remove (self.path)
 		else:
 			if url[-5:] != '.html': url = 'b/' + url + '.html'
 			self.path = url

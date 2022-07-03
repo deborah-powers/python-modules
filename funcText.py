@@ -3,7 +3,6 @@
 import funcLogger
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmlmnopqrstuvwxyz0123456789-'
-punctuation = '({[?!;.,:]})'
 uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
 # liste des points, des chaines de caracteres suivies par une majuscule
@@ -35,7 +34,8 @@ tagHtml =(
 
 def upperCaseIntern (text):
 	text ='\n'+ text
-	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '______ ', '------ ', '****** ', '====== ')
+	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
+	punctuation = '({[?!;.,:]})'
 	for i, j in uppercaseLetters:
 		for p in points: text = text.replace (p+i, p+j)
 	for p in " "+ punctuation[-11:]:
@@ -64,14 +64,24 @@ def upperCase (text, case=""):
 	text = text.strip()
 	return text
 
-def findEnd (text, pos=0):
-	end =[]
-	if '\n' in text [pos:]: end.append (text.find ('\n', pos))
-	if '\t' in text [pos:]: end.append (text.find ('\t', pos))
-	if ' ' in text [pos:]: end.append (text.find (' ', pos))
-	if '"' in text [pos:]: end.append (text.find ('"', pos))
-	if "'" in text [pos:]: end.append (text.find ("'", pos))
-	return min (end)
+def findEndUrl (text, pos=0):
+	lenText = len (text) +1
+	d= text.find ('\n', pos)
+	if d<0: d= lenText
+	f= text.find ('\t', pos)
+	if f<0: f= lenText
+	d= min (d,f)
+	f= text.find (' ', pos)
+	if f<0: f= lenText
+	d= min (d,f)
+	f= text.find ('"', pos)
+	if f<0: f= lenText
+	d= min (d,f)
+	f= text.find ("'", pos)
+	if f<0: f= lenText
+	d= min (d,f)
+	if d== lenText: d=-1
+	return d
 
 def protectHour (text):
 	if ':' not in text: return text
@@ -80,7 +90,7 @@ def protectHour (text):
 		d= text.find (':', d)
 		if d<0: continue
 		if text[d+3] == ':':
-			f= findEnd (text, d)
+			f= findEndUrl (text, d)
 			dateProtected = text[d:f].replace (':', '§§§')
 			dateProtected = dateProtected.replace (',', '£££')
 			text = text.replace (text[d:f], dateProtected)
@@ -93,7 +103,7 @@ def protectUrl (text, s=False):
 	textList = text.split (word)
 	textRange = range (1, len (textList))
 	for l in textRange:
-		f= findEnd (textList[l])
+		f= findEndUrl (textList[l])
 		urlProtected = textList[l][:f].replace ('.', '€€€')
 		urlProtected = urlProtected.replace ('?', '$$$')
 		urlProtected = urlProtected.replace (':', '§§§')
@@ -102,53 +112,31 @@ def protectUrl (text, s=False):
 	return text
 
 def clean (text):
+	funcLogger.coucou()
 	for i, j in weirdChars: text = text.replace (i, j)
-	text = text.strip()
+	text = text.strip()	
 	while '  ' in text: text = text.replace ('  ', ' ')
 	text = text.replace ('\n ', '\n')
 	text = text.replace (' \n', '\n')
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
-	return text
-
-def clean_20221 (text):
-	for i, j in weirdChars: text = text.replace (i, j)
-	text = text.strip()
+	# la ponctuation
+	punctuation = '?!;.:,'
+	for p in punctuation: text = text.replace (' '+p, p)
+	while '....' in text: text = text.replace ('....', '...')
+	for letter in letters:
+		text = text.replace (letter +'?', letter +' ?')
+		text = text.replace (letter +'!', letter +' !')
+		text = text.replace (letter +';', letter +' ;')
+	text = text.replace (':', ': ')
 	while '  ' in text: text = text.replace ('  ', ' ')
-	text = text.replace ('\n ', '\n')
-	text = text.replace (' \n', '\n')
-	while '\t\n' in text: text = text.replace ('\t\n', '\n')
-	while '\n\n' in text: text = text.replace ('\n\n', '\n')
-	for p in punctuation:
-		text = text.replace (p+' ', p)
-		text = text.replace (' '+p, p)
-		while 4*p in text: text = text.replace (4*p, 3*p)
-	text = protectUrl (text, False)
-	text = protectUrl (text, True)
-	text = protectHour (text)
-	for l in letters:
-		for p in punctuation[:6]: text = text.replace (l+p, l+' '+p)
-		for p in punctuation[3:]: text = text.replace (p+l, p+' '+l)
-	text = text.replace ('<! --', '<!-- ')
-	text = text.replace ('-->', ' -->')
-	while '  ' in text: text = text.replace ('  ', ' ')
-	# les appostrophes
-	points = 'cdjlmnrst'
-	for p in points:
-		text = text.replace (' '+p+"' ", ' '+p+"'")
-		text = text.replace (' '+ p.upper() +"' ", ' '+ p.upper() +"'")
-	text = text.replace ("Qu' ","Qu'")
-	text = text.replace ("qu' ","qu'")
-	# récupérer les urls et les dates
-	text = text.replace ('€€€', '.')
-	text = text.replace ('$$$', '?')
-	text = text.replace ('§§§', ':')
-	text = text.replace ('£££', ',')
-	urlRange = range (5)
-	for u in urlRange:
-		for point in urlEnd: text = text.replace (urlWord[u][0] + point, urlWord[u][1] + point)
-	urlRange = range (5, len (urlWord))
-	for u in urlRange: text = text.replace (urlWord[u][0], urlWord[u][1])
+	# restaurer les url
+	liste = text.split (' ?')
+	rliste = range (1, len (liste))
+	for l in rliste:
+		d= findEndUrl (liste[l])
+		if '=' not in liste[l][:d]: liste[l-1] = liste[l-1] +' '
+	text = '?'.join (liste)
 	return text
 
 def shape (text, case=""):
@@ -160,9 +148,9 @@ def shape (text, case=""):
 		upper: je rajoute les majuscules
 	"""
 	text = clean (text)
+	text = '\n'+ text +'\n'
 	for char in '*#=~-_':
 		while 3* char in text: text = text.replace (3* char, 2* char)
-		text = text +'\n'
 		text = text.replace (' '+ 2* char +'\n', ' '+ 12* char +'\n\n')
 		text = text.replace ('\n'+ 2* char +' ', '\n\n'+ 12* char +' ')
 		text = text.replace ('\n'+ 2* char +'\n', '\n'+ 48* char +'\n')

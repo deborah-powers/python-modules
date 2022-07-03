@@ -79,7 +79,7 @@ class Html (Article):
 			self.text = self.text.replace ('<'+ tag +'>\n<', '<'+ tag +'><')
 			self.text = self.text.replace ('>\n</'+ tag +'>', '></'+ tag +'>')
 		self.text = self.text.strip()
-		self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, textInfos, self.text)
+		self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 		File.write (self)
 
 	""" ________________________ netoyer le texte ________________________ """
@@ -249,17 +249,17 @@ class Html (Article):
 		except Exception as e: return False
 		else:
 			self.read()
-			remove (self.path)
+			remove (self.path.replace ('\t', 'tmp'))
 			self.titleFromUrl()
 			self.toPath()
 			return True
 
 	def fromUrl (self, params=None):
 		self.toPath()
-		res = self.fromUrlVa (params)
-		if not res:
-			res = self.fromUrlVb()
-			if not res: print ('la récupération à échoué, impossible de récupérer les données')
+		res = False
+		if params: res = self.fromUrlVa (params)
+		else: res = self.fromUrlVb()
+		if not res: print ('la récupération à échoué, impossible de récupérer les données')
 
 	def titleFromUrl (self):
 		title = self.link.strip ('/')
@@ -275,6 +275,7 @@ class Html (Article):
 		self.cleanWeb()
 
 	def fromWeb (self, url=None):
+		# remove (self.path)
 		self.path = 'b/tmp.html'
 		self.fromPath()
 		if url: self.link = url
