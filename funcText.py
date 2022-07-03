@@ -160,11 +160,12 @@ def shape (text, case=""):
 		upper: je rajoute les majuscules
 	"""
 	text = clean (text)
-	for char in '=*-_':
-		while 7* char in text: text = text.replace (7* char, 6* char)
-		text = text.replace (' '+ 6* char, ' '+ 6* char +'\n\n')
-		text = text.replace (6* char +' ', '\n\n'+ 12* char +' ')
-		text = text.replace (' '+ 6* char, ' '+ 12* char +'\n\n')
+	for char in '*#=~-_':
+		while 3* char in text: text = text.replace (3* char, 2* char)
+		text = text +'\n'
+		text = text.replace (' '+ 2* char +'\n', ' '+ 12* char +'\n\n')
+		text = text.replace ('\n'+ 2* char +' ', '\n\n'+ 12* char +' ')
+		text = text.replace ('\n'+ 2* char +'\n', '\n'+ 48* char +'\n')
 	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
 	if case: text = upperCase (text, case)
 	return text

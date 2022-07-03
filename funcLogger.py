@@ -33,16 +33,17 @@ def traceLine():
 
 def log (message=None):
 	trace = traceLine()
-	if addDate: trace = traceDate() +' '+ trace
-	if not message: print (trace)
-	elif message and type (message) == dict:
+	# if addDate: trace = traceDate() +' '+ trace
+	if type (message) == int and message ==0: print (trace +'\tO')
+	elif not message: print (trace)
+	elif type (message) == dict:
 		print (trace)
 		messageKeys = message.keys()
 		for key in messageKeys: print ('\t', key, '\t', message[key])
-	elif message and type (message) == list:
-		print (trace)
-		for line in message: print ('\t', line)
-	elif type (message) == int and message ==0: print (trace +'\tO')
+	elif type (message) == list:
+		print (trace +'\t'+ len (message) +' éléments')
+		for line in message[:20]: print ('\t', line)
+	elif type (message) == str: print (trace +'\t'+ message[:100])
 	else: print (trace +'\t', message)
 
 def message (message=None, obj=None):
