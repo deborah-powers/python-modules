@@ -30,7 +30,7 @@ monthNames =( 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 
 
 class DatePerso():
 
-	def __init__ (self, day=1, hour=0, minute=0, month=1, year=2022):
+	def __init__ (self, day=1, month=1, hour=0, minute=0, year=2022):
 		self.year = year
 		self.month = month
 		self.day = day
@@ -106,6 +106,43 @@ class DatePerso():
 	def __str__ (self):
 		return self.toStrHour()
 
+	def toStr (self, model):
+		# model = $y/$m/$d $h:$M
+		if '$y' in model:
+			model = model.replace ('$y', '%04d')
+			model = model % self.year
+		if '$d' in model:
+			model = model.replace ('$d', '%02d')
+			model = model % self.day
+		if '$m' in model:
+			model = model.replace ('$m', '%02d')
+			model = model % self.month
+		if '$h' in model:
+			model = model.replace ('$h', '%02d')
+			model = model % self.hour
+		if '$M' in model:
+			model = model.replace ('$M', '%02d')
+			model = model % self.minute
+		return model
+
+	def fromStr (self, model, source):
+		if '$y' in model:
+			model = model.replace ('$y', '$yyy')
+			d= model.find ('$y')
+			self.year = int (source[d:d+4])
+		if '$m' in model:
+			d= model.find ('$m')
+			self.year = int (source[d:d+2])
+		if '$d' in model:
+			d= model.find ('$d')
+			self.year = int (source[d:d+2])
+		if '$h' in model:
+			d= model.find ('$h')
+			self.year = int (source[d:d+2])
+		if '$M' in model:
+			d= model.find ('$M')
+			self.year = int (source[d:d+2])
+
 	def toStrFileName (self):
 		return '%d-%02d-%02d-%02d-%02d' % (self.year, self.month, self.day, self.hour, self.minute)
 
@@ -125,7 +162,7 @@ class DatePerso():
 		dateStr = dateStr.replace ('T', '/')
 		return self.fromStr (dateStr)
 
-	def fromStr (self, dateStr):
+	def fromStrV1 (self, dateStr):
 		dateStr = dateStr.replace ('-', '/')
 		dateStr = dateStr.replace (' ', '/')
 		dateStr = dateStr.replace (':', '/')
