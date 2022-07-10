@@ -8,6 +8,7 @@ ce script peut être appelé dans un autre script
 python %s folderName action oldArg (newArg)
 les valeurs de action:
 	n	renommer les fichiers en remplacant un motif par un autre
+	nd	renommer les fichiers modifiant la date
 	c	remplacer un motif par un autre dans le contenu du fichier
 	m	déplacer les fichiers
 	l	lister les fichiers
@@ -26,7 +27,8 @@ else:
 		if len (argv) >3: flist.get (argv[3])
 		else: flist.get()
 		if action == 'd': flist.doublons()
-		else: print (flist)
+		elif action == 'l': print (flist)
+	elif action == 'nd': flist.renameDate()
 	elif len (argv) <4: print (help)
 	elif action == 'v': flist.compareGit (argv[3])
 	elif action == 's':

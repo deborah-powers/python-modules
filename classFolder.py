@@ -13,7 +13,7 @@ class Folder():
 		if path: path = shortcut (path)
 		self.path = path
 		self.list =[]
-		if self.path[-1] != os.sep: self.path = os.sep
+		if self.path[-1] != os.sep: self.path = self.path + os.sep
 
 	# ________________________ agir sur les fichiers ________________________
 
@@ -21,12 +21,14 @@ class Folder():
 		for file in self.list:
 			if wordOld not in file.title: continue
 			file.fromPath()
-			newFile = File()
-			newFile.title = file.title.replace (wordOld, wordNew)
-			newFile.path = file.path
-			newFile.toPath()
+			newPath = file.title.replace (wordOld, wordNew)
+			newPath = file.path.replace ('\t', newPath)
 			file.toPath()
-			os.rename (file.path, newFile.path)
+			os.rename (file.path, newPath)
+
+	def renameDate (self):
+		self.get ('202')
+		for file in self.list: file.renameDate()
 
 	def move (self, newPath):
 		# newPath est une string
@@ -41,7 +43,6 @@ class Folder():
 		""" remplacer un motif dans le texte """
 		for file in self.list:
 			if wordOld in file.text:
-				funcLogger.log (file.title)
 				file.replace (wordOld, wordNew)
 				file.write()
 
@@ -190,13 +191,14 @@ class FolderArticle (Folder):
 		self.path = shortcut (self.path)
 
 	def createIndex (self):
-		index = File ('index.tsv')
+		index = File (self.path + 'index.tsv')
 		self.get()
 		self.read()
 		self.list.sort()
 		for file in self.list:
 			file.toPath()
 			index.text = index.text + file.subject +'\t'+ file.author +'\t'+ file.title +'\t'+ file.path +'\n'
+		funcLogger.log (index.path)
 		index.write()
 
 	def createIndex_va (self):

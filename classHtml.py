@@ -358,20 +358,20 @@ class Html (Article):
 		# supprimer les liens
 		if '<a href=' in self.text:
 			textList =[]
-			textList.addList (self.text.split ('<a href='))
+			textList.extend (self.text.split ('<a href='))
 			textRange = funcList.range (textList, start=1)
 			for i in textRange:
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]
-			self.text = "".join (textList)
-			self.text = self.text.replace ('</a>',"")
+			self.text = " ".join (textList)
+			self.text = self.text.replace ('</a>'," ")
 		# supprimer les images
 		if '<img src=' in self.text:
 			textList =[]
-			textList.addList (self.text.split ('<img src='))
+			textList.extend (self.text.split ('<img src='))
 			textRange = funcList.range (textList, start=1)
 			for i in textRange:
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]
-			self.text = "".join (textList)
-
+			self.text = " ".join (textList)
+		self.text = funcText.clean (self.text)
