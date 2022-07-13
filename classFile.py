@@ -36,6 +36,7 @@ class File():
 			while '--' in newPath: newPath = newPath.replace ('--', '-')
 			newPath = newPath.replace ('_', ' ')
 			newPath = newPath.replace ('- ', ' ')
+			newPath = newPath.replace (' -', '-')
 			while '  ' in newPath: newPath = newPath.replace ('  ', ' ')
 			newPath = self.path.replace ('\t', newPath)
 			self.toPath()
