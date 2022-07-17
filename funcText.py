@@ -146,6 +146,7 @@ def clean (text):
 				if d!=2: liste[l] =' '+ liste[l]
 		else: liste[l] =' '+ liste[l]
 	text = ':'.join (liste)
+	text = text.replace (': //', '://')
 	return text
 
 def shape (text, case=""):

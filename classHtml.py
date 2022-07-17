@@ -246,7 +246,9 @@ class Html (Article):
 		self.title = 'tmp'
 		self.toPath()
 		try: urlRequest.urlretrieve (self.link, self.path)
-		except Exception as e: return False
+		except Exception as e:
+			print (e)
+			return False
 		else:
 			self.read()
 			remove (self.path.replace ('\t', 'tmp'))

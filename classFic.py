@@ -47,6 +47,7 @@ class Fanfic (Html):
 		elif 'b/aooo.html' == url: self.aoooLocal()
 		elif 'b/ffnet'	in url: self.ffNet()
 		elif 'medium'	in url: self.medium()
+		elif '</article>' in self.text: self.text = funcText.sliceWord (self.text, '<article>', '</article>')
 		self.cleanWeb()
 		self.metas = {}
 		self.text = self.text.replace (' <', '<')
