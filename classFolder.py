@@ -82,7 +82,7 @@ class Folder():
 				if tagName in self.list[f].path or tagName in self.list[f].title: trash = self.list.pop(f)
 
 	def createIndex (self):
-		index = Html ('index.html')
+		index = Html (self.path + 'index.html')
 		index.text = '<h1>index du dossier' + self.path +'</h1>\n'
 		self.get()
 		for file in self.list:
@@ -198,7 +198,6 @@ class FolderArticle (Folder):
 		for file in self.list:
 			file.toPath()
 			index.text = index.text + file.subject +'\t'+ file.author +'\t'+ file.title +'\t'+ file.path +'\n'
-		funcLogger.log (index.path)
 		index.write()
 
 	def createIndex_va (self):

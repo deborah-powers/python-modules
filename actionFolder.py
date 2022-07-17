@@ -15,8 +15,8 @@ les valeurs de action:
 	d	vérifier s'il y a des doublons
 	v	identifier les fichiers modifiés entre un dossier et sa sauvegarde
 	s	lister les sujets
-	i	créer un index
-	a	créer un index pour les articles
+	i f	créer un index
+	i a	créer un index pour les articles
 """ % __file__
 
 if len (argv) <3: print (help)
@@ -35,10 +35,7 @@ else:
 		flist = FolderArticle (argv[1])
 		flist.listSubjects()
 	elif action == 'i':
-		flist = Folder (argv[1])
-		flist.createIndex()
-	elif action == 'a':
-		flist = FolderArticle (argv[1])
+		if argv[3] == 'a': flist = FolderArticle (argv[1])
 		flist.createIndex()
 	else:
 		wordOld = argv[3]

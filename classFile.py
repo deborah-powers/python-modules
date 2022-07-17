@@ -149,6 +149,7 @@ templateHtml = """<!DOCTYPE html><html><head>
 	<meta name='subject' content='%s'/>
 	<meta name='link' content='%s'/>
 	<meta name='autlink' content='%s'/>
+%s
 </head><body>
 %s
 </body></html>"""
@@ -251,7 +252,7 @@ class Article (File):
 			self.subject = metadata [2]
 			self.link = metadata [3]
 			self.autlink = metadata [4]
-			self.text = metadata [5]
+			self.text = metadata [6]
 		elif self.type == 'txt':
 			metadata = funcText.fromModel (self.text, templateText)
 			self.subject = metadata [0]
@@ -262,7 +263,7 @@ class Article (File):
 
 	def write (self):
 		self.title = self.title.lower()
-		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
+		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
 

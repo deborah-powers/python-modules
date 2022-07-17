@@ -79,7 +79,7 @@ class Html (Article):
 			self.text = self.text.replace ('<'+ tag +'>\n<', '<'+ tag +'><')
 			self.text = self.text.replace ('>\n</'+ tag +'>', '></'+ tag +'>')
 		self.text = self.text.strip()
-		self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
+		self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, textInfos, self.text)
 		File.write (self)
 
 	""" ________________________ netoyer le texte ________________________ """
