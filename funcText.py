@@ -163,7 +163,7 @@ def shape (text, case=""):
 		while 3* char in text: text = text.replace (3* char, 2* char)
 		text = text.replace (' '+ 2* char +'\n', ' '+ 12* char +'\n\n')
 		text = text.replace ('\n'+ 2* char +' ', '\n\n'+ 12* char +' ')
-		text = text.replace ('\n'+ 2* char +'\n', '\n'+ 48* char +'\n')
+		text = text.replace ('\n'+ 2* char +'\n', '\n\n'+ 48* char +'\n\n')
 	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
 	if case: text = upperCase (text, case)
 	return text
