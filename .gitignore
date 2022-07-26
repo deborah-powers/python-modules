@@ -3,6 +3,7 @@ boulot-*
 dom*
 fileLocal.py
 quickstart.py
+mantis.py
 filePj.py
 temp.py
 *.pickle
@@ -12,12 +13,12 @@ temp.py
 *.json
 *.log
 mantis/
+mantis-2021/
 */dist/
 */build/
 */dist/
 *.egg-info/
 */__pycache__/
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
