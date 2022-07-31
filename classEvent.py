@@ -106,25 +106,6 @@ class DatePerso():
 	def __str__ (self):
 		return self.toStrHour()
 
-	def toStr (self, model):
-		# model = $y/$m/$d $h:$M
-		if '$y' in model:
-			model = model.replace ('$y', '%04d')
-			model = model % self.year
-		if '$d' in model:
-			model = model.replace ('$d', '%02d')
-			model = model % self.day
-		if '$m' in model:
-			model = model.replace ('$m', '%02d')
-			model = model % self.month
-		if '$h' in model:
-			model = model.replace ('$h', '%02d')
-			model = model % self.hour
-		if '$M' in model:
-			model = model.replace ('$M', '%02d')
-			model = model % self.minute
-		return model
-
 	def fromStr (self, model, source):
 		if '$y' in model:
 			model = model.replace ('$y', '$yyy')
@@ -132,16 +113,35 @@ class DatePerso():
 			self.year = int (source[d:d+4])
 		if '$m' in model:
 			d= model.find ('$m')
-			self.year = int (source[d:d+2])
+			self.month = int (source[d:d+2])
 		if '$d' in model:
 			d= model.find ('$d')
-			self.year = int (source[d:d+2])
+			self.day = int (source[d:d+2])
 		if '$h' in model:
 			d= model.find ('$h')
-			self.year = int (source[d:d+2])
+			self.hour = int (source[d:d+2])
 		if '$M' in model:
 			d= model.find ('$M')
-			self.year = int (source[d:d+2])
+			self.minute = int (source[d:d+2])
+
+	def toStr (self, model):
+		# model = $y/$m/$d $h:$M
+		if '$y' in model:
+			model = model.replace ('$y', '%04d')
+			model = model % self.year
+		if '$m' in model:
+			model = model.replace ('$m', '%02d')
+			model = model % self.month
+		if '$d' in model:
+			model = model.replace ('$d', '%02d')
+			model = model % self.day
+		if '$h' in model:
+			model = model.replace ('$h', '%02d')
+			model = model % self.hour
+		if '$M' in model:
+			model = model.replace ('$M', '%02d')
+			model = model % self.minute
+		return model
 
 	def toStrFileName (self):
 		return '%d-%02d-%02d-%02d-%02d' % (self.year, self.month, self.day, self.hour, self.minute)
@@ -159,8 +159,7 @@ class DatePerso():
 	def fromStrUtz (self, dateStr):
 		""" dateStr ressemble à 2018-01-29T12:00:00+01:00 """
 		dateStr = dateStr[:19]
-		dateStr = dateStr.replace ('T', '/')
-		return self.fromStr (dateStr)
+		return self.fromStr ('$y-$m-$dT$h:$M', dateStr)
 
 	def fromStrV1 (self, dateStr):
 		dateStr = dateStr.replace ('-', '/')
