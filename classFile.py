@@ -343,7 +343,7 @@ class FileList (File):
 
 	def read (self):
 		File.read (self)
-		self.text = funcText.clean (self.text)
+	#	self.text = funcText.clean (self.text)
 		self.fromText()
 
 	def toText (self):
@@ -417,6 +417,10 @@ class FileTable (FileList):
 	def __init__(self, file=None, sep='\n', sepCol='\t'):
 		FileList.__init__(self, file, sep)
 		self.sepCol = sepCol
+
+	def delCol (self, ncol):
+		rangeList = self.range()
+		for i in rangeList: trash = self.list[i].pop (ncol)
 
 	def toText (self):
 		newList =[]
