@@ -55,6 +55,8 @@ class Fanfic (Html):
 		self.path = self.path.replace ('tmp.', self.title +'.')
 		article = self.toArticle()
 		if '</a>' not in article.text and '<img' not in article.text: article = article.toText()
+		else:
+			article = article.toXhtml()
 		article.write()
 
 	def findSubject (self):
@@ -320,7 +322,6 @@ class Fanfic (Html):
 			return
 		self.clean()
 		self.cleanWeb()
-		self.text = self.text.replace ('<br>', '</p><p>')
 		self.text = findTextBetweenTag (self.text, 'body')
 		self.fromPath()
 		# le titre

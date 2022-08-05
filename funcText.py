@@ -32,6 +32,7 @@ tagHtml =(
 )
 # ________________________ ma mise en forme perso ________________________
 
+
 def upperCaseIntern (text):
 	text ='\n'+ text
 	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
@@ -127,6 +128,7 @@ def clean (text):
 		text = text.replace (letter +'?', letter +' ?')
 		text = text.replace (letter +'!', letter +' !')
 		text = text.replace (letter +';', letter +' ;')
+		text = text.replace ('...' + letter, '... '+ letter)
 	text = text.replace (':', ': ')
 	while '  ' in text: text = text.replace ('  ', ' ')
 	# restaurer les url

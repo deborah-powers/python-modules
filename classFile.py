@@ -154,6 +154,24 @@ templateHtml = """<!DOCTYPE html><html><head>
 %s
 </body></html>"""
 
+templateXhtml ="""
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='fr'>
+<head>
+	<title>%s</title>
+	<meta name='viewport' content='width=device-width,initial-scale=1'/>
+	<meta charset='utf-8'/>
+	<link rel='stylesheet' type='text/css' href='/var/www/html/site-dp/library-css/structure.css'/>
+	<link rel='stylesheet' type='text/css' href='/var/www/html/site-dp/library-css/perso.css' media='screen'/>
+	<link rel='stylesheet' type='text/css' href='../liseuse.css'/>
+	<meta name='author' content='%s'/>
+	<meta name='subject' content='%s'/>
+	<meta name='link' content='%s'/>
+	<meta name='autlink' content='%s'/>
+</head><body>
+%s
+</body></html>"""
+
 class Article (File):
 	# classe pour les fichiers txt et html
 	def __init__ (self, file =None):
@@ -235,10 +253,17 @@ class Article (File):
 		if '</' in article.text: return article
 		else: return self
 
+	def toXhtml (self):
+		article = self.toHtml()
+		article.path = article.path.replace ('.html', '.xhtml')
+		article.type = 'xhtml'
+		return article
+
 	def fromPath (self):
 		File.fromPath (self)
 		if self.path[-3:] == 'txt': self.type = 'txt'
-		elif self.path[-5:] in ('.html', 'xhtml'): self.type = 'html'
+		elif self.path[-5:] == 'xhtml': self.type = 'xhtml'
+		elif self.path[-4:] == 'html': self.type = 'html'
 
 	def read (self):
 		File.read (self)
@@ -248,22 +273,30 @@ class Article (File):
 			self.text = self.text.replace ('\t', "")
 			"""
 			metadata = funcText.fromModel (self.text, templateHtml)
-			self.author = metadata [1]
-			self.subject = metadata [2]
-			self.link = metadata [3]
-			self.autlink = metadata [4]
-			self.text = metadata [6]
+			self.author = metadata[1]
+			self.subject = metadata[2]
+			self.link = metadata[3]
+			self.autlink = metadata[4]
+			self.text = metadata[6]
+		elif self.type == 'xhtml':
+			metadata = funcText.fromModel (self.text, templateXhtml)
+			self.author = metadata[1]
+			self.subject = metadata[2]
+			self.link = metadata[3]
+			self.autlink = metadata[4]
+			self.text = metadata[5]
 		elif self.type == 'txt':
 			metadata = funcText.fromModel (self.text, templateText)
-			self.subject = metadata [0]
-			self.author = metadata [1]
-			self.link = metadata [2]
-			self.autlink = metadata [3]
-			self.text = metadata [5]
+			self.subject = metadata[0]
+			self.author = metadata[1]
+			self.link = metadata[2]
+			self.autlink = metadata[3]
+			self.text = metadata[5]
 
 	def write (self):
 		self.title = self.title.lower()
 		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
+		elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
 

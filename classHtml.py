@@ -101,8 +101,6 @@ class Html (Article):
 
 	def cleanWeb (self):
 		self.clean()
-		self.text = self.text.replace ('<br/>', '<br>')
-		self.text = self.text.replace ('<hr/>', '<hr>')
 		# supprimer les commentaires
 		self.text = self.text.replace ('< ! --', '<!--')
 		self.text = self.text.replace ('< !--', '<!--')
@@ -123,12 +121,9 @@ class Html (Article):
 
 	def cleanTags (self):
 		# supprimer les attributs inutiles
-		self.text = self.text.replace ('<br/>', '<br>')
-		self.text = self.text.replace ('<hr/>', '<hr>')
 		tagList =[]
 		textList = (self.text.split ('<'))
 		textRange = funcList.range (textList, start=1)
-		# textRange.reverse()
 		for t in textRange:
 			if len (textList[t]) ==0: continue
 			elif textList[t] [0] in '/ !': continue
@@ -146,11 +141,23 @@ class Html (Article):
 			textList[t] = tag + textList[t]
 		self.text = '<'.join (textList)
 		self.text = self.text.replace (' <', '<')
+		self.text = self.text.replace ('<hr>', '<hr/>')
 		# supprimer les balises inutiles
 		self.text = self.text.replace ('<img>', "")
+		self.text = self.text.replace ('<br/>', '<br>')
 		while '<br><br>' in self.text: self.text = self.text.replace ('<br><br>', '<br>')
 		self.text = self.text.replace ('><br>', '>')
 		self.text = self.text.replace ('<br><', '<')
+		self.text = self.text.replace ('<br>', '</p><p>')
+		# les images
+		self.text = self.text.replace (".jpg'>", ".jpg'/>")
+		self.text = self.text.replace (".png'>", ".png'/>")
+		self.text = self.text.replace (".bmp'>", ".bmp'/>")
+		self.text = self.text.replace (".svg'>", ".svg'/>")
+		self.text = self.text.replace ('.jpg">', '.jpg"/>')
+		self.text = self.text.replace ('.png">', '.png"/>')
+		self.text = self.text.replace ('.bmp">', '.bmp"/>')
+		self.text = self.text.replace ('.svg">', '.svg"/>')
 		for tag in tagList:
 			if tag not in listTagsKeep:
 				self.text = self.text.replace ('</'+ tag +'>', " ")
