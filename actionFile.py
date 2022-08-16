@@ -23,6 +23,7 @@ elif argv[2] == 'convert':
 	page = Article (argv [1])
 	page.read()
 	if argv [1][-5:] == '.html': page = page.toText()
+	elif argv [1][-6:] == '.xhtml': page = page.toText()
 	elif argv [1][-4:] == '.txt': page = page.fromText()
 	page.write()
 elif nbArg >2:

@@ -154,8 +154,7 @@ templateHtml = """<!DOCTYPE html><html><head>
 %s
 </body></html>"""
 
-templateXhtml ="""
-<?xml version='1.0' encoding='utf-8'?>
+templateXhtml ="""<?xml version='1.0' encoding='utf-8'?>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='fr'>
 <head>
 	<title>%s</title>
@@ -228,6 +227,7 @@ class Article (File):
 		article = Article()
 		article.text = self.text
 		article.path = self.path.replace ('.html', '.txt')
+		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
 		article.title = self.title
 		article.subject = self.subject
 		article.type = 'txt'
@@ -239,7 +239,7 @@ class Article (File):
 		else: return article
 
 	def toHtml (self):
-		if self.type == 'html': return self
+		if self.type in 'xhtml': return self
 		article = Article()
 		article.text = self.text
 		article.path = self.path.replace ('.txt', '.html')
