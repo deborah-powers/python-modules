@@ -8,11 +8,11 @@ import funcLogger
 sql = File ('b/requete.txt')
 sql.read()
 # nettoyer le texte
-sql.text = sql.text.replace ('\n', ' ')
-sql.text = sql.text.replace ('\t', ' ')
+sql.replace ('\n', ' ')
+sql.replace ('\t', ' ')
 sql.text = funcText.clean (sql.text)
 sql.text = funcText.upperCase (sql.text, 'reset')
-sql.text = sql.text.replace ('. ', '.')
+sql.replace ('. ', '.')
 
 wordsSql = ('from', 'where')
 wordsSqlSpace = ('inner join', 'left join', 'group by')
@@ -21,13 +21,13 @@ wordsSqlInner = (('eq', '='), ('in', 'in'))
 d= sql.text.find ('(q_')
 sql.text = sql.text[d:]
 
-sql.text = sql.text.replace (';', "")
-sql.text = sql.text.replace ('_dpo', "")
-sql.text = sql.text.replace ('(q_', '(')
-sql.text = sql.text.replace (' q_', ' ')
-for word in wordsSqlSpace: sql.text = sql.text.replace (').'+ word.replace (" ","") +' (', '\n'+ word +' ')
-for word, char in wordsSqlInner: sql.text = sql.text.replace ('.'+ word +' (', ' '+ char +' ')
-for word in wordsSql: sql.text = sql.text.replace (').'+ word +' (', '\n'+ word +' ')
+sql.replace (';')
+sql.replace ('_dpo')
+sql.replace ('(q_', '(')
+sql.replace (' q_', ' ')
+for word in wordsSqlSpace: sql.replace (').'+ word.replace (" ","") +'(', '\n'+ word +' ')
+for word, char in wordsSqlInner: sql.replace ('.'+ word +'(', ' '+ char +' ')
+for word in wordsSql: sql.replace (').'+ word +'(', '\n'+ word +' ')
 sql.text = sql.text.strip ('()')
 
 # les jointures
@@ -38,7 +38,7 @@ for s in sqlRange:
 		d= sqlList[s].find (' join ') +6
 		e= sqlList[s].find ('.')
 		f= sqlList[s].find (', ')
-		sqlList[s] = sqlList[s][:d] + sqlList[s][f+2:] +' on '+ sqlList[s][f+2:] + '.pk = '+ sqlList[s][d:e] + '.pk'
+		sqlList[s] = sqlList[s][:d] + sqlList[s][f+2:] +' on '+ sqlList[s][f+2:] + '_pk = '+ sqlList[s][d:e] + '_pk'
 sql.text = '\n'.join (sqlList)
 
 sql.text = 'select *\nfrom '+ sql.text
