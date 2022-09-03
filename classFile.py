@@ -96,6 +96,32 @@ class File():
 			textBrut.write (self.text.encode ('utf-8'))
 			textBrut.close()
 
+	def divide (self):
+		if len (self.text) < 420000: return
+		self.fromPath()
+		newFile = File (self.path)
+		counter =1
+		newFile.title = self.title +' %02d' % counter
+		self.text = funcText.shape (self.text)
+
+		sep = '\n'
+		if '============ ' in self.text: sep = '============ '
+		elif '************ ' in self.text: sep = '************ '
+		elif '<h1>' in self.text and self.text.count ('<h1>') >1: sep = '<h1>'
+		elif '<h2>' in self.text: sep = '<h2>'
+
+		lines = self.text.split (sep)
+		newFile.text = lines.pop (0)
+
+		for line in lines:
+			if len (newFile.text) >300000:
+				newFile.write()
+				counter +=1
+				newFile = File (self.path)
+				newFile.title = self.title +' %02d' % counter
+			newFile.text = newFile.text + sep + line
+		newFile.write()
+
 	def shortcut (self):
 		self.path = shortcut (self.path)
 
@@ -299,6 +325,42 @@ class Article (File):
 		elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
+
+	def copy (self):
+		article = Article (self.path)
+		article.subject = self.subject
+		article.title = self.title
+		article.type = self.type
+		article.link = self.link
+		article.author = self.author
+		article.autlink = self.autlink
+		return article
+
+	def divide (self):
+		if len (self.text) < 420000: return
+		self.fromPath()
+		article = self.copy()
+		counter =1
+		article.title = self.title +' %02d' % counter
+		self.text = funcText.shape (self.text)
+
+		sep = '\n'
+		if '============ ' in self.text: sep = '============ '
+		elif '************ ' in self.text: sep = '************ '
+		elif '<h1>' in self.text and self.text.count ('<h1>') >1: sep = '<h1>'
+		elif '<h2>' in self.text: sep = '<h2>'
+
+		lines = self.text.split (sep)
+		article.text = lines.pop (0)
+
+		for line in lines:
+			if len (article.text) >300000:
+				article.write()
+				counter +=1
+				article = self.copy()
+				article.title = self.title +' %02d' % counter
+			article.text = article.text + sep + line
+		article.write()
 
 	def __str__ (self):
 		strShow = 'Titre: %s\tSujet: %s\tAuteur: %s' % (self.title, self.subject, self.author)

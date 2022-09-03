@@ -55,8 +55,10 @@ class Fanfic (Html):
 		self.path = self.path.replace ('tmp.', self.title +'.')
 		article = self.toArticle()
 		if '</a>' not in article.text and '<img' not in article.text: article = article.toText()
-		else: article = article.toXhtml()
-		article.write()
+		elif '<img' in article.text: article = article.toXhtml()
+		else: article = article.toHtml()
+		if len (article.text) >420000: article.divide()
+		else: article.write()
 
 	def findSubject (self):
 		if self.subject:
