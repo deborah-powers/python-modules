@@ -19,7 +19,7 @@ weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
 	('\\u00c2', 'Â'), ('\\u00ca', 'Ê'), ('\\u00cb', 'Ë'), ('\\u00ce', 'Î'), ('\\u00cf', 'Ï'), ('\\u00d4', 'Ô'), ('\\u00d6', 'Ö'), ('\\u00db', 'Û'), ('\\u00e0', 'à'), ('\\u00e2', 'â'), ('\\u00e7', 'ç'), ('\\u00e8', 'è'), ('\\u00e9', 'é'), ('\\u00ea', 'ê'), ('\\u00eb', 'ë'), ('\\u00ee', 'î'), ('\\u00ef', 'ï'), ('\\u00f4', 'ô'), ('\\u00f6', 'ö'), ('\\u00fb', 'û'),
-	('\\', ''),
+	('\\', '/'),
 	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x97', "'"), ('\x9c', ' '), ('\xa0', ' '),
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'), ('&apos;', "'"),
 	('&mdash;', ' '), ('&nbsp;', ''), ('&oelig;', 'oe'), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"), ('&#8220;', '"'), ('&#8221;', '"'),
@@ -98,10 +98,10 @@ def protectHour (text):
 		d=d+4
 	return text
 
-def protectUrl (text, s=False):
-	word = '\nhttp://'
-	if s: word = '\nhttps://'
-	textList = text.split (word)
+def protectUrl (text, root='http'):
+	# root = http, https, C
+	root = root + '://'
+	textList = text.split (root)
 	textRange = range (1, len (textList))
 	for l in textRange:
 		f= findEndUrl (textList[l])
@@ -109,7 +109,7 @@ def protectUrl (text, s=False):
 		urlProtected = urlProtected.replace ('?', '$$$')
 		urlProtected = urlProtected.replace (':', '§§§')
 		textList[l] = textList[l].replace (textList[l][:f], urlProtected)
-	text = word.join (textList)
+	text = root.join (textList)
 	return text
 
 def clean (text):
