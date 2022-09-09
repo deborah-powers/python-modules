@@ -170,6 +170,15 @@ def shape (text, case=""):
 	if case: text = upperCase (text, case)
 	return text
 
+def toMarkdown (text):
+	text = shape (text, 'upper')
+	text = text.replace ('============', '=')
+	text = text.replace ('************', '==')
+	text = text.replace ('------------', "'''")
+	text = text.replace ('\n', '\n\n')
+	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
+	return text
+
 	# ________________________ fonctions de bases ________________________
 
 def fromModel (text, model):

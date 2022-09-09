@@ -13,12 +13,18 @@ les valeurs de tag
 	mef (reset upper):		mettre en forme un texte utilisant ma mise en forme spécifique.
 	help:					afficher l'aide d'un fichier python.
 	convert:				transformer un fichier html en texte et vice-versa.
+	md:						transformer un fichier txt en markdown
 """
 nbArg = len (argv)
 if nbArg <3: print (help)
 elif argv[2] == 'help':
 	from funcHelp import printHelp
 	printHelp (argv[1])
+elif argv[2] == 'md':
+	page = File (argv [1])
+	page.read()
+	page.toMarkdown()
+	page.write()
 elif argv[2] == 'convert':
 	page = Article (argv [1])
 	page.read()

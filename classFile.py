@@ -96,6 +96,10 @@ class File():
 			textBrut.write (self.text.encode ('utf-8'))
 			textBrut.close()
 
+	def toMarkdown (self):
+		self.text = funcText.toMarkdown (self.text)
+		self.path = self.path.replace ('.txt', '.md')
+
 	def divide (self):
 		if len (self.text) < 420000: return
 		self.fromPath()
