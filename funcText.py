@@ -7,11 +7,14 @@ uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE
 
 # liste des points, des chaines de caracteres suivies par une majuscule
 wordsBeginMaj = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'victo', 'tony', 'simplon', 'loïc', 'france', 'paris', 'rueil')
-wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http',
-	'\nUpdate ', '\nSelect ', '\nFrom ', '\nWhere ', '\nHaving ', '\nGroup by ', '\nOrder by ', 'Inner join ', 'Outer join ', 'Left outer join ', 'Insert into ', 'Set schema ',
-	'\nCd ', '\nPsql ','\nPg_', '\nPython ', '\nGit ',
-	'\nDef ', '\nClass ', '\nConsole.log', '\nVar ', '\nFunction ', '\tReturn ',
-	'\nLog.', '\tLog.', 'Mvn ', '\tPrivate ', '\tProtected ', '\tPublic ', '\nPrivate ', '\nProtected ', '\nPublic ')
+wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http', '\nPg_')
+codeKeywords =(
+	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where',
+	'having', 'group by', 'order by', 'insert into', 'if', 'elseif', 'end', 'loop', 'perform',
+	'cd', 'psql', 'git', 'return', 'mvn', 'python', 'else',
+	'def', 'class', 'console.log', 'var', 'function', 'private', 'protected', 'public',
+	'log.debug', 'log.info'
+)
 
 urlWord =( ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js') )
 urlEnd = '"\' \n\t/'
@@ -43,6 +46,11 @@ def upperCaseIntern (text):
 		for q in " "+ punctuation[0:5]:
 			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
 	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
+	for artefact in codeKeywords:
+		text = text.replace ('\n'+ artefact.capitalize() +' ', '\n'+ artefact +' ')
+		text = text.replace ('\t'+ artefact.capitalize() +' ', '\t'+ artefact +' ')
+		text = text.replace ('\n'+ artefact.capitalize() +'\n', '\n'+ artefact +'\n')
+		text = text.replace ('\t'+ artefact.capitalize() +'\n', '\t'+ artefact +'\n')
 	text = text.strip()
 	return text
 
