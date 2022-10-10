@@ -74,23 +74,14 @@ def upperCase (text, case=""):
 	return text
 
 def findEndUrl (text, pos=0):
+	charEndUrl = '\n\t \'",;!()[]{}='
 	lenText = len (text) +1
-	d= text.find ('\n', pos)
-	if d<0: d= lenText
-	f= text.find ('\t', pos)
-	if f<0: f= lenText
-	d= min (d,f)
-	f= text.find (' ', pos)
-	if f<0: f= lenText
-	d= min (d,f)
-	f= text.find ('"', pos)
-	if f<0: f= lenText
-	d= min (d,f)
-	f= text.find ("'", pos)
-	if f<0: f= lenText
-	d= min (d,f)
-	if d== lenText: d=-1
-	return d
+	posEnd = lenText
+	posTmp = lenText
+	for char in charEndUrl:
+		posTmp = text.find (char, pos)
+		if posTmp >0 and posTmp < posEnd: posEnd = posTmp
+	return posEnd
 
 def protectHour (text):
 	if ':' not in text: return text
