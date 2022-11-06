@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 import os
-import funcList
+import listFct
 import funcText
 from fileLocal import *
 from classFile import File, Article
@@ -72,7 +72,7 @@ class Folder():
 	def filter (self, tagName, sens=True):
 		""" quand on a besoin de ré-exclure certains fichiers après le get.
 		quand je veux exclure sur plusieurs mots-clefs """
-		rangeFile = funcList.range (self.list)
+		rangeFile = listFct.range (self.list)
 		rangeFile.reverse()
 		if sens:
 			for f in rangeFile:
@@ -92,11 +92,11 @@ class Folder():
 		index.write()
 
 	def read (self):
-		rangeList = funcList.range (self.list)
+		rangeList = listFct.range (self.list)
 		for i in rangeList: self[i].read()
 
 	def write (self):
-		rangeList = funcList.range (self.list)
+		rangeList = listFct.range (self.list)
 		for i in rangeList: self[i].write()
 
 	def iterate (self, function):
