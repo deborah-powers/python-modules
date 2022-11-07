@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from datetime import datetime
-import funcLogger
+import loggerFct
 
 help ="""
 classe de gestion facile des dates

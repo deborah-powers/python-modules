@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 import os
 import listFct
-import funcText
-from fileLocal import *
-from classFile import File, Article
-from classHtml import Html
-import funcLogger
+import textFct
+from fileLcl import *
+from fileCls import File, Article
+from htmlCls import Html
+import loggerFct
 
 class Folder():
 	def __init__ (self, path='b/'):

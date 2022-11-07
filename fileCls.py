@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 import os
 import codecs
-import funcList
-import funcText
-from fileLocal import *
-import funcLogger
+import listFct
+import textFct
+from fileLcl import *
 
 class File():
 	def __init__ (self, file =None):
@@ -97,7 +96,7 @@ class File():
 			textBrut.close()
 
 	def toMarkdown (self):
-		self.text = funcText.toMarkdown (self.text)
+		self.text = textFct.toMarkdown (self.text)
 		self.path = self.path.replace ('.txt', '.md')
 
 	def divide (self):
@@ -106,7 +105,7 @@ class File():
 		newFile = File (self.path)
 		counter =1
 		newFile.title = self.title +' %02d' % counter
-		self.text = funcText.shape (self.text)
+		self.text = textFct.shape (self.text)
 
 		sep = '\n'
 		if '============ ' in self.text: sep = '============ '
@@ -160,7 +159,7 @@ fkz,fzkl,fam; v adbazjkbdafaef"""
 		self.title = 'coco'
 		self.toPath()
 		print ('modifier le titre\t', self.path)
-		self.text = funcText.shape (self.text, 'reset')
+		self.text = textFct.shape (self.text, 'reset')
 		print (self.text[:200])
 		self.write()
 
@@ -230,13 +229,13 @@ class Article (File):
 			sep = ""
 			if '<h1>' in self.text: sep = '<h1>'
 			elif self.type == 'txt':
-				self.text = funcText.clean (self.text)
+				self.text = textFct.clean (self.text)
 				if '****** ' in self.text: sep = '****** '
 				elif '====== ' in self.text: sep = '====== '
 			if sep:
 				ficList = self.text.split (sep)
 				if not ficList[0]: trash = ficList.pop (0)
-				ficRange = funcList.range (ficList)
+				ficRange = listFct.range (ficList)
 				for f in ficRange:
 					ficNew.text = ficNew.text + sep + ficList[f]
 					if len (ficNew.text) >= 300000:
@@ -264,7 +263,7 @@ class Article (File):
 		article.link = self.link
 		article.author = self.author
 		article.autlink = self.autlink
-		article.text = funcText.fromHtml (article.text)
+		article.text = textFct.fromHtml (article.text)
 		if '</' in article.text: return self
 		else: return article
 
@@ -279,7 +278,7 @@ class Article (File):
 		article.link = self.link
 		article.author = self.author
 		article.autlink = self.autlink
-		article.text = funcText.toHtml (article.text)
+		article.text = textFct.toHtml (article.text)
 		if '</' in article.text: return article
 		else: return self
 
@@ -302,21 +301,21 @@ class Article (File):
 			self.text = self.text.replace ('\n', "")
 			self.text = self.text.replace ('\t', "")
 			"""
-			metadata = funcText.fromModel (self.text, templateHtml)
+			metadata = textFct.fromModel (self.text, templateHtml)
 			self.author = metadata[1]
 			self.subject = metadata[2]
 			self.link = metadata[3]
 			self.autlink = metadata[4]
 			self.text = metadata[6]
 		elif self.type == 'xhtml':
-			metadata = funcText.fromModel (self.text, templateXhtml)
+			metadata = textFct.fromModel (self.text, templateXhtml)
 			self.author = metadata[1]
 			self.subject = metadata[2]
 			self.link = metadata[3]
 			self.autlink = metadata[4]
 			self.text = metadata[5]
 		elif self.type == 'txt':
-			metadata = funcText.fromModel (self.text, templateText)
+			metadata = textFct.fromModel (self.text, templateText)
 			self.subject = metadata[0]
 			self.author = metadata[1]
 			self.link = metadata[2]
@@ -346,7 +345,7 @@ class Article (File):
 		article = self.copy()
 		counter =1
 		article.title = self.title +' %02d' % counter
-		self.text = funcText.shape (self.text)
+		self.text = textFct.shape (self.text)
 
 		sep = '\n'
 		if '============ ' in self.text: sep = '============ '
@@ -392,7 +391,7 @@ fkz,fzkl,fam; v adbazjkbdafaef"""
 		print ('lecture\t', self.text[:200])
 		print ('conversion en html')
 		self.path = self.path.replace ('.txt', '.html')
-		self.text = funcText.toHtml (self.text)
+		self.text = textFct.toHtml (self.text)
 		self.type = 'html'
 		print ('text html\t', self.text)
 		self.write()
@@ -409,11 +408,11 @@ class FileList (File):
 
 	def read (self):
 		File.read (self)
-	#	self.text = funcText.clean (self.text)
+	#	self.text = textFct.clean (self.text)
 		self.fromText()
 
 	def toText (self):
-		# self.text = funcList.toText (self.list, self.sep)
+		# self.text = listFct.toText (self.list, self.sep)
 		self.text = self.sep.join (self.list)
 
 	def fromText (self, text=None):
@@ -421,7 +420,7 @@ class FileList (File):
 		self.list = self.text.split (self.sep)
 
 	def range (self, start=0, end=0, step=1):
-		return funcList.range (self.list, start, end, step)
+		return listFct.range (self.list, start, end, step)
 
 	def iterate (self, function):
 		return iterate (self.list, function)

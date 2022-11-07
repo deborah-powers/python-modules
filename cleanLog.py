@@ -1,18 +1,18 @@
 #!/usr/bin/python3.8
 # -*- coding: utf-8 -*-
-import funcList
-import funcText
-from classFile import File
+import listFct
+import textFct
+from fileCls import File
 
 def cleanLog (self):
 	self.read()
-	self.text = funcText.clean (self.text)
+	self.text = textFct.clean (self.text)
 	self.replace ('. ','.')
 	self.text ='\n'+ self.text
 	self.replace ('\nat ', '\n\tat ')
 	self.reverseLines()
-	listLine = funcList.fromText (self.text, '\n')
-	rangeLine = funcList.range (listLine, end=-1)
+	listLine = listFct.fromText (self.text, '\n')
+	rangeLine = listFct.range (listLine, end=-1)
 	rangeLine.reverse()
 	for l in rangeLine:
 		if not listLine[l]: trash = listLine.pop (l)
@@ -64,7 +64,7 @@ def reverseLines (self):
 	dateMax = self.text[f:f+27]
 	if dateMin > dateMax:
 		listLine =[]
-		listLine = funcList.fromText (self.text, '\n')
+		listLine = listFct.fromText (self.text, '\n')
 		listLine.reverse()
 		self.text = '\n'.join (listLine)
 

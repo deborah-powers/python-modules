@@ -4,10 +4,9 @@ import codecs
 from os import remove
 import urllib as ul
 from urllib import request as urlRequest
-from classFile import File, Article, templateHtml
-import funcList
-import funcText
-import funcLogger
+from fileCls import File, Article, templateHtml
+import listFct
+import textFct
 
 listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button']
 listTagsSpecial = [ 'a', 'img', 'form', 'input']
@@ -55,7 +54,7 @@ class Html (Article):
 
 	def read (self):
 		File.read (self)
-		self.text = funcText.clean (self.text)
+		self.text = textFct.clean (self.text)
 		tmpTitle = findTextBetweenTag (self.text, 'title')
 		if tmpTitle and '>' not in tmpTitle and '<' not in tmpTitle: self.title = tmpTitle
 		self.styles = []
@@ -87,7 +86,7 @@ class Html (Article):
 	def clean (self):
 		self.text = self.text.replace ('\t', ' ')
 		self.text = self.text.replace ('\n', ' ')
-		self.text = funcText.clean (self.text)
+		self.text = textFct.clean (self.text)
 		while '  ' in self.text: self.text = self.text.replace ('  ', ' ')
 		self.text = self.text.replace ('> ', '>')
 		self.text = self.text.replace (' <', '<')
@@ -106,7 +105,7 @@ class Html (Article):
 		self.text = self.text.replace ('< !--', '<!--')
 		textList =[]
 		textList.extend (self.text.split ('<!--'))
-		textRange = funcList.range (textList, start=1)
+		textRange = listFct.range (textList, start=1)
 		for t in textRange:
 			f= textList[t].find ('-->') +3
 			textList[t] = textList[t] [f:]
@@ -123,7 +122,7 @@ class Html (Article):
 		# supprimer les attributs inutiles
 		tagList =[]
 		textList = (self.text.split ('<'))
-		textRange = funcList.range (textList, start=1)
+		textRange = listFct.range (textList, start=1)
 		for t in textRange:
 			if len (textList[t]) ==0: continue
 			elif textList[t] [0] in '/ !': continue
@@ -165,7 +164,7 @@ class Html (Article):
 		while "  " in self.text: self.text = self.text.replace ("  "," ")
 		if '<a>' in self.text:
 			textList = self.text.split ('<a>')
-			textRange = funcList.range (textList, start=1)
+			textRange = listFct.range (textList, start=1)
 			for a in textRange:
 				d= textList[a].find ('</a>')
 				textList[a] = textList[a] [:d].strip() +' '+ textList[a] [d+4:].strip()
@@ -347,9 +346,9 @@ class Html (Article):
 		for line in listText [1:]:
 			if '.css' not in line:
 				da= line.find ('rel=') +5
-				fa= funcText.find (line, "'", da)
+				fa= textFct.find (line, "'", da)
 				db= line.find ('href=') +6
-				fb= funcText.find (line, "'", db)
+				fb= textFct.find (line, "'", db)
 				self.metas [line [da:fa]] = line [db:fb]
 
 
@@ -368,7 +367,7 @@ class Html (Article):
 		if '<a href=' in self.text:
 			textList =[]
 			textList.extend (self.text.split ('<a href='))
-			textRange = funcList.range (textList, start=1)
+			textRange = listFct.range (textList, start=1)
 			for i in textRange:
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]
@@ -378,9 +377,9 @@ class Html (Article):
 		if '<img src=' in self.text:
 			textList =[]
 			textList.extend (self.text.split ('<img src='))
-			textRange = funcList.range (textList, start=1)
+			textRange = listFct.range (textList, start=1)
 			for i in textRange:
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]
 			self.text = " ".join (textList)
-		self.text = funcText.clean (self.text)
+		self.text = textFct.clean (self.text)

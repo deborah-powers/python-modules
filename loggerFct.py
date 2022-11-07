@@ -31,9 +31,26 @@ def traceLine():
 	strFile = strFile.replace ('mantis-0.1-py3.8.egg\\mantis', 'mantis')
 	return '%s\t%s %s' % (strFile, strNum, stackList[i].function)
 
+def logDate (message=None):
+	trace = traceLine()
+	trace = traceDate() +' '+ trace
+	if type (message) == int and message ==0: print (trace +'\tO')
+	elif type (message) == bool:
+		if message: print (trace +'\toui')
+		else: print (trace +'\tnon')
+	elif not message: print (trace)
+	elif type (message) == dict:
+		print (trace)
+		messageKeys = message.keys()
+		for key in messageKeys: print ('\t', key, '\t', message[key])
+	elif type (message) == list:
+		print (trace +'\t'+ len (message) +' éléments')
+		for line in message[:20]: print ('\t', line)
+	elif type (message) == str: print (trace +'\t'+ message[:100])
+	else: print (trace +'\t', message)
+
 def log (message=None):
 	trace = traceLine()
-	# if addDate: trace = traceDate() +' '+ trace
 	if type (message) == int and message ==0: print (trace +'\tO')
 	elif type (message) == bool:
 		if message: print (trace +'\toui')
