@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from os import remove
-import funcList
-import funcText
-from classFile import Article
-from classHtml import Html, findTextBetweenTag
-import funcLogger
+import listFct
+import textFct
+from fileCls import Article
+from htmlCls import Html, findTextBetweenTag
+import loggerFct
 
 help = """
 récupérer les pages de certains sites que j'aime beaucoup
