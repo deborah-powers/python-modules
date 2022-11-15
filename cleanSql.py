@@ -1,17 +1,17 @@
 #!/usr/bin/python3.8
 # -*- coding: utf-8 -*-
-import funcList
-import funcText
-from classFile import File
-import funcLogger
+import listFct
+import textFct
+from fileCls import File
+import loggerFct
 
 sql = File ('b/requete.txt')
 sql.read()
 # nettoyer le texte
 sql.replace ('\n', ' ')
 sql.replace ('\t', ' ')
-sql.text = funcText.clean (sql.text)
-sql.text = funcText.upperCase (sql.text, 'reset')
+sql.text = textFct.clean (sql.text)
+sql.text = textFct.upperCase (sql.text, 'reset')
 sql.replace ('. ', '.')
 
 wordsSql = ('from', 'where')
@@ -32,7 +32,7 @@ sql.text = sql.text.strip ('()')
 
 # les jointures
 sqlList = sql.text.split ('\n')
-sqlRange = funcList.range (sqlList)
+sqlRange = listFct.range (sqlList)
 for s in sqlRange:
 	if ' join ' in sqlList[s]:
 		d= sqlList[s].find (' join ') +6

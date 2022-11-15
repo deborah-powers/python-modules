@@ -1,8 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-import funcText
-from classFile import File, Article
+import textFct
+from fileCls import File, Article
 
 help ="""traiter des fichiers
 utilisation
@@ -35,12 +35,12 @@ elif argv[2] == 'convert':
 elif nbArg >2:
 	filePerso = File (argv[1])
 	filePerso.read()
-	if 'clean' in argv: filePerso.text = funcText.clean (filePerso.text)
-	elif 'mef' in argv: filePerso.text = funcText.shape (filePerso.text)
+	if 'clean' in argv: filePerso.text = textFct.clean (filePerso.text)
+	elif 'mef' in argv: filePerso.text = textFct.shape (filePerso.text)
 	# rajouter un argument afin d'empêcher l'écriture des majuscules
-	if 'reset' in argv and 'upper' in argv: filePerso.text = funcText.upperCase (filePerso.text, 'reset upper')
-	elif 'reset' in argv: filePerso.text = funcText.upperCase (filePerso.text, 'reset')
-	elif 'upper' in argv: filePerso.text = funcText.upperCase (filePerso.text, 'upper')
+	if 'reset' in argv and 'upper' in argv: filePerso.text = textFct.upperCase (filePerso.text, 'reset upper')
+	elif 'reset' in argv: filePerso.text = textFct.upperCase (filePerso.text, 'reset')
+	elif 'upper' in argv: filePerso.text = textFct.upperCase (filePerso.text, 'upper')
 	filePerso.write()
 # le nom du fichier n'a pas ete donne
 else: print (help)

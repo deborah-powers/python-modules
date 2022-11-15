@@ -1,7 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
-from classFolder import Folder, FolderArticle
+from folderCls import Folder, FolderArticle
+import loggerFct
 
 help ="""
 ce script peut être appelé dans un autre script
@@ -47,6 +48,8 @@ else:
 		elif action =='c':
 			if (len (argv) >5): flist.get (argv[5])
 			else: flist.get()
+			flist.filter ('.py')
+			flist.read()
 			flist.replace (wordOld, wordNew)
 		elif action =='m':
 			if (wordNew): flist.get (wordNew)
