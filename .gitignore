@@ -3,6 +3,7 @@ fileLocal.py
 fileLcl.py
 quickstart.py
 mantis.py
+cleanBnf.py
 filePj.py
 temp.py
 *.pickle
