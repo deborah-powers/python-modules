@@ -5,6 +5,7 @@ import codecs
 import listFct
 import textFct
 from fileLcl import *
+import loggerFct
 
 class File():
 	def __init__ (self, file =None):

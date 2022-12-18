@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3.11
 # -*- coding: utf-8 -*-
 from sys import argv
 from os import remove
@@ -304,6 +304,12 @@ class Fanfic (Html):
 		self.metas ={}
 		self.cleanWeb()
 		self.title = self.title.replace (' [Archive of Our Own]', "")
+		self.title = self.title.replace ('"', "")
+		self.title = self.title.replace ("'", "")
+		while ' [' in self.title:
+			d= self.title.find (' [') +1
+			f= self.title.find (']', d) +1
+			self.title = self.title[:d] + self.title[f:]
 		data = self.title.split (' - ')
 		self.title = data[0]
 		if len (data) >3 and 'hapter' in data[1]: self.author = data.pop (1)
