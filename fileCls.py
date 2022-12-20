@@ -54,7 +54,8 @@ class File():
 		posS = self.path.rfind (os.sep) +1
 		posE = self.path.rfind ('.')
 		self.title = self.path [posS:posE]
-		self.path = self.path.replace (self.title, '\t')
+		self.path = self.path [:posS] +'\t'+ self.path [posE:]
+	#	self.path = self.path.replace (self.title, '\t')
 
 	def toPath (self):
 		if '\t' in self.path:
