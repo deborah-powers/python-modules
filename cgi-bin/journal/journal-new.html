@@ -1,0 +1,49 @@
+<!doctype html><html><head>
+	<title>un nouveau jour</title>
+	<meta name='viewport' content='width=device-width,initial-scale=1'/>
+	<meta charset='utf-8'/>
+	<script type='text/javascript' src='/home/lenovo/Bureau/site-dp/library-js/text.js'></script>
+	<script type='text/javascript' src='/home/lenovo/Bureau/site-dp/library-js/file.js'></script>
+	<script type='text/javascript' src='/home/lenovo/Bureau/site-dp/library-js/debbyPlay.js'></script>
+	<link rel='stylesheet' type='text/css' href='/home/lenovo/Bureau/site-dp/library-css/structure.css'/>
+	<link rel='stylesheet' type='text/css' href='/home/lenovo/Bureau/site-dp/library-css/debbyPlay.css'/>
+	<link rel='stylesheet' type='text/css' href='journal.css'/>
+<style type='text/css'>
+	section {
+		display: grid;
+		grid-template-columns: 6em 1fr 1fr;
+	}
+	h1, textarea { grid-column: 1/4; }
+	textarea {
+		height: 8cm;
+		background: none;
+		border: solid 4px var(--input-bg);
+	}
+	input#title { grid-column: 2/4; }
+	div {
+		text-align: center;
+		font-size: 1.4em;
+	}
+	div.ok { display: none; }
+	div.error { border: double 8px var(--button-bg); }
+	div p::after { content: '.'; }
+</style></head><body>
+	<a class='button' href='journal-show.html'>affichez la liste</a>
+	<h1>que s'est-il passé aujourd'hui ?</h1>
+	<div id='response' class='ok'></div>
+	<section>
+		<span>lieu</span>
+		<input type='text' id='place' value='(( placeCurrent ))'><selection callback='selectPlace'>placeList</selection>
+		<span>personnes</span>
+		<input type='text' id='peoples' value='(( peoplesCurrent ))'>
+		<selection callback='selectPeoples'>peopleList</selection>
+		<span>tags</span>
+		<input type='text' id='tags' value='(( tagsCurrent ))'>
+		<selection callback='selectTags'>tagList</selection>
+		<span>titre</span><input type='text' id='title'>
+		<span>date</span><input type='date' id='date'><button onclick='register()'>envoyez</button>
+	</section>
+	<textarea id='message'></textarea>
+</body>
+<script type='text/javascript' src='journal-new.js'></script>
+</html>

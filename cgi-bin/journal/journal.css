@@ -1,0 +1,25 @@
+/* les couleurs */
+html { background-color: deeppink; }
+body {
+	max-width: 36cm;
+	min-height: 20cm;
+	background-color: white;
+	--text-color: #444;
+	--button-color: ivory;
+	--button-color-hover: var(--button-color);
+	--button-bg: deeppink;
+	--button-bg-hover: seagreen;
+	--button-border: none;
+	--input-bg: #FCC;
+}
+/* les formes */
+body { padding: 1em; }
+selection {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+}
+selection p { grid-column: 1/4; }
+selection[for='placeList'] p:before { content: 'lieu: '; }
+selection[for='peopleList'] p:before { content: 'qui: '; }
+selection[for='tagList'] p:before { content: 'tag: '; }
+span::after { content: ': ' }

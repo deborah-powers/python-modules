@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+	<title>test de cgi avec python</title>
+	<meta name='Content-type' content='text/html'/>
+	<meta name='viewport' content='width=device-width,initial-scale=1'/>
+	<meta charset='utf-8'/>
+	<link rel='stylesheet' type='text/css' href='/home/lenovo/Bureau/site-dp/library-css/structure.css'/>
+	<link rel='stylesheet' type='text/css' href='/home/lenovo/Bureau/site-dp/library-css/perso.css' media='screen'/>
+	<base target='_blank'>
+	<style type='text/css'>
+		p:after { content: '.' }
+	</style>
+</head>
+<body>
+	<h1>test de cgi avec python</h1>
+	<section>
+		<h2>méthode de javascript</h2>
+		<p>je n'arrive qu'à utiliser get</p>
+		<input type='text' name='message'>
+		<button onclick='sendTwo()'>envoyer</button>
+		<p>la réponse n'a pas été récupérée</p>
+	</section>
+	<form method='get' action='http://localhost:1407/cgi-bin/pycgi-be-methode-b.py'>
+		<h2>méthode du formulaire</h2>
+		<p>le fonctionnement est identique pour get et post</p>
+		<input type='text' name='message'>
+		<input type='submit' value='envoyer'>
+	</form>
+</body>
+<script type='text/javascript'>
+	const urlBe = 'http://localhost:1407/cgi-bin/pycgi-be-methode-a.py';
+	var urlVarying ="";
+	var message = document.getElementsByTagName ('input')[0];
+	var resultat = document.getElementsByTagName ('p')[1];
+	var resultatJson ={};
+
+	function sendTwo(){
+		urlVarying = urlBe + '?message='+ message.value;
+		var xhttp = new XMLHttpRequest();
+		xhttp.open ('GET', urlVarying, false);
+		xhttp.send();
+		if (xhttp.status ==200){
+			console.log (xhttp.responseText);
+			resultatJson = JSON.parse (xhttp.responseText);
+			resultat.innerHTML = xhttp.responseText;
+		}
+	}
+</script>
+</html>
