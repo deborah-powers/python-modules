@@ -30,7 +30,7 @@ monthNames =( 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 
 
 class DatePerso():
 
-	def __init__ (self, day=1, month=1, hour=0, minute=0, year=2022):
+	def __init__ (self, day=1, month=1, hour=0, minute=0, year=2023):
 		self.year = year
 		self.month = month
 		self.day = day
