@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 
 """
 https://docs.python.org/3/library/html.parser.html
+https://gist.github.com/FiloSottile/2352407
 """
 
 htmlText = """
