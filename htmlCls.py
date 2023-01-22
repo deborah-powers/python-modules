@@ -318,6 +318,13 @@ class Html (Article):
 				f= self.text.find (' ',d)
 		return self.getTag (d,f)
 
+	def getByTag (self, tagName):
+		posD =[ self.text.find ('<'+ tagName +'>'), self.text.find ('<'+ tagName +' ')]
+		d= posD[0]
+		if posD[1] >=0 and posD[1] < posD[0]: d= posD[1]
+		if d<0: return ""
+		else: return self.getTag (d)
+
 	def getTag (self, d,f=-1):
 		""" exemples de résultats
 		hr id='hr-id' class='hr-class'
