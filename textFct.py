@@ -112,7 +112,7 @@ def protectUrl (text, root='http'):
 
 def clean (text):
 	for i, j in weirdChars: text = text.replace (i, j)
-	text = text.strip()	
+	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
 	text = text.replace ('\n ', '\n')
 	text = text.replace (' \n', '\n')

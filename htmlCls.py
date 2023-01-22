@@ -294,6 +294,55 @@ class Html (Article):
 		self.metas ['link'] = self.link
 		self.write()
 
+	def getById (self, id):
+		d= self.text.find ("id='" +id +"'")
+		if d<0: d= self.text.find ('id="' +id +'"')
+		if d<0: return ""
+		d= self.text[:d].rfind ('<')
+		f= self.text.find (' ',d)
+		return self.getTag (d,f)
+
+	def getByClass (self, className, tagName=""):
+		d= self.text.find ("class='" + className +"'")
+		if d<0: d= self.text.find ('class="' + className +'"')
+		if d<0: return ""
+		d= self.text[:d].rfind ('<')
+		f= self.text.find (' ',d)
+		if tagName and self.text[d+1:f] != tagName:
+			while self.text[d+1:f] != tagName:
+				f= self.text.find ('>',d)
+				d= self.text.find ("class='" + className +"'", f)
+				if d<0: d= self.text.find ('class="' + className +'"', f)
+				if d<0: return ""
+				d= self.text[:d].rfind ('<')
+				f= self.text.find (' ',d)
+		return self.getTag (d,f)
+
+	def getTag (self, d,f=-1):
+		""" exemples de résultats
+		hr id='hr-id' class='hr-class'
+		div id='div-id' class='div-class'><p>bonjour</p><hr id='hr-a'><hr id='hr-id' class='hr-class'/><p>me voila</p>
+		"""
+		d=d+1
+		if f<0: f= min ( self.text.find ('>',d), self.text.find ('/',d), self.text.find (' ',d) )
+		tagName = self.text[d:f]
+		content =""
+		if tagName in ('hr', 'br', 'img', 'input'):
+			f= self.text.find ('>',d)
+			content = self.text[d:f]
+			if content[-1] =='/': content = content[:-1]
+		else:
+			# trouver les positions des brackets complémentaires
+			f= self.text.index ('</'+ tagName +'>', d)
+			totD = self.text[d:f].count ('<'+ tagName)
+			totF = self.text[d:f].count ('</'+ tagName +'>')
+			while totD > totF:
+				f= self.text.index ('</'+ tagName +'>', f+1)
+				totD = self.text[d:f].count ('<'+ tagName)
+				totF = self.text[d:f].count ('</'+ tagName +'>')
+			content = self.text[d:f]
+		return content
+
 	""" ________________________ récupérer les métadonnées ________________________ """
 
 	def getCss (self):

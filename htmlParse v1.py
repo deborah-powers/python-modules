@@ -41,7 +41,6 @@ class HtmlTag():
 		self.id =""
 		self.clazz =""
 		self.text =""
-		self.content =[]
 		self.src =""
 		self.attributes ={}
 
@@ -65,23 +64,10 @@ class HtmlTag():
 		if self.clazz: text = text.replace ('<'+ self.name, '<'+ self.name +" class='"+ self.clazz +"'")
 		return text
 
-	def parseContent (self):
-		d= self.text.find ('<')
-		contentTag = HtmlTag ('text')
-		if d<0:
-			contentTag.text = self.text
-			self.content.append (contentTag)
-		elif d>0:
-			contentTag.text = self.text[:d]
-			self.content.append (contentTag)
-		contentTag
-
 	def parse (self, text):
-		bordures =[]
 		self.empty()
 		# extraire le nom du tag
 		d= text.find ('<') +1
-		bordures.append (text[:d-1].strip())
 		text = text[d:]
 		f= text.find ('>')
 		if text[f-1] =='/': f=f-1
@@ -115,10 +101,6 @@ class HtmlTag():
 				totD = text[d+1:f].count ('<'+ self.name)
 				totF = text[d+1:f].count ('</'+ self.name +'>')
 			self.text = text[d:f]
-		f= text.find ('>',f) +1
-		bordures.append (text[f:].strip())
-		print (bordures)
-		return bordures
 
 mytag = HtmlTag ('hr', 'bonjour je suis Deborah', 'http://www.dodo.fr', 'dodo', 'coucou', { 'koko': 'dodo', 'dada': 'doudou' })
 """
@@ -129,6 +111,42 @@ mytag = HtmlTag ('input', 'bonjour je suis Deborah', 'http://www.dodo.fr', 'dodo
 mytag.parse ("<hr class='coco' color='green'/>")
 mytag.parse ("<hr/>")
 mytag.parse ("<p class='coco' color='green'>je suis Deborah</p>")
-mytag.parse ("<p class='coco' color='green'>je suis Deborah. <p>j'aime le pain</p> et le nutella</p>")
 """
-mytag.parse ("ohé <hr class='coco' color='green'/> cloclo")
+mytag.parse ("<p class='coco' color='green'>je suis Deborah. <p>j'aime le pain</p> et le nutella</p>")
+
+class MyHTMLParser (HTMLParser):
+	def __init__(self, htmlText):
+		HTMLParser.__init__(self)
+		self.text = htmlText
+		self.clean()
+		self.feed (self.text)
+
+	def clean (self):
+		self.text = self.text.replace ('\n',"")
+		self.text = self.text.replace ('\t',"")
+		self.text = self.text.strip()
+		while '  ' in self.text: self.text = self.text.replace ('  ', ' ')
+		self.text = self.text.replace ('> ', '>')
+		self.text = self.text.replace (' <', '<')
+		for i, j in tf.weirdChars: self.text = self.text.replace (i, j)
+		# la ponctuation
+		punctuation = '?!;.:,'
+		for p in punctuation: self.text = self.text.replace (' '+p, p)
+		while '....' in self.text: self.text = self.text.replace ('....', '...')
+		for letter in tf.letters:
+			self.text = self.text.replace (letter +'?', letter +' ?')
+			self.text = self.text.replace (letter +'!', letter +' !')
+			self.text = self.text.replace (letter +';', letter +' ;')
+			self.text = self.text.replace ('...' + letter, '... '+ letter)
+		while '  ' in self.text: self.text = self.text.replace ('  ', ' ')
+
+	def handle_starttag (self, tag, attrs):
+		print("Encountered a start tag:", tag, attrs)
+
+	def handle_endtag (self, tag):
+		print("Encountered an end tag :", tag)
+
+	def handle_data (self, data):
+		print("Encountered some data  :", data)
+
+# parser = MyHTMLParser (htmlText)
