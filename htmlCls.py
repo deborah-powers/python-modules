@@ -26,6 +26,11 @@ def findTextBetweenTag (originalText, tag):
 	phrase = phrase.strip()
 	return phrase
 
+def getAttributeValue (text, attribute):
+	d= text.find (attribute +'=') +2+ len (attribute)
+	f= text.find (text[d-1], d)
+	return text[d:f]
+
 class Html (Article):
 	def __init__ (self, file=None):
 		if file and file [:4] == 'http':
@@ -319,16 +324,24 @@ class Html (Article):
 		return self.getTag (d,f)
 
 	def getByTag (self, tagName):
-		posD =[ self.text.find ('<'+ tagName +'>'), self.text.find ('<'+ tagName +' ')]
-		d= posD[0]
-		if posD[1] >=0 and posD[1] < posD[0]: d= posD[1]
+		d= self.text.find ('<'+ tagName +' ')
+		if tagName not in ('hr', 'br', 'img', 'input'):
+			f= self.text.find ('<'+ tagName +'>')
+			if d<0 and f<0: return ""
+			elif d<0 or (d>f and f>=0): d=f
 		if d<0: return ""
 		else: return self.getTag (d)
 
 	def getTag (self, d,f=-1):
 		""" exemples de résultats
-		hr id='hr-id' class='hr-class'
-		div id='div-id' class='div-class'><p>bonjour</p><hr id='hr-a'><hr id='hr-id' class='hr-class'/><p>me voila</p>
+			a	http://www.ref.fr	message du lien
+			img	http://www.src.png
+			p	le <i>contenu</i> du paragraphe
+			input	text	valeur du message
+			hr
+		anciens exemples
+			hr id='hr-id' class='hr-class'
+			div id='div-id' class='div-class'><p>bonjour</p><hr id='hr-a'><hr id='hr-id' class='hr-class'/><p>me voila</p>
 		"""
 		d=d+1
 		if f<0: f= min ( self.text.find ('>',d), self.text.find ('/',d), self.text.find (' ',d) )
@@ -338,6 +351,10 @@ class Html (Article):
 			f= self.text.find ('>',d)
 			content = self.text[d:f]
 			if content[-1] =='/': content = content[:-1]
+			# récupérer les données importantes
+			if tagName in ' br hr': return tagName
+			elif tagName == 'img': content = 'img\t' + getAttributeValue (content, 'src')
+			elif tagName == 'input': content = 'input\t%s\t%s' %( getAttributeValue (content, 'type'), getAttributeValue (content, 'value'))
 		else:
 			# trouver les positions des brackets complémentaires
 			f= self.text.index ('</'+ tagName +'>', d)
@@ -348,6 +365,11 @@ class Html (Article):
 				totD = self.text[d:f].count ('<'+ tagName)
 				totF = self.text[d:f].count ('</'+ tagName +'>')
 			content = self.text[d:f]
+			# récupérer les données importantes
+			tagName = tagName +'\t'
+			if tagName == 'a\t': tagName = tagName + getAttributeValue (content, 'href') +'\t'
+			d=1+ content.find ('>')
+			content = tagName + content[d:]
 		return content
 
 	""" ________________________ récupérer les métadonnées ________________________ """
