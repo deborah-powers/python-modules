@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+from sys import argv
 import codecs
 from os import remove
 import urllib as ul
@@ -7,6 +8,13 @@ from urllib import request as urlRequest
 from fileCls import File, Article, templateHtml
 import listFct
 import textFct
+
+
+help ="""traiter des fichiers
+utilisation
+	le script est appelable dans un fichier
+	python htmlClass.py fichier.html
+"""
 
 listTagsIntern = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button']
 listTagsSpecial = [ 'a', 'img', 'form', 'input']
@@ -461,3 +469,11 @@ class Html (Article):
 				textList [i] = textList [i] [d:]
 			self.text = " ".join (textList)
 		self.text = textFct.clean (self.text)
+
+if __name__ == '__main__':
+	if len (argv) >1:
+		htmlFile = Html (argv[1])
+		htmlFile.read()
+		htmlFile.clean()
+		htmlFile.write()
+	else: print (help)

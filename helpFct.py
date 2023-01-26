@@ -58,6 +58,6 @@ utilisation:
 
 j'ai /bureau/python/pythonFile.py sur mon ordi.
 """
-if __name__ == 'main':
+if __name__ == '__main__':
 	if len (argv) >1: printHelp (argv [1])
 	else: print (help)
