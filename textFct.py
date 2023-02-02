@@ -110,14 +110,75 @@ def protectUrl (text, root='http'):
 	text = root.join (textList)
 	return text
 
-def clean (text):
+def cleanBasic (text):
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip()
 	while '  ' in text: text = text.replace ('  ', ' ')
 	text = text.replace ('\n ', '\n')
 	text = text.replace (' \n', '\n')
+	text = text.replace ('\t ', '\t')
+	text = text.replace (' \t', '\t')
 	while '\t\n' in text: text = text.replace ('\t\n', '\n')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	return text
+
+def cleanHtml (text):
+	text = text.replace ('\n', ' ')
+	text = text.replace ('\t', ' ')
+	for i, j in weirdChars: text = text.replace (i, j)
+	text = text.strip()
+	while '  ' in text: text = text.replace ('  ', ' ')
+	text = text.replace ('> ', '>')
+	text = text.replace (' <', '<')
+	text = text.replace (' >', '>')
+	text = text.replace (' />', '/>')
+	text = text.replace ('><', '>\n<')
+	return text
+
+def cleanCss (text):
+	text = text.replace ('\n', ' ')
+	text = text.replace ('\t', ' ')
+	for i, j in weirdChars: text = text.replace (i, j)
+	text = text.strip()
+	while '  ' in text: text = text.replace ('  ', ' ')
+	tagCleanSpaces =( '{', '}', '/*', '*/', ':', ';' )
+	for tag in tagCleanSpaces:
+		text = text.replace (' '+ tag +' ', tag)
+		text = text.replace (' '+ tag, tag)
+		text = text.replace (tag +' ', tag)
+		text = text.replace ('}', ';}')
+		text = text.replace (';;', ';')
+		text = text.replace ('};', '}')
+	# nettoyer les commentaires
+	commList = text.split ('/*')
+	commRange = range (commList, 1)
+	for c in commRange:
+		f= commList[c].find ('*/')
+		if '{' in commList[c][:f]: commList[c] = commList[c][f:]
+	text = '/*'.join (commList)
+	text = text.replace ('/**/', "")
+	# optimiser les blocs
+	commList = text.split ('{')
+	commRange = range (commList, 1)
+	for c in commRange:
+		f= commList[c].find ('}')
+		if f>0:
+			innerComm = commList[c][:f].replace (' ', ';')
+			if innerComm.count (';') >1:
+				innerComm = innerComm.replace (';', ';\n\t')
+				innerComm = '\n\t' + innerComm +'\n'
+			elif innerComm.count (';') ==1: innerComm = ' '+ innerComm +' '
+			commList[c] = innerComm commList[c][f:]
+		else: commList[c] = '\n\t' + commList[c]
+	text = ' {'.join (commList)
+	text = text.replace ('}', '}\n')
+	text = text.replace ('/*', '\n/* ')
+	text = text.replace ('*/', ' */\n')
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	return text
+
+def cleanText (text):
+	text = cleanBasic (text)
 	# la ponctuation
 	punctuation = '?!;.:,'
 	for p in punctuation: text = text.replace (' '+p, p)
@@ -157,7 +218,7 @@ def shape (text, case=""):
 		rest: je supprime l'ancienne casse
 		upper: je rajoute les majuscules
 	"""
-	text = clean (text)
+	text = cleanText (text)
 	text = '\n'+ text +'\n'
 	for char in '*#=~-_':
 		while 3* char in text: text = text.replace (3* char, 2* char)
