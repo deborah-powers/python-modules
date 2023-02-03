@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3.9
 # -*- coding: utf-8 -*-
 from http.server import HTTPServer, SimpleHTTPRequestHandler, test
 from fileCls import File
