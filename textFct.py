@@ -168,7 +168,7 @@ def cleanCss (text):
 				innerComm = innerComm.replace (';', ';\n\t')
 				innerComm = '\n\t' + innerComm +'\n'
 			elif innerComm.count (';') ==1: innerComm = ' '+ innerComm +' '
-			commList[c] = innerComm commList[c][f:]
+			commList[c] = innerComm + commList[c][f:]
 		else: commList[c] = '\n\t' + commList[c]
 	text = ' {'.join (commList)
 	text = text.replace ('}', '}\n')
