@@ -35,7 +35,10 @@ elif argv[2] == 'convert':
 elif nbArg >2:
 	filePerso = File (argv[1])
 	filePerso.read()
-	if 'clean' in argv: filePerso.text = textFct.clean (filePerso.text)
+	if 'clean' in argv:
+		if filePerso.path[-5:] == '.html': filePerso.text = textFct.cleanHtml (filePerso.text)
+		if filePerso.path[-4:] == '.css': filePerso.text = textFct.cleanCss (filePerso.text)
+		else: filePerso.text = textFct.cleanBasic (filePerso.text)
 	elif 'mef' in argv: filePerso.text = textFct.shape (filePerso.text)
 	# rajouter un argument afin d'empêcher l'écriture des majuscules
 	if 'reset' in argv and 'upper' in argv: filePerso.text = textFct.upperCase (filePerso.text, 'reset upper')
