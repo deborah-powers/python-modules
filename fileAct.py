@@ -14,7 +14,9 @@ les valeurs de tag
 	help:					afficher l'aide d'un fichier python.
 	convert:				transformer un fichier html en texte et vice-versa.
 	md:						transformer un fichier txt en markdown
+	comp:					comparer deux fichiers
 """
+
 nbArg = len (argv)
 if nbArg <3: print (help)
 elif argv[2] == 'help':
@@ -32,6 +34,12 @@ elif argv[2] == 'convert':
 	elif argv [1][-6:] == '.xhtml': page = page.toText()
 	elif argv [1][-4:] == '.txt': page = page.fromText()
 	page.write()
+elif nbArg >2 and argv[2] == 'comp':
+	fileA = File (argv[1])
+	fileA.read()
+	fileB = File (argv[3])
+	fileB.read()
+	fileA.comparer (fileB)
 elif nbArg >2:
 	filePerso = File (argv[1])
 	filePerso.read()

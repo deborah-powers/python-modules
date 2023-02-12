@@ -7,6 +7,19 @@ import textFct
 from fileLcl import *
 import loggerFct
 
+def comparerText (textA, textB):
+	textA = textA.replace ('\t'," ")
+	textA = textFct.cleanBasic (textA)
+	listA = textA.split ('\n')
+	textB = textB.replace ('\t'," ")
+	textB = textFct.cleanBasic (textB)
+	listB = textB.split ('\n')
+	listCommon = listFct.comparer (listA, listB)
+	textCommon =""
+	for line in listCommon:
+		textCommon = textCommon +'\n'+ line[1] +'\t'+ line[0]
+	return textCommon
+
 class File():
 	def __init__ (self, file =None):
 		self.path =""
@@ -15,6 +28,13 @@ class File():
 		if file:
 			self.path = file
 			self.fromPath()
+
+	def comparer (self, fileB):
+		# self et fileB sont ouverts
+		title = 'b/comparer %s et %s.txt' %( self.title, fileB.title)
+		fileCommon = File (title)
+		fileCommon.text = comparerText (self.text, fileB.text)
+		fileCommon.write()
 
 	def renameDate (self):
 		months =( '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12')

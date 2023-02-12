@@ -35,6 +35,23 @@ def sortFunc (liste, funcSort):
 	if listEnd: newList.extend (listEnd)
 	return newList
 
+def comparer (listA, listB):
+	listCommon =[]
+	rangeA = range (listA)
+	bd =0
+	for a in rangeA:
+		if listA[a] in listB:
+			bf = listB.index (listA[a], bd)
+			while bd < bf:
+				listCommon.append ((listB [bd], 'b'))
+				bd +=1
+			# listCommon.append ((listA[a], 'c'))
+			bd +=1
+		else: listCommon.append ((listA[a], 'a'))
+	rangeB = range (listB, bd)
+	for b in rangeB: listCommon.append ((listB[b], 'b'))
+	return listCommon
+
 def copy (liste):
 	newList =[]
 	newList.extend (liste)

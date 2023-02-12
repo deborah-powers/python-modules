@@ -302,7 +302,7 @@ def sliceWord (text, wordStart, wordEnd):
 		if f>0 and f>d: res = text[d:f]
 	return res
 
-	# ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________
+# ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________
 
 def toHtml (text):
 	text = shape (text)
