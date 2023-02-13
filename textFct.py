@@ -137,6 +137,7 @@ def cleanHtml (text):
 	for tag in innerTagclosing:
 		text = text.replace ('\n</'+ tag +'>', '</'+ tag +'>')
 		text = text.replace ('<'+ tag +'>\n', '<'+ tag +'>')
+	text = text.replace ('</tr>\n<tr', '</tr><tr')
 	return text
 
 def cleanCss (text):
