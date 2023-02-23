@@ -67,7 +67,7 @@ class Html (Article):
 
 	def read (self):
 		File.read (self)
-		self.text = textFct.clean (self.text)
+		self.text = textFct.cleanHtml (self.text)
 		tmpTitle = findTextBetweenTag (self.text, 'title')
 		if tmpTitle and '>' not in tmpTitle and '<' not in tmpTitle: self.title = tmpTitle
 		self.styles = []
@@ -97,10 +97,7 @@ class Html (Article):
 	""" ________________________ netoyer le texte ________________________ """
 
 	def clean (self):
-		self.text = self.text.replace ('\t', ' ')
-		self.text = self.text.replace ('\n', ' ')
-		self.text = textFct.clean (self.text)
-		while '  ' in self.text: self.text = self.text.replace ('  ', ' ')
+		self.text = textFct.cleanHtml (self.text)
 		self.text = self.text.replace ('> ', '>')
 		self.text = self.text.replace (' <', '<')
 		self.text = self.text.replace (' />', '/>')
@@ -108,7 +105,7 @@ class Html (Article):
 		self.text = self.text.replace ("''", '"')
 
 	def cleanLocal (self):
-		self.clean()
+		self.cleanHtml()
 		self.text = findTextBetweenTag (self.text, 'body')
 
 	def cleanWeb (self):
@@ -406,37 +403,33 @@ class Html (Article):
 		self.text = self.text.replace ('<META ', '<meta ')
 		listText = self.text.split ('<meta ')
 		for line in listText [1:]:
-			d= line.find ('name=') +6
-			if d<6: continue						# ligne charset
-			f= line.find ('>', d) -1
-			if 'content' not in line [d:f]: continue
-			metaTmp = line [d:f].split (' content=')
-			metaTmp [0] = metaTmp [0] [:-1]
-			if metaTmp [0] in ('stylesheet', 'viewport'): continue	# ligne viewport
-			if '"' in metaTmp [0]:
-				f= metaTmp [0].find ('"')
-				metaTmp [0] = metaTmp [0] [:f]
-			elif "'" in metaTmp [0]:
-				f= metaTmp [0].find ("'")
-				metaTmp [0] = metaTmp [0] [:f]
-			metaTmp [1] = metaTmp [1] [1:]
-			if '"' in metaTmp [1]:
-				f= metaTmp [1].find ('"')
-				metaTmp [1] = metaTmp [1] [:f]
-			elif "'" in metaTmp [1]:
-				f= metaTmp [1].find ("'")
-				metaTmp [1] = metaTmp [1] [:f]
-			self.metas [metaTmp [0] ] = metaTmp [1]
+			f= line.find ('>') -1
+			if 'name=' in line[:f] and 'content=' in line[:f]:
+				# éviter les lignes charset et viewport
+				d= line.find ('name=') +6
+				metaTmp = line [d:f].split (' content=')
+				metaTmp[0] = metaTmp[0].strip()
+				metaTmp[0] = metaTmp[0][:-1]
+				metaTmp[1] = metaTmp[1].strip()
+				metaTmp[1] = metaTmp[1][1:-1]
+				if metaTmp[0] != 'viewport': self.metas [metaTmp[0]] = metaTmp[1]
 
 		listText = self.text.split ('<link ')
 		for line in listText [1:]:
-			if '.css' not in line:
-				da= line.find ('rel=') +5
-				fa= textFct.find (line, "'", da)
-				db= line.find ('href=') +6
-				fb= textFct.find (line, "'", db)
-				self.metas [line [da:fa]] = line [db:fb]
-
+			f= line.find ('>')
+			styleTmp = line[:f]
+			styleTmp = styleTmp.replace ('""','o')
+			styleTmp = styleTmp.replace ("''",'o')
+			styleTmp = styleTmp.replace ('"',"")
+			styleTmp = styleTmp.replace ("'","")
+			if styleTmp[-1] =='/': styleTmp = styleTmp[:-1]
+			styleTmp = styleTmp.strip()
+			if 'rel=stylesheet' not in styleTmp:
+				styleTmp = styleTmp.replace ('='," ")
+				styleTmpList = styleTmp.split (" ")
+				d= styleTmpList.index ('rel') +1
+				f= styleTmpList.index ('href') +1
+				if styleTmpList[f] !='o' and styleTmpList[d] !='o': self.metas [styleTmpList[d]] = styleTmpList[f]
 
 	def setMetadata (self):
 		textInfos =""
@@ -468,12 +461,13 @@ class Html (Article):
 				d= textList [i].find ('>') +1
 				textList [i] = textList [i] [d:]
 			self.text = " ".join (textList)
-		self.text = textFct.clean (self.text)
+		self.text = textFct.cleanHtml (self.text)
 
 if __name__ == '__main__':
 	if len (argv) >1:
 		htmlFile = Html (argv[1])
 		htmlFile.read()
 		htmlFile.clean()
+		htmlFile.cleanWeb()
 		htmlFile.write()
 	else: print (help)

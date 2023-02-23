@@ -132,12 +132,14 @@ def cleanHtml (text):
 	text = text.replace (' <', '<')
 	text = text.replace (' >', '>')
 	text = text.replace (' />', '/>')
+	"""
 	text = text.replace ('><', '>\n<')
 	innerTagclosing =( 'a', 'p', 'span', 'i', 'strong', 'option', 'button', 'li', 'td', 'th', 'h1', 'h2', 'h3', 'h4')
 	for tag in innerTagclosing:
 		text = text.replace ('\n</'+ tag +'>', '</'+ tag +'>')
 		text = text.replace ('<'+ tag +'>\n', '<'+ tag +'>')
 	text = text.replace ('</tr>\n<tr', '</tr><tr')
+	"""
 	return text
 
 def cleanCss (text):
