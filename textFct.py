@@ -197,6 +197,7 @@ def cleanText (text):
 		text = text.replace ('...' + letter, '... '+ letter)
 	text = text.replace (':', ': ')
 	while '  ' in text: text = text.replace ('  ', ' ')
+	text = text.replace (' \n', '\n')
 	# restaurer les url
 	liste = text.split (' ?')
 	rliste = range (1, len (liste))

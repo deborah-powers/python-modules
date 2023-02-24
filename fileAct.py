@@ -10,11 +10,11 @@ utilisation
 	python3 fileClass.py fichier tag (fichierB)
 les valeurs de tag
 	clean (reset upper):	nettoyer le texte. modifier ou pas la casse.
-	mef (reset upper):		mettre en forme un texte utilisant ma mise en forme spécifique.
-	help:					afficher l'aide d'un fichier python.
-	convert:				transformer un fichier html en texte et vice-versa.
-	md:						transformer un fichier txt en markdown
-	comp:					comparer deux fichiers
+	mef (reset upper):	mettre en forme un texte utilisant ma mise en forme spécifique.
+	help:			afficher l'aide d'un fichier python.
+	convert:		transformer un fichier html en texte et vice-versa.
+	md:				transformer un fichier txt en markdown
+	comp:			comparer deux fichiers
 """
 
 nbArg = len (argv)
@@ -46,7 +46,7 @@ elif nbArg >2:
 	if 'clean' in argv:
 		if filePerso.path[-5:] == '.html': filePerso.text = textFct.cleanHtml (filePerso.text)
 		if filePerso.path[-4:] == '.css': filePerso.text = textFct.cleanCss (filePerso.text)
-		else: filePerso.text = textFct.cleanBasic (filePerso.text)
+		else: filePerso.text = textFct.cleanText (filePerso.text)
 	elif 'mef' in argv: filePerso.text = textFct.shape (filePerso.text)
 	# rajouter un argument afin d'empêcher l'écriture des majuscules
 	if 'reset' in argv and 'upper' in argv: filePerso.text = textFct.upperCase (filePerso.text, 'reset upper')
