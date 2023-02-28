@@ -14,7 +14,6 @@ codeKeywords =(
 	'def', 'class', 'console.log', 'var', 'function', 'private', 'protected', 'public',
 	'log.debug', 'log.info'
 )
-
 urlWord =( ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js') )
 urlEnd = '"\' \n\t/'
 weirdChars =(
@@ -216,6 +215,7 @@ def cleanText (text):
 		else: liste[l] =' '+ liste[l]
 	text = ':'.join (liste)
 	text = text.replace (': //', '://')
+	text = text.replace ('localhost: ', 'localhost:')
 	return text
 
 def shape (text, case=""):
