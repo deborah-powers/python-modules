@@ -426,7 +426,7 @@ def toHtml (text):
 			text = '</th>'.join (paragraphList)
 	# nettoyer le texte pour faciliter la suite des transformations
 	text = text.replace ('\t', "")
-	text = clean (text)
+	text = cleanText (text)
 	# rajouter les <p/>
 	text = text.replace ('\n', '</p><p>')
 	text = text.replace ('></p><p><', '><')
@@ -458,7 +458,7 @@ def toHtml (text):
 	# pour les blocs de code
 	text = text.replace ('\a', '\n')
 	text = text.replace ('\f', '\t')
-	text = clean (text)
+	text = cleanHtml (text)
 	text = text.replace (' </', '</')
 	return text
 
