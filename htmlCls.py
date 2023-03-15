@@ -86,6 +86,8 @@ class Html (Article):
 		textCss = textCss.strip()
 		textInfos = textInfos + textCss
 		textInfos = textInfos.strip()
+	#	print (self.text[:500])
+	#	print (textInfos)
 		# le nouveau fichier
 		for tag in listTagsIntern:
 			self.text = self.text.replace ('<'+ tag +'>\n<', '<'+ tag +'><')
@@ -385,6 +387,7 @@ class Html (Article):
 			'/home/lenovo/Bureau/site-dp/library-css/structure.css',
 			'/home/lenovo/Bureau/site-dp/library-css/perso.css'
 		]
+		print (self.text.find ('\n'))
 		listText = self.text.split ('<link ')
 		for line in listText [1:]:
 			d= line.find ('href=') +6
