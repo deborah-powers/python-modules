@@ -26,8 +26,7 @@ listTags.extend (listTagsKeep)
 listTags.extend (listTagsSpecial)
 
 def findTextBetweenTag (originalText, tag):
-	lTag = len (tag)
-	d= originalText.find ('<'+ tag) +1+ lTag
+	d= originalText.find ('<'+ tag) +1+ len (tag)
 	d= originalText.find ('>', d) +1
 	f= originalText.find ('</'+ tag +'>', d)
 	phrase = originalText [d:f]
@@ -65,14 +64,16 @@ class Html (Article):
 		article = self.toArticle()
 		return article.toText()
 
-	def read (self):
+	def read (self, getMeta=False):
 		File.read (self)
 		self.text = textFct.cleanHtml (self.text)
 		tmpTitle = findTextBetweenTag (self.text, 'title')
 		if tmpTitle and '>' not in tmpTitle and '<' not in tmpTitle: self.title = tmpTitle
+		self.cleanTitle()
 		self.styles = []
-		self.getCss()
-		self.getMetadata()
+		if getMeta:
+			self.getCss()
+			self.getMetadata()
 		self.text = findTextBetweenTag (self.text, 'body')
 
 	def write (self):
@@ -86,12 +87,7 @@ class Html (Article):
 		textCss = textCss.strip()
 		textInfos = textInfos + textCss
 		textInfos = textInfos.strip()
-	#	print (self.text[:500])
-	#	print (textInfos)
 		# le nouveau fichier
-		for tag in listTagsIntern:
-			self.text = self.text.replace ('<'+ tag +'>\n<', '<'+ tag +'><')
-			self.text = self.text.replace ('>\n</'+ tag +'>', '></'+ tag +'>')
 		self.text = self.text.strip()
 		self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, textInfos, self.text)
 		File.write (self)
@@ -291,8 +287,14 @@ class Html (Article):
 				pos = title.rfind (end)
 				title = title [:pos]
 		if title.count ('-') >1: title = title.replace ('-', ' ')
-		self.title = title.replace ('_', ' ')
+		self.title = title
+		self.cleanTitle()
 		self.cleanWeb()
+
+	def cleanTitle (self):
+		charToDelete = '\\/:;\n\t_'
+		for char in charToDelete: self.title = self.title.replace (char, " ")
+		while "  " in self.title: self.title = self.title.replace ("  ", " ")
 
 	def fromWeb (self, url=None):
 		# remove (self.path)
@@ -387,12 +389,12 @@ class Html (Article):
 			'/home/lenovo/Bureau/site-dp/library-css/structure.css',
 			'/home/lenovo/Bureau/site-dp/library-css/perso.css'
 		]
-		print (self.text.find ('\n'))
 		listText = self.text.split ('<link ')
 		for line in listText [1:]:
 			d= line.find ('href=') +6
 			f= line.find ('.css', d) +4
-			if line [d:f] not in self.styles and line [d:f] not in defaultCss: self.styles.append (line [d:f])
+			if d<f and line[d:f] not in self.styles and line [d:f] not in defaultCss:
+				self.styles.append (line [d:f])
 
 	def setCss (self):
 		textCss =""
