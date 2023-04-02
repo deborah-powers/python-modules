@@ -324,25 +324,25 @@ class Article (File):
 			self.text = self.text.replace ('\t', "")
 			"""
 			metadata = textFct.fromModel (self.text, templateHtml)
-			self.author = metadata[1]
-			self.subject = metadata[2]
-			self.link = metadata[3]
-			self.autlink = metadata[4]
-			self.text = metadata[6]
+			self.author = metadata[1].strip()
+			self.subject = metadata[2].strip()
+			self.link = metadata[3].strip()
+			self.autlink = metadata[4].strip()
+			self.text = metadata[6].strip()
 		elif self.type == 'xhtml':
 			metadata = textFct.fromModel (self.text, templateXhtml)
-			self.author = metadata[1]
-			self.subject = metadata[2]
-			self.link = metadata[3]
-			self.autlink = metadata[4]
-			self.text = metadata[5]
+			self.author = metadata[1].strip()
+			self.subject = metadata[2].strip()
+			self.link = metadata[3].strip()
+			self.autlink = metadata[4].strip()
+			self.text = metadata[5].strip()
 		elif self.type == 'txt':
 			metadata = textFct.fromModel (self.text, templateText)
-			self.subject = metadata[0]
-			self.author = metadata[1]
-			self.link = metadata[2]
-			self.autlink = metadata[3]
-			self.text = metadata[5]
+			self.subject = metadata[0].strip()
+			self.author = metadata[1].strip()
+			self.link = metadata[2].strip()
+			self.autlink = metadata[3].strip()
+			self.text = metadata[5].strip()
 
 	def write (self):
 		self.title = self.title.lower()

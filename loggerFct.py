@@ -44,7 +44,7 @@ def logDate (message=None):
 		messageKeys = message.keys()
 		for key in messageKeys: print ('\t', key, '\t', message[key])
 	elif type (message) == list:
-		print (trace +'\t'+ len (message) +' éléments')
+		print (trace +'\t'+ str (len (message)) +' éléments')
 		for line in message[:20]: print ('\t', line)
 	elif type (message) == str: print (trace +'\t'+ message[:100])
 	else: print (trace +'\t', message)
@@ -61,8 +61,8 @@ def log (message=None):
 		messageKeys = message.keys()
 		for key in messageKeys: print ('\t', key, '\t', message[key])
 	elif type (message) == list:
-		print (trace +'\t'+ len (message) +' éléments')
-		for line in message[:20]: print ('\t', line)
+		print (trace +'\t'+ str (len (message)) +' éléments')
+	#	for line in message[:20]: print ('\t', line)
 	elif type (message) == str: print (trace +'\t'+ message[:100])
 	else: print (trace +'\t', message)
 

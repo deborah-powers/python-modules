@@ -3,6 +3,7 @@
 from sys import argv
 import textFct
 from fileCls import File, Article
+import loggerFct
 
 help ="""traiter des fichiers
 utilisation
@@ -15,6 +16,7 @@ les valeurs de tag
 	convert:		transformer un fichier html en texte et vice-versa.
 	md:				transformer un fichier txt en markdown
 	comp:			comparer deux fichiers
+	art:			transformer un texte simple en article
 """
 
 nbArg = len (argv)
@@ -22,17 +24,23 @@ if nbArg <3: print (help)
 elif argv[2] == 'help':
 	from funcHelp import printHelp
 	printHelp (argv[1])
+elif argv[2] == 'art':
+	page = File (argv[1])
+	page.read()
+	article = Article (argv[1])
+	article.text = page.text
+	article.write()
 elif argv[2] == 'md':
-	page = File (argv [1])
+	page = File (argv[1])
 	page.read()
 	page.toMarkdown()
 	page.write()
 elif argv[2] == 'convert':
-	page = Article (argv [1])
+	page = Article (argv[1])
 	page.read()
-	if argv [1][-5:] == '.html': page = page.toText()
-	elif argv [1][-6:] == '.xhtml': page = page.toText()
-	elif argv [1][-4:] == '.txt': page = page.toHtml()
+	if argv[1][-5:] == '.html': page = page.toText()
+	elif argv[1][-6:] == '.xhtml': page = page.toText()
+	elif argv[1][-4:] == '.txt': page = page.toHtml()
 	page.write()
 elif nbArg >2 and argv[2] == 'comp':
 	fileA = File (argv[1])

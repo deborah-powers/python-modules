@@ -251,6 +251,8 @@ def toMarkdown (text):
 def fromModel (text, model):
 	# remplacer scanf
 	# préparer le modèle
+	text = cleanBasic (text)
+	model = cleanBasic (model)
 	typeList = ['d', 'f', 's']
 	model = model.replace ('%%', '$')
 	modelTmp = model
