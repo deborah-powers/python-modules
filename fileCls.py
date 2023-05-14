@@ -5,7 +5,7 @@ import codecs
 import listFct
 import textFct
 from fileLcl import *
-import loggerFct
+import loggerFct as log
 
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")
@@ -286,6 +286,7 @@ class Article (File):
 		article.author = self.author
 		article.autlink = self.autlink
 		article.text = textFct.fromHtml (article.text)
+		d= article.text.find ('</')
 		if '</' in article.text: return self
 		else: return article
 

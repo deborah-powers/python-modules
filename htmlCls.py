@@ -8,7 +8,7 @@ from urllib import request as urlRequest
 from fileCls import File, Article, templateHtml
 import listFct
 import textFct
-
+import loggerFct as log
 
 help ="""traiter des fichiers
 utilisation
@@ -107,6 +107,10 @@ class Html (Article):
 		self.text = findTextBetweenTag (self.text, 'body')
 
 	def cleanWeb (self):
+		for tag in listTags:
+			self.text = self.text.replace ('<'+ tag.upper(), '<'+ tag)
+			self.text = self.text.replace ('</'+ tag.upper(), '</'+ tag)
+			while '<'+tag+'></'+tag+'>' in self.text: self.text = self.text.replace ('<'+tag+'></'+tag+'>',"")
 		self.clean()
 		# supprimer les commentaires
 		self.text = self.text.replace ('< ! --', '<!--')
@@ -302,6 +306,7 @@ class Html (Article):
 		self.fromPath()
 		if url: self.link = url
 		self.fromUrl()
+		log.log (self.text)
 		# self.cleanWeb()
 		self.metas = {}
 		self.styles = []

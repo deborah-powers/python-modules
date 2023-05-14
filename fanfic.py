@@ -6,7 +6,7 @@ import listFct
 import textFct
 from fileCls import Article
 from htmlCls import Html, findTextBetweenTag
-import loggerFct
+import loggerFct as log
 
 help = """
 récupérer les pages de certains sites que j'aime beaucoup
@@ -33,7 +33,7 @@ class Fanfic (Html):
 			if url[-5:] != '.html': url = 'b/' + url + '.html'
 			self.path = url
 			self.fromPath()
-			self.read()
+			self.read (True)
 		# self.clean()
 		if subject: self.subject = subject
 		if 'http://www.gutenberg.org/' in url:				self.gutemberg()
@@ -46,6 +46,7 @@ class Fanfic (Html):
 		elif 'egb'		in url: self.ebGratuit()
 		elif 'b/aooo.html' == url: self.aoooLocal()
 		elif 'b/ffnet'	in url: self.ffNet()
+		elif 'b/fpress'	in url: self.fPress()
 		elif 'medium'	in url: self.medium()
 		elif '</article>' in self.text: self.text = textFct.sliceWord (self.text, '<article>', '</article>')
 		self.cleanWeb()
@@ -240,6 +241,31 @@ class Fanfic (Html):
 		self.text = self.text [:f]
 		f= self.text.rfind ('</p>') +4
 		self.text = self.text [:f]
+
+	def fPress (self):
+		# les métadonnées
+		data = self.title.split (', ')
+		self.title = data[0]
+		if 'hapter' in self.title:
+			f= self.title.find ('hapter') -2
+			self.title = self.title [:f]
+		d= textFct.find (self.text, '/u/') +3
+		f= textFct.find (self.text, "'>", d)
+		self.autlink = 'https://www.fictionpress.com/u/' + self.text[d:f]
+		self.link = 'https:' + self.metas ['canonical']
+		d= self.autlink.rfind ('/') +1
+		self.author = cleanTitle (self.autlink[d:])
+		# le sujet
+		if '- Romance/' in self.text: self.subject = 'romance'
+		self.findSubject()
+		# le texte
+		self.replace ('<br>', '</p><p>')
+		d= self.text.find ("<div class='storytext")
+		d= self.text.find ('>',d) +1
+		f= self.text.find ("</div>", d)
+		self.text = self.text[d:f]
+		self.text = self.text.strip()
+		self.text = '<p>'+ self.text +'</p>'
 
 	def ffNet (self):
 		# les métadonnées
