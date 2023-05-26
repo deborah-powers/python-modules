@@ -4,6 +4,7 @@ fileLcl.py
 quickstart.py
 mantis.py
 cleanBnf.py
+dgfip.py
 filePj.py
 temp.py
 *.pickle

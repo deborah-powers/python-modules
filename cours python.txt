@@ -10,6 +10,16 @@ if __name__ == 'main': pass
 else: xxx
 empêche de lancer certaines actions quand le script est une dépendance
 
+====== rajouter une fonction à une classe ======
+
+def newFunction (self):
+	pass
+
+setattr (MyClass, 'myFunction', newFunction)
+
+item = MyClass()
+item.myFunction()
+
 
 ====== ajouter un dossier à sys.path ======
 
