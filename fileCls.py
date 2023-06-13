@@ -427,11 +427,12 @@ class FileList (File):
 
 	def write (self):
 		self.toText()
+		self.text = textFct.shape (self.text, 'reset upper')
 		File.write (self)
 
 	def read (self):
 		File.read (self)
-	#	self.text = textFct.clean (self.text)
+		self.text = textFct.clean (self.text)
 		self.fromText()
 
 	def toText (self):

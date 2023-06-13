@@ -28,7 +28,23 @@ class Place():
 monthDuration =( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 monthNames =( 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre' )
 
-class DatePerso():
+class DatePerso (datetime):
+	# attriuts: year, month, day, our, minute, monthName
+	def __init__ (self, year, month, day, hour=0, minute=0):
+		datetime.__init__(self)
+		self.monthName = monthNames[self.month -1]
+
+	def today():
+		todayDatetime = datetime.now()
+		todayPerso = DatePerso (todayDatetime.year, todayDatetime.month, todayDatetime.day, todayDatetime.hour, todayDatetime.minute)
+		return todayPerso
+
+DatePerso.today = staticmethod (DatePerso.today)
+
+dt= DatePerso.today()
+print (dt)
+
+class DatePersoVa():
 
 	def __init__ (self, day=1, month=1, hour=0, minute=0, year=2023):
 		self.year = year
