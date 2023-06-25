@@ -15,9 +15,8 @@ l'url peut correspondre à une page ou un fichier local
 """
 
 def cleanTitle (title):
-	title = title.replace ('-',' ')
-	title = title.replace ('_',' ')
-	title = title.replace ('/',' ')
+	chars = "\t\n\\'.:;,_-/"
+	for char in chars: title = title.replace (char,' ')
 	title = title.strip()
 	title = title.lower()
 	while '  ' in title: title = title.replace ('  ',' ')
@@ -387,9 +386,7 @@ class Fanfic (Html):
 		"""
 		self.subject = self.subject.replace (' - Fandom', "")
 		self.autlink = 'https://archiveofourown.org/users/' + self.author
-		self.author = self.author.replace ('-',' ')
-		self.author = self.author.replace ('_',' ')
-		self.author = self.author.strip()
+		self.author = cleanTitle (self.author)
 		self.text = self.text.replace ('<h3>Chapter Text</h3>', "")
 		# le texte ne compte qu'un seul chapître
 		d= self.text.find ('<h3>Work Text:</h3>') +19
