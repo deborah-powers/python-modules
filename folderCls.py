@@ -83,12 +83,13 @@ class Folder():
 
 	def createIndex (self):
 		index = Html (self.path + 'index.html')
-		index.text = '<h1>index du dossier' + self.path +'</h1>\n'
+		index.text = '<h1>index du dossier ' + self.path +'</h1>\n'
 		self.get()
 		for file in self.list:
-			index.text = index.text + "<p><a href='" + file.path +"'>"+ file.title +'</a></p>\n'
-		index.styles.append ('/var/www/html/site-dp/library-css/structure.css')
-		index.styles.append ('/var/www/html/site-dp/library-css/perso.css')
+			index.text = index.text + "<a href='" + file.path +"'>"+ file.title +'</a>\n'
+		index.styles.append ('C:\\wamp64\\www\\site-dp\\library-css\\structure.css')
+		index.styles.append ('C:\\wamp64\\www\\site-dp\\library-css\\perso.css')
+		index.styles.append ('C:\\wamp64\\www\\site-dp\\library-css\\index-dossier.css')
 		index.write()
 
 	def read (self):
@@ -198,11 +199,13 @@ class FolderArticle (Folder):
 		for file in self.list:
 			file.toPath()
 			index.text = index.text + file.subject +'\t'+ file.author +'\t'+ file.title +'\t'+ file.path +'\n'
+		print (self.path)
+		index.text = index.text.replace (self.path, "")
 		index.write()
 
 	def createIndex_va (self):
-		index = Html ('index.html')
-		index.text = '<h1>index du dossier' + self.path +'</h1>\n<table>\n'
+		index = Html (self.path + 'index.html')
+		index.text = '<h1>index du dossier ' + self.path +'</h1>\n<table>\n'
 		self.get()
 		self.read()
 		self.list.sort()
@@ -210,8 +213,8 @@ class FolderArticle (Folder):
 			file.toPath()
 			index.text = index.text + "<tr><td>"+ file.subject + "</td><td>" + file.author + "</td><td><a href='" + file.path +"'>"+ file.title + "</a></td></tr>\n"
 		index.text = index.text + '</table>'
-		index.styles.append ('/var/www/html/site-dp/library-css/structure.css')
-		index.styles.append ('/var/www/html/site-dp/library-css/perso.css')
+		index.styles.append ('C:\\wamp64\\www\\site-dp\\library-css\\structure.css')
+		index.styles.append ('C:\\wamp64\\www\\site-dp\\library-css\\perso.css')
 		index.write()
 
 	def get (self, tagName=None, sens=True):
