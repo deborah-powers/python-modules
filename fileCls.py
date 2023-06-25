@@ -347,8 +347,13 @@ class Article (File):
 
 	def write (self):
 		self.title = self.title.lower()
-		if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
-		elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
+		if self.type in 'xhtml':
+			# affichage des liens
+			self.replace ("<a ", " <a ")
+			while '  ' in self.text: self.replace ('  ', ' ')
+			self.replace ("> <a ", "><a ")
+			if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
+			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
 

@@ -52,6 +52,8 @@ class Fanfic (Html):
 		self.metas = {}
 		self.text = self.text.replace (' <', '<')
 		self.text = self.text.replace ('><', '>\n<')
+		self.title = cleanTitle (self.title)
+		self.author = cleanTitle (self.author)
 		self.path = self.path.replace ('tmp.', self.title +'.')
 		article = self.toArticle()
 		if '</a>' not in article.text and '<img' not in article.text:
@@ -59,7 +61,8 @@ class Fanfic (Html):
 			article.text = article.text.replace ('\n\n', '\n')
 			article.text = article.text.replace ('\n', '\n\n')
 		# elif '<img' in article.text: article = article.toXhtml()
-		else: article = article.toHtml()
+		else:
+			article = article.toHtml()
 		if len (article.text) >420000: article.divide()
 		else: article.write()
 
@@ -386,7 +389,6 @@ class Fanfic (Html):
 		"""
 		self.subject = self.subject.replace (' - Fandom', "")
 		self.autlink = 'https://archiveofourown.org/users/' + self.author
-		self.author = cleanTitle (self.author)
 		self.text = self.text.replace ('<h3>Chapter Text</h3>', "")
 		# le texte ne compte qu'un seul chapître
 		d= self.text.find ('<h3>Work Text:</h3>') +19
