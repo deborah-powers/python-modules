@@ -1,9 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 import numpy
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 import fileLcl
-import fileCls
 
 """
 python -m pip install --upgrade pip
@@ -84,81 +83,3 @@ def creerCouleurs():
 	print ("enregistrer l'image")
 	imageObj.save ('C:\\Users\\LENOVO\\Desktop\\couleurs-24.bmp')
 	print ('fin du batch des couleurs')
-
-def traiterImage():
-	# éffacer les couleurs déjà connues
-	imageObj = Image.open (imageOriginale)
-	imageObj = imageObj.convert ('RGBA')
-	# imageObj.format = 'BMP'
-	data = numpy.array (imageObj)		# "data" is a height x width x 4 numpy array
-	red, green, blue, alpha = data.T	# Temporarily unpack the bands for readability
-	for r,v,b in couleursConnues:
-		colorArea = (red == r) & (green == v) & (blue == b)
-		data[..., :-1][colorArea.T] = (255, 255, 255)
-	imageBis = Image.fromarray (data)
-	# isoler les couleurs inconnues
-	couleursNb = imageBis.getcolors (imageBis.size[0] * imageBis.size[1])
-	couleurs =[]
-	for nb, couleur in couleursNb:
-		if (couleur[0], couleur[1], couleur[2]) not in couleurs and (couleur[0], couleur[1], couleur[2]) != (255, 255, 255):
-			couleurs.append ((couleur[0], couleur[1], couleur[2]))
-	if couleurs:
-		trier (couleurs)
-		dessinerCarres256 (couleurs)
-	else: print ('aucune couleurs')
-
-traiterImage()
-
-
-def effacerCouleurs():
-	imageObj = Image.open (imageOriginale)
-	imageObj = imageObj.convert ('RGBA')
-	imageObj.format = 'BMP'
-	data = numpy.array (imageObj)		# "data" is a height x width x 4 numpy array
-	red, green, blue, alpha = data.T	# Temporarily unpack the bands for readability
-	for r,v,b in couleursConnues:
-		colorArea = (red == r) & (green == v) & (blue == b)
-		data[..., :-1][colorArea.T] = (257, 257, 257)
-	imageBis = Image.fromarray (data)
-	imageBis.save (imageFinale)
-
-def extraireCouleurs():
-	imageObj = Image.open (imageOriginale)
-	imageObj = imageObj.convert ('RGBA')
-	imageObj.format = 'BMP'
-	couleursNb = imageObj.getcolors()
-	couleurs =[]
-	for nb, couleur in couleursNb:
-		if (couleur[0], couleur[1], couleur[2]) not in couleurs: couleurs.append ((couleur[0], couleur[1], couleur[2]))
-		else: print ('oui')
-	couleurs.sort()
-	print (couleurs)
-
-def testDessiner():
-	imageObj = Image.new ('RGBA', (400, 100))
-	box = (50, 50, 60, 40)
-	drawing = ImageDraw.Draw (imageObj)
-	drawing.rectangle (((50, 50), (60, 80)), fill='red')
-	drawing.text ((40, 70), 'un message', fill='orange')
-	imageObj.save (imageFinale)
-
-def testB():
-	# remplacer une couleur
-	imageObj = Image.open (imageOriginale)
-	imageObj = imageObj.convert ('RGBA')
-	imageObj.format = 'BMP'
-	data = numpy.array (imageObj)		# "data" is a height x width x 4 numpy array
-	red, green, blue, alpha = data.T	# Temporarily unpack the bands for readability
-	colorArea = (red == 0) & (blue == 0) & (green == 0)
-	data[..., :-1][colorArea.T] = (0, 257, 0)
-	imageBis = Image.fromarray (data)
-	imageBis.save (imageFinale)
-
-def testA():
-	# passer l'image en nuance de gris
-	imageObj = Image.open (imageOriginale)
-	print (imageObj.format, imageObj.size, imageObj.mode)
-	imageObj = imageObj.convert ('L')
-	imageObj.format = 'BMP'
-	print (imageObj.format, imageObj.size, imageObj.mode)
-	imageObj.save (imageFinale)
