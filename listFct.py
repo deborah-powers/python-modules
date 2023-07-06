@@ -36,14 +36,17 @@ def sortFunc (liste, funcSort):
 	return newList
 
 def comparer (listA, listB):
+	if len (listA) != len (listB): print ('les données sont de taille différente')
 	listCommon =[]
+	listA.sort()
+	listB.sort()
 	rangeA = range (listA)
 	bd =0
 	for a in rangeA:
-		if listA[a] in listB:
+		if listA[a] in listB[bd:]:
 			bf = listB.index (listA[a], bd)
 			while bd < bf:
-				listCommon.append ((listB [bd], 'b'))
+				listCommon.append ((listB[bd], 'b'))
 				bd +=1
 			# listCommon.append ((listA[a], 'c'))
 			bd +=1
