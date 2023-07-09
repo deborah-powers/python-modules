@@ -28,6 +28,11 @@ couleursConnues =[ (0, 0, 0), (0, 0, 64), (0, 0, 128), (0, 0, 192), (0, 0, 255),
 imageOriginale = fileLcl.shortcut (imageOriginale)
 imageFinale = fileLcl.shortcut (imageFinale)
 
+def enregistrer (nomFichier, imageObj):
+	nomFichier = 'b/' + nomFichier + '.bmp'
+	nomFichier = fileLcl.shortcut (nomFichier)
+	imageObj.save (nomFichier)
+
 def trier (couleurs):
 	couleurs.sort()
 	print (len (couleurs))
@@ -53,35 +58,35 @@ def dessinerCarres256 (couleurs):
 		if x>=160:
 			x=0
 			y+=10
-	imageObj.save (imageFinale)
+	enregistrer ('couleurs-247', imageObj)
 
 def creerCouleurs():
 	# dessiner l'image
-	imageObj = Image.new ('RGBA', (3240, 180))
+	imageObj = Image.new ('RGBA', (3240, 360))
 	drawing = ImageDraw.Draw (imageObj)
 	x=0
 	y=0
 	# créer les couleurs
 	print ('récupérer les couleurs')
-	r=7
-	v=7
-	b=7
+	r=0
+	v=0
+	b=0
 	while r<256:
 		v=0
 		while v<256:
 			b=0
 			while b<256:
 				print (r,v,b)
-				drawing.rectangle (((x,y), (x+10, y+10)), fill=( r,v,b ))
+				if (r,v,b) not in couleursConnues: drawing.rectangle (((x,y), (x+10, y+10)), fill=( r,v,b ))
 				x+=10
 				if x>=3240:
 					x=0
 					y+=10
-				b=b+15
-			v=v+15
-		r=r+15
+				b=b+7
+			v=v+7
+		r=r+7
 	print ("enregistrer l'image")
-	imageObj.save ('C:\\Users\\dpowers-consultant01\\Desktop\\couleurs-247.bmp')
+	enregistrer ('couleurs-247', imageObj)
 	print ('fin du batch des couleurs')
 
 def traiterImage():
@@ -106,6 +111,7 @@ def traiterImage():
 		dessinerCarres256 (couleurs)
 	else: print ('aucune couleurs')
 
+# creerCouleurs()
 traiterImage()
 
 def effacerCouleurs():
