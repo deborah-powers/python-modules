@@ -62,29 +62,31 @@ def dessinerCarres256 (couleurs):
 
 def creerCouleurs():
 	# dessiner l'image
-	imageObj = Image.new ('RGBA', (3240, 360))
+#	imageObj = Image.new ('RGBA', (3240, 360))
+	imageObj = Image.new ('RGBA', (1280, 256))
 	drawing = ImageDraw.Draw (imageObj)
 	x=0
 	y=0
 	# créer les couleurs
 	print ('récupérer les couleurs')
-	r=0
+	r=10
 	v=0
 	b=0
-	while r<256:
+	while r<20:
 		v=0
 		while v<256:
 			b=0
 			while b<256:
 				print (r,v,b)
-				if (r,v,b) not in couleursConnues: drawing.rectangle (((x,y), (x+10, y+10)), fill=( r,v,b ))
-				x+=10
-				if x>=3240:
-					x=0
-					y+=10
-				b=b+7
-			v=v+7
-		r=r+7
+				if (r,v,b) not in couleursConnues:
+					drawing.rectangle (((x,y), (x+1, y+1)), fill=( r,v,b ))
+					x+=1
+					if x>=1280:
+						x=0
+						y+=1
+				b=b+2
+			v=v+1
+		r=r+1
 	print ("enregistrer l'image")
 	enregistrer ('couleurs-247', imageObj)
 	print ('fin du batch des couleurs')
@@ -111,8 +113,8 @@ def traiterImage():
 		dessinerCarres256 (couleurs)
 	else: print ('aucune couleurs')
 
-# creerCouleurs()
-traiterImage()
+creerCouleurs()
+#traiterImage()
 
 def effacerCouleurs():
 	imageObj = Image.open (imageOriginale)
