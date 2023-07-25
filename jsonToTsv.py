@@ -1,8 +1,10 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from file import File
+import json
+from fileCls import File
 from list import ListText, List, TableText, TableBdd
-tsvName = '/home/lenovo/Bureau/html/gens.tsv'
+
+tsvName = 'b/html/gens.tsv'
 tsvFile = ListText (tsvName)
 tsvFile.fromFile ()
 tsvRange = tsvFile.range ()

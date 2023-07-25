@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import codecs
+import json
 import listFct
 import textFct
 from fileLcl import *
@@ -120,6 +121,16 @@ class File():
 	def toMarkdown (self):
 		self.text = textFct.toMarkdown (self.text)
 		self.path = self.path.replace ('.txt', '.md')
+
+	def readJson (self):
+		if not self.text: self.read()
+		self.replace ('\n')
+		self.replace ('\t')
+		d= self.text.find ('{')
+		f= self.text.rfind (';')
+		self.text = self.text[d:f]
+		jsonData = json.loads (self.text)
+		return jsonData
 
 	def divide (self):
 		if len (self.text) < 420000: return
