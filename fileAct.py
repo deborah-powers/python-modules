@@ -41,6 +41,7 @@ elif argv[2] == 'convert':
 	if argv[1][-5:] == '.html': page = page.toText()
 	elif argv[1][-6:] == '.xhtml': page = page.toText()
 	elif argv[1][-4:] == '.txt': page = page.toHtml()
+	loggerFct.log (page.path)
 	page.write()
 elif nbArg >2 and argv[2] == 'comp':
 	fileA = File (argv[1])
