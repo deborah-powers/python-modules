@@ -1,3 +1,6 @@
+
+
+
 ====== divers ======
 
 object.__dir__()	récupère les fonctions d'un objet
@@ -20,6 +23,32 @@ setattr (MyClass, 'myFunction', newFunction)
 item = MyClass()
 item.myFunction()
 
+====== changer la version de python par défaut ======
+
+quand j'ai deux versions sur mon ordi.
+
+# Remove python 2
+sudo apt purge -y python2.7
+sudo apt purge -y python2.7-minimal
+# You already have Python 3 but 
+sudo ln -s /usr/bin/python3 /usr/bin/python
+# Same for pip
+sudo apt install -y python3-pip
+sudo ln -s /usr/bin/pip3 /usr/bin/pip
+# Confirm the new version of Python: 3
+
+python --version
+
+****** seconde méthode ******
+
+# try following to see all instances of python
+whereis python
+which python
+
+# Then remove all instances using:
+sudo apt autoremove python
+
+# repeat sudo apt autoremove python(for all versions) that should do it, then install Anaconda and manage Pythons however you like if you need to reinstall it.
 
 ====== ajouter un dossier à sys.path ======
 
@@ -31,7 +60,7 @@ print (path)
 repérer le chemin de site-packages,
 /home/deborah/.local/lib/python3.8/site-packages
 C:\Users\deborah.powers\AppData\Local\Programs\Python\Python36\lib\site-packages
-
+C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\site-packages
 /usr/lib64/python3.9/site-packages ou /usr/lib/python3.9/site-packages
 
 créer /site-packages/my-paths.pth
