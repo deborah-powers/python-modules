@@ -27,16 +27,6 @@ pip install opencv-contrib-python
 
 https://stackoverflow.com/questions/64506236/pil-image-list-into-a-video-slide-with-cv2-videowriter
 """
-# récupérer le fichier
-nomImg = argv[1]
-nomImg = fileLcl.shortcut (nomImg)
-d= nomImg.rfind ('.')
-nomGif = nomImg[:d] +'-anim.gif'
-
-# données de l'image originale
-imageOriginal = Image.open (nomImg)
-width = imageOriginal.size[0]
-height = imageOriginal.size[1]
 images =[]
 imagesReverse =[]
 
@@ -56,10 +46,9 @@ def frameListX():
 	# width > height
 	if height / width >= 0.8:
 		print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
-		return None, []
+		return []
 	difference = width - height
-	diffrange = range (1, difference, 5)
-	imageRef = frameX (0)
+	diffrange = range (0, difference, 5)
 	images =[]
 	imagesReverse =[]
 	for x in diffrange:
@@ -69,16 +58,15 @@ def frameListX():
 	imagesReverse.reverse()
 	imagesReverse.pop (0)
 	images.extend (imagesReverse)
-	return imageRef, images
+	return images
 
 def frameListY():
 	# height > width
 	if width / height >= 0.8:
 		print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
-		return None, []
+		return []
 	difference = height - width
-	diffrange = range (1, difference, 5)
-	imageRef = frameY (0)
+	diffrange = range (0, difference, 5)
 	images =[]
 	imagesReverse =[]
 	for y in diffrange:
@@ -88,19 +76,36 @@ def frameListY():
 	imagesReverse.reverse()
 	imagesReverse.pop (0)
 	images.extend (imagesReverse)
-	return imageRef, images
+	return images
 
-def creerGifX():
-	# width > height
-	imageRef, images = frameListX()
-	if imageRef: imageRef.save (nomGif, save_all=True, append_images=images, duration=1, loop=0)
+def creerGif (images):
+	imageRef = images.pop(0)
+	imageRef.save (nomGif, save_all=True, append_images=images, duration=1, loop=0)
 
-def creerGifY():
-	# height > width
-	imageRef, images = frameListY()
-	if imageRef: imageRef.save (nomGif, save_all=True, append_images=images, duration=1, loop=0)
+def creerMp4 (images, size):
+	fourcc = cv2.VideoWriter_fourcc (*'avc1')
+	video = cv2.VideoWriter (nomMp4, fourcc, 30, (size, size))
+	for img in images: video.write (cv2.cvtColor (numpy.array (img), cv2.COLOR_RGB2BGR))
+	video.release()
 
-if width == height: print ("votre image %s est déjà un carré, vous n'avez pas besoin de la transformer")
-elif width > height: creerGifX()
-else: creerGifY()
+if len (argv) <2: print ("entrez le nom de l'image")
+else:
+	# récupérer le fichier
+	nomImg = argv[1]
+	nomImg = fileLcl.shortcut (nomImg)
+	d= nomImg.rfind ('.')
+	# nomGif = nomImg[:d] +'-anim.gif'
+	nomMp4 = nomImg[:d] +'-anim.mp4'
+	# données de l'image originale
+	imageOriginal = Image.open (nomImg)
+	width = imageOriginal.size[0]
+	height = imageOriginal.size[1]
+	# traitement de l'image
+	if width == height: print ("votre image %s est déjà un carré, vous n'avez pas besoin de la transformer")
+	elif width > height:
+		images = frameListX()
+		if images: creerMp4 (images, height)
+	else:
+		images = frameListY()
+		if images: creerMp4 (images, width)
 
