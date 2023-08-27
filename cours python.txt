@@ -158,6 +158,13 @@ applis:
 
 https://developers.google.com/calendar/api/quickstart/python
 
+dans google, créer mon profil de développeuse. vérifier que le profil est associé au compte contenant le calendrier.
+https://developers.google.com/profile/u/116171585149691769782?hl=fr&authuser=2&utm_source=developers.google.com
+activer l'api google calendar
+https://console.cloud.google.com/projectselector2/apis/enableflow?apiid=calendar-json.googleapis.com&hl=fr&pli=1&supportedpurview=project
+
+https://developers.google.com/identity/protocols/oauth2/service-account?authuser=2&hl=fr#creatinganaccount
+
 cf quickstart.py
 
 ModuleNotFoundError: No module named 'googleapiclient'
@@ -165,6 +172,7 @@ pip install --upgrade google-api-python-client
 ModuleNotFoundError: No module named 'google_auth_oauthlib'
 pip install google-auth-oauthlib
 
+    "message": "API keys are not supported by this API. Expected OAuth2 access token or other authentication credentials that assert a principal. See https://cloud.google.com/docs/authentication",
 
 https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleEvents=true&orderBy=startTime&timeMin=2022-1-2022T1%3A31%3A00Z&timeMax=2022-1-2022T2%3A31%3A00Z&alt=json
 error
@@ -192,5 +200,5 @@ https://www.googleapis.com/calendar/v3/calendars/33akjnknr3mp1oletdkm8tdjog@grou
 
 ModuleNotFoundError: No module named 'googleapiclient'
 pip install google-api-python-client
-ip install google-auth-oauthlib
+pip install google-auth-oauthlib
 

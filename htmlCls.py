@@ -305,6 +305,7 @@ class Html (Article):
 		self.path = 'b/tmp.html'
 		self.fromPath()
 		if url: self.link = url
+		log.log (self.link)
 		self.fromUrl()
 		log.log (self.text)
 		# self.cleanWeb()

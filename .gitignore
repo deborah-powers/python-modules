@@ -1,7 +1,7 @@
 # perso
 fileLocal.py
 fileLcl.py
-quickstart.py
+calendrier.py
 mantis.py
 cleanBnf.py
 dgfip.py
@@ -13,8 +13,6 @@ temp.py
 *vb.py
 *.json
 *.log
-mantis/
-mantis-2021/
 */dist/
 */build/
 */dist/

@@ -13,6 +13,7 @@ source:
 
 types =( 'logement', 'boutique', 'nature', 'promenade')
 typesStreet =( 'rue', 'avenue', 'passage', 'quai' )
+templateUtz = '%Y-%m-%dT%H:%M:00.0Z'	# 2018-01-29T12:00:00+01:00.0Z
 
 class Place():
 	def __init__ (self):
@@ -35,163 +36,57 @@ class DatePerso (datetime):
 		self.monthName = monthNames[self.month -1]
 
 	def today():
-		todayDatetime = datetime.now()
-		todayPerso = DatePerso (todayDatetime.year, todayDatetime.month, todayDatetime.day, todayDatetime.hour, todayDatetime.minute)
-		return todayPerso
+		dtDate = datetime.now()
+		return DatePerso (dtDate.year, dtDate.month, dtDate.day, dtDate.hour, dtDate.minute)
 
-DatePerso.today = staticmethod (DatePerso.today)
+	def fromUtz (dateStr):
+		return DatePerso.fromStr (templateUtz, dateStr)
 
-dt= DatePerso.today()
-print (dt)
+	def toUtz (self):
+		return self.strftime (templateUtz)
 
-class DatePersoVa():
+	def fromGoogle (googleDate):
+		if len (googleDate) ==10: return DatePerso.fromStr ('%Y-%m-%d', googleDate)
+		else:
+			googleDate = googleDate[:16]
+			return DatePerso.fromStr ('%Y-%m-%dT%H:%M', googleDate)
 
-	def __init__ (self, day=1, month=1, hour=0, minute=0, year=2023):
-		self.year = year
-		self.month = month
-		self.day = day
-		self.hour = hour
-		self.minute = minute
-		self.monthName = monthNames[month -1]
+	def fromStr_interne (self, model, source):
+		dtDate = datetime.strptime (source, model)
+		return DatePerso (dtDate.year, dtDate.month, dtDate.day, dtDate.hour, dtDate.minute)
 
-	def today (self):
-		todayDatetime = datetime.now()
-		self.year = todayDatetime.year
-		self.month = todayDatetime.month
-		self.day = todayDatetime.day
-		self.hour = todayDatetime.hour
-		self.minute = todayDatetime.minute
-
-	# ________________________________________________ ajouter et supprimer ________________________________________________
-
-
-	def addMonth (self, nb=1):
-		self.month += nb
-		if self.month >12:
-			self.year +=1
-			self.month -=12
-
-	def delMonth (self, nb=1):
-		self.month -= nb
-		if self.month <1:
-			self.year -=1
-			self.month +=12
-
-
-	def addDay (self, nb=1):
-		self.day += nb
-		if self.day > monthDuration[self.month -1]:
-			if (self.month ==2 and self.isBissextile() and self.day <=29): pass
-			self.day -= monthDuration[self.month -1]
-			if (self.month ==2 and self.isBissextile()): self.day -=1
-			self.addMonth (1)
-
-	def delDay (self, nb=1):
-		self.day -= nb
-		if self.day <1:
-			self.day += monthDuration[self.month -2]
-			if (self.month ==3 and self.isBissextile()): self.day +=1
-			self.delMonth (1)
-
-	def addHour (self, nb=1):
-		self.hour += nb
-		if self.hour >23:
-			self.hour -=24
-			self.addDay (1)
-
-	def delHour (self, nb=1):
-		self.hour -= nb
-		if self.hour <0:
-			self.hour +=24
-			self.delDay (1)
-
-	def addMinute (self, nb=1):
-		self.minute += nb
-		if self.hour >59:
-			self.hour -=60
-			self.addHour (1)
-
-	def delMinute (self, nb=1):
-		self.minute -= nb
-		if self.minute <0:
-			self.minute +=60
-			self.delHour (1)
-
-	# ________________________________________________ lire et écrire ________________________________________________
-
-	def __str__ (self):
-		return self.toStrHour()
-
-	def fromStr (self, model, source):
-		if '$y' in model:
-			model = model.replace ('$y', '$yyy')
-			d= model.find ('$y')
-			self.year = int (source[d:d+4])
-		if '$m' in model:
-			d= model.find ('$m')
-			self.month = int (source[d:d+2])
-		if '$d' in model:
-			d= model.find ('$d')
-			self.day = int (source[d:d+2])
-		if '$h' in model:
-			d= model.find ('$h')
-			self.hour = int (source[d:d+2])
-		if '$M' in model:
-			d= model.find ('$M')
-			self.minute = int (source[d:d+2])
-
-	def toStr (self, model):
-		# model = $y/$m/$d $h:$M
-		if '$y' in model:
-			model = model.replace ('$y', '%04d')
-			model = model % self.year
-		if '$m' in model:
-			model = model.replace ('$m', '%02d')
-			model = model % self.month
-		if '$d' in model:
-			model = model.replace ('$d', '%02d')
-			model = model % self.day
-		if '$h' in model:
-			model = model.replace ('$h', '%02d')
-			model = model % self.hour
-		if '$M' in model:
-			model = model.replace ('$M', '%02d')
-			model = model % self.minute
-		return model
-
-	def toStrFileName (self):
-		return '%d-%02d-%02d-%02d-%02d' % (self.year, self.month, self.day, self.hour, self.minute)
-
-	def toStrUtz (self):
-		""" 2018-01-29T12:00:00+01:00 """
-		return '%d-%02d-%02dT%02d:%02d:00.0' % (self.year, self.month, self.day, self.hour, self.minute)
+	def fromStr (model, source):
+		dtDate = datetime.strptime (source, model)
+		return DatePerso (dtDate.year, dtDate.month, dtDate.day, dtDate.hour, dtDate.minute)
 
 	def toStrDay (self):
-		return '%d/%02d/%02d' % (self.year, self.month, self.day)
+		return self.strftime ('%Y/%m/%d')
 
 	def toStrHour (self):
-		return '%d/%02d/%02d %02d:%02d:00' % (self.year, self.month, self.day, self.hour, self.minute)
+		return self.strftime ('%Y/%m/%d %H:%M')
 
-	def fromStrUtz (self, dateStr):
-		""" dateStr ressemble à 2018-01-29T12:00:00+01:00 """
-		dateStr = dateStr[:19]
-		return self.fromStr ('$y-$m-$dT$h:$M', dateStr)
+	def __str__(self):
+		return self.toStrHour()
 
-	def fromStrV1 (self, dateStr):
-		dateStr = dateStr.replace ('-', '/')
-		dateStr = dateStr.replace (' ', '/')
-		dateStr = dateStr.replace (':', '/')
-		dateStr = dateStr.replace ('T', '/')
-		dateList = dateStr.split ('/')
-		self.year = int (dateList[0])
-		self.month = int (dateList[1])
-		self.day = int (dateList[2])
-		if (len (dateList)) >4:
-			self.hour = int (dateList[3])
-			self.minute = int (dateList[4])
 
-	# ________________________________________________ comparer ________________________________________________
+DatePerso.today = staticmethod (DatePerso.today)
+DatePerso.fromStr = staticmethod (DatePerso.fromStr)
+DatePerso.fromUtz = staticmethod (DatePerso.fromUtz)
+DatePerso.fromGoogle = staticmethod (DatePerso.fromGoogle)
 
+"""
+dt= DatePerso.today()
+print (dt)
+do= datetime (2022, 2, 25, 13, 45)
+print (do)
+print (do.year)
+print (do.month)
+print (do.day)
+print (do.hour)
+print (do.minute)
+print (do.replace (day=28, hour=4))
+"""
+class DatePersoVa():
 	def difference (self, newDate):
 		diff = self.compare (newDate)
 		nbMinutesA =0
@@ -223,21 +118,6 @@ class DatePersoVa():
 		elif self.minute	> newDate.minute:	diff =1
 		elif self.minute	< newDate.minute:	diff =-1
 		return diff
-
-	def isBissextile (self):
-		bissextile = False
-		if self.year %400 ==0: bissextile = True
-		elif self.year %100 ==0: bissextile = False
-		elif self.year %4 ==0: bissextile = True
-		return bissextile
-
-	def nbDaysYear (self):
-		# number of days since year start
-		numberDays = self.day
-		rangeMois = range (self.month -1)
-		for m in rangeMois: numberDays += monthDuration[m]
-		if self.month >2 and self.isBissextile(): numberDays +=1
-		return numberDays
 
 	def toDays (self):
 		# number of days since year 0
@@ -273,8 +153,8 @@ class DatePersoVa():
 
 class Event():
 	def __init__ (self):
-		self.date		= DatePerso()
-		self.duration	= DatePerso()
+		self.date		= DatePerso.today()
+		self.duration	= 0	# en minutes
 		self.location	=""
 		self.category	=""
 		self.title		=""
