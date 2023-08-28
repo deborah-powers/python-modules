@@ -5,8 +5,6 @@ import loggerFct
 
 help ="""
 classe de gestion facile des dates
-dépendences:
-	datetime.datetime
 source:
 	https://www.guru99.com/date-time-and-datetime-classes-in-python.html
 """
@@ -117,8 +115,8 @@ class Event():
 		return self.toStrDay()
 
 	def setDuration (self, datePerso):
-		if datePerso < self.date: self.duration =0
-		else:
+		self.duration =0
+		if datePerso > self.date:
 			difference = self.date.difference (datePerso)
 			if difference.days ==0 and difference.seconds >0: self.duration = difference.seconds /60
 
