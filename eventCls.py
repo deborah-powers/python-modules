@@ -78,9 +78,6 @@ DatePerso.fromStr = staticmethod (DatePerso.fromStr)
 DatePerso.fromUtz = staticmethod (DatePerso.fromUtz)
 DatePerso.fromGoogle = staticmethod (DatePerso.fromGoogle)
 
-data = DatePerso.fromGoogle ('2018-12-22T12:45')
-dato = DatePerso.fromGoogle ('2018-12-14T12:26')
-data.difference (dato)
 
 """
 dt= DatePerso.today()
