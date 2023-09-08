@@ -3,12 +3,12 @@
 # comparer la version sur mon ordi du fichier liens-data.js et la nouvelle version téléchargée
 import json
 from fileCls import File
+from fileLcl import pathLienData
 
-jsonTitleA = 'b/programmes\\liens-data.js'
 jsonTitleB = 'r/Downloads\\liens-data.js'
 jsonTitleC = 'b/liens-data-bis.js'
 
-jsonFileA = File (jsonTitleA)
+jsonFileA = File (pathLienData)
 jsonDataA = jsonFileA.readJson()
 jsonFileB = File (jsonTitleB)
 jsonDataB = jsonFileB.readJson()
