@@ -14,7 +14,7 @@ codeKeywords =(
 	'def', 'class', 'console.log', 'var', 'function', 'private', 'protected', 'public',
 	'log.debug', 'log.info'
 )
-urlWord =( ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js') )
+urlWord =( (': /', ':/'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js') )
 urlEnd = '"\' \n\t/'
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
@@ -36,7 +36,7 @@ tagHtml =(
 
 def upperCaseIntern (text):
 	text ='\n'+ text
-	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
+	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '\n- ', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
 	punctuation = '({[?!;.,:]})'
 	for i, j in uppercaseLetters:
 		for p in points: text = text.replace (p+i, p+j)
@@ -214,7 +214,7 @@ def cleanText (text):
 				if d!=2: liste[l] =' '+ liste[l]
 		else: liste[l] =' '+ liste[l]
 	text = ':'.join (liste)
-	text = text.replace (': //', '://')
+	text = text.replace (': /', ':/')
 	text = text.replace ('localhost: ', 'localhost:')
 	return text
 
@@ -242,8 +242,9 @@ def toMarkdown (text):
 	text = text.replace ('============', '=')
 	text = text.replace ('************', '==')
 	text = text.replace ('------------', "'''")
+	text = text.replace ('\n\t', '\n- ')
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	text = text.replace ('\n', '\n\n')
-	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
 	return text
 
 	# ________________________ fonctions de bases ________________________
@@ -308,7 +309,7 @@ def sliceWord (text, wordStart, wordEnd):
 		if f>0 and f>d: res = text[d:f]
 	return res
 
-# ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________
+""" ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________ """
 
 def toHtml (text):
 	text = shape (text)
