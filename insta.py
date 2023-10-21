@@ -26,6 +26,8 @@ https://pypi.org/project/opencv-python/#installation-and-usage
 pip install opencv-contrib-python
 
 https://stackoverflow.com/questions/64506236/pil-image-list-into-a-video-slide-with-cv2-videowriter
+https://stackoverflow.com/questions/64764601/creating-an-mp4-file-from-images-using-video-write-in-opencv
+https://stackoverflow.com/questions/44947505/how-to-make-a-movie-out-of-images-in-python
 """
 images =[]
 imagesReverse =[]
