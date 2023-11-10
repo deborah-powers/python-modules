@@ -14,8 +14,7 @@ codeKeywords =(
 	'def', 'class', 'console.log', 'var', 'function', 'private', 'protected', 'public',
 	'log.debug', 'log.info'
 )
-urlWord =( (': /', ':/'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js') )
-urlEnd = '"\' \n\t/'
+urlWords =( (': /', ':/'), ('localhost: ', 'localhost:'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js'), (': 80', ':80'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico') )
 weirdChars =(
 	('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
@@ -44,6 +43,7 @@ def upperCaseIntern (text):
 		for q in " "+ punctuation[0:5]:
 			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
 	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
+	# le code
 	for artefact in codeKeywords:
 		text = text.replace ('\n'+ artefact.capitalize() +' ', '\n'+ artefact +' ')
 		text = text.replace ('\t'+ artefact.capitalize() +' ', '\t'+ artefact +' ')
@@ -72,7 +72,7 @@ def upperCase (text, case=""):
 	return text
 
 def findEndUrl (text, pos=0):
-	charEndUrl = '\n\t \'",;!()[]{}='
+	charEndUrl = '\n\t \'",;!()[]{}'
 	lenText = len (text) +1
 	posEnd = lenText
 	posTmp = lenText
@@ -80,34 +80,6 @@ def findEndUrl (text, pos=0):
 		posTmp = text.find (char, pos)
 		if posTmp >0 and posTmp < posEnd: posEnd = posTmp
 	return posEnd
-
-def protectHour (text):
-	if ':' not in text: return text
-	d=0
-	while d< len (text) -3 and d>=0:
-		d= text.find (':', d)
-		if d<0: continue
-		if text[d+3] == ':':
-			f= findEndUrl (text, d)
-			dateProtected = text[d:f].replace (':', '§§§')
-			dateProtected = dateProtected.replace (',', '£££')
-			text = text.replace (text[d:f], dateProtected)
-		d=d+4
-	return text
-
-def protectUrl (text, root='http'):
-	# root = http, https, C
-	root = root + '://'
-	textList = text.split (root)
-	textRange = range (1, len (textList))
-	for l in textRange:
-		f= findEndUrl (textList[l])
-		urlProtected = textList[l][:f].replace ('.', '€€€')
-		urlProtected = urlProtected.replace ('?', '$$$')
-		urlProtected = urlProtected.replace (':', '§§§')
-		textList[l] = textList[l].replace (textList[l][:f], urlProtected)
-	text = root.join (textList)
-	return text
 
 def cleanBasic (text):
 	for i, j in weirdChars: text = text.replace (i, j)
@@ -197,25 +169,27 @@ def cleanText (text):
 	text = text.replace (':', ': ')
 	while '  ' in text: text = text.replace ('  ', ' ')
 	text = text.replace (' \n', '\n')
+	# restaurer les heures
+	liste = text.split (': ')
+	rliste = range (1, len (liste))
+	for l in rliste:
+		if len (liste[l]) >1 and liste[l][0] in '0123456789' and liste[l][1] in '0123456789':
+			if len (liste[l]) >2 and liste[l][2] != '.':
+				d= findEndUrl (liste[l])
+				if d!=2: liste[l] =' '+ liste[l]
+		else: liste[l] =' '+ liste[l]
+	text = ':'.join (liste)
 	# restaurer les url
+	charEndUrl = '\n\t \'",;!()[]{}'
+	for wordStart, wordEnd in urlWords[:8]: text = text.replace (wordStart, wordEnd)
+	for wordStart, wordEnd in urlWords[8:]:
+		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
 	liste = text.split (' ?')
 	rliste = range (1, len (liste))
 	for l in rliste:
 		d= findEndUrl (liste[l])
 		if '=' not in liste[l][:d]: liste[l-1] = liste[l-1] +' '
 	text = '?'.join (liste)
-	# restaurer les heures
-	liste = text.split (': ')
-	rliste = range (1, len (liste))
-	for l in rliste:
-		if len (liste[l]) >1 and liste[l][0] in '0123456789' and liste[l][1] in '0123456789':
-			if len (liste[l]) >2:
-				d= findEndUrl (liste[l])
-				if d!=2: liste[l] =' '+ liste[l]
-		else: liste[l] =' '+ liste[l]
-	text = ':'.join (liste)
-	text = text.replace (': /', ':/')
-	text = text.replace ('localhost: ', 'localhost:')
 	return text
 
 def shape (text, case=""):

@@ -448,7 +448,7 @@ class FileList (File):
 
 	def read (self):
 		File.read (self)
-		self.text = textFct.clean (self.text)
+		self.text = textFct.cleanBasic (self.text)
 		self.fromText()
 
 	def toText (self):
@@ -517,6 +517,11 @@ class FileList (File):
 		if pos <0: pos += length
 		elif pos >= length: pos -= length
 		trash = self.list.pop (pos)
+
+	def replace (self, wordOld, wordNew):
+		rfile = self.range()
+		for l in rfile:
+			if wordOld in self[l]: self[l] = self[l].replace (wordOld, wordNew)
 
 class FileTable (FileList):
 	def __init__(self, file=None, sep='\n', sepCol='\t'):

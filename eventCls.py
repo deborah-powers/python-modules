@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3.11
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 import loggerFct
