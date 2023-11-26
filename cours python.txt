@@ -167,6 +167,41 @@ https://developers.google.com/identity/protocols/oauth2/service-account?authuser
 
 cf quickstart.py
 
+****** erreur invalid_grant ******
+
+  File "C:\Users\LENOVO\Desktop\python\calendrier.py", line 315, in <module>
+    service = setService()
+              ^^^^^^^^^^^^
+  File "C:\Users\LENOVO\Desktop\python\calendrier.py", line 70, in setService
+    if creds and creds.expired and creds.refresh_token: creds.refresh (Request())
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\oauth2\credentials.py", line 335, in refresh
+    ) = reauth.refresh_grant(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\oauth2\reauth.py", line 349, in refresh_grant
+    _client._handle_error_response(response_data, retryable_error)
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+google.auth.exceptions.RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})
+
+dans mon code, ligne #if not creds or not creds.valid
+commenter les if - else,
+garder
+flow = InstalledAppFlow.from_client_secrets_file ('credentials.json', scopes)
+creds = flow.run_local_server (port=0)
+# Save the credentials for the next run
+with open ('token.json', 'w') as token: token.write (creds.to_json())
+
+
+https://groups.google.com/g/adwords-api/c/skrMUFn8h5Y
+https://developers.google.com/google-ads/api/docs/start?hl=fr#generate_oauth2_credentials
+
+https://console.cloud.google.com/projectselector2/apis/credentials?hl=fr&supportedpurview=project
+sélectionner calendrier-deborah. attention, mon utilisateur doit être deborah.powers89.
+https://console.cloud.google.com/apis/credentials?hl=fr&authuser=2&project=calendrier-deborah&supportedpurview=project
+
+****** erreurs ******
+
 ModuleNotFoundError: No module named 'googleapiclient'
 pip install --upgrade google-api-python-client
 ModuleNotFoundError: No module named 'google_auth_oauthlib'
