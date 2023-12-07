@@ -7,9 +7,9 @@ from htmlCls import Html
 
 
 htmlTest = """<html>
-<head><title>Title goes here.</title></head>
+<head><title>serveur python</title></head>
 <body>
-<p>This is a test.</p>
+<p>serveur python pour ouvrir des fichiers</p>
 </body></html>
 """
 fileHtml = Html ('b/nouvel-article.html')

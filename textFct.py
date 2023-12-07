@@ -94,6 +94,7 @@ def cleanBasic (text):
 	return text
 
 def cleanHtml (text):
+	text = cleanBasic (text)
 	text = text.replace ('\n', ' ')
 	text = text.replace ('\t', ' ')
 	for i, j in weirdChars: text = text.replace (i, j)
@@ -114,6 +115,7 @@ def cleanHtml (text):
 	return text
 
 def cleanCss (text):
+	text = cleanBasic (text)
 	text = text.replace ('\n', ' ')
 	text = text.replace ('\t', ' ')
 	for i, j in weirdChars: text = text.replace (i, j)
