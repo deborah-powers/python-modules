@@ -1,5 +1,10 @@
 #!/usr/bin/python3.9
 # -*- coding: utf-8 -*-
+""" ouvrir des fichiers via un navigateur
+dépendences js:
+	text.js
+	fileBackend.js
+"""
 import json
 from http.server import HTTPServer, SimpleHTTPRequestHandler, test
 import textFct
@@ -40,8 +45,7 @@ class BackEndCors (SimpleHTTPRequestHandler):
 			'title': fileToRead.title,
 			'text': fileToRead.text
 		}
-		sendJson = json.dumps (sendBody)
-		return sendJson
+		return sendBody
 
 	def readArticle (self, postBody):
 		fileToRead = fileCls.Article (postBody['file'])
@@ -51,17 +55,12 @@ class BackEndCors (SimpleHTTPRequestHandler):
 		sendBody ={
 			'title': fileToRead.title,
 			'text': fileToRead.text,
-			'author': "",
-			'authLink': "",
-			'link': "",
-			'subject': ""
+			'author': fileToRead.author,
+			'authLink': fileToRead.authLink,
+			'link': fileToRead.link,
+			'subject': fileToRead.subject
 		}
-		sendBody['author'] = fileToRead.author
-		sendBody['authLink'] = fileToRead.authLink
-		sendBody['link'] = fileToRead.link
-		sendBody['subject'] = fileToRead.subject
-		sendJson = json.dumps (sendBody)
-		return sendJson
+		return sendBody
 
 	def writeFile (self, postBody):
 		fileToRead = fileCls.File (postBody['file'])
@@ -86,22 +85,23 @@ class BackEndCors (SimpleHTTPRequestHandler):
 
 	def do_POST (self):
 		""" lire un fichier
-		postBody = { type: 'article', file: 'path/to/myfile.html', action: 'read' }
+		postBody = { type: 'article', file: 'path/to/myfile.html' }
 		"""
 		self.send_response (200)
 		self.end_headers()
 		bodyTmp = self.readBody()
 		postBody = json.loads (bodyTmp)
-		sendBody ={ 'title': 'action inconnue', 'text': 'action inconnue '+ postBody['action'] }
-		if postBody['action'] == 'read':
-			if postBody['type'] == 'article': sendBody = self.readArticle (postBody)
-			else: sendBody = self.readFile (postBody)
-		elif postBody['action'] == 'write':
+		sendBody ={}
+		if 'text' in postBody.keys():
 			if postBody['type'] == 'article': self.writeArticle (postBody)
 			else: self.writeFile (postBody)
 			sendBody['title'] = 'fichier écrit'
 			sendBody['text'] = postBody['file']
-		self.writeBody (sendBody)
+		else:
+			if postBody['type'] == 'article': sendBody = self.readArticle (postBody)
+			else: sendBody = self.readFile (postBody)
+		sendJson = json.dumps (sendBody)
+		self.writeBody (sendJson)
 
 if __name__ == '__main__':
 	test (BackEndCors, HTTPServer, port=1407)
@@ -111,11 +111,4 @@ url correspondant à index.html
 http://localhost:1407/
 si je rajoute une fonction do_GET à ma classe, le html du fichier est écrasé.
 il faut générer du nouveau html dynamiquement grâce à self.wfile()
-
-pour utiliser le script comme back-end dans un fichier js
-const url = 'http://localhost:1407/server.py';
-var xhttp = new XMLHttpRequest();
-xhttp.onreadystatechange = function(){ if (this.readyState ==4) console.log (this.responseText); };
-xhttp.open ('GET', url, true);
-xhttp.send();
 """

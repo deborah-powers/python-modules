@@ -95,6 +95,7 @@ class File():
 			except UnicodeDecodeError: pass
 			else: break
 		textBrut.close()
+		print (text)
 		if text: self.text = text
 		self.fromPath()
 
