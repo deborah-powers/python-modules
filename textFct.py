@@ -36,13 +36,21 @@ tagHtml =(
 def upperCaseIntern (text):
 	text ='\n'+ text
 	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '\n- ', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
-	punctuation = '({[?!;.,:]})'
 	for i, j in uppercaseLetters:
 		for p in points: text = text.replace (p+i, p+j)
+	punctuation = '({[?!;.,:]})"\' \n\t'
+	for word in wordsBeginMaj:
+		for p in punctuation:
+			text = text.replace (" "+ word +p, " "+ word.capitalize() +p)
+			text = text.replace ("\t"+ word +p, "\t"+ word.capitalize() +p)
+	"""
 	for p in " "+ punctuation[-11:]:
 		for q in " "+ punctuation[0:5]:
-			for word in wordsBeginMaj: text = text.replace (q+ word +p, q+ word.capitalize() +p)
-	for artefact in wordsBeginMin: text = text.replace (artefact, artefact.lower())
+			for word in wordsBeginMaj:
+				if word == 'powers': print (p,q)
+				text = text.replace (q+ word +p, q+ word.capitalize() +p)
+	"""
+	for word in wordsBeginMin: text = text.replace (word, word.lower())
 	# le code
 	for artefact in codeKeywords:
 		text = text.replace ('\n'+ artefact.capitalize() +' ', '\n'+ artefact +' ')
@@ -175,7 +183,7 @@ def cleanText (text):
 	liste = text.split (': ')
 	rliste = range (1, len (liste))
 	for l in rliste:
-		if len (liste[l]) >1 and liste[l][0] in '0123456789' and liste[l][1] in '0123456789':
+		if len (liste[l]) >1 and liste[l][0] in '012345' and liste[l][1] in '0123456789':
 			if len (liste[l]) >2 and liste[l][2] != '.':
 				d= findEndUrl (liste[l])
 				if d!=2: liste[l] =' '+ liste[l]
