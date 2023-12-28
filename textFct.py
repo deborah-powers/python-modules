@@ -178,7 +178,6 @@ def cleanText (text):
 		text = text.replace ('...' + letter, '... '+ letter)
 	text = text.replace (':', ': ')
 	while '  ' in text: text = text.replace ('  ', ' ')
-	text = text.replace (' \n', '\n')
 	# restaurer les heures
 	liste = text.split (': ')
 	rliste = range (1, len (liste))
@@ -189,6 +188,8 @@ def cleanText (text):
 				if d!=2: liste[l] =' '+ liste[l]
 		else: liste[l] =' '+ liste[l]
 	text = ':'.join (liste)
+	text = text.replace (' \n', '\n')
+	text = text.replace (' \t', '\t')
 	# restaurer les url
 	charEndUrl = '\n\t \'",;!()[]{}'
 	for wordStart, wordEnd in urlWords[:8]: text = text.replace (wordStart, wordEnd)
