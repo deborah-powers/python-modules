@@ -5,7 +5,7 @@ import codecs
 import json
 import listFct
 import textFct
-from fileLcl import *
+from fileLocal import *
 import loggerFct
 
 def comparerText (textA, textB):

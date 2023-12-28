@@ -34,6 +34,9 @@ class Fanfic (Html):
 			self.fromPath()
 			self.read (True)
 		# self.clean()
+		self.fromFrontEnd()
+
+	def fromFrontEnd (self):
 		if subject: self.subject = subject
 		if 'http://www.gutenberg.org/' in url:				self.gutemberg()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
