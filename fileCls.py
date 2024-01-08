@@ -6,7 +6,6 @@ import json
 import listFct
 import textFct
 from fileLocal import *
-import loggerFct
 
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")
