@@ -3,14 +3,14 @@
 import os
 import listFct
 import textFct
-from fileLcl import *
+from fileLocal import *
 from fileCls import File, Article
 from htmlCls import Html
 import loggerFct
 
 class Folder():
 	def __init__ (self, path='b/'):
-		if path: path = shortcut (path)
+		path = shortcut (path)
 		self.path = path
 		self.list =[]
 		if self.path[-1] != os.sep: self.path = self.path + os.sep
