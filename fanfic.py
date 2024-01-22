@@ -34,10 +34,9 @@ class Fanfic (Html):
 			self.fromPath()
 			self.read (True)
 		# self.clean()
-		self.fromFrontEnd()
+		self.fromFrontEnd (url)
 
-	def fromFrontEnd (self):
-		if subject: self.subject = subject
+	def fromFrontEnd (self, url):
 		if 'http://www.gutenberg.org/' in url:				self.gutemberg()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
 		elif 'https://archiveofourown.org/works/' in url:	self.aoooWeb()
@@ -62,10 +61,8 @@ class Fanfic (Html):
 		if '</a>' not in article.text and '<img' not in article.text:
 			article = article.toText()
 			article.text = article.text.replace ('\n\n', '\n')
-			article.text = article.text.replace ('\n', '\n\n')
 		# elif '<img' in article.text: article = article.toXhtml()
-		else:
-			article = article.toHtml()
+		else: article = article.toHtml()
 		if len (article.text) >420000: article.divide()
 		else: article.write()
 

@@ -16,6 +16,14 @@ htmlTest = """<html>
 <p>serveur python pour ouvrir des fichiers</p>
 </body></html>
 """
+fileArticle = 'b/	.html'
+
+def findPath (postBody):
+	path =""
+	if 'path' in postBody.keys(): path = postBody['path']
+	else: path = fileArticle.replace ('\t', postBody['title'])
+	return path
+
 class BackEndCors (SimpleHTTPRequestHandler):
 	def end_headers (self):
 		self.send_header ('Access-Control-Allow-Origin', '*')
@@ -35,18 +43,6 @@ class BackEndCors (SimpleHTTPRequestHandler):
 		self.wfile.write (bytes (text, 'utf-8'))
 	#	self.wfile.close()
 
-	def readFile (self, postBody):
-		fileToRead = fileCls.File (postBody['file'])
-		fileToRead.read()
-		if fileToRead.path[-5:] == '.html': fileToRead.text = textFct.cleanHtml (fileToRead.text)
-		elif fileToRead.path[-4:] == '.css': fileToRead.text = textFct.cleanCss (fileToRead.text)
-		else: fileToRead.text = textFct.cleanText (fileToRead.text)
-		sendBody ={
-			'title': fileToRead.title,
-			'text': fileToRead.text
-		}
-		return sendBody
-
 	def readArticle (self, postBody):
 		fileToRead = fileCls.Article (postBody['file'])
 		fileToRead.read()
@@ -55,25 +51,45 @@ class BackEndCors (SimpleHTTPRequestHandler):
 		sendBody ={
 			'title': fileToRead.title,
 			'text': fileToRead.text,
+			'path': fileToRead.path,
 			'author': fileToRead.author,
-			'authLink': fileToRead.authLink,
 			'link': fileToRead.link,
+			'authLink': fileToRead.authLink,
 			'subject': fileToRead.subject
 		}
 		return sendBody
 
-	def writeFile (self, postBody):
+	def readFile (self, postBody):
 		fileToRead = fileCls.File (postBody['file'])
+		fileToRead.read()
+		if fileToRead.path[-5:] == '.html': fileToRead.text = textFct.cleanHtml (fileToRead.text)
+		elif fileToRead.path[-4:] == '.css': fileToRead.text = textFct.cleanCss (fileToRead.text)
+		else: fileToRead.text = textFct.cleanText (fileToRead.text)
+		sendBody ={
+			'title': fileToRead.title,
+			'text': fileToRead.text,
+			'path': fileToRead.path
+		}
+		return sendBody
+
+	def writeFile (self, postBody):
+		path = findPath (postBody)
+		fileToRead = fileCls.Article (path)
+		fileToRead.link = postBody['link']
 		fileToRead.text = postBody['text']
+		fileToRead.author ='o'
+		fileToRead.authLink ='o'
+		fileToRead.subject ='o'
 		fileToRead.write()
 
 	def writeArticle (self, postBody):
-		fileToRead = fileCls.Article (postBody['file'])
+		path = findPath (postBody)
+		fileToRead = fileCls.Article (path)
+		fileToRead.link = postBody['link']
+		fileToRead.text = postBody['text']
 		fileToRead.author = postBody['author']
 		fileToRead.authLink = postBody['authLink']
-		fileToRead.link = postBody['link']
 		fileToRead.subject = postBody['subject']
-		fileToRead.text = postBody['text']
 		fileToRead.write()
 
 	"""
@@ -85,7 +101,7 @@ class BackEndCors (SimpleHTTPRequestHandler):
 
 	def do_POST (self):
 		""" lire un fichier
-		postBody = { type: 'article', file: 'path/to/myfile.html' }
+		postBody = { text: 'mon long texte à écrire', path: 'path/to/myfile.html' }
 		"""
 		self.send_response (200)
 		self.end_headers()
@@ -93,13 +109,11 @@ class BackEndCors (SimpleHTTPRequestHandler):
 		postBody = json.loads (bodyTmp)
 		sendBody ={}
 		if 'text' in postBody.keys():
-			if postBody['type'] == 'article': self.writeArticle (postBody)
+			if 'author' in postBody.keys(): self.writeArticle (postBody)
 			else: self.writeFile (postBody)
-			sendBody['title'] = 'fichier écrit'
-			sendBody['text'] = postBody['file']
-		else:
-			if postBody['type'] == 'article': sendBody = self.readArticle (postBody)
-			else: sendBody = self.readFile (postBody)
+			sendBody['reponse'] = 'fichier écrit'
+		elif 'type' in postBody.keys() and postBody['type'] == 'text': sendBody = self.readFile (postBody)
+		else: sendBody = self.readArticle (postBody)
 		sendJson = json.dumps (sendBody)
 		self.writeBody (sendJson)
 

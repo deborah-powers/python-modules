@@ -211,10 +211,13 @@ templateHtml = """<!DOCTYPE html><html><head>
 	<meta name='subject' content='%s'/>
 	<meta name='link' content='%s'/>
 	<meta name='autlink' content='%s'/>
+	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
+	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
 %s
 </head><body>
 %s
 </body></html>"""
+
 
 templateXhtml ="""<?xml version='1.0' encoding='utf-8'?>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='fr'>
