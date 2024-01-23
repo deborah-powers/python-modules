@@ -6,6 +6,7 @@ import json
 import listFct
 import textFct
 from fileLocal import *
+import loggerFct
 
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")
@@ -315,7 +316,9 @@ class Article (File):
 		article.author = self.author
 		article.autlink = self.autlink
 		article.text = textFct.toHtml (article.text)
-		if '</' in article.text: return article
+		if '</' in article.text:
+			loggerFct.log (article.text)
+			return article
 		else: return self
 
 	def toXhtml (self):
