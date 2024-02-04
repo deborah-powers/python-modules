@@ -10,15 +10,14 @@ utilisation
 	le script est appelable dans un fichier
 	python3 fileClass.py fichier tag (fichierB)
 les valeurs de tag
-	clean (reset upper):	nettoyer le texte. modifier ou pas la casse.
-	mef (reset upper):	mettre en forme un texte utilisant ma mise en forme spécifique.
-	help:			afficher l'aide d'un fichier python.
-	convert:		transformer un fichier html en texte et vice-versa.
-	md:				transformer un fichier txt en markdown
-	comp:			comparer deux fichiers
-	art:			transformer un texte simple en article
+	clean (ru - r - u):	nettoyer le texte. modifier ou pas la casse.
+	mef (ru):	mettre en forme un texte utilisant ma mise en forme spécifique.
+	help:		afficher l'aide d'un fichier python.
+	convert:	transformer un fichier html en texte et vice-versa.
+	md:			transformer un fichier txt en markdown
+	comp:		comparer deux fichiers
+	art:		transformer un texte simple en article
 """
-
 nbArg = len (argv)
 if nbArg <3: print (help)
 elif argv[2] == 'help':
@@ -58,9 +57,9 @@ elif nbArg >2:
 		else: filePerso.text = textFct.cleanText (filePerso.text)
 	elif 'mef' in argv: filePerso.text = textFct.shape (filePerso.text)
 	# rajouter un argument afin d'empêcher l'écriture des majuscules
-	if 'reset' in argv and 'upper' in argv: filePerso.text = textFct.upperCase (filePerso.text, 'reset upper')
-	elif 'reset' in argv: filePerso.text = textFct.upperCase (filePerso.text, 'reset')
-	elif 'upper' in argv: filePerso.text = textFct.upperCase (filePerso.text, 'upper')
+	if 'r' in argv[3] and 'u' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset upper')
+	elif 'r' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset')
+	elif 'u' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'upper')
 	filePerso.write()
 # le nom du fichier n'a pas ete donne
 else: print (help)
