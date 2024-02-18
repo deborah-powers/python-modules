@@ -126,6 +126,7 @@ class File():
 		if not self.text: self.read()
 		self.replace ('\n')
 		self.replace ('\t')
+		self.replace (',]', ']')
 		d= self.text.find ('{')
 		f= self.text.rfind (';')
 		self.text = self.text[d:f]
