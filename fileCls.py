@@ -40,18 +40,16 @@ class File():
 	def renameDate (self):
 		months =( '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12')
 		days =( '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31')
-		if '2021' in self.title or '2022' in self.title or '2023' in self.title:
+		if '2023' in self.title or '2024' in self.title:
 			self.fromPath()
 			newPath = self.title.lower()
 			newPath = newPath.replace ('img_20', '20')
 			newPath = newPath.replace ('vid_20', '20')
 			newPath = newPath.replace ('video_20', '20')
-			newPath = newPath.replace ('20210', '2021-0')
-			newPath = newPath.replace ('20211', '2021-1')
-			newPath = newPath.replace ('20220', '2022-0')
-			newPath = newPath.replace ('20221', '2022-1')
 			newPath = newPath.replace ('20230', '2023-0')
 			newPath = newPath.replace ('20231', '2023-1')
+			newPath = newPath.replace ('20240', '2024-0')
+			newPath = newPath.replace ('20241', '2024-1')
 			for m in months: newPath = newPath.replace ('-'+m, '-'+m+'-')
 			for d in days: newPath = newPath.replace ('-'+d, '-'+d+' ')
 			while '--' in newPath: newPath = newPath.replace ('--', '-')
