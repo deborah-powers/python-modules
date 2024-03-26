@@ -15,7 +15,7 @@ l'url peut correspondre à une page ou un fichier local
 """
 
 def cleanTitle (title):
-	chars = "\t\n\\'.:;,_-/"
+	chars = "\t\n\\\"'.:;,_-/"
 	for char in chars: title = title.replace (char,' ')
 	title = title.strip()
 	title = title.lower()
