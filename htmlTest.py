@@ -1,12 +1,16 @@
 #!/usr/bin/python3.11
 # -*- coding: utf-8 -*-
 import textFct
+from fileCls import File
 
 listTags =( 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button', 'tr', 'table', 'figure', 'figcaption', 'textarea', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body' )
-listTagsSelfClosing =( 'img', 'input', 'hr', 'br' )
+listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta' )
 
 htmlText = "<html><head><title>Test</title></head><body><h1 id='parse'>Parse me!</h1><div class='cocc'>a<div color='plotplot'><span>hello</span> b</div><img src='coucoup' alt='sage comme une image'/></div></body></html>"
-
+htmlName = 'C:\\Users\\LENOVO\\Desktop\\articles\\scene deborah abdelselem.html'
+htmlFile = File (htmlName)
+htmlFile.read()
+print (htmlFile)
 
 class TagHtml():
 	def __init__ (self, text=""):
@@ -41,6 +45,12 @@ class TagHtml():
 				else:
 					d= attr.find ('=')
 					self.attributes[attr[:d]] = attr[d+2:-1]
+
+	def containAttribute (self, attribut):
+		if attribut == 'id' and self.id: return self.id
+		elif attribut == 'class' and self.className: return self.className
+		elif attribut in self.attributes.keys(): return self.attributes[attribut]
+		else: return None
 
 	def __str__ (self):
 		tagStr = self.tag +" "+ self.className +" "+ self.id
@@ -157,9 +167,20 @@ class HtmlParser():
 			return tagList
 		else: return []
 
-htmlParser = HtmlParser (htmlText)
+	def getMetas (self):
+		metas = self.getListByTag ('meta')
+		reta = reversed (range (len (metas)))
+		metaDict ={}
+		for m in reta:
+			name = metas[m].containAttribute ('name')
+			if name == None or name == 'viewport': trash = metas.pop (m)
+			else: metaDict[name] = metas[m].containAttribute ('content')
+
+
+htmlParser = HtmlParser (htmlFile.text)
+htmlParser.getMetas()
+"""
 text = htmlParser.getListByTag ('div')
 print (len (text), text[0], text[1])
-"""
 print (text)
 """

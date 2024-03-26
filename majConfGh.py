@@ -17,6 +17,7 @@ fileNamePython = 'b/python'
 fileNameWebext = 'b/web-extension'
 fileNameHtml = 'C:\\wamp64\\www\\html'
 fileNameSite = 'C:\\wamp64\\www\\site-dp'
+fileNameSpring = 'b/tuto-spring'
 
 class FileConfigGithub (File):
 	def __init__ (self, path):
@@ -36,3 +37,4 @@ else:
 	filePython = FileConfigGithub (fileNamePython)
 	fileHtml = FileConfigGithub (fileNameHtml)
 	fileSite = FileConfigGithub (fileNameSite)
+	fileSpring = FileConfigGithub (fileNameSpring)
