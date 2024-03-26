@@ -37,7 +37,7 @@ class Fanfic (Html):
 		self.fromFrontEnd (url)
 
 	def fromFrontEnd (self, url):
-		if 'http://www.gutenberg.org/' in url:				self.gutemberg()
+		if '://www.gutenberg.org/' in url:				self.gutemberg()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
 		elif 'https://archiveofourown.org/works/' in url:	self.aoooWeb()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
@@ -67,6 +67,7 @@ class Fanfic (Html):
 		else: article.write()
 
 	def findSubject (self):
+		log.log()
 		if self.subject:
 			self.subject = self.subject.replace ('/', ', ')
 			self.subject = self.subject.replace (', ', ', ')
@@ -134,6 +135,7 @@ class Fanfic (Html):
 		self.styles.append ('unisciel.css')
 
 	def gutemberg (self):
+		log.log ('oui')
 		# le titre
 		d= self.text.find ('Title:') +7
 		f= self.text.find ('Author:', d) -1
@@ -143,7 +145,7 @@ class Fanfic (Html):
 		f= self.text.find ('Release', d) -1
 		self.author = self.text [d:f]
 		# le sujet est impossible à trouver
-		self.text.findSubject()
+		self.findSubject()
 		# le texte
 		d= self.text.find ('<h1>')
 		f= self.text.rfind ('</p>') +4
@@ -174,7 +176,7 @@ class Fanfic (Html):
 		f= self.text.find ('<h1>À propos de cette édition électronique</h1>')
 		self.text = self.text [:f]
 		# le sujet
-		self.text.findSubject()
+		self.findSubject()
 
 	def menaceTheoriste (self):
 		self.subject = 'sciences'

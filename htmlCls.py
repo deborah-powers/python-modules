@@ -95,6 +95,7 @@ class Html (Article):
 	""" ________________________ netoyer le texte ________________________ """
 
 	def clean (self):
+		log.log()
 		self.text = textFct.cleanHtml (self.text)
 		self.text = self.text.replace ('> ', '>')
 		self.text = self.text.replace (' <', '<')
@@ -107,6 +108,8 @@ class Html (Article):
 		self.text = findTextBetweenTag (self.text, 'body')
 
 	def cleanWeb (self):
+		log.log()
+		self.clean()
 		for tag in listTags:
 			self.text = self.text.replace ('<'+ tag.upper(), '<'+ tag)
 			self.text = self.text.replace ('</'+ tag.upper(), '</'+ tag)
@@ -305,9 +308,7 @@ class Html (Article):
 		self.path = 'b/tmp.html'
 		self.fromPath()
 		if url: self.link = url
-		log.log (self.link)
 		self.fromUrl()
-		log.log (self.text)
 		# self.cleanWeb()
 		self.metas = {}
 		self.styles = []
