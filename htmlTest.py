@@ -63,6 +63,7 @@ class TagHtml():
 class HtmlParser():
 	def __init__ (self, text=""):
 		self.text = text
+		self.meta ={}
 
 	def cleanBasic (self):
 		# nettoyage de base
@@ -83,9 +84,10 @@ class HtmlParser():
 		for tag in listTagsSelfClosing:
 			self.text = self.text.replace ('<'+ tag.upper(), '<'+ tag)
 			self.text = self.text.replace ('<'+ tag +'>', '<'+ tag +'>')
-		# trouver le texte
+
+	def getBody (self):
 		d= self.text.find ('<body')
-		d= self.text.find ('>',d)
+		d= self.text.find ('>',d) +1
 		f= self.text.rfind ('</body>')
 		self.text = self.text[d:f]
 
