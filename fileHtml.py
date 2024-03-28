@@ -1,18 +1,16 @@
 #!/usr/bin/python3.11
 # -*- coding: utf-8 -*-
-import codecs
 from os import remove
 import urllib as ul
 from urllib import request as urlRequest
 import codecs
 import textFct
-from fileLocal import pathRoot
 from fileCls import File
 import loggerFct as log
 
-listTags =( 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'td', 'th', 'label', 'button', 'tr', 'table', 'figure', 'figcaption', 'textarea', 'form', 'fieldset', 'code', 'nav', 'article', 'section', 'body' )
+listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body' )
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta' )
-listAttributes =( 'href', 'src', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content' )
+listAttributes =( 'href', 'src', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
 templateHtml = """<!DOCTYPE html><html><head>
 	<title>%s</title>
 	<base target='_blank'>
@@ -53,8 +51,8 @@ class TagHtml():
 					end = attributes.pop (a)
 					attributes[a-1] = attributes[a-1] +" "+ end
 			for attr in attributes:
-				if attr[:3] == 'id=': self.id = attr[5:-1]
-				elif attr[:7] == 'class=': self.id = attr[9:-1]
+				if attr[:3] == 'id=': self.id = attr[4:-1]
+				elif attr[:6] == 'class=': self.id = attr[7:-1]
 				else:
 					d= attr.find ('=')
 					if attr[:d] in listAttributes: self.attributes[attr[:d]] = attr[d+2:-1]
@@ -159,14 +157,41 @@ class FileHtml (File):
 			return self.getByPos (posStart)
 		else: return []
 
+	def getByTagAndClassCommon (self, tagName, className):
+		if '<'+ tagName +" " not in self.text or className not in self.text: pass
+		tagStart = '<'+ tagName +" "
+		# identifier les balises d'intérêt
+		tagList = self.text.split (tagStart)
+		reta = range (1, len (tagList))
+		for m in reta:
+			fBracket= tagList[m].find ('>')
+			if 'class=' not in tagList[m][:fBracket]: continue
+			d= 7+ tagList[m].find ('class=')
+			f= tagList[m].find ("'",d)
+			if 'class="' in tagList[m]: f= tagList[m].find ('"',d)
+			if className in tagList[m][d:f]: tagList[m-1] = tagList[m-1] +'$'
+		self.text = tagStart.join (tagList)
+		return tagStart
+
+	def getByTagAndClass (self, tagName, className):
+		if '<'+ tagName +" " not in self.text or className not in self.text: return None
+		tagStart = self.getByTagAndClassCommon (tagName, className)
+		d= 1+ self.text.find ('$'+ tagStart)
+		tagOne = self.getByPos (d)
+		self.text = self.text.replace ('$'+ tagStart, tagStart)
+		return tagOne
+
 	def getList (self, tagName, className):
-		oldList = getListByTag (tagName)
-		if oldList:
-			tagList =[]
-			for tag in oldList:
-				if tag.className == className: tagList.append (tag)
-			return tagList
-		else: return []
+		if '<'+ tagName +" " not in self.text or className not in self.text: return []
+		tagStart = self.getByTagAndClassCommon (tagName, className)
+		# récupérer les balises
+		d= 1+ self.text.find ('$'+ tagStart)
+		tagList =[]
+		while '$'+ tagStart in self.text[d:]:
+			tagList.append (self.getByPos (d))
+			d= 1+ self.text.find ('$'+ tagStart, d)
+		self.text = self.text.replace ('$'+ tagStart, tagStart)
+		return tagList
 
 	""" ________________________ nettoyer le texte ________________________ """
 
@@ -194,6 +219,23 @@ class FileHtml (File):
 			listeCoins[c] = " ".join (attributes) + listeCoins[c][f:]
 		self.text = '<'.join (listeCoins)
 
+	def delClasses (self):
+		self.text = self.text.replace (' id=', ' class=')
+		textList = self.text.split (' class="')
+		textRange = range (1, len (textList))
+		for t in textRange:
+			f= 1+ textList[t].find ('"')
+			textList[t] = textList[t][f:]
+		self.text = "".join (textList)
+		textList = self.text.split (" class='")
+		textRange = range (1, len (textList))
+		for t in textRange:
+			f= 1+ textList[t].find ("'")
+			textList[t] = textList[t][f:]
+		self.text = "".join (textList)
+		for tag in listTags:
+			while '<'+ tag + '></'+ tag + '>' in self.text: self.text = self.text.replace ('<'+ tag + '></'+ tag + '>', "")
+
 	def setBody (self):
 		d= self.text.find ('<body')
 		d= self.text.find ('>',d) +1
@@ -205,18 +247,27 @@ class FileHtml (File):
 		d= self.text.find ('>',d) +1
 		f= self.text.rfind ('</title>')
 		self.title = self.text[d:f]
+		self.cleanTitle()
 
 	def setMetas (self):
 		self.meta ={}
-		metas = self.getListByTag ('meta')
-		for meta in metas:
-			name = meta.containAttribute ('name')
-			if name != None and name != 'viewport': self.meta[name] = meta.containAttribute ('content')
+		metaList = self.text.split ('<meta ')
+		reta = range (1, len (metaList))
+		for m in reta:
+			fBracket= metaList[m].find ('>')
+			if 'name=' not in metaList[m][:fBracket] or 'content=' not in metaList[m][:fBracket] or 'viewport' in metaList[m][:fBracket]: continue
+			d= 6+ metaList[m].find ('name=')
+			f= metaList[m].find ("'",d)
+			if 'name="' in metaList[m]: f= metaList[m].find ('"',d)
+			name = metaList[m][d:f]
+			d= 9+ metaList[m].find ('content=')
+			f= metaList[m].find ("'",d)
+			if 'content="' in metaList[m]: f= metaList[m].find ('"',d)
+			if name and metaList[m][d:f]: self.meta[name] = metaList[m][d:f]
 
 	def getMetas (self):
 		metas =""
-		for meta in self.meta.keys():
-			metas = meta + "<meta name='%s' content='%s'/>" % (meta, self.meta[meta])
+		for meta in self.meta.keys(): metas = metas + "<meta name='%s' content='%s'/>" % (meta, self.meta[meta])
 		return metas
 
 	""" ________________________ texte du web ________________________ """
@@ -252,8 +303,6 @@ class FileHtml (File):
 		else:
 			self.read()
 			remove (self.path.replace ('\t', 'tmp'))
-			self.titleFromUrl()
-			self.toPath()
 			return True
 
 	def fromUrl (self, params=None):
@@ -273,7 +322,10 @@ class FileHtml (File):
 				pos = title.rfind (end)
 				title = title [:pos]
 		if title.count ('-') >1: title = title.replace ('-', ' ')
+		title = title.replace ('_', ' ')
+		title = title.lower()
 		self.title = title
+		self.cleanTitle()
 
 	""" ________________________ lire et écrire dans un fichier html ________________________ """
 
@@ -281,15 +333,18 @@ class FileHtml (File):
 		File.read (self)
 		self.clean()
 		self.setTitle()
+		self.delAttributes()
+	"""
 		self.setMetas()
 		self.setBody()
-		self.delAttributes()
+	"""
 
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body
 		self.text = self.text.replace ('><', '>\n<')
 		self.text = self.text.replace ('>\n</', '></')
-		body = templateHtml % (self.title, self.getMetas(), self.text)
+		self.cleanTitle()
+		self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		File.write (self, mode)
 
 	def clean (self):
@@ -312,16 +367,10 @@ class FileHtml (File):
 			self.text = self.text.replace ('<'+ tag.upper(), '<'+ tag)
 			self.text = self.text.replace ('<'+ tag +'>', '<'+ tag +'>')
 
-htmlUrl = 'https://fr.wikipedia.org/wiki/Johannes_Gutenberg'
-htmlName = 'C:\\Users\\deborah.powers\\Desktop\\personnel\\crah a.html'
-htmlParser = FileHtml (htmlUrl)
-# htmlParser.read()
-htmlParser.title = 'croc blanc'
-htmlParser.write()
-"""
-htmlName = 'C:\\Users\\LENOVO\\Desktop\\articles\\scene deborah abdelselem.html'
-htmlName = 'C:\\Users\\deborah.powers\\Desktop\\personnel\\crah a.html'
-text = htmlParser.getListByTag ('div')
-print (len (text), text[0], text[1])
-print (text)
-"""
+	def cleanTitle (self):
+		self.title = self.title.lower()
+		for i, j in textFct.weirdChars: self.title = self.title.replace (i, j)
+		charToErase = '-_.:;,?/\\'
+		for char in charToErase: self.title = self.title.replace (char," ")
+		self.title = self.title.strip()
+		while '  ' in self.title: self.title = self.title.replace ('  ', ' ')
