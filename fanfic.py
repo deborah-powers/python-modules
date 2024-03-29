@@ -22,22 +22,14 @@ def cleanTitle (title):
 	while '  ' in title: title = title.replace ('  ',' ')
 	return title
 
-class Fanfic (Html):
-	def fromWeb (self, url, subject=None):
-		if url[:4] == 'http':
-			self.link = url
-			Html.fromWeb (self)
-			remove (self.path)
-		else:
-			if url[-5:] != '.html': url = 'b/' + url + '.html'
-			self.path = url
-			self.fromPath()
-			self.read (True)
-		# self.clean()
+class Fanfic (Html, Article):
+	def __init__ (self, url, subject=None):
+		Html.__init__ (self, url)
+		if subject: self.subject = subject
 		self.fromFrontEnd (url)
 
 	def fromFrontEnd (self, url):
-		if '://www.gutenberg.org/' in url:				self.gutemberg()
+		if '://www.gutenberg.org/' in url:					self.gutemberg()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
 		elif 'https://archiveofourown.org/works/' in url:	self.aoooWeb()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
