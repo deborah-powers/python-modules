@@ -174,6 +174,39 @@ class File():
 		newFile.toPath()
 		return self.path < newFile.path
 
+	def __setitem__ (self, pos, item):
+		lenList = len (self.text)
+		if type (pos) == int:
+			itemStr = str (item)
+			if len (itemStr) ==1:
+				while pos <0: pos += lenList
+				if pos < lenList: self.text[pos] = str (item)
+				else: self.text = self.text + str (item)
+
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenList)
+			rangeList = self.range (posIndex[0], posIndex[1], posIndex[2])
+			if type (item) in (tuple, list, str) and len (item) >= len (rangeList):
+				i=0
+				for l in rangeList:
+					self.list[l] = str (item[i])
+					i+=1
+
+	def __getitem__ (self, pos):
+		lenList = len (self.text)
+		if type (pos) == int:
+			while pos <0: pos += lenList
+			while pos >= lenList: pos -= lenList
+			return self.text [pos]
+
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenList)
+			rangeList = self.range (posIndex[0], posIndex[1], posIndex[2])
+			newList =""
+			for l in rangeList: newList = newList + self.text[l]
+			return newList
+		else: return None
+
 	def __len__(self):
 		return len (self.text)
 
@@ -495,9 +528,9 @@ class FileList (File):
 	def __getitem__ (self, pos):
 		lenList = len (self.list)
 		if type (pos) == int:
-			if pos <0: pos += lenList
-			if pos > lenList or pos <0: return None
-			else: return self.list [pos]
+			while pos <0: pos += lenList
+			while pos >= lenList: pos -= lenList
+			return self.list [pos]
 
 		elif type (pos) == slice:
 			posIndex = pos.indices (lenList)

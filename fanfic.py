@@ -24,24 +24,27 @@ def cleanTitle (title):
 
 class Fanfic (Html, Article):
 	def __init__ (self, url, subject=None):
+		Article.__init__ (self)
 		Html.__init__ (self, url)
 		if subject: self.subject = subject
 		self.fromFrontEnd (url)
 
 	def fromFrontEnd (self, url):
-		if '://www.gutenberg.org/' in url:					self.gutemberg()
+		if 'b/aooo.html' == url:		self.aooo()
+		elif 'b/ffnet.html' == url:		self.ffNet()
+		elif 'b/fpress.html' == url:	self.fPress()
+		elif '://www.gutenberg.org/' in url:				self.gutemberg()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
-		elif 'https://archiveofourown.org/works/' in url:	self.aoooWeb()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'https://www.reddit.com/r/' in url:			self.reddit()
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel()
 		elif 'gtb'		in url: self.gutemberg()
 		elif 'egb'		in url: self.ebGratuit()
-		elif 'b/aooo.html' == url: self.aoooLocal()
-		elif 'b/ffnet'	in url: self.ffNet()
-		elif 'b/fpress'	in url: self.fPress()
 		elif 'medium'	in url: self.medium()
-		elif '</article>' in self.text: self.text = textFct.sliceWord (self.text, '<article>', '</article>')
+		elif '</article>' in self.text:
+			article = self.getByTag ('article')
+			self.text = article.innerHtml
+
 		self.cleanWeb()
 		self.metas = {}
 		self.text = self.text.replace (' <', '<')

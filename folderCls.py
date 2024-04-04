@@ -124,13 +124,13 @@ class Folder():
 	def __setitem__ (self, pos, item):
 		lenList = len (self.list)
 		if type (pos) == int:
-			if pos <0: pos += lenList
+			while pos <0: pos += lenList
 			if pos < lenList: self.list[pos] = item
 			else: self.append (item)
 
 		elif type (pos) == slice:
 			posIndex = pos.indices (lenList)
-			rangeList = self.range (posIndex [0], posIndex [1], posIndex [2])
+			rangeList = self.range (posIndex[0], posIndex[1], posIndex[2])
 			if type (item) in (tuple, list) and len (item) >= len (rangeList):
 				i=0
 				for l in rangeList:
@@ -145,13 +145,13 @@ class Folder():
 	def __getitem__ (self, pos):
 		lenList = len (self.list)
 		if type (pos) == int:
-			if pos <0: pos += lenList
-			if pos > lenList or pos <0: return None
-			else: return self.list [pos]
+			while pos <0: pos += lenList
+			while pos >= lenList: pos -= lenList
+			return self.list [pos]
 
 		elif type (pos) == slice:
 			posIndex = pos.indices (lenList)
-			rangeList = self.range (posIndex [0], posIndex [1], posIndex [2])
+			rangeList = self.range (posIndex[0], posIndex[1], posIndex[2])
 			newList = Folder (self.path)
 			for l in rangeList: newList.append (self.list[l])
 			return newList

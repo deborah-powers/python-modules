@@ -1,6 +1,4 @@
 
-
-
 ====== divers ======
 
 object.__dir__()	récupère les fonctions d'un objet
@@ -12,6 +10,15 @@ __file__			nom du script s'executant
 if __name__ == 'main': pass
 else: xxx
 empêche de lancer certaines actions quand le script est une dépendance
+
+SyntaxError: erreur dans l'écriture du code. mauvaise indentation.
+NameError: mot non reconnu par l'interprêteur. utilisation d'une variable non déclarée.
+
+les types de donnée: string, int, float.
+variable contre littéral: un littéral est une donnée (le nombre 3) utilisée tel quel dans e code, sans être stoquée dans une variable.
+6**2 = 36
+26/5 = 5.2
+26%5 = 1
 
 ====== rajouter une fonction à une classe ======
 
@@ -236,4 +243,3 @@ https://www.googleapis.com/calendar/v3/calendars/33akjnknr3mp1oletdkm8tdjog@grou
 ModuleNotFoundError: No module named 'googleapiclient'
 pip install google-api-python-client
 pip install google-auth-oauthlib
-

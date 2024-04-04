@@ -322,6 +322,22 @@ class Html (File):
 
 	""" ________________________ lire et écrire dans un fichier html ________________________ """
 
+	def toText (self):
+		if '</a>' in self.text or '<img' in self.text: return
+		article = Article()
+		article.text = textFct.fromHtml (self.text)
+		if '</' in article.text: return
+		article.path = self.path.replace ('.html', '.txt')
+		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
+		article.title = self.title
+		article.subject = self.subject
+		article.type = 'txt'
+		article.link = self.link
+		article.author = self.author
+		article.autlink = self.autlink
+		article.write()
+		print ('article créé:\n' + article.path)
+
 	def read (self):
 		File.read (self)
 		self.clean()
