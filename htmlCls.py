@@ -147,8 +147,9 @@ class Html (File):
 			if className in tagList[m][d:f]: tagList[m-1] = tagList[m-1] +'$'
 		self.text = tagStart.join (tagList)
 		# récupérer les balises
-		d=1+ self.text.find ('$'+ tagStart)
+		d=0
 		tagList =[]
+		log.log (tagName +" "+ className)
 		while '$'+ tagStart in self.text[d:]:
 			tagList.append (self.getByPos (d))
 			d= 1+ self.text.find ('$'+ tagStart, d)
@@ -352,6 +353,7 @@ class Html (File):
 		self.text = self.text.replace ('>\n</', '></')
 		self.cleanTitle()
 		self.clean()
+		self.meta['link'] = self.link
 		self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		File.write (self, mode)
 
