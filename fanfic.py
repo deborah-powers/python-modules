@@ -6,7 +6,7 @@ from os import remove
 import listFct
 import textFct
 from fileCls import Article
-from htmlCls import Html
+import htmlCls
 import loggerFct as log
 
 help = """
@@ -15,32 +15,34 @@ utilisation: python fanfic url
 l'url peut correspondre à une page ou un fichier local
 """
 
-class Fanfic (Html, Article):
+class Fanfic (htmlCls.Html, Article):
 	def __init__ (self, url, subject=None):
 		Article.__init__ (self)
-		Html.__init__ (self, url)
+		htmlCls.Html.__init__ (self, url)
+		self.text = htmlCls.delAttributes (self.text)
 		if subject: self.subject = subject
-		if 'archive of our own' in self.title: self.fromAooo()
+		if 'archive of our own' in self.title:	self.fromAooo()
+		elif '://www.gutenberg.org/' in url:	self.gutemberg()
 
 		elif 'b/ffnet.html' == url:		self.ffNet()
 		elif 'b/fpress.html' == url:	self.fPress()
-		elif '://www.gutenberg.org/' in url:				self.gutemberg()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'https://www.reddit.com/r/' in url:			self.reddit()
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel()
-		elif 'gtb'		in url: self.gutemberg()
 		elif 'egb'		in url: self.ebGratuit()
 		elif 'medium'	in url: self.medium()
 		elif '</article>' in self.text:
-			article = self.getByTag ('article')
-			self.text = article.innerHtml
-		else: article = article.toHtml()
-		if len (article.text) >420000: article.divide()
-		else: article.write()
+			article = htmlCls.getByTagFirst (self.text, 'article')
+			self.text = article
+		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
+		self.text = htmlCls.delAttributes (self.text)
+		self.text = htmlCls.delClasses (self.text)
+		article = self.toText()
+		if article: article.divide()
+		else: self.divide()
 
 	def findSubject (self):
-		log.log()
 		if self.subject:
 			self.subject = self.subject.replace ('/', ', ')
 			self.subject = self.subject.replace (', ', ', ')
@@ -63,7 +65,7 @@ class Fanfic (Html, Article):
 					subjectList = subjectList +', '+ subject
 					break
 		if subjectList: self.subject = subjectList[2:]
-		else: self.subject = 'histoire'
+		else: self.subject = 'fiction'
 
 	def usePlaceholders (self):
 		placeholders = ('y/n', 'e/c', 'h/c', 'l/n')
@@ -108,19 +110,29 @@ class Fanfic (Html, Article):
 		self.styles.append ('unisciel.css')
 
 	def gutemberg (self):
-		log.log ('oui')
 		# le titre
-		d= self.text.find ('Title:') +7
-		f= self.text.find ('Author:', d) -1
-		self.title = self.text [d:f]
+		if 'dc.title' in self.meta.keys(): self.title = htmlCls.cleanTitle (self.meta['dc.title'])
+		else:
+			d= self.text.find ('Title:') +7
+			f= self.text.find ('Author:', d) -1
+			self.title = self.text [d:f]
 		# l'auteur
-		d= f+9
-		f= self.text.find ('Release', d) -1
-		self.author = self.text [d:f]
+		if 'dc.creator' in self.meta.keys():
+			authlist = self.meta['dc.creator'].split (', ')
+			self.author = authlist[1] +" "+ authlist[0]
+			self.author = htmlCls.cleanTitle (self.author)
+		else:
+			d= self.text.find ('Title:') +7
+			f= self.text.find ('Author:', d) -1
+			d= f+9
+			f= self.text.find ('Release', d) -1
+			self.author = self.text [d:f]
 		# le sujet est impossible à trouver
+		if 'dc.subject' in self.meta.keys(): self.subject = htmlCls.cleanTitle (self.meta['dc.subject'])
 		self.findSubject()
 		# le texte
-		d= self.text.find ('<h1>')
+		d= self.text.find ('<h1')
+		if d==-1: d= self.text.find ('<h2')
 		f= self.text.rfind ('</p>') +4
 		self.text = self.text [d:f]
 		# cas spécifiques
@@ -131,11 +143,10 @@ class Fanfic (Html, Article):
 		if '<h2>Footnotes:</h2>' in self.text:
 			f= self.text.find ('<h2>Footnotes:</h2>')
 			self.text = self.text [:f]
-		self.delImgLink()
-		self.metas = {}
+	#	self.delImgLink()
 
 	def ebGratuit (self):
-		self.delImgLink()
+	#	self.delImgLink()
 		# l'auteur
 		d= self.text.find ('<p class=Auteur>') +16
 		f= self.text.find ('</p>', d)
@@ -275,7 +286,6 @@ class Fanfic (Html, Article):
 	def fromAooo (self):
 		self.styles =[]
 		self.metas ={}
-		self.cleanWeb()
 		self.title = self.title.replace (' [Archive of Our Own]', "")
 		self.title = self.title.replace ('"', "")
 		self.title = self.title.replace ("'", "")
@@ -300,3 +310,5 @@ class Fanfic (Html, Article):
 		f= self.text.find ('</a>', d)
 		if self.text[d:f] in ('F/M', 'F/F') and 'romance' not in self.subject: self.subject = ', romance'+ self.subject
 		self.findSubject()
+
+fic = Fanfic ('https://www.gutenberg.org/cache/epub/17808/pg17808-images.html')

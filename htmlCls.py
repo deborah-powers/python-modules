@@ -117,15 +117,15 @@ def getByPos (text, posStart):
 			nbEnd = nbEnd +1
 		return text[d:f]
 
-def getById (self, index):
+def getById (text, index):
 	text = text.replace ('"', "'")
 	if " id='" + index +"'" in text:
 		posStart = text.find (" id='" + index +"'")
 		posStart = text [:posStart].rfind ('<')
-		return self.getByPos (posStart)
+		return getByPos (text, posStart)
 	else: return None
 
-def getByClass (self, className):
+def getByClass (text, className):
 	if 'class=' not in text: return []
 	# repérer les balises
 	textList = text.split ("class='")
@@ -141,49 +141,108 @@ def getByClass (self, className):
 		if className in textList[t][:f]: textList[t-1] = textList[t-1] +'$'
 	text = 'class="'.join (textList)
 	# récupérer les balises
-	tagList =[]
+	textList =[]
 	d=0
 	while '$<' in text[d:]:
 		d=1+ text.find ('$<',d)
-		tagList.append (self.getByPos (d))
+		textList.append (getByPos (text, d))
 		d=d+2
 	text = text.replace ('$<', '<')
-	return tagList
+	return textList
 
-def getByTag (self, tagName):
+def getByTag (text, tagName):
 	tagStart = '<'+ tagName
 	if tagStart not in text: return []
-	tagList =[]
+	textList =[]
 	d=0
 	while tagStart in text[d:]:
 		d= text.find (tagStart, d)
-		tagList.append (self.getByPos (d))
+		textList.append (getByPos (text, d))
 		d=d+2
-	return tagList
+	return textList
 
-def getByTagAndClass (self, tagName, className):
+def getByTagAndClass (text, tagName, className):
 	tagStart = '<'+ tagName +" "
 	if tagStart not in text or className not in text: return []
 	# identifier les balises d'intérêt
-	tagList = text.split (tagStart)
-	reta = range (1, len (tagList))
+	textList = text.split (tagStart)
+	reta = range (1, len (textList))
 	for m in reta:
-		fBracket= tagList[m].find ('>')
-		if 'class=' not in tagList[m][:fBracket]: continue
-		d= 7+ tagList[m].find ('class=')
-		f= tagList[m].find ("'",d)
-		if 'class="' in tagList[m]: f= tagList[m].find ('"',d)
-		if className in tagList[m][d:f]: tagList[m-1] = tagList[m-1] +'$'
-	text = tagStart.join (tagList)
+		fBracket= textList[m].find ('>')
+		if 'class=' not in textList[m][:fBracket]: continue
+		d= 7+ textList[m].find ('class=')
+		f= textList[m].find ("'",d)
+		if 'class="' in textList[m]: f= textList[m].find ('"',d)
+		if className in textList[m][d:f]: textList[m-1] = textList[m-1] +'$'
+	text = tagStart.join (textList)
 	# récupérer les balises
 	d=1+ text.find ('$'+ tagStart)
-	tagList =[]
+	textList =[]
 	while '$'+ tagStart in text[d:]:
-		tagList.append (self.getByPos (d))
+		textList.append (getByPos (text, d))
 		d= 1+ text.find ('$'+ tagStart, d)
 		d=d+2
 	text = text.replace ('$'+ tagStart, tagStart)
-	return tagList
+	return textList
+
+def getByClassFirst (text, className):
+	if 'class=' not in text: return ""
+	# repérer les balises
+	textList = text.split ("class='")
+	lenText = len (textList)
+	t=1
+	while t< lenText:
+		f= textList[t].find ("'")
+		if className in textList[t][:f]:
+			textList[t-1] = textList[t-1] +'$'
+			t= lenText
+		t+=1
+	text = "class='".join (textList)
+	textList = text.split ('class="')
+	lenText = len (textList)
+	t=1
+	while t< lenText:
+		f= textList[t].find ('"')
+		if className in textList[t][:f]:
+			textList[t-1] = textList[t-1] +'$'
+			t= lenText
+		t+=1
+	text = 'class="'.join (textList)
+	# récupérer les balises
+	if '$<' in text:
+		d=1+ text.find ('$<',d)
+		return getByPos (text, d)
+	else: return ""
+
+def getByTagFirst (text, tagName):
+	tagStart = '<'+ tagName
+	if tagStart not in text: return ""
+	d= text.find (tagStart)
+	return getByPos (text, d)
+
+def getByTagAndClassFirst (text, tagName, className):
+	tagStart = '<'+ tagName +" "
+	if tagStart not in text or className not in text: return ""
+	# identifier les balises d'intérêt
+	textList = text.split (tagStart)
+	lenText = len (textList)
+	t=1
+	while t< lenText:
+		fBracket= textList[t].find ('>')
+		if 'class=' in textList[t][:fBracket]:
+			d= 7+ textList[t].find ('class=')
+			f= textList[t].find ("'",d)
+			if 'class="' in textList[t][:fBracket]: f= textList[m].find ('"',d)
+			if className in textList[t][d:f]:
+				textList[m-1] = textList[m-1] +'$'
+				t= lenText
+		t+=1
+	text = tagStart.join (textList)
+	# récupérer les balises
+	if '$<' in text:
+		d=1+ text.find ('$<',d)
+		return getByPos (text, d)
+	else: return ""
 
 class Html (File):
 	def __init__ (self, file =None):
@@ -257,7 +316,7 @@ class Html (File):
 			self.setTitle()
 			self.setMetas()
 			self.setBody()
-			self.delAttributes()
+			self.text = delAttributes (self.text)
 			return True
 		except Exception as e: return False
 
@@ -271,17 +330,19 @@ class Html (File):
 			return False
 		else:
 			self.read()
-			self.delAttributes()
+			self.text = delAttributes (self.text)
 			remove (self.path.replace ('\t', 'tmp'))
 			return True
 
 	def fromUrl (self, params=None):
+		pathTmp = self.path
 		self.toPath()
 		res = False
 		if params: res = self.fromUrlVa (params)
 		else:
 			res = self.fromUrlVa()
 			if not res: res = self.fromUrlVb()
+		self.path = pathTmp
 		if not res: print ('la récupération à échoué, impossible de récupérer les données')
 
 	def titleFromUrl (self):
@@ -299,20 +360,21 @@ class Html (File):
 	""" ________________________ lire et écrire dans un fichier html ________________________ """
 
 	def toText (self):
-		if '</a>' in self.text or '<img' in self.text: return
+		if '</a>' in self.text or '<img' in self.text: return None
 		article = Article()
 		article.text = textFct.fromHtml (self.text)
-		if '</' in article.text: return
+		if '</' in article.text: return None
 		article.path = self.path.replace ('.html', '.txt')
 		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
-		article.title = self.title
-		article.subject = self.subject
 		article.type = 'txt'
-		article.link = self.link
-		article.author = self.author
-		article.autlink = self.autlink
-		article.write()
+		article.title = self.title
+		if 'link' in self.meta.keys(): article.link = self.meta['link']
+		if 'subject' in self.meta.keys(): article.subject = self.meta['subject']
+		if 'author' in self.meta.keys(): article.author = self.meta['author']
+		if 'autlink' in self.meta.keys(): article.autlink = self.meta['autlink']
+		# article.write()
 		print ('article créé:\n' + article.path)
+		return article
 
 	def read (self):
 		File.read (self)
@@ -320,7 +382,7 @@ class Html (File):
 		self.setTitle()
 		self.setMetas()
 		self.setBody()
-		# self.delAttributes()
+		# self.text = delAttributes (self.text)
 
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body

@@ -6,7 +6,7 @@ import json
 import listFct
 import textFct
 from fileLocal import *
-import loggerFct
+import loggerFct as log
 
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")
@@ -116,6 +116,12 @@ class File():
 			textBrut.write (self.text.encode ('utf-8'))
 			textBrut.close()
 
+	def copy (self):
+		newFile = File (self.path)
+		newFile.title = self.title
+		newFile.type = self.type
+		return newFile
+
 	def toMarkdown (self):
 		self.text = textFct.toMarkdown (self.text)
 		self.path = self.path.replace ('.txt', '.md')
@@ -132,30 +138,32 @@ class File():
 		return jsonData
 
 	def divide (self):
-		if len (self.text) < 420000: return
+		log.log (self.title, self.path, len (self.text))
 		self.fromPath()
-		newFile = File (self.path)
-		counter =1
-		newFile.title = self.title +' %02d' % counter
 		self.text = textFct.shape (self.text)
+		if len (self.text) < 420000: self.write()
+		else:
+			sep = '\n'
+			if '============ ' in self.text: sep = '============ '
+			elif '************ ' in self.text: sep = '************ '
+			elif '<h1>' in self.text and self.text.count ('<h1>') >1: sep = '<h1>'
+			elif '<h2>' in self.text: sep = '<h2>'
 
-		sep = '\n'
-		if '============ ' in self.text: sep = '============ '
-		elif '************ ' in self.text: sep = '************ '
-		elif '<h1>' in self.text and self.text.count ('<h1>') >1: sep = '<h1>'
-		elif '<h2>' in self.text: sep = '<h2>'
+			newFile = self.copy()
+			counter =1
+			newFile.title = self.title +' %02d' % counter
 
-		lines = self.text.split (sep)
-		newFile.text = lines.pop (0)
+			lines = self.text.split (sep)
+			newFile.text = lines.pop (0)
 
-		for line in lines:
-			if len (newFile.text) >300000:
-				newFile.write()
-				counter +=1
-				newFile = File (self.path)
-				newFile.title = self.title +' %02d' % counter
-			newFile.text = newFile.text + sep + line
-		newFile.write()
+			for line in lines:
+				if len (newFile.text) >300000:
+					newFile.write()
+					counter +=1
+					newFile = self.copy()
+					newFile.title = self.title +' %02d' % counter
+				newFile.text = newFile.text + sep + line
+			newFile.write()
 
 	def shortcut (self):
 		self.path = shortcut (self.path)
@@ -373,7 +381,7 @@ class Article (File):
 		article.autlink = self.autlink
 		article.text = textFct.toHtml (article.text)
 		if '</' in article.text:
-			loggerFct.log (article.text)
+			log.log (article.text)
 			return article
 		else: return self
 
@@ -438,32 +446,6 @@ class Article (File):
 		article.author = self.author
 		article.autlink = self.autlink
 		return article
-
-	def divide (self):
-		if len (self.text) < 420000: return
-		self.fromPath()
-		article = self.copy()
-		counter =1
-		article.title = self.title +' %02d' % counter
-		self.text = textFct.shape (self.text)
-
-		sep = '\n'
-		if '============ ' in self.text: sep = '============ '
-		elif '************ ' in self.text: sep = '************ '
-		elif '<h1>' in self.text and self.text.count ('<h1>') >1: sep = '<h1>'
-		elif '<h2>' in self.text: sep = '<h2>'
-
-		lines = self.text.split (sep)
-		article.text = lines.pop (0)
-
-		for line in lines:
-			if len (article.text) >300000:
-				article.write()
-				counter +=1
-				article = self.copy()
-				article.title = self.title +' %02d' % counter
-			article.text = article.text + sep + line
-		article.write()
 
 	def __str__ (self):
 		strShow = 'Titre: %s\tSujet: %s\tAuteur: %s' % (self.title, self.subject, self.author)

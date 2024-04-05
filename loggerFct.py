@@ -31,48 +31,42 @@ def traceLine():
 	strFile = strFile.replace ('mantis-0.1-py3.8.egg\\mantis', 'mantis')
 	return '%s\t%s %s' % (strFile, strNum, stackList[i].function)
 
-def logDate (message=None):
-	trace = traceLine()
-	trace = traceDate() +' '+ trace
-	if type (message) == int and message ==0: print (trace +'\tO')
+def tolog (message):
+	if type (message) == int and message ==0: return 'O'
 	elif type (message) == bool:
-		if message: print (trace +'\toui')
-		else: print (trace +'\tnon')
-	elif not message: print (trace)
+		if message: return 'oui'
+		else: return 'non'
+	elif not message: return ""
 	elif type (message) == dict:
-		print (trace)
 		messageKeys = message.keys()
-		for key in messageKeys: print ('\t', key, '\t', message[key])
+		res = "dictionnaire à "+ tolog (len (messageKeys)) + " entrées\n"
+		nbkeys = len (messageKeys)
+		if nbkeys >10: nbkeys =10
+		rkeys = range (nbkeys)
+		for k in rkeys: res = res + tolog (messageKeys[k]) +"\t"+ tolog (message[messageKeys[k]]) +"\n"
+		return res
 	elif type (message) == list:
-		print (trace +'\t'+ str (len (message)) +' éléments')
-		for line in message[:20]: print ('\t', line)
-	elif type (message) == str: print (trace +'\t'+ message[:100])
-	else: print (trace +'\t', message)
+		res = "liste à "+ tolog (len (message)) + " éléments\n"
+		for line in message[:10]: res = res + tolog (line) +"\n"
+		return res
+	elif type (message) == str: return message[:100]
+	else: return str (message)
 
-def log (message=None):
+def logone (message):
 	trace = traceLine()
-	if type (message) == int and message ==0: print (trace +'\tO')
-	elif type (message) == bool:
-		if message: print (trace +'\toui')
-		else: print (trace +'\tnon')
-	elif not message: print (trace)
-	elif type (message) == dict:
-		print (trace)
-		messageKeys = message.keys()
-		for key in messageKeys: print ('\t', key, '\t', message[key])
-	elif type (message) == list:
-		print (trace +'\t'+ str (len (message)) +' éléments')
-	#	for line in message[:20]: print ('\t', line)
-	elif type (message) == str: print (trace +'\t'+ message[:100])
-	else: print (trace +'\t', message)
+	# trace = traceDate() +' '+ trace
+	res = tolog (message)
+	trace = trace +'\t'+ res
+	print (trace)
 
-def message (message=None, obj=None):
-	msgAffichable =""
-	if message:
-		msgAffichable = message
-		if obj: msgAffichable = msgAffichable +'\t'+ str (obj)
-	elif obj: msgAffichable = str (obj)
-	log (msgAffichable)
+def log (*messages):
+	trace = traceLine()
+	# trace = traceDate() +' '+ trace
+	for message in messages:
+		res = tolog (message)
+		if '\n' in res: trace = trace +'\n'+ res
+		else: trace = trace +'\t'+ res
+	print (trace)
 
 def exists (obj):
 	if (obj): log (obj)
