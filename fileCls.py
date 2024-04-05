@@ -210,6 +210,30 @@ class File():
 	def __len__(self):
 		return len (self.text)
 
+	def find (self, word, posStart=0):
+		pos =-1
+		if word in self.text[posStart:]: pos = self.text.find (word, posStart)
+		elif "'" in word:
+			word = word.replace ("'",'"')
+			if word in self.text[posStart:]: pos = self.text.find (word, posStart)
+		elif '"' in word:
+			word = word.replace ('"',"'")
+			if word in self.text[posStart:]: pos = self.text.find (word, posStart)
+		if pos >-1: pos += posStart
+		return pos
+
+	def rfind (self, word, posEnd=0):
+		if posEnd <1: posEnd += len (self.text)
+		pos =-1
+		if word in self.text[:posEnd]: pos = self.text[:posEnd].rfind (word)
+		elif "'" in word:
+			word = word.replace ("'",'"')
+			if word in self.text[:posEnd]: pos = self.text[:posEnd].rfind (word)
+		elif '"' in word:
+			word = word.replace ('"',"'")
+			if word in self.text[:posEnd]: pos = self.text[:posEnd].rfind (word)
+		return pos
+
 	def test (self):
 		self.path = 'b/test-file.txt'
 		print ('fromPath\t', self.path)
