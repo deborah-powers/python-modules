@@ -79,36 +79,6 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.replace ('h/c', 'dark blond')
 		self.text = self.text.replace ('l/n', 'Powers')
 
-	def unisciel (self, subject):
-		self.subject = 'cours'
-		self.author = 'unisciel'
-		self.text = findTextBetweenTag (self.text, 'body')
-		self.clean()
-		self.delScript()
-		d= self.text.find ('<td>') +4
-		f= self.text.find ('</td>', d)
-		self.title = self.text [d:f].lower()
-		d= self.text.find ('<p>')
-		f= self.text.rfind ('</p>') +4
-		self.text = self.text [d:f]
-		self.text = self.text.replace ('<div>', "")
-		self.text = self.text.replace ('</div>', "")
-		self.text = self.text.replace ('<img', '</p><img')
-		self.text = self.text.replace ("png'>","png'><p>")
-		self.text = self.text.replace ('<p><p>', '<p>')
-		self.text = self.text.replace ('</p></p>', '</p>')
-		self.text = self.text.replace ('<p>', '</p><p>')
-		self.text = self.text.replace ('</p>', '</p><p>')
-		self.text = self.text.replace ('<p></p>', "")
-		self.text = self.text.replace ('<p><p>', '<p>')
-		self.text = self.text.replace ('<p><img', '<img')
-		self.text = self.text.replace ("png'></p>","png'>")
-		self.text = self.text [4:-3]
-		self.text = self.text.replace ('../res/', 'bv-'+ subject +'/')
-		self.text = self.text.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01.png'><p>", ' <b>ADP +P --> ATP</b> ')
-		self.text = self.text.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01_1.png'><p>", ' <b>ATP --> ADP +P</b> ')
-		self.styles.append ('unisciel.css')
-
 	def gutemberg (self):
 		# le titre
 		if 'dc.title' in self.meta.keys(): self.title = htmlCls.cleanTitle (self.meta['dc.title'])
@@ -144,6 +114,74 @@ class Fanfic (htmlCls.Html, Article):
 			f= self.text.find ('<h2>Footnotes:</h2>')
 			self.text = self.text [:f]
 	#	self.delImgLink()
+
+	def fromAooo (self):
+		self.meta ={}
+		# le titreo
+		tag = htmlCls.getByTagAndClassFirst (self.text, 'h2', 'title heading')
+		self.title = htmlCls.cleanTitle (htmlCls.getText (tag))
+		# l'auteur
+		tag = htmlCls.getByTagAndClassFirst (self.text, 'h3', 'byline heading')
+		tag = htmlCls.getByTagFirst (tag, 'a')
+		self.author = htmlCls.cleanTitle (htmlCls.getText (tag))
+		d= tag.find ('href=') +6
+		f= tag.find ("'",d)
+		if 'href="' in tag: f= tag.find ('"',d)
+		self.autlink = tag[d:f]
+		log.log (self.author, self.autlink)
+
+
+		while ' [' in self.title:
+			d= self.title.find (' [') +1
+			f= self.title.find (']', d) +1
+			self.title = self.title[:d] + self.title[f:]
+		data = self.title.split (' - ')
+		self.title = data[0]
+		if len (data) >3 and 'hapter' in data[1]: self.author = data.pop (1)
+		self.author = data[1]
+		self.subject = data[2]
+		self.subject = self.subject.replace (' (band)', "")
+		self.clean()
+		# le lien
+		d= self.text.find ("<a href='/downloads/") +20
+		f= self.text.find ('/', d)
+		self.link = 'https://archiveofourown.org/works/' + self.text[d:f]
+		# le sujet
+		d= self.text.find ('Category:<ul><li><a') +20
+		d= self.text.find ('>', d) +1
+		f= self.text.find ('</a>', d)
+		if self.text[d:f] in ('F/M', 'F/F') and 'romance' not in self.subject: self.subject = ', romance'+ self.subject
+		self.findSubject()
+
+	def unisciel (self, subject):
+		self.subject = 'cours'
+		self.author = 'unisciel'
+		self.text = findTextBetweenTag (self.text, 'body')
+		self.clean()
+		self.delScript()
+		d= self.text.find ('<td>') +4
+		f= self.text.find ('</td>', d)
+		self.title = self.text [d:f].lower()
+		d= self.text.find ('<p>')
+		f= self.text.rfind ('</p>') +4
+		self.text = self.text [d:f]
+		self.text = self.text.replace ('<div>', "")
+		self.text = self.text.replace ('</div>', "")
+		self.text = self.text.replace ('<img', '</p><img')
+		self.text = self.text.replace ("png'>","png'><p>")
+		self.text = self.text.replace ('<p><p>', '<p>')
+		self.text = self.text.replace ('</p></p>', '</p>')
+		self.text = self.text.replace ('<p>', '</p><p>')
+		self.text = self.text.replace ('</p>', '</p><p>')
+		self.text = self.text.replace ('<p></p>', "")
+		self.text = self.text.replace ('<p><p>', '<p>')
+		self.text = self.text.replace ('<p><img', '<img')
+		self.text = self.text.replace ("png'></p>","png'>")
+		self.text = self.text [4:-3]
+		self.text = self.text.replace ('../res/', 'bv-'+ subject +'/')
+		self.text = self.text.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01.png'><p>", ' <b>ADP +P --> ATP</b> ')
+		self.text = self.text.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01_1.png'><p>", ' <b>ATP --> ADP +P</b> ')
+		self.styles.append ('unisciel.css')
 
 	def ebGratuit (self):
 	#	self.delImgLink()
@@ -283,32 +321,4 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.strip()
 		self.text = '<p>'+ self.text +'</p>'
 
-	def fromAooo (self):
-		self.styles =[]
-		self.metas ={}
-		self.title = self.title.replace (' [Archive of Our Own]', "")
-		self.title = self.title.replace ('"', "")
-		self.title = self.title.replace ("'", "")
-		while ' [' in self.title:
-			d= self.title.find (' [') +1
-			f= self.title.find (']', d) +1
-			self.title = self.title[:d] + self.title[f:]
-		data = self.title.split (' - ')
-		self.title = data[0]
-		if len (data) >3 and 'hapter' in data[1]: self.author = data.pop (1)
-		self.author = data[1]
-		self.subject = data[2]
-		self.subject = self.subject.replace (' (band)', "")
-		self.clean()
-		# le lien
-		d= self.text.find ("<a href='/downloads/") +20
-		f= self.text.find ('/', d)
-		self.link = 'https://archiveofourown.org/works/' + self.text[d:f]
-		# le sujet
-		d= self.text.find ('Category:<ul><li><a') +20
-		d= self.text.find ('>', d) +1
-		f= self.text.find ('</a>', d)
-		if self.text[d:f] in ('F/M', 'F/F') and 'romance' not in self.subject: self.subject = ', romance'+ self.subject
-		self.findSubject()
-
-fic = Fanfic ('https://www.gutenberg.org/cache/epub/17808/pg17808-images.html')
+fic = Fanfic ('b/aooo.html')

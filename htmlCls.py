@@ -95,6 +95,14 @@ def delAttributes (text):
 
 """ ________________________ récupérer des balises ________________________ """
 
+def getText (tag):
+	""" tag à été obtenu par get by pos
+	<p id='id' attr='bla bla'><inner html/>
+	ou <img src='...' attr='bla bla'
+	"""
+	f=1+ tag.find ('>')
+	return tag[f:]
+
 def getByPos (text, posStart):
 	# posStart = pos <tag
 	f= text.find ('>', posStart)
@@ -168,12 +176,12 @@ def getByTagAndClass (text, tagName, className):
 	textList = text.split (tagStart)
 	reta = range (1, len (textList))
 	for m in reta:
-		fBracket= textList[m].find ('>')
-		if 'class=' not in textList[m][:fBracket]: continue
-		d= 7+ textList[m].find ('class=')
-		f= textList[m].find ("'",d)
-		if 'class="' in textList[m]: f= textList[m].find ('"',d)
-		if className in textList[m][d:f]: textList[m-1] = textList[m-1] +'$'
+		fBracket= textList[t].find ('>')
+		if 'class=' not in textList[t][:fBracket]: continue
+		d= 7+ textList[t].find ('class=')
+		f= textList[t].find ("'",d)
+		if 'class="' in textList[t]: f= textList[t].find ('"',d)
+		if className in textList[t][d:f]: textList[t-1] = textList[t-1] +'$'
 	text = tagStart.join (textList)
 	# récupérer les balises
 	d=1+ text.find ('$'+ tagStart)
@@ -232,9 +240,9 @@ def getByTagAndClassFirst (text, tagName, className):
 		if 'class=' in textList[t][:fBracket]:
 			d= 7+ textList[t].find ('class=')
 			f= textList[t].find ("'",d)
-			if 'class="' in textList[t][:fBracket]: f= textList[m].find ('"',d)
+			if 'class="' in textList[t][:fBracket]: f= textList[t].find ('"',d)
 			if className in textList[t][d:f]:
-				textList[m-1] = textList[m-1] +'$'
+				textList[t-1] = textList[t-1] +'$'
 				t= lenText
 		t+=1
 	text = tagStart.join (textList)

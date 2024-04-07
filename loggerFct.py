@@ -38,7 +38,7 @@ def tolog (message):
 		else: return 'non'
 	elif not message: return ""
 	elif type (message) == dict:
-		messageKeys = message.keys()
+		messageKeys = list (message.keys())
 		res = "dictionnaire à "+ tolog (len (messageKeys)) + " entrées\n"
 		nbkeys = len (messageKeys)
 		if nbkeys >10: nbkeys =10
