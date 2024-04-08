@@ -95,13 +95,38 @@ def delAttributes (text):
 
 """ ________________________ récupérer des balises ________________________ """
 
+def getAttribute (tag, attr):
+	if attr +'=' not in tag: return ""
+	lenAttr = len (attr)
+	d=2+ lenAttr + tag.find (attr +'=')
+	f= tag.find ("'",d)
+	if attr +'="' in tag: f= tag.find ('"',d)
+	return tag[d:f]
+
 def getText (tag):
 	""" tag à été obtenu par get by pos
 	<p id='id' attr='bla bla'><inner html/>
 	ou <img src='...' attr='bla bla'
 	"""
-	f=1+ tag.find ('>')
-	return tag[f:]
+	text =""
+	if tag[:5] == '<img ':
+		d=5+ tag.find ('src=')
+		f= tag.find ("'",d)
+		if 'src="' in tag: f= tag.find ('"',d)
+			if 'alt=' in tag:
+			d=5+ tag.find ('alt=')
+			f= tag.find ("'",d)
+			if 'alt="' in tag: f= tag.find ('"',d)
+			text = text +'\n'+ tag[d:f]
+	else:
+		f=1+ tag.find ('>')
+		text = tag[f:]
+		if tag[:3] == '<a ':
+			d=6+ tag.find ('href=')
+			f= tag.find ("'",d)
+			if 'href="' in tag: f= tag.find ('"',d)
+			text = tag[d:f] +'\n'+ text
+	return text
 
 def getByPos (text, posStart):
 	# posStart = pos <tag
