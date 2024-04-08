@@ -10,8 +10,8 @@ temp.py
 job-*.py
 *.pickle
 *20*
-*va.py
-*vb.py
+# *va.py
+# *vb.py
 *.json
 *.log
 */dist/

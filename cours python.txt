@@ -20,6 +20,40 @@ variable contre littéral: un littéral est une donnée (le nombre 3) utilisée 
 26/5 = 5.2
 26%5 = 1
 
+====== fonctions à arguments variables ======
+
+def funcNbArgVariable (*args):
+	# args est un tuple
+	for arg in args: print (arg)
+
+funcNbArgVariable ('a', 'b', 'c')
+
+def funcNomArgVariable (**kwargs):
+	# kwargs est un dictionnaire
+	print (kwargs.get ('myArg'))
+	# si myArg n'existe pas, kwargs.get ('myArg') vaut None
+
+funcNomArgVariable (arg1='coucou', myArg=22)
+
+def funcTout (argPositionnel, *args, argNomme, **kwargs):
+funcTout ('coucou', 'les', 'amis', argNomme='il fait beau', argNomme2="aujourd'hui", argNomme3="n'est-ce pas ?")
+
+******
+*args =[2,8]
+range (*args)
+args est considéré comme un tuple, *args est considéré comme si les deux chiffres étaient indépendants.
+
+a, *b, c = [3, 6, 9, 12, 15]
+>> b= [6, 9, 12]
+my_tuple = (3, 6, 9)
+merged_tuple = (0, *my_tuple, 12)
+>> merged_tuple = (0, 3, 6, 9, 12)
+
+num_collection = [3, 6, 9]
+funcNbArgVariable (*num_collection)
+>> comme si j'avais transmit 3 arguments indépendants au lieu d'un.
+
+
 ====== rajouter une fonction à une classe ======
 
 def newFunction (self):

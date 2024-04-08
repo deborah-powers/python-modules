@@ -1,12 +1,11 @@
 #!/usr/bin/python3.11
 # -*- coding: utf-8 -*-
-
 from sys import argv
 from os import remove
 import listFct
 import textFct
 from fileCls import Article
-import htmlCls
+from htmlCls import Html, findTextBetweenTag
 import loggerFct as log
 
 help = """
@@ -15,34 +14,60 @@ utilisation: python fanfic url
 l'url peut correspondre à une page ou un fichier local
 """
 
-class Fanfic (htmlCls.Html, Article):
-	def __init__ (self, url, subject=None):
-		Article.__init__ (self)
-		htmlCls.Html.__init__ (self, url)
-		self.text = htmlCls.delAttributes (self.text)
-		if subject: self.subject = subject
-		if 'archive of our own' in self.title:	self.fromAooo()
-		elif '://www.gutenberg.org/' in url:	self.gutemberg()
+def cleanTitle (title):
+	chars = "\t\n\\\"'.:;,_-/"
+	for char in chars: title = title.replace (char,' ')
+	title = title.strip()
+	title = title.lower()
+	while '  ' in title: title = title.replace ('  ',' ')
+	return title
 
-		elif 'b/ffnet.html' == url:		self.ffNet()
-		elif 'b/fpress.html' == url:	self.fPress()
+class Fanfic (Html):
+	def fromWeb (self, url, subject=None):
+		if url[:4] == 'http':
+			self.link = url
+			Html.fromWeb (self)
+			remove (self.path)
+		else:
+			if url[-5:] != '.html': url = 'b/' + url + '.html'
+			self.path = url
+			self.fromPath()
+			self.read (True)
+		# self.clean()
+		self.fromFrontEnd (url)
+
+	def fromFrontEnd (self, url):
+		if '://www.gutenberg.org/' in url:				self.gutemberg()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
+		elif 'https://archiveofourown.org/works/' in url:	self.aoooWeb()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'https://www.reddit.com/r/' in url:			self.reddit()
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel()
+		elif 'gtb'		in url: self.gutemberg()
 		elif 'egb'		in url: self.ebGratuit()
+		elif 'b/aooo.html' == url: self.aoooLocal()
+		elif 'b/ffnet'	in url: self.ffNet()
+		elif 'b/fpress'	in url: self.fPress()
 		elif 'medium'	in url: self.medium()
-		elif '</article>' in self.text:
-			article = htmlCls.getByTagFirst (self.text, 'article')
-			self.text = article
-		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
-		self.text = htmlCls.delAttributes (self.text)
-		self.text = htmlCls.delClasses (self.text)
-		article = self.toText()
-		if article: article.divide()
-		else: self.divide()
+		elif '</article>' in self.text: self.text = textFct.sliceWord (self.text, '<article>', '</article>')
+		self.cleanWeb()
+		self.metas = {}
+		self.text = self.text.replace (' <', '<')
+		self.text = self.text.replace ('><', '>\n<')
+		self.title = cleanTitle (self.title)
+		self.author = cleanTitle (self.author)
+		self.path = self.path.replace ('tmp.', self.title +'.')
+		article = self.toArticle()
+		if '</a>' not in article.text and '<img' not in article.text:
+			article = article.toText()
+			article.text = article.text.replace ('\n\n', '\n')
+		# elif '<img' in article.text: article = article.toXhtml()
+		else: article = article.toHtml()
+		if len (article.text) >420000: article.divide()
+		else: article.write()
 
 	def findSubject (self):
+		log.log()
 		if self.subject:
 			self.subject = self.subject.replace ('/', ', ')
 			self.subject = self.subject.replace (', ', ', ')
@@ -65,7 +90,7 @@ class Fanfic (htmlCls.Html, Article):
 					subjectList = subjectList +', '+ subject
 					break
 		if subjectList: self.subject = subjectList[2:]
-		else: self.subject = 'fiction'
+		else: self.subject = 'histoire'
 
 	def usePlaceholders (self):
 		placeholders = ('y/n', 'e/c', 'h/c', 'l/n')
@@ -78,71 +103,6 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.replace ('e/c', 'grey')
 		self.text = self.text.replace ('h/c', 'dark blond')
 		self.text = self.text.replace ('l/n', 'Powers')
-
-	def gutemberg (self):
-		# le titre
-		if 'dc.title' in self.meta.keys(): self.title = htmlCls.cleanTitle (self.meta['dc.title'])
-		else:
-			d= self.text.find ('Title:') +7
-			f= self.text.find ('Author:', d) -1
-			self.title = self.text [d:f]
-		# l'auteur
-		if 'dc.creator' in self.meta.keys():
-			authlist = self.meta['dc.creator'].split (', ')
-			self.author = authlist[1] +" "+ authlist[0]
-			self.author = htmlCls.cleanTitle (self.author)
-		else:
-			d= self.text.find ('Title:') +7
-			f= self.text.find ('Author:', d) -1
-			d= f+9
-			f= self.text.find ('Release', d) -1
-			self.author = self.text [d:f]
-		# le sujet est impossible à trouver
-		if 'dc.subject' in self.meta.keys(): self.subject = htmlCls.cleanTitle (self.meta['dc.subject'])
-		self.findSubject()
-		# le texte
-		d= self.text.find ('<h1')
-		if d==-1: d= self.text.find ('<h2')
-		f= self.text.rfind ('</p>') +4
-		self.text = self.text [d:f]
-		# cas spécifiques
-		if '<p>CONTENTS</p>' in self.text:
-			d= self.text.find ('<p>CONTENTS</p>')
-			d= self.text.find ('<hr>', d)
-			self.text = self.text [d:]
-		if '<h2>Footnotes:</h2>' in self.text:
-			f= self.text.find ('<h2>Footnotes:</h2>')
-			self.text = self.text [:f]
-	#	self.delImgLink()
-
-	def fromAooo (self):
-		self.meta ={}
-		# le titre
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'h2', 'title heading')
-		self.title = htmlCls.cleanTitle (htmlCls.getText (tag))
-		# l'auteur
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'h3', 'byline heading')
-		tag = htmlCls.getByTagFirst (tag, 'a')
-		self.autlink = htmlCls.getText (tag)
-		d= self.autlink.find ('\n')
-		self.author = htmlCls.cleanTitle (self.autlink[d+1:])
-		self.autlink = self.autlink[:d]
-		log.log (self.author, self.autlink)
-
-
-		self.subject = data[2]
-		self.subject = self.subject.replace (' (band)', "")
-		self.clean()
-		# le lien
-		d= self.text.find ("<a href='/downloads/") +20
-		f= self.text.find ('/', d)
-		self.link = 'https://archiveofourown.org/works/' + self.text[d:f]
-		# le sujet
-		d= self.text.find ('Category:<ul><li><a') +20
-		d= self.text.find ('>', d) +1
-		f= self.text.find ('</a>', d)
-		if self.text[d:f] in ('F/M', 'F/F') and 'romance' not in self.subject: self.subject = ', romance'+ self.subject
-		self.findSubject()
 
 	def unisciel (self, subject):
 		self.subject = 'cours'
@@ -174,8 +134,35 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01_1.png'><p>", ' <b>ATP --> ADP +P</b> ')
 		self.styles.append ('unisciel.css')
 
+	def gutemberg (self):
+		log.log ('oui')
+		# le titre
+		d= self.text.find ('Title:') +7
+		f= self.text.find ('Author:', d) -1
+		self.title = self.text [d:f]
+		# l'auteur
+		d= f+9
+		f= self.text.find ('Release', d) -1
+		self.author = self.text [d:f]
+		# le sujet est impossible à trouver
+		self.findSubject()
+		# le texte
+		d= self.text.find ('<h1>')
+		f= self.text.rfind ('</p>') +4
+		self.text = self.text [d:f]
+		# cas spécifiques
+		if '<p>CONTENTS</p>' in self.text:
+			d= self.text.find ('<p>CONTENTS</p>')
+			d= self.text.find ('<hr>', d)
+			self.text = self.text [d:]
+		if '<h2>Footnotes:</h2>' in self.text:
+			f= self.text.find ('<h2>Footnotes:</h2>')
+			self.text = self.text [:f]
+		self.delImgLink()
+		self.metas = {}
+
 	def ebGratuit (self):
-	#	self.delImgLink()
+		self.delImgLink()
 		# l'auteur
 		d= self.text.find ('<p class=Auteur>') +16
 		f= self.text.find ('</p>', d)
@@ -312,6 +299,153 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.strip()
 		self.text = '<p>'+ self.text +'</p>'
 
-fileAooo = 'b/aooo.html'
-fileGtb = ''
-fic = Fanfic ()
+	def ffNet_2019 (self):
+		d= self.text.find ('https://www.fanfiction.net/u/')
+		if d<0:
+			d= self.text.find ('https://www.fictionpress.com/u/')
+			self.link = 'https://www.fictionpress.com/s/'
+			f= self.text.find ('>', d) -1
+			self.autlink = self.text [d:f]
+			d= self.text.find ('<', f)
+			self.author = self.text [f+2:d]
+		else:
+			self.subject = data [1] [2:]
+			if ' fanfic' in self.subject:
+				f= self.subject.find (' fanfic')
+				self.subject = self.subject [:f]
+			d= self.text.find ('Rated: <a')
+			d= self.text.find ('</a>', d) +8
+			f= self.text.find ('Reviews: <a', d)
+			data = self.text [d:f].split (' - ')
+			self.subject = self.subject +', '+ data [1].replace ('/', ', ')
+		if 'fictionpress' in self.link:
+			d= self.text.find ('/s/') +3
+			f= self.text.find ('/', d) +1
+			self.link = self.link + self.text [d:f] +'1/'
+			d= self.text.find ('/', f) +1
+			f= self.text.find ("'", d)
+			self.link = self.link + self.text [d:f]
+		else: self.link = self.metas ['canonical']
+		self.metas = {}
+		# trouver le texte
+		d= self.text.find ('<p>')
+		f= self.text.rfind ('</p>') +4
+		self.text = self.text [d:f]
+
+	def aoooLocal (self):
+		self.styles =[]
+		self.metas ={}
+		self.cleanWeb()
+		self.title = self.title.replace (' [Archive of Our Own]', "")
+		self.title = self.title.replace ('"', "")
+		self.title = self.title.replace ("'", "")
+		while ' [' in self.title:
+			d= self.title.find (' [') +1
+			f= self.title.find (']', d) +1
+			self.title = self.title[:d] + self.title[f:]
+		data = self.title.split (' - ')
+		self.title = data[0]
+		if len (data) >3 and 'hapter' in data[1]: self.author = data.pop (1)
+		self.author = data[1]
+		self.subject = data[2]
+		self.subject = self.subject.replace (' (band)', "")
+		self.clean()
+		# le lien
+		d= self.text.find ("<a href='/downloads/") +20
+		f= self.text.find ('/', d)
+		self.link = 'https://archiveofourown.org/works/' + self.text[d:f]
+		self.aoooCommon()
+		
+	def aoooWeb (self):
+		if 'This work could have adult content. If you proceed you have agreed that you are willing to see such content' in self.text:
+			print ('fichier protégé', self.title)
+			return
+		self.clean()
+		self.cleanWeb()
+		self.text = findTextBetweenTag (self.text, 'body')
+		self.fromPath()
+		# le titre
+		d= self.text.find ('<h2>') +4
+		f= self.text.find ('</h2>', d)
+		self.title = self.text [d:f].lower()
+		self.title = self.title.strip()
+		self.title = self.title.strip ('.')
+		# l'auteur
+		d= textFct.find (self.text, "<h3><a href='/users/") +20
+		f= textFct.find (self.text, '/', d+1)
+		self.author = self.text[d:f]
+		self.aoooCommon()
+
+	def aoooCommon (self):
+		# le sujet
+		d= self.text.find ('Category:<ul><li><a') +20
+		d= self.text.find ('>', d) +1
+		f= self.text.find ('</a>', d)
+		if self.text[d:f] in ('F/M', 'F/F') and 'romance' not in self.subject: self.subject = ', romance'+ self.subject
+		self.findSubject()
+		"""
+		d= self.text.find ('Fandoms:<ul><li><a', f) +20
+		d= self.text.find ('>', d) +1
+		f= self.text.find ('</a>', d)
+		if self.text[d:f] not in self.subject: self.subject = self.subject +', '+ self.text[d:f]
+		"""
+		self.subject = self.subject.replace (' - Fandom', "")
+		self.autlink = 'https://archiveofourown.org/users/' + self.author
+		self.text = self.text.replace ('<h3>Chapter Text</h3>', "")
+		# le texte ne compte qu'un seul chapître
+		d= self.text.find ('<h3>Work Text:</h3>') +19
+		# le texte compte plusieurs chapîtres
+		if d==18: d= self.text.find ("<h3><a href='/works/")
+		f= self.text.rfind ('<h3>Actions</h3>')
+		self.text = self.text [d:f]
+		self.text = self.text.replace ('<div>', "")
+		self.text = self.text.replace ('</div>', "")
+		if "<h3><a href='/works/" in self.text:
+			chapters = listFct.fromText (self.text, "<h3><a href='/works/")
+			chapterRange = listFct.range (chapters, start=1)
+			for c in chapterRange:
+				d= chapters [c].find ('>') +1
+				chapters [c] = chapters [c] [d:]
+			self.text = '<h2>'.join (chapters)
+			self.text = self.text.replace ('</a></h3>', '</h2>')
+		if '<h2>Chapter ' in self.text and not '</h2>' in self.text:
+			chapters = listFct.fromText (self.text, "<h2>Chapter ")
+			chapterRange = listFct.range (chapters, start=1)
+			for c in chapterRange:
+				d= chapters [c].find ('</a>: ') +6
+				chapters [c] = chapters [c] [d:]
+				chapters [c] = chapters [c].replace ('</h3>', '</h2>', 1)
+			self.text = '<h2>'.join (chapters)
+		self.text = self.text.replace ('h2>', 'h1>')
+		# effacer les notes
+		if '<h3>Notes:</h3>' in self.text:
+			chapters = listFct.fromText (self.text, '<h1>')
+			chapterRange = listFct.range (chapters)
+			for c in chapterRange:
+				d= chapters[c].rfind ('<h3>Notes:</h3>')
+				if d>=0 and (len (chapters[c]) -d <=650): chapters[c] = chapters[c][:d]
+			self.text = '<h1>'.join (chapters)
+		if '<p>(See the end of the chapter for' in self.text:
+			chapters = listFct.fromText (self.text, '<p>(See the end of the chapter for')
+			chapterRange = listFct.range (chapters, start=1)
+			for c in chapterRange:
+				d= chapters[c].find ('</p>') +4
+				chapters[c] = chapters[c][d:]
+			self.text = "".join (chapters)
+		# nettoyer le texte
+		self.replace ('<h3>Notes:</h3>', '<h3>Notes</h3>')
+		self.replace ('<h3>Summary:</h3>', '<h3>Summary</h3>')
+		self.usePlaceholders()
+		f= textFct.find (self.text, '<h3>Series this work belongs to:</h3>')
+		if f>0: self.text = self.text[:f]
+
+if len (argv) >=2:
+	url = argv[1]
+	subject = None
+	page = Fanfic()
+	if len (argv) >=3: subject = argv[2]
+	page.fromWeb (url, subject)
+# le nom du fichier n'a pas ete donne
+else: print (help)
+
+

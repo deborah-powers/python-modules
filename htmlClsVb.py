@@ -23,62 +23,6 @@ templateHtml = """<!DOCTYPE html><html><head>
 %s
 </body></html>"""
 
-class HtmlTag():
-	def __init__ (self, tagStr):
-		self.name =""
-		self.innerHtml =""
-		self.className =""
-		self.id =""
-		self.attributes ={}
-		self.fromString()
-
-	def fromString (self, tagStr):
-		""" tagStr est envoyée par getByPos
-		<p arrt='xyz'><innerHtml>
-		<img src='xyz'
-		"""
-		attributesExists = False
-		f= tagStr.find ('>')
-		if " " in tagStr[:f]:
-			f= tagStr.find (" ")
-			attributesExists = True
-		self.name = tagStr[1:f]
-		# récupérer les attributs
-		if attributesExists:
-			tagStr = tagStr[f+1:]
-			f= tagStr.find ('>')
-			attributeStr = tagStr[:f].replace ('"',"")
-			attributeStr = attributeStr.replace ("'","")
-			attributes = attributeStr[:f].split (" ")
-			attrRge = reversed (range (1, len (attributes)))
-			for a in attrRge:
-				if '=' in attributes[a]:
-					d= attributes[a].find ('=')
-					if attributes[a][:d] == 'class': self.className = attributes[a][d+1:]
-					elif attributes[a][:d] == 'id': self.id = attributes[a][d+1:]
-					elif attributes[a][:d] in listAttributes: self.attributes [attributes[a][:d]] = attributes[a][d+1:]
-				else:
-					end = attributes.pop (a)
-					attributes[a-1] = attributes[a-1] +" "+ end
-			# examiner le premier attribut
-			d= attributes[0].find ('=')
-			if attributes[0][:d] == 'class': self.className = attributes[0][d+1:]
-			elif attributes[0][:d] == 'id': self.id = attributes[0][d+1:]
-			elif attributes[0][:d] in listAttributes: self.attributes [attributes[0][:d]] = attributes[0][d+1:]
-		# récupérer le texte
-		if self.name not in listTagsSelfClosing:
-			f=1+ tagStr.find ('>')
-			self.innerHtml = tagStr[f:]
-
-	def __str__(self):
-		res = '<'+ self.name
-		if self.className: res = res +" class='"+ self.className +"'"
-		if self.id: res = res +" id='"+ self.id +"'"
-		attributes = self.attributes.keys()
-		for attr in attributes: res = " "+ attr +"='"+ self.attributes[attr] +"'"
-		if self.name in listTagsSelfClosing: res = res +'/>'
-		else: res = res +'>'+ self.innerHtml +'</'+ self.name +'>'
-		return res
 
 """ ________________________ nettoyer le texte ________________________ """
 
@@ -88,6 +32,67 @@ def cleanTitle (title):
 	for char in charToErase: title = title.replace (char," ")
 	title = textFct.cleanBasic (title)
 	return title
+
+def cleanBody (text):
+	# nettoyage de base
+	text = text.replace ('\n', ' ')
+	text = text.replace ('\t', ' ')
+	text = textFct.cleanBasic (text)
+	text = text.replace ('> ', '>')
+	text = text.replace (' <', '<')
+	text = text.replace (' >', '>')
+	text = text.replace (' />', '/>')
+	# standardiser tags
+	for tag in listTags:
+		text = text.replace ('<'+ tag.upper(), '<'+ tag)
+		text = text.replace ('</'+ tag.upper(), '</'+ tag)
+	for tag in listTagsSelfClosing:
+		text = text.replace ('<'+ tag.upper(), '<'+ tag)
+		text = text.replace ('<'+ tag +'>', '<'+ tag +'/>')
+	return text
+
+def delClasses (text):
+	text = text.replace (' id=', ' class=')
+	textList = text.split (' class="')
+	textRange = range (1, len (textList))
+	for t in textRange:
+		f= 1+ textList[t].find ('"')
+		textList[t] = textList[t][f:]
+	text = "".join (textList)
+	textList = text.split (" class='")
+	textRange = range (1, len (textList))
+	for t in textRange:
+		f= 1+ textList[t].find ("'")
+		textList[t] = textList[t][f:]
+	text = "".join (textList)
+	for tag in listTags:
+		while '<'+ tag + '></'+ tag + '>' in text: text = text.replace ('<'+ tag + '></'+ tag + '>', "")
+	return text
+
+def delAttributes (text):
+	# éffacer les attributs inutiles
+	listeCoins = text.split ('<')
+	rangeCoins = range (1, len (listeCoins))
+	for c in rangeCoins:
+		if '>' not in listeCoins[c]: continue
+		f= listeCoins[c].find ('>')
+		if " " not in listeCoins[c][:f]: continue
+		# examiner les attributs
+		attributes = listeCoins[c][:f].split (" ")
+		rattr = reversed (range (2, len (attributes)))
+		for a in rattr:
+			if '=' in attributes[a]:
+				d= attributes[a].find ('=')
+				if attributes[a][:d] not in listAttributes: end = attributes.pop (a)
+			else:
+				end = attributes.pop (a)
+				attributes[a-1] = attributes[a-1] +" "+ end
+		# examiner le premier attribut
+		d= attributes[1].find ('=')
+		if attributes[1][:d] not in listAttributes: end = attributes.pop (1)
+		listeCoins[c] = " ".join (attributes) + listeCoins[c][f:]
+	text = '<'.join (listeCoins)
+	return text
 
 """ ________________________ récupérer des balises ________________________ """
 
@@ -131,7 +136,7 @@ def getByPos (text, posStart):
 	# posStart = pos <tag
 	f= text.find ('>', posStart)
 	# balise auto-fermante
-	if text[f-1] == '/': return HtmlTag (text [posStart:f-1])
+	if text[f-1] == '/': return text [posStart:f-1]
 	else:
 		# balise contenant du texte
 		if " " in text[:f]:
@@ -147,7 +152,7 @@ def getByPos (text, posStart):
 			f= text.find (tagEnd, f+3)
 			nbStart = text[d+1:f].count (tagStart)
 			nbEnd = nbEnd +1
-		return HtmlTag (text[d:f])
+		return text[d:f]
 
 def getById (text, index):
 	text = text.replace ('"', "'")
@@ -218,7 +223,7 @@ def getByTagAndClass (text, tagName, className):
 	return textList
 
 def getByClassFirst (text, className):
-	if 'class=' not in text: return None
+	if 'class=' not in text: return ""
 	# repérer les balises
 	textList = text.split ("class='")
 	lenText = len (textList)
@@ -244,17 +249,17 @@ def getByClassFirst (text, className):
 	if '$<' in text:
 		d=1+ text.find ('$<',d)
 		return getByPos (text, d)
-	else: return None
+	else: return ""
 
 def getByTagFirst (text, tagName):
 	tagStart = '<'+ tagName
-	if tagStart not in text: return None
+	if tagStart not in text: return ""
 	d= text.find (tagStart)
 	return getByPos (text, d)
 
 def getByTagAndClassFirst (text, tagName, className):
 	tagStart = '<'+ tagName +" "
-	if tagStart not in text or className not in text: return None
+	if tagStart not in text or className not in text: return ""
 	# identifier les balises d'intérêt
 	textList = text.split (tagStart)
 	lenText = len (textList)
@@ -274,7 +279,7 @@ def getByTagAndClassFirst (text, tagName, className):
 	if '$<' in text:
 		d=1+ text.find ('$<',d)
 		return getByPos (text, d)
-	else: return None
+	else: return ""
 
 class Html (File):
 	def __init__ (self, file =None):
@@ -325,66 +330,6 @@ class Html (File):
 		for meta in self.meta.keys(): metas = metas + "<meta name='%s' content='%s'/>" % (meta, self.meta[meta])
 		return metas
 
-	""" ________________________ nettoyer le texte ________________________ """
-
-	def delAttributes (self):
-		# éffacer les attributs inutiles
-		listeCoins = self.text.split ('<')
-		rangeCoins = range (1, len (listeCoins))
-		for c in rangeCoins:
-			if '>' not in listeCoins[c]: continue
-			f= listeCoins[c].find ('>')
-			if " " not in listeCoins[c][:f]: continue
-			# examiner les attributs
-			attributes = listeCoins[c][:f].split (" ")
-			rattr = reversed (range (2, len (attributes)))
-			for a in rattr:
-				if '=' in attributes[a]:
-					d= attributes[a].find ('=')
-					if attributes[a][:d] not in listAttributes: end = attributes.pop (a)
-				else:
-					end = attributes.pop (a)
-					attributes[a-1] = attributes[a-1] +" "+ end
-			# examiner le premier attribut
-			d= attributes[1].find ('=')
-			if attributes[1][:d] not in listAttributes: end = attributes.pop (1)
-			listeCoins[c] = " ".join (attributes) + listeCoins[c][f:]
-		self.text = '<'.join (listeCoins)
-
-	def delClasses (self):
-		self.text = self.text.replace (' id=', ' class=')
-		textList = self.text.split (' class="')
-		textRange = range (1, len (textList))
-		for t in textRange:
-			f= 1+ textList[t].find ('"')
-			textList[t] = textList[t][f:]
-		self.text = "".join (textList)
-		textList = self.text.split (" class='")
-		textRange = range (1, len (textList))
-		for t in textRange:
-			f= 1+ textList[t].find ("'")
-			textList[t] = textList[t][f:]
-		self.text = "".join (textList)
-		for tag in listTags:
-			while '<'+ tag + '></'+ tag + '>' in self.text: self.text = self.text.replace ('<'+ tag + '></'+ tag + '>', "")
-
-	def cleanBody (self):
-		# nettoyage de base
-		self.text = self.text.replace ('\n', ' ')
-		self.text = self.text.replace ('\t', ' ')
-		self.text = textFct.cleanBasic (self.text)
-		self.text = self.text.replace ('> ', '>')
-		self.text = self.text.replace (' <', '<')
-		self.text = self.text.replace (' >', '>')
-		self.text = self.text.replace (' />', '/>')
-		# standardiser tags
-		for tag in listTags:
-			self.text = self.text.replace ('<'+ tag.upper(), '<'+ tag)
-			self.text = self.text.replace ('</'+ tag.upper(), '</'+ tag)
-		for tag in listTagsSelfClosing:
-			self.text = self.text.replace ('<'+ tag.upper(), '<'+ tag)
-			self.text = self.text.replace (tag +'>', tag +'/>')
-
 	""" ________________________ texte du web ________________________ """
 
 	def fromUrlVa (self, params=None):
@@ -404,11 +349,11 @@ class Html (File):
 			if not self.text: self.text = tmpByte.decode ('utf-8')
 			response.close()
 			# self.titleFromUrl()
-			self.cleanBody()
+			self.text = cleanBody (self.text)
 			self.setTitle()
 			self.setMetas()
 			self.setBody()
-			self.text = self.delAttributes()
+			self.text = delAttributes (self.text)
 			return True
 		except Exception as e: return False
 
@@ -422,7 +367,7 @@ class Html (File):
 			return False
 		else:
 			self.read()
-			self.text = self.delAttributes()
+			self.text = delAttributes (self.text)
 			remove (self.path.replace ('\t', 'tmp'))
 			return True
 
@@ -470,18 +415,18 @@ class Html (File):
 
 	def read (self):
 		File.read (self)
-		self.cleanBody()
+		self.text = cleanBody (self.text)
 		self.setTitle()
 		self.setMetas()
 		self.setBody()
-		# self.text = self.delAttributes()
+		# self.text = delAttributes (self.text)
 
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body
 		self.text = self.text.replace ('><', '>\n<')
 		self.text = self.text.replace ('>\n</', '></')
 		self.meta['link'] = self.link
-		self.cleanBody()
+		self.text = cleanBody (self.text)
 		self.title = cleanTitle (self.title)
 		self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		File.write (self, mode)
