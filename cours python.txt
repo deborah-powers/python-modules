@@ -1,279 +1,226 @@
+============ Divers ============
 
-====== divers ======
-
-object.__dir__()	récupère les fonctions d'un objet
-object.__module__	nom du fichier contenant la classe de l'objet
-object.__class__	nom de la classe de l'objet
-object.__dict__		renvoi les champs et leurs valeurs sous la forme d'un dictionnaire
+Object.__dir__()	récupère les fonctions d'un objet
+Object.__module__	nom du fichier contenant la classe de l'objet
+Object.__class__	nom de la classe de l'objet
+Object.__dict__		renvoi les champs et leurs valeurs sous la forme d'un dictionnaire
 __file__			nom du script s'executant
-
-if __name__ == 'main': pass
-else: xxx
-empêche de lancer certaines actions quand le script est une dépendance
-
-SyntaxError: erreur dans l'écriture du code. mauvaise indentation.
-NameError: mot non reconnu par l'interprêteur. utilisation d'une variable non déclarée.
-
-les types de donnée: string, int, float.
-variable contre littéral: un littéral est une donnée (le nombre 3) utilisée tel quel dans e code, sans être stoquée dans une variable.
+if __name__ == 'main': Pass
+Else: Xxx
+Empêche de lancer certaines actions quand le script est une dépendance
+Syntaxerror: Erreur dans l'écriture du code. Mauvaise indentation.
+Nameerror: Mot non reconnu par l'interprêteur. Utilisation d'une variable non déclarée.
+Les types de donnée: String, int, float.
+Variable contre littéral: Un littéral est une donnée (le nombre 3) utilisée tel quel dans e code, sans être stoquée dans une variable.
 6**2 = 36
 26/5 = 5.2
 26%5 = 1
 
-====== fonctions à arguments variables ======
+============ Fonctions à arguments variables ============
 
-def funcNbArgVariable (*args):
+def funcnbargvariable (*args):
 	# args est un tuple
-	for arg in args: print (arg)
-
-funcNbArgVariable ('a', 'b', 'c')
-
-def funcNomArgVariable (**kwargs):
+	For arg in args: Print (arg)
+Funcnbargvariable ('a', 'b', 'c')
+def funcnomargvariable (**kwargs):
 	# kwargs est un dictionnaire
-	print (kwargs.get ('myArg'))
-	# si myArg n'existe pas, kwargs.get ('myArg') vaut None
+	Print (kwargs.get ('myarg'))
+	# si myarg n'existe pas, kwargs.get ('myarg') vaut none
+Funcnomargvariable (arg1='coucou', myarg=22)
+def functout (argpositionnel, *args, argnomme, **kwargs):
+Functout ('coucou', 'les', 'amis', argnomme='il fait beau', argnomme2="aujourd'hui", argnomme3="n'est-ce pas ?")
 
-funcNomArgVariable (arg1='coucou', myArg=22)
+************************************************
 
-def funcTout (argPositionnel, *args, argNomme, **kwargs):
-funcTout ('coucou', 'les', 'amis', argNomme='il fait beau', argNomme2="aujourd'hui", argNomme3="n'est-ce pas ?")
-
-******
 *args =[2,8]
-range (*args)
-args est considéré comme un tuple, *args est considéré comme si les deux chiffres étaient indépendants.
-
-a, *b, c = [3, 6, 9, 12, 15]
+Range (*args)
+Args est considéré comme un tuple, *args est considéré comme si les deux chiffres étaient indépendants.
+A, *b, c = [3, 6, 9, 12, 15]
 >> b= [6, 9, 12]
-my_tuple = (3, 6, 9)
-merged_tuple = (0, *my_tuple, 12)
+My_tuple = (3, 6, 9)
+Merged_tuple = (0, *my_tuple, 12)
 >> merged_tuple = (0, 3, 6, 9, 12)
-
-num_collection = [3, 6, 9]
-funcNbArgVariable (*num_collection)
+Num_collection = [3, 6, 9]
+Funcnbargvariable (*num_collection)
 >> comme si j'avais transmit 3 arguments indépendants au lieu d'un.
 
+============ Rajouter une fonction à une classe ============
 
-====== rajouter une fonction à une classe ======
+def newfunction (self):
+	Pass
+Setattr (myclass, 'myfunction', newfunction)
+Item = myclass()
+Item.myfunction()
 
-def newFunction (self):
-	pass
+============ Changer la version de python par défaut ============
 
-setattr (MyClass, 'myFunction', newFunction)
-
-item = MyClass()
-item.myFunction()
-
-====== changer la version de python par défaut ======
-
-quand j'ai deux versions sur mon ordi.
-
-# Remove python 2
-sudo apt purge -y python2.7
-sudo apt purge -y python2.7-minimal
-# You already have Python 3 but 
-sudo ln -s /usr/bin/python3 /usr/bin/python
-# Same for pip
-sudo apt install -y python3-pip
-sudo ln -s /usr/bin/pip3 /usr/bin/pip
-# Confirm the new version of Python: 3
-
+Quand j'ai deux versions sur mon ordi.
+# remove python 2
+Sudo apt purge -y python2.7
+Sudo apt purge -y python2.7-minimal
+# you already have python 3 but
+Sudo ln -s /usr/bin/python3 /usr/bin/python
+# same for pip
+Sudo apt install -y python3-pip
+Sudo ln -s /usr/bin/pip3 /usr/bin/pip
+# confirm the new version of python: 3
 python --version
 
-****** seconde méthode ******
+************ Seconde méthode ************
 
 # try following to see all instances of python
-whereis python
-which python
+Whereis python
+Which python
+# then remove all instances using:
+Sudo apt autoremove python
+# repeat sudo apt autoremove python(for all versions) that should do it, then install anaconda and manage pythons however you like if you need to reinstall it.
 
-# Then remove all instances using:
-sudo apt autoremove python
+============ Ajouter un dossier à sys.path ============
 
-# repeat sudo apt autoremove python(for all versions) that should do it, then install Anaconda and manage Pythons however you like if you need to reinstall it.
-
-====== ajouter un dossier à sys.path ======
-
-je veux utiliser les scripts de /home/deborah/python partout.
-
+Je veux utiliser les scripts de /home/deborah/python partout.
 from sys import path
-print (path)
-
-repérer le chemin de site-packages,
+Print (path)
+Repérer le chemin de site-packages,
 /home/deborah/.local/lib/python3.8/site-packages
-C:\Users\deborah.powers\AppData\Local\Programs\Python\Python36\lib\site-packages
-C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\site-packages
+C:/users/deborah.powers/appdata/local/programs/python/python36/lib/site-packages
+C:/users/lenovo/appdata/local/programs/python/python311/lib/site-packages
 /usr/lib64/python3.9/site-packages ou /usr/lib/python3.9/site-packages
-
-créer /site-packages/my-paths.pth
-
+Créer /site-packages/my-paths.pth
 /home/deborah/python
-C:\Users\deborah.powers\Desktop\python
+C:/users/deborah.powers/desktop/python
+Sudo cp /home/ent6904919/bureau/my-path.pth /usr/lib/python3.9/site-packages/
 
-sudo cp /home/ent6904919/Bureau/my-path.pth /usr/lib/python3.9/site-packages/
+============ Créer un package ============
 
-
-
-====== créer un package ======
-
-monPackage/
-	setup.py
-	monPackage/
+Monpackage/
+	Setup.py
+	Monpackage/
 		__init__.py
 		autre.py
-
-dans setup.py
-
+Dans setup.py
 #!/usr/bin/python3.6
-# -*- coding: utf-8 -*-
+# -*- coding: Utf-8 -*-
 from setuptools import setup, find_packages
-
-author = 'deborah noisetier'
-name = 'utilitaires'
-description = "mes petits scripts utilitaires"
-version = '0.1'
-
-setup (
-	name = name, version = version, description = description,
-	author = author,
-	packages = find_packages()
+Author = 'deborah noisetier'
+Name = 'utilitaires'
+Description = "mes petits scripts utilitaires"
+Version = '0.1'
+Setup (
+	Name = name, version = version, description = description,
+	Author = author,
+	Packages = find_packages()
 )
+__init__.py contient les trucs chargés à l'appel du package. Il est obligatoire.
 
-__init__.py contient les trucs chargés à l'appel du package. il est obligatoire.
+************ Installer le package ************
 
-
-****** installer le package ******
-
-sudo apt-get install python3-setuptools
-sudo chmod -R 774 /usr/local/lib/python3.8/
-
-cd monPackage/
+Sudo apt-get install python3-setuptools
+Sudo chmod -r 774 /usr/local/lib/python3.8/
+cd monpackage/
 python setup.py
 
-****** appeler mes objets ******
+************ Appeler mes objets ************
 
-from monPackage import TrucDansInit
-from monPackage.autre import TrucDansAutre
+from monpackage import trucdansinit
+from monpackage.autre import trucdansautre
 
+============ Lancer un package comme un script, mais de partout ============
 
-====== lancer un package comme un script, mais de partout ======
-
-dans mon package, j'ai
-
-monPackage/
-	setup.py
-	monPackage/
+Dans mon package, j'ai
+Monpackage/
+	Setup.py
+	Monpackage/
 		__init__.py
 		__main__.py
 		autre.py
-
 __main__.py contient le l'action, le script à lancer.
 
+************ Lancer le package ************
 
-****** lancer le package ******
+python -m monpackage args
+Les arguments sont récupérés via sys.argv, comme pour les scripts.
 
-python -m monPackage args
-les arguments sont récupérés via sys.argv, comme pour les scripts.
+============ Lancer une application ============
 
+Pour l'utiliser moi-même
+Import os
+Os.system ('appli')
+Os.system ('appli fichier')
+Lancer et fermer une application
+Import subprocess
+Import time
+P= subprocess.popen ([ appli, fichier])
+Time.sleep (4)
+P.terminate()
+Applis:
+	Vlc	vlc
+	Eog	visionneuse d'image
 
-====== lancer une application ======
-
-pour l'utiliser moi-même
-
-import os
-os.system ('appli')
-os.system ('appli fichier')
-
-lancer et fermer une application
-
-import subprocess
-import time
-p= subprocess.Popen ([ appli, fichier])
-time.sleep (4)
-p.terminate()
-
-applis:
-	vlc	vlc
-	eog	visionneuse d'image
-
-====== récupérer les éléments de mes calendriers google ======
+============ Récupérer les éléments de mes calendriers google ============
 
 https://developers.google.com/calendar/api/quickstart/python
-
-dans google, créer mon profil de développeuse. vérifier que le profil est associé au compte contenant le calendrier.
+Dans google, créer mon profil de développeuse. Vérifier que le profil est associé au compte contenant le calendrier.
 https://developers.google.com/profile/u/116171585149691769782?hl=fr&authuser=2&utm_source=developers.google.com
-activer l'api google calendar
+Activer l'api google calendar
 https://console.cloud.google.com/projectselector2/apis/enableflow?apiid=calendar-json.googleapis.com&hl=fr&pli=1&supportedpurview=project
-
 https://developers.google.com/identity/protocols/oauth2/service-account?authuser=2&hl=fr#creatinganaccount
+Cf quickstart.py
 
-cf quickstart.py
+************ Erreur invalid_grant ************
 
-****** erreur invalid_grant ******
-
-  File "C:\Users\LENOVO\Desktop\python\calendrier.py", line 315, in <module>
-    service = setService()
-              ^^^^^^^^^^^^
-  File "C:\Users\LENOVO\Desktop\python\calendrier.py", line 70, in setService
-    if creds and creds.expired and creds.refresh_token: creds.refresh (Request())
-                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\oauth2\credentials.py", line 335, in refresh
-    ) = reauth.refresh_grant(
-        ^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\oauth2\reauth.py", line 349, in refresh_grant
-    _client._handle_error_response(response_data, retryable_error)
-  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
-    raise exceptions.RefreshError(
-google.auth.exceptions.RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})
-
-dans mon code, ligne #if not creds or not creds.valid
-commenter les if - else,
-garder
-flow = InstalledAppFlow.from_client_secrets_file ('credentials.json', scopes)
-creds = flow.run_local_server (port=0)
-# Save the credentials for the next run
-with open ('token.json', 'w') as token: token.write (creds.to_json())
-
-
-https://groups.google.com/g/adwords-api/c/skrMUFn8h5Y
+File "c:/users/lenovo/desktop/python/calendrier.py", line 315, in <module>
+Service = setservice()
+^^^^^^^^^^^^
+File "c:/users/lenovo/desktop/python/calendrier.py", line 70, in setservice
+if creds and creds.expired and creds.refresh_token: Creds.refresh (request())
+^^^^^^^^^^^^^^^^^^^^^^^^^
+File "c:/users/lenovo/appdata/local/programs/python/python311/lib/site-packages/google/oauth2/credentials.py", line 335, in refresh
+) = reauth.refresh_grant(
+^^^^^^^^^^^^^^^^^^^^^
+File "c:/users/lenovo/appdata/local/programs/python/python311/lib/site-packages/google/oauth2eauth.py", line 349, in refresh_grant
+_client._handle_error_response(response_data, retryable_error)
+File "c:/users/lenovo/appdata/local/programs/python/python311/lib/site-packages/google/oauth2/_client.py", line 69, in _handle_error_response
+Raise exceptions.refresherror(
+Google.auth.exceptions.refresherror: ('invalid_grant: Bad request', {'error': 'invalid_grant', 'error_description': 'bad request'})
+Dans mon code, ligne #if not creds or not creds.valid
+Commenter les if - else,
+Garder
+Flow = installedappflow.from_client_secrets_file ('credentials.json', scopes)
+Creds = flow.run_local_server (port=0)
+# save the credentials for the next run
+With open ('token.json', 'w') as token: Token.write (creds.to_json())
+https://groups.google.com/g/adwords-api/c/skrmufn8h5y
 https://developers.google.com/google-ads/api/docs/start?hl=fr#generate_oauth2_credentials
-
 https://console.cloud.google.com/projectselector2/apis/credentials?hl=fr&supportedpurview=project
-sélectionner calendrier-deborah. attention, mon utilisateur doit être deborah.powers89.
+Sélectionner calendrier-deborah. Attention, mon utilisateur doit être deborah.powers89.
 https://console.cloud.google.com/apis/credentials?hl=fr&authuser=2&project=calendrier-deborah&supportedpurview=project
 
-****** erreurs ******
+************ Erreurs ************
 
-ModuleNotFoundError: No module named 'googleapiclient'
-pip install --upgrade google-api-python-client
-ModuleNotFoundError: No module named 'google_auth_oauthlib'
-pip install google-auth-oauthlib
-
-    "message": "API keys are not supported by this API. Expected OAuth2 access token or other authentication credentials that assert a principal. See https://cloud.google.com/docs/authentication",
-
-https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleEvents=true&orderBy=startTime&timeMin=2022-1-2022T1%3A31%3A00Z&timeMax=2022-1-2022T2%3A31%3A00Z&alt=json
-error
-	code	403
-	message	"The request is missing a valid API key."
-errors	0
-	message	"The request is missing a valid API key."
-	domain	"global"
-	reason	"forbidden"
-	status	"PERMISSION_DENIED"
-
-File "quickstart.py", line 231, in fromCalendar
-	evtListTmp = evtListTmp2.execute()
+Modulenotfounderror: No module named 'googleapiclient'
+Pip install --upgrade google-api-python-client
+Modulenotfounderror: No module named 'google_auth_oauthlib'
+Pip install google-auth-oauthlib
+"message": "api keys are not supported by this api. Expected oauth2 access token or other authentication credentials that assert a principal. See https://cloud.google.com/docs/authentication",
+https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t2%3a31%3a00z&alt=json
+Error
+	Code	403
+	Message	"the request is missing a valid api key."
+Errors	0
+	Message	"the request is missing a valid api key."
+	Domain	"global"
+	Reason	"forbidden"
+	Status	"permission_denied"
+File "quickstart.py", line 231, in fromcalendar
+	Evtlisttmp = evtlisttmp2.execute()
 File "/home/deborah/.local/lib/python3.8/site-packages/googleapiclient/_helpers.py", line 134, in positional_wrapper
 	return wrapped(*args, **kwargs)
 File "/home/deborah/.local/lib/python3.8/site-packages/googleapiclient/http.py", line 935, in execute
-	raise HttpError(resp, content, uri=self.uri)
-googleapiclient.errors.HttpError: <HttpError 400 when requesting https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleEvents=true&orderBy=startTime&timeMin=2022-1-2022T1%3A31%3A00Z&timeMax=2022-1-2022T2%3A31%3A00Z&alt=json returned "Bad Request". Details: "[{'domain': 'global', 'reason': 'badRequest', 'message': 'Bad Request'}]">
-deborah@deborah-ThinkPad-T420:~/python$
-
-https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4@group.calendar.google.com/events?singleEvents=true&orderBy=startTime&timeMin=2022-1-2022T1%3A31%3A00Z&timeMax=2022-1-2022T2%3A31%3A00Z&alt=json
-
-https://www.googleapis.com/calendar/v3/calendars/33akjnknr3mp1oletdkm8tdjog@group.calendar.google.com/events?singleEvents=true&orderBy=startTime&timeMin=2022-1-2022T1%3A31%3A00Z&timeMax=2022-1-2022T3%3A11%3A00Z&alt=json
-
-
-ModuleNotFoundError: No module named 'googleapiclient'
-pip install google-api-python-client
-pip install google-auth-oauthlib
+	Raise httperror(resp, content, uri=self.uri)
+Googleapiclient.errors.httperror: <httperror 400 when requesting https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t2%3a31%3a00z&alt=json returned "bad request". Details: "[{'domain': 'global', 'reason': 'badrequest', 'message': 'bad request'}]">
+Deborah@deborah-thinkpad-t420: ~/python$
+https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4@group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t2%3a31%3a00z&alt=json
+https://www.googleapis.com/calendar/v3/calendars/33akjnknr3mp1oletdkm8tdjog@group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t3%3a11%3a00z&alt=json
+Modulenotfounderror: No module named 'googleapiclient'
+Pip install google-api-python-client
+Pip install google-auth-oauthlib
