@@ -19,7 +19,7 @@ class Fanfic (htmlCls.Html, Article):
 	def __init__ (self, url, subject=None):
 		Article.__init__ (self)
 		htmlCls.Html.__init__ (self, url)
-		self.text = htmlCls.delAttributes (self.text)
+		self.delAttributes()
 		if subject: self.subject = subject
 		if 'archive of our own' in self.title:	self.fromAooo()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
@@ -36,8 +36,7 @@ class Fanfic (htmlCls.Html, Article):
 			article = htmlCls.getByTagFirst (self.text, 'article')
 			self.text = article
 		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
-		self.text = htmlCls.delAttributes (self.text)
-		self.text = htmlCls.delClasses (self.text)
+		self.delClasses()
 		article = self.toText()
 		if article: article.divide()
 		else: self.divide()
@@ -116,33 +115,32 @@ class Fanfic (htmlCls.Html, Article):
 	#	self.delImgLink()
 
 	def fromAooo (self):
+		# fanfic enregistrée via le bouton télécharger en html
+		self.meta ={}
+
+	def fromAoooVa (self):
+		# fanfic enregistrée en faisant un ctl+ click
 		self.meta ={}
 		# le titre
 		tag = htmlCls.getByTagAndClassFirst (self.text, 'h2', 'title heading')
-		self.title = htmlCls.cleanTitle (htmlCls.getText (tag))
+		self.title = htmlCls.cleanTitle (tag.innerHtml)
 		# l'auteur
 		tag = htmlCls.getByTagAndClassFirst (self.text, 'h3', 'byline heading')
-		tag = htmlCls.getByTagFirst (tag, 'a')
-		self.autlink = htmlCls.getText (tag)
-		d= self.autlink.find ('\n')
-		self.author = htmlCls.cleanTitle (self.autlink[d+1:])
-		self.autlink = self.autlink[:d]
-		log.log (self.author, self.autlink)
-
-
-		self.subject = data[2]
-		self.subject = self.subject.replace (' (band)', "")
-		self.clean()
-		# le lien
-		d= self.text.find ("<a href='/downloads/") +20
-		f= self.text.find ('/', d)
-		self.link = 'https://archiveofourown.org/works/' + self.text[d:f]
+		tag = htmlCls.getByTagFirst (tag.innerHtml, 'a')
+		self.autlink = 'https://archiveofourown.org' + tag.attributes['href']
+		self.author = htmlCls.cleanTitle (tag.innerHtml)
 		# le sujet
-		d= self.text.find ('Category:<ul><li><a') +20
-		d= self.text.find ('>', d) +1
-		f= self.text.find ('</a>', d)
-		if self.text[d:f] in ('F/M', 'F/F') and 'romance' not in self.subject: self.subject = ', romance'+ self.subject
+		tag = htmlCls.getByTagAndClassFirst (self.text, 'dd', 'fandom tags')
+		tag = htmlCls.getByTagFirst (tag.innerHtml, 'a')
+		self.subject = htmlCls.cleanTitle (tag.innerHtml)
 		self.findSubject()
+		# le lien de la fanfic
+		tag = htmlCls.getByTagAndClassFirst (self.text, 'dd', 'bookmarks')
+		tag = htmlCls.getByTagFirst (tag.innerHtml, 'a')
+		self.link = 'https://archiveofourown.org' + tag.attributes['href'].replace ('bookmarks', "")
+		# le texte
+		tag = htmlCls.getById (self.text, 'chapters')
+		self.text = tag.innerHtml
 
 	def unisciel (self, subject):
 		self.subject = 'cours'
@@ -314,4 +312,4 @@ class Fanfic (htmlCls.Html, Article):
 
 fileAooo = 'b/aooo.html'
 fileGtb = ''
-fic = Fanfic ()
+fic = Fanfic (fileAooo)

@@ -83,8 +83,11 @@ class File():
 
 	def read (self):
 		self.toPath()
+		log.log (self.path)
 		if not os.path.exists (self.path): return
+		log.log (self.path)
 		textBrut = open (self.path, 'rb')
+		log.log (self.path)
 		tmpByte = textBrut.read()
 		encodingList = ('utf-8', 'ascii', 'ISO-8859-1')
 		text =""
@@ -138,7 +141,6 @@ class File():
 		return jsonData
 
 	def divide (self):
-		log.log (self.title, self.path, len (self.text))
 		self.fromPath()
 		self.text = textFct.shape (self.text)
 		if len (self.text) < 420000: self.write()

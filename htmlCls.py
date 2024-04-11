@@ -5,7 +5,7 @@ import urllib as ul
 from urllib import request as urlRequest
 import codecs
 import textFct
-from fileCls import File
+from fileCls import File, Article
 import loggerFct as log
 
 listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body' )
@@ -30,7 +30,7 @@ class HtmlTag():
 		self.className =""
 		self.id =""
 		self.attributes ={}
-		self.fromString()
+		self.fromString (tagStr)
 
 	def fromString (self, tagStr):
 		""" tagStr est envoyée par getByPos
