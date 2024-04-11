@@ -4,6 +4,7 @@ Object.__dir__()	récupère les fonctions d'un objet
 Object.__module__	nom du fichier contenant la classe de l'objet
 Object.__class__	nom de la classe de l'objet
 Object.__dict__		renvoi les champs et leurs valeurs sous la forme d'un dictionnaire
+id (variable)	id de la case mémoire contenant la variable
 __file__			nom du script s'executant
 if __name__ == 'main': Pass
 Else: Xxx
@@ -29,6 +30,25 @@ def funcnomargvariable (**kwargs):
 Funcnomargvariable (arg1='coucou', myarg=22)
 def functout (argpositionnel, *args, argnomme, **kwargs):
 Functout ('coucou', 'les', 'amis', argnomme='il fait beau', argnomme2="aujourd'hui", argnomme3="n'est-ce pas ?")
+
+*** les arguments mutables ***
+
+def myfunc (arg1, argList=[]):
+	argList.append (arg1)
+
+argList1 = myfunc ('coucou')
+>> argList1 =[ 'coucou' ]
+argList2 = myfunc ('loulou')
+>> argList2 =[ 'coucou', 'loulou' ]
+
+les arguments mutables sont des conteneurs dont le contenu sera modifié par la fonction. les liste, set et dictionnaire en sont.
+argList avec sa valeur par défaut n'est déclaré qu'une fois dans la mémoire. lors des deux appels, python utilise cette unique fausse variable.
+
+solution
+def myfunc (arg1, argList=None):
+	if argList ==None: argList =[]
+	argList.append (arg1)
+
 
 ************************************************
 
