@@ -11,7 +11,7 @@ import loggerFct as log
 
 help = """
 récupérer les pages de certains sites que j'aime beaucoup
-utilisation: python fanfic url
+utilisation: python fanfic.py url
 l'url peut correspondre à une page ou un fichier local
 """
 
@@ -336,6 +336,10 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.strip()
 		self.text = '<p>'+ self.text +'</p>'
 
-fileAooo = 'b/DEVILISH.html'
-fileGtb = ''
-fic = Fanfic (fileAooo)
+if len (argv) >=2:
+	url = argv[1]
+	subject = None
+	if len (argv) >=3: subject = argv[2]
+	page = Fanfic (url, subject)
+# le nom du fichier n'a pas ete donne
+else: print (help)
