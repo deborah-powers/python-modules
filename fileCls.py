@@ -83,11 +83,8 @@ class File():
 
 	def read (self):
 		self.toPath()
-		log.log (self.path)
 		if not os.path.exists (self.path): return
-		log.log (self.path)
 		textBrut = open (self.path, 'rb')
-		log.log (self.path)
 		tmpByte = textBrut.read()
 		encodingList = ('utf-8', 'ascii', 'ISO-8859-1')
 		text =""
@@ -382,9 +379,7 @@ class Article (File):
 		article.author = self.author
 		article.autlink = self.autlink
 		article.text = textFct.toHtml (article.text)
-		if '</' in article.text:
-			log.log (article.text)
-			return article
+		if '</' in article.text: return article
 		else: return self
 
 	def toXhtml (self):
@@ -488,7 +483,7 @@ class FileList (File):
 
 	def write (self):
 		self.toText()
-		self.text = textFct.shape (self.text, 'reset upper')
+		self.text = textFct.shape (self.text, 'reset')
 		File.write (self)
 
 	def read (self):

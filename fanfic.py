@@ -21,7 +21,7 @@ class Fanfic (htmlCls.Html, Article):
 		htmlCls.Html.__init__ (self, url)
 		self.delAttributes()
 		if subject: self.subject = subject
-		if 'archive of our own' in self.title:	self.fromAooo()
+		if 'http://archiveofourown.org/' in self.text:	self.fromAooo()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
 
 		elif 'b/ffnet.html' == url:		self.ffNet()
@@ -117,6 +117,32 @@ class Fanfic (htmlCls.Html, Article):
 	def fromAooo (self):
 		# fanfic enregistrée via le bouton télécharger en html
 		self.meta ={}
+		# le lien de la fanfic
+		tag = htmlCls.getByTagAndClassFirst (self.text, 'p', 'message')
+		tag = htmlCls.getByTag (tag.innerHtml, 'a')[1]
+		self.link = tag.attributes['href']
+		# le titre
+		tag = htmlCls.getByTagFirst (self.text, 'h1')
+		self.title = htmlCls.cleanTitle (tag.innerHtml)
+		# l'auteur
+		tag = htmlCls.getByTagAndClassFirst (self.text, 'div', 'byline')
+		tag = htmlCls.getByTagFirst (tag.innerHtml, 'a')
+		self.autlink = tag.attributes['href']
+		f= self.autlink.find ('/pseuds/')
+		self.autlink = self.autlink[:f]
+		self.author = tag.innerHtml
+		# le sujet
+		tag = htmlCls.getByTagAndClassFirst (self.text, 'dl', 'tags')
+		tag.innerHtml = tag.innerHtml.replace ('http://archiveofourown.org/tags/', "")
+		tags = htmlCls.getByTag (tag.innerHtml, 'a')
+		for link in tags: self.subject = self.subject +'\t'+ link.innerHtml
+		self.findSubject()
+		# le texte
+		tag = htmlCls.getById (self.text, 'chapters')
+		self.text = tag.innerHtml
+		self.delClasses()
+		self.text = self.text.replace ('<div>',"")
+		self.text = self.text.replace ('</div>',"")
 
 	def fromAoooVa (self):
 		# fanfic enregistrée en faisant un ctl+ click
@@ -310,6 +336,6 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.strip()
 		self.text = '<p>'+ self.text +'</p>'
 
-fileAooo = 'b/aooo.html'
+fileAooo = 'b/DEVILISH.html'
 fileGtb = ''
 fic = Fanfic (fileAooo)

@@ -75,7 +75,7 @@ class HtmlTag():
 		if self.className: res = res +" class='"+ self.className +"'"
 		if self.id: res = res +" id='"+ self.id +"'"
 		attributes = self.attributes.keys()
-		for attr in attributes: res = " "+ attr +"='"+ self.attributes[attr] +"'"
+		for attr in attributes: res = res +" "+ attr +"='"+ self.attributes[attr] +"'"
 		if self.name in listTagsSelfClosing: res = res +'/>'
 		else: res = res +'>'+ self.innerHtml +'</'+ self.name +'>'
 		return res
@@ -134,10 +134,10 @@ def getByPos (text, posStart):
 	if text[f-1] == '/': return HtmlTag (text [posStart:f-1])
 	else:
 		# balise contenant du texte
-		if " " in text[:f]:
-			f= text.find (" ", posStart)
-		tagStart = text[posStart:f]
-		tagEnd = '</'+ tagStart[1:] +'>'
+		if " " in text[posStart:f]: f= text.find (" ", posStart)
+		tagStart = text[posStart +1:f]
+		tagEnd = '</'+ tagStart +'>'
+		tagStart = '<'+ tagStart
 		d= text.find (tagStart, posStart)
 		f= text.find (tagEnd, posStart)
 		nbEnd =0
