@@ -4,7 +4,7 @@ Object.__dir__()	récupère les fonctions d'un objet
 Object.__module__	nom du fichier contenant la classe de l'objet
 Object.__class__	nom de la classe de l'objet
 Object.__dict__		renvoi les champs et leurs valeurs sous la forme d'un dictionnaire
-id (variable)	id de la case mémoire contenant la variable
+Id (variable)	id de la case mémoire contenant la variable
 __file__			nom du script s'executant
 if __name__ == 'main': Pass
 Else: Xxx
@@ -16,6 +16,63 @@ Variable contre littéral: Un littéral est une donnée (le nombre 3) utilisée 
 6**2 = 36
 26/5 = 5.2
 26%5 = 1
+
+============ Espaces de nom ============
+
+Dictionnaire contenant les noms des fonctions, des variables et leurs valeurs pour un script.
+Il en existe quatre types: Built-in, global, enclosing, local.
+
+************ Built-in ************
+
+En de base de python, qui contient les fonctions de base (print, erreurs, etc). Il vit temps que l'interprêteur tourne.
+Dir(__builtins__)
+
+************ Global ************
+
+En du script tournant. Il contient certains noms communs à tous (__name__, __main__, etc) en plus des variables créées dans mon script.
+Lorsque j'importe une dépendance (import dep), python lui créé son propre espace de nom.
+Si j'importe une variable à partir d'un dépendence (from dep import var), elle est inclue dans l'en du script.
+Globals()
+Si j'appelle globals() dans une fonction, elle ne récupère pas ses variables locales.
+
+************ Local ************
+
+En de la fonction. Il contient ses paramètres et les variables créées à l'intérieur.
+Si elle est applelée à la base du script, elle a la même valeur que globals().
+Si je l'appelle dans une boucle for, elle affiche les variables créées dans la boucle, y compris l'itérateur, celles crées dans les autres boucles, celles de de globals().
+Un espace enclosing représente l'en d'une fonction en contenant une autre.
+Locals()
+
+============ Scopes ============
+
+Ce qui sous-temps les espaces de nom.
+Il en existe quatre types: Built-in, global, enclosing, local.
+Le built-in est identique à l'espace de nom. Ses fonctions agissent et sont accessibles de partout où l'en est accessible.
+
+************ Local ************
+
+Scope des variables contenues dans une fonction. Ses variables ne sont modifiables et lisibles que de l'intérieur de la fonction. A chaque appel, un nouveau scope indépendant est créé.
+
+************ Enclosing et global ************
+
+Pour les fonctions imbriquées, une variable de rang 1 peut être lue au rang 2 mais pas modifiée. Sauf avec le mot-clef nonlocal.
+Glovar = 'global_value'
+def enclosing_function():
+	var = 'value'
+	def nested_function():
+		nonlocal var
+		global glovar
+		global glonew
+		var = 'new_value'
+		glovar = 'local_value'
+		glonew = 'local_value'
+	Enclosing_function.var est modifiée
+	La v globale glonew est créée et accessible ailleur.
+
+************ Scope résolution ************
+
+Règle selon laquelle python recherche les variables entre les espaces de nom.
+La norme est legb, local, enclosing, global, built-in.
 
 ============ Fonctions à arguments variables ============
 
@@ -31,24 +88,20 @@ Funcnomargvariable (arg1='coucou', myarg=22)
 def functout (argpositionnel, *args, argnomme, **kwargs):
 Functout ('coucou', 'les', 'amis', argnomme='il fait beau', argnomme2="aujourd'hui", argnomme3="n'est-ce pas ?")
 
-*** les arguments mutables ***
+************ Les arguments mutables ************
 
-def myfunc (arg1, argList=[]):
-	argList.append (arg1)
-
-argList1 = myfunc ('coucou')
->> argList1 =[ 'coucou' ]
-argList2 = myfunc ('loulou')
->> argList2 =[ 'coucou', 'loulou' ]
-
-les arguments mutables sont des conteneurs dont le contenu sera modifié par la fonction. les liste, set et dictionnaire en sont.
-argList avec sa valeur par défaut n'est déclaré qu'une fois dans la mémoire. lors des deux appels, python utilise cette unique fausse variable.
-
-solution
-def myfunc (arg1, argList=None):
-	if argList ==None: argList =[]
-	argList.append (arg1)
-
+def myfunc (arg1, arglist=[]):
+	Arglist.append (arg1)
+Arglist1 = myfunc ('coucou')
+>> arglist1 =[ 'coucou' ]
+Arglist2 = myfunc ('loulou')
+>> arglist2 =[ 'coucou', 'loulou' ]
+Les arguments mutables sont des conteneurs dont le contenu sera modifié par la fonction. Les liste, set et dictionnaire en sont.
+Arglist avec sa valeur par défaut n'est déclaré qu'une fois dans la mémoire. Lors des deux appels, python utilise cette unique fausse variable.
+Solution
+def myfunc (arg1, arglist=none):
+	if arglist ==none: Arglist =[]
+	Arglist.append (arg1)
 
 ************************************************
 
@@ -63,6 +116,32 @@ Merged_tuple = (0, *my_tuple, 12)
 Num_collection = [3, 6, 9]
 Funcnbargvariable (*num_collection)
 >> comme si j'avais transmit 3 arguments indépendants au lieu d'un.
+
+============ Fonctions lambda ============
+
+Add_two = lambda nb: Nb + 2
+Check_if_a_grade = lambda grade: 'got an a !' if grade >= 90 else 'did not get an a.'
+
+============ les fonctions d'ordre suppérieur ============
+
+les fonctions sont en fait des objets. ont peut les stoquer dans des listes, dans des variables, etc.
+lowerCustomName = str.lower
+lowerCustomName (myString) = myString.lower()
+on peut aussi les passer en paramètre d'autres fonctions ou les renvoyer.
+les fonctions qui en reçoivent d'autres comme paramètres ou en renvoient sont des fonctions d'ordre suppérieur.
+
+def make_box_volume_function (height):
+	# defines and returns a function that takes two numeric arguments,		
+	# length &  width, and returns the volume given the input height
+	def volume (length, width):
+		return length * width * height
+	return volume
+	# elle renvoi la fonction volume
+
+box_volume_height15 = make_box_volume_function (15)
+# box_volume_height15 est un prête-nom pour volume
+print (box_volume_height15 (3,2))
+
 
 ============ Rajouter une fonction à une classe ============
 
