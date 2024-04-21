@@ -353,7 +353,8 @@ class Article (File):
 	def toText (self):
 		if self.type == 'txt': return self
 		article = Article()
-		article.text = self.text
+		article.text = textFct.fromHtml (self.text)
+		if '</' in article.text: return self
 		article.path = self.path.replace ('.html', '.txt')
 		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
 		article.title = self.title
@@ -362,10 +363,7 @@ class Article (File):
 		article.link = self.link
 		article.author = self.author
 		article.autlink = self.autlink
-		article.text = textFct.fromHtml (article.text)
-		d= article.text.find ('</')
-		if '</' in article.text: return self
-		else: return article
+		return article
 
 	def toHtml (self):
 		if self.type in 'xhtml': return self
