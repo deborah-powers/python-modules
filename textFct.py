@@ -35,7 +35,7 @@ tagHtml =(
 
 def upperCaseIntern (text):
 	text ='\n'+ text
-	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n\t', '\n- ', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
+	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n* ', '\n- ', '\n\t', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
 	for i, j in uppercaseLetters:
 		for p in points: text = text.replace (p+i, p+j)
 	punctuation = '({[?!;.,:]})"\' \n\t'
@@ -415,11 +415,24 @@ def toHtml (text):
 	# nettoyer le texte pour faciliter la suite des transformations
 	text = text.replace ('\t', "")
 	text = cleanText (text)
+	# les <strong/>, mettre en gras le début d'une ligne
+	if '\n* ' in text:
+		paragraphList = text.split ('\n* ')
+		lc= range (len (paragraphList))
+		# rajouter les balises fermantes
+		for l in lc:
+			if ': ' in paragraphList[l][1:100]:
+				paragraphList[l] = paragraphList[l].replace (': ',':</strong> ',1)
+				paragraphList[l] = '<strong>' + paragraphList[l]
+			text = '\n'.join (paragraphList)
 	# rajouter les <p/>
 	text = text.replace ('\n', '</p><p>')
+	"""
+	text = text.replace ('></p><p>', '><p>')
 	text = text.replace ('></p><p><', '><')
 	text = text.replace ('</p><p><', '</p><')
 	text = text.replace ('></p><p>', '><p>')
+	"""
 	# rajouter d'eventuel <p/> s'il n'y a pas de balise en debut ou fin de text
 	if '<' not in text [0:3]: text = '<p>'+ text
 	if '>' not in text [-3:]: text = text +'</p>'
@@ -508,7 +521,7 @@ adresse: http://www.fr
 	model = """fznvvz
 %ssknvdzkl.fnz %s
 """
-	text = clean (text)
+	text = cleanText (text)
 	print ('clean\t', text)
 	text = upperCase (text, 'upper')
 	print ('upperCase\t', text)
