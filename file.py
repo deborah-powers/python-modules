@@ -55,10 +55,11 @@ elif nbArg >2:
 		if filePerso.path[-4:] == '.css': filePerso.text = textFct.cleanCss (filePerso.text)
 		else: filePerso.text = textFct.cleanText (filePerso.text)
 	elif 'mef' in argv: filePerso.text = textFct.shape (filePerso.text)
-	# rajouter un argument afin d'empêcher l'écriture des majuscules
-	if 'r' in argv[3] and 'u' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset upper')
-	elif 'r' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset')
-	elif 'u' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'upper')
+	if nbArg >4:
+		# rajouter un argument afin d'empêcher l'écriture des majuscules
+		if 'r' in argv[3] and 'u' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset upper')
+		elif 'r' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset')
+		elif 'u' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'upper')
 	filePerso.write()
 # le nom du fichier n'a pas ete donne
 else: print (help)
