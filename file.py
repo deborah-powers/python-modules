@@ -55,7 +55,7 @@ elif nbArg >2:
 		if filePerso.path[-4:] == '.css': filePerso.text = textFct.cleanCss (filePerso.text)
 		else: filePerso.text = textFct.cleanText (filePerso.text)
 	elif 'mef' in argv: filePerso.text = textFct.shape (filePerso.text)
-	if nbArg >4:
+	if nbArg >3:
 		# rajouter un argument afin d'empêcher l'écriture des majuscules
 		if 'r' in argv[3] and 'u' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset upper')
 		elif 'r' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset')
