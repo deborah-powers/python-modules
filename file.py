@@ -40,7 +40,9 @@ elif argv[2] == 'convert':
 	if argv[1][-5:] == '.html': page = page.toText()
 	elif argv[1][-6:] == '.xhtml': page = page.toText()
 	elif argv[1][-4:] == '.txt': page = page.toHtml()
-	page.write()
+	independant = False
+	if nbArg >3 and argv[3]: independant = True
+	page.write (independant)
 elif nbArg >2 and argv[2] == 'comp':
 	fileA = File (argv[1])
 	fileA.read()

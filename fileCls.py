@@ -276,11 +276,50 @@ templateHtml = """<!DOCTYPE html><html><head>
 	<meta name='autlink' content='%s'/>
 	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
 	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
-%s
 </head><body>
 %s
 </body></html>"""
 
+templateHtmlIndependant = """<!DOCTYPE html><html><head>
+	<title>%s</title>
+	<base target='_blank'>
+	<meta charset='utf-8'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1'/>
+	<meta name='author' content='%s'/>
+	<meta name='subject' content='%s'/>
+	<meta name='link' content='%s'/>
+	<meta name='autlink' content='%s'/>
+<style type='text/css'>
+	body {
+		margin: auto;
+		padding: 0.5em;
+		background-color: ivory;
+		color: #606;
+		font-family: serif;
+		font-size: 1.2em;
+	}
+	* {
+		box-sizing: border-box;
+		padding: 0;
+		margin-bottom: 1em;
+		font-size: 1em;
+		font-family: inherit;
+		font-style: normal;
+		font-weight: normal;
+		text-decoration: none;
+		line-height: 1.5em;
+		color: inherit;
+		background: none;
+	}
+	h1 {
+		font-size: 1.5em;
+		text-align: center;
+		border-bottom: dotted 4px teal;
+		padding-bottom: 0.5em;
+	}
+</style></head><body>
+%s
+</body></html>"""
 
 templateXhtml ="""<?xml version='1.0' encoding='utf-8'?>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='fr'>
@@ -420,14 +459,16 @@ class Article (File):
 			self.autlink = metadata[3].strip()
 			self.text = metadata[5].strip()
 
-	def write (self):
+	def write (self, independant):
 		self.title = self.title.lower()
 		if self.type in 'xhtml':
 			# affichage des liens
 			self.replace ("<a ", " <a ")
 			while '  ' in self.text: self.replace ('  ', ' ')
 			self.replace ("> <a ", "><a ")
-			if self.type == 'html': self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
+			if self.type == 'html':
+				if independant: self.text = templateHtmlIndependant % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
+				else: self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
 		File.write (self, 'w')
