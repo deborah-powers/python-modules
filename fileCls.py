@@ -459,7 +459,7 @@ class Article (File):
 			self.autlink = metadata[3].strip()
 			self.text = metadata[5].strip()
 
-	def write (self, independant):
+	def write (self, independant=False):
 		self.title = self.title.lower()
 		if self.type in 'xhtml':
 			# affichage des liens
