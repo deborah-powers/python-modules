@@ -405,7 +405,6 @@ class Article (File):
 		return article
 
 	def toHtml (self):
-		log.log()
 		if self.type in 'xhtml': return self
 		article = Article()
 		article.text = self.text
