@@ -297,7 +297,6 @@ def sliceWord (text, wordStart, wordEnd):
 """ ________________________ conversion en html. ma mef est utilisée pour les textes simples ________________________ """
 
 def toHtml (text):
-	print ('a')
 	text = shape (text)
 	for char in '=*-_': text = text.replace (12* char, 6* char)
 	# transformer la mise en page en balises
