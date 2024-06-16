@@ -29,110 +29,79 @@ https://stackoverflow.com/questions/64506236/pil-image-list-into-a-video-slide-w
 https://stackoverflow.com/questions/64764601/creating-an-mp4-file-from-images-using-video-write-in-opencv
 https://stackoverflow.com/questions/44947505/how-to-make-a-movie-out-of-images-in-python
 """
-images =[]
-imagesReverse =[]
-
-def frameX (x):
-	fragment = imageOriginal.crop ((x,0, x+height, height))
-	imageTmp = Image.new ('RGB', (height, height))
-	imageTmp.paste (fragment)
-	return imageTmp
-
-def frameY (y):
-	fragment = imageOriginal.crop ((0,y, width, y+width))
-	imageTmp = Image.new ('RGB', (width, width))
-	imageTmp.paste (fragment)
-	return imageTmp
-
-def frameListX():
-	# width > height
-	if height / width >= 0.8:
-		print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
-		return []
-	difference = width - height
-	diffrange = range (0, difference, 5)
-	images =[]
-	imagesReverse =[]
-	for x in diffrange:
-		imageTmp = frameX (x)
-		images.append (imageTmp)
-		imagesReverse.append (imageTmp)
-	imagesReverse.reverse()
-	imagesReverse.pop (0)
-	images.extend (imagesReverse)
-	return images
-
-def frameListY():
-	# height > width
-	if width / height >= 0.8:
-		print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
-		return []
-	difference = height - width
-	diffrange = range (0, difference, 5)
-	images =[]
-	imagesReverse =[]
-	for y in diffrange:
-		imageTmp = frameY (y)
-		images.append (imageTmp)
-		imagesReverse.append (imageTmp)
-	imagesReverse.reverse()
-	imagesReverse.pop (0)
-	images.extend (imagesReverse)
-	return images
-
 def creerGif (images):
 	imageRef = images.pop(0)
 	imageRef.save (nomGif, save_all=True, append_images=images, duration=1, loop=0)
 
-def creerMp4 (images, size):
+def squareVideo (nomCarre, width, height, imageOriginal):
+	nomCarre = nomCarre +'-anim.mp4'
+	images =[]
+	imagesReverse =[]
+	# la largeur est plus grande que la hauteur
+	if width > height:
+		difference = width - height
+		diffrange = range (0, difference, 5)
+		for x in diffrange:
+			fragment = imageOriginal.crop ((x,0, x+height, height))
+			imageTmp = Image.new ('RGB', (height, height))
+			imageTmp.paste (fragment)
+			images.append (imageTmp)
+			imagesReverse.append (imageTmp)
+	# la hauteur est plus grande que la largeur
+	else:
+		difference = height - width
+		diffrange = range (0, difference, 5)
+		imagesReverse =[]
+		for y in diffrange:
+			fragment = imageOriginal.crop ((0,y, width, y+width))
+			imageTmp = Image.new ('RGB', (width, width))
+			imageTmp.paste (fragment)
+			images.append (imageTmp)
+			imagesReverse.append (imageTmp)
+	# préparer les images
+	imagesReverse.reverse()
+	imagesReverse.pop (0)
+	images.extend (imagesReverse)
+	# enregistrer la video
 	fourcc = cv2.VideoWriter_fourcc (*'avc1')
-	video = cv2.VideoWriter (nomMp4, fourcc, 30, (size, size))
+	video = None
+	if width < height: video = cv2.VideoWriter (nomCarre, fourcc, 30, (width, width))
+	else: video = cv2.VideoWriter (nomCarre, fourcc, 30, (height, height))
 	for img in images: video.write (cv2.cvtColor (numpy.array (img), cv2.COLOR_RGB2BGR))
 	video.release()
 
-def squarePicture (nomImg):
-	# trouver le nom
-	nomImg = fileLocal.shortcut (nomImg)
-	d= nomImg.rfind ('.')
-	nomCarre = nomImg[:d] +'-carre.bmp'
-	# récupérer l'image
-	imageOriginal = Image.open (nomImg)
-	width = imageOriginal.size[0]
-	height = imageOriginal.size[1]
+def squarePicture (nomCarre, width, height, imageOriginal):
+	nomCarre = nomCarre +'-carre.bmp'
 	# calculer la couleur des bords
 	colorA =[ 0,0,0 ]
 	colorB =[ 0,0,0 ]
-	imageArray = numpy.array (imageOriginal)	# "data" is a height x width x 4 numpy array
-	red, green, blue = imageArray.T	# Temporarily unpack the bands for readability
-	if width == height: print ("votre image est déjà un carré, vous n'avez pas besoin de la transformer")
+	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x 4 numpy array
+	# red, green, blue = imageArray.T	# Temporarily unpack the bands for readability
 	# la largeur est plus grande que la hauteur
-	elif width > height:
-		if height / width >=0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
-		else:
-			# calculer les couleurs des bords
-			rangeBord = range (width)
-			for i in rangeBord:
-				colorA[0] += imageArray[0][i][0]
-				colorA[1] += imageArray[0][i][1]
-				colorA[2] += imageArray[0][i][2]
-				colorB[0] += imageArray[-1][i][0]
-				colorB[1] += imageArray[-1][i][1]
-				colorB[2] += imageArray[-1][i][2]
-			colorA[0] = int (colorA[0] / width)
-			colorA[1] = int (colorA[1] / width)
-			colorA[2] = int (colorA[2] / width)
-			colorB[0] = int (colorB[0] / width)
-			colorB[1] = int (colorB[1] / width)
-			colorB[2] = int (colorB[2] / width)
-			# dessiner la nouvelle image
-			imageObj = Image.new ('RGBA', (width, width))
-			drawing = ImageDraw.Draw (imageObj)
-			wStripe = int ((width - height) /2)
-			imageObj.paste (imageOriginal, (0, wStripe))
-			drawing.rectangle (((0,0), (width, wStripe)), fill=(colorA[0], colorA[1], colorA[2]))
-			drawing.rectangle (((0, height + wStripe), (width, height + 2* wStripe)), fill=(colorB[0], colorB[1], colorB[2]))
+	if width > height:
+		# calculer les couleurs des bords
+		rangeBord = range (width)
+		for i in rangeBord:
+			colorA[0] += imageArray[0][i][0]
+			colorA[1] += imageArray[0][i][1]
+			colorA[2] += imageArray[0][i][2]
+			colorB[0] += imageArray[-1][i][0]
+			colorB[1] += imageArray[-1][i][1]
+			colorB[2] += imageArray[-1][i][2]
+		colorA[0] = int (colorA[0] / width)
+		colorA[1] = int (colorA[1] / width)
+		colorA[2] = int (colorA[2] / width)
+		colorB[0] = int (colorB[0] / width)
+		colorB[1] = int (colorB[1] / width)
+		colorB[2] = int (colorB[2] / width)
+		# dessiner la nouvelle image
+		imageObj = Image.new ('RGBA', (width, width))
+		drawing = ImageDraw.Draw (imageObj)
+		wStripe = int ((width - height) /2)
+		imageObj.paste (imageOriginal, (0, wStripe))
+		drawing.rectangle (((0,0), (width, wStripe)), fill=( colorA[0], colorA[1], colorA[2] ))
+		drawing.rectangle (((0, height + wStripe), (width, height + 2* wStripe)), fill=( colorB[0], colorB[1], colorB[2] ))
 	# la hauteur est plus grande que la largeur
-	elif width / height >= 0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
 	else:
 		# calculer les couleurs des bords
 		rangeBord = range (height)
@@ -154,30 +123,23 @@ def squarePicture (nomImg):
 		drawing = ImageDraw.Draw (imageObj)
 		wStripe = int ((height - width) /2)
 		imageObj.paste (imageOriginal, (wStripe, 0))
-		drawing.rectangle (((0,0), (wStripe, height)), fill=( 100,100,100 ))
-		drawing.rectangle (((width + wStripe, 0), (width + 2* wStripe, height)), fill=( 100,100,100 ))
+		drawing.rectangle (((0,0), (wStripe, height)), fill=( colorA[0], colorA[1], colorA[2] ))
+		drawing.rectangle (((width + wStripe, 0), (width + 2* wStripe, height)), fill=( colorB[0], colorB[1], colorB[2] ))
 	imageObj.save (nomCarre)
 
 if len (argv) <2: print ("entrez le nom de l'image")
-elif len (argv) ==2: squarePicture (argv[1])
 else:
-	# créer un gif
-	# récupérer le fichier
-	nomImg = argv[1]
-	nomImg = fileLocal.shortcut (nomImg)
-	d= nomImg.rfind ('.')
-	# nomGif = nomImg[:d] +'-anim.gif'
-	nomMp4 = nomImg[:d] +'-anim.mp4'
-	# données de l'image originale
-	imageOriginal = Image.open (nomImg)
+	# récupérer l'image originale
+	nomOriginal = fileLocal.shortcut (argv[1])
+	imageOriginal = Image.open (nomOriginal)
 	width = imageOriginal.size[0]
 	height = imageOriginal.size[1]
-	# traitement de l'image
-	if width == height: print ("votre image %s est déjà un carré, vous n'avez pas besoin de la transformer")
-	elif width > height:
-		images = frameListX()
-		if images: creerMp4 (images, height)
+	# vérification sur ses dimensions
+	if width == height: print ("votre image est déjà un carré, vous n'avez pas besoin de la transformer")
+	elif width > height and height / width >=0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
+	elif width < height and width / height >=0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
 	else:
-		images = frameListY()
-		if images: creerMp4 (images, width)
-
+		d= nomOriginal.rfind ('.')
+		nomCarre = nomOriginal[:d]
+		if len (argv) ==2: squarePicture (nomCarre, width, height, imageOriginal)
+		else: squareVideo (nomCarre, width, height, imageOriginal)
