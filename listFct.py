@@ -28,8 +28,8 @@ def sortFunc (liste, funcSort):
 	for l in liste:
 		if funcSort (item, l): listEnd.append (l)
 		else: listStart.append (l)
-	if len (listStart) >1: listStart.sortFunc (funcSort)
-	if len (listEnd) >1: listEnd.sortFunc (funcSort)
+	if len (listStart) >1: sortFunc (listStart, funcSort)
+	if len (listEnd) >1: sortFunc (listEnd, funcSort)
 	newList =[]
 	if listStart: newList.extend (listStart)
 	if listEnd: newList.extend (listEnd)
