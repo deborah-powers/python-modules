@@ -92,15 +92,19 @@ def alignText (textA, textB):
 def alignList (listA, listB):
 	return align (listA, listB, prependList, compareList, newList)
 
-textA = 'abcd'
-textB = '5555'
-listA =[ 'a', 'b', 'c', 'd']
-listB =[ '5', '5', '5', '5']
 
-print (alignText (textA, textA))
-print (alignText (textA, textB))
-print (alignList (listA, listA))
-print (alignList (listA, listB))
+def test():
+	textA = 'abcd'
+	textB = '5555'
+	listA =[ 'a', 'b', 'c', 'd']
+	listB =[ '5', '5', '5', '5']
+
+	print ('textes identiques\n', alignText (textA, textA))
+	print ('textes différents\n', alignText (textA, textB))
+	print ('listes identiques\n', alignList (listA, listA))
+	print ('listes différentes\n', alignList (listA, listB))
+
+test()
 
 def createScoreMatrix():
 	allLetters = 'abcdefghijklmnopqrstuvwxyz tn0123456789"\'/\\*°_-.?!:;,%$@&# {}()[]'
