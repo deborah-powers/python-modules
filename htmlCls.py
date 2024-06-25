@@ -193,6 +193,20 @@ def getByTag (text, tagName):
 		d=d+2
 	return textList
 
+def getcontentByTag (text, tagName):
+	tagEnd = '</' + tagName + '>'
+	if tagEnd not in text: return ""
+	tagStart = '<'+ tagName
+	f= text.rfind (tagEnd)
+	d= text[:f].find (tagStart)
+	d= text.find ('>',d) +1
+	return text[d:f]
+
+def getTitle (text):
+	title = getcontentByTag (text, 'title')
+	if not title: title = getcontentByTag (text, 'h1')
+	return cleanTitle (title)
+
 def getByTagAndClass (text, tagName, className):
 	tagStart = '<'+ tagName +" "
 	if tagStart not in text or className not in text: return []

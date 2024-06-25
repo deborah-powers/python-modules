@@ -78,6 +78,20 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.replace ('h/c', 'dark blond')
 		self.text = self.text.replace ('l/n', 'Powers')
 
+	def ebGratuit (self):
+		# l'auteur
+		tag = htmlCls.getByTagAndClassFirst (self.text, 'p', 'Auteur')
+		d= self.text.find ('<p class=>') +16
+		f= self.text.find ('</p>', d)
+		self.author = self.text [d:f].lower()
+		self.title = htmlCls.getTitle (self.text)
+		# le texte
+		self.clean()
+		f= self.text.find ('<h1>À propos de cette édition électronique</h1>')
+		self.text = self.text [:f]
+		# le sujet
+		self.findSubject()
+
 	def gutemberg (self):
 		# le titre
 		if 'dc.title' in self.meta.keys(): self.title = htmlCls.cleanTitle (self.meta['dc.title'])
@@ -122,8 +136,8 @@ class Fanfic (htmlCls.Html, Article):
 		tag = htmlCls.getByTag (tag.innerHtml, 'a')[1]
 		self.link = tag.attributes['href']
 		# le titre
-		tag = htmlCls.getByTagFirst (self.text, 'h1')
-		self.title = htmlCls.cleanTitle (tag.innerHtml)
+		self.title = htmlCls.getcontentByTag (self.text, 'h1')
+		self.title = htmlCls.cleanTitle (self.title)
 		# l'auteur
 		tag = htmlCls.getByTagAndClassFirst (self.text, 'div', 'byline')
 		tag = htmlCls.getByTagFirst (tag.innerHtml, 'a')
@@ -197,23 +211,6 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01.png'><p>", ' <b>ADP +P --> ATP</b> ')
 		self.text = self.text.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01_1.png'><p>", ' <b>ATP --> ADP +P</b> ')
 		self.styles.append ('unisciel.css')
-
-	def ebGratuit (self):
-	#	self.delImgLink()
-		# l'auteur
-		d= self.text.find ('<p class=Auteur>') +16
-		f= self.text.find ('</p>', d)
-		self.author = self.text [d:f].lower()
-		# le titre
-		d= self.text.find ('<title>') +7
-		f= self.text.find ('</title>', d)
-		self.title = self.text [d:f].lower()
-		# le texte
-		self.clean()
-		f= self.text.find ('<h1>À propos de cette édition électronique</h1>')
-		self.text = self.text [:f]
-		# le sujet
-		self.findSubject()
 
 	def menaceTheoriste (self):
 		self.subject = 'sciences'

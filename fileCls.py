@@ -296,7 +296,7 @@ templateHtmlIndependant = """<!DOCTYPE html><html><head>
 		background-color: ivory;
 		color: #606;
 		font-family: serif;
-		font-size: 1.2em;
+		font-size: 1.4em;
 	}
 	* {
 		box-sizing: border-box;
@@ -311,15 +311,53 @@ templateHtmlIndependant = """<!DOCTYPE html><html><head>
 		color: inherit;
 		background: none;
 	}
+	*:first-letter, title:first-letter { text-transform: uppercase; }
 	h1 {
 		font-size: 1.5em;
 		text-align: center;
-		border-bottom: dotted 4px teal;
-		padding-bottom: 0.5em;
+		color: ivory;
+		background-color: teal;
 	}
+	h2 {
+		font-size: 1.2em;
+		text-align: center;
+		border-bottom: solid 2px teal;
+	}
+	section#sommaire > a { display: block; }
+	section#sommaire > a.h1 { font-weight: bold; }
 </style></head><body>
 %s
-</body></html>"""
+</body><script type='text/javascript'>
+	var titles = document.getElementsByTagName ('h1');
+	const titleH2 = document.getElementsByTagName ('h2')[0];
+	var sommaire = "<section id='sommaire'>";
+	// que des titres h1
+	if (titleH2 === undefined && titles.length >0) for (var h=0; h< titles.length; h++){
+		titles[h].id = 'title-' +h;
+		sommaire = sommaire + "<a href='#title-" +h+ "'>" + titles[h].innerHTML + '</a>';
+	}
+	// titres h1 et h2
+	else if (titleH2 !== undefined && titles.length >0){
+		titles = document.querySelectorAll ('h1,h2');
+		var h1nb =0;
+		var h2nb =0;
+		for (var h=0; h< titles.length; h++){
+			if (titles[h].tagName === 'H1'){
+				h1nb +=1;
+				h2nb =0;
+				titles[h].id = 'title-' + h1nb;
+				sommaire = sommaire + "<a href='#title-" + h1nb + "' class='h1'>" + titles[h].innerHTML + '</a>';
+			}
+			else{
+				h2nb +=1;
+				titles[h].id = 'title-' + h1nb +'-'+ h2nb;
+				sommaire = sommaire + "<a href='#title-" + h1nb +'-'+ h2nb + "'>" + titles[h].innerHTML + '</a>';
+			}
+		}
+	}
+	sommaire = sommaire + '</section>';
+	document.body.innerHTML = sommaire + document.body.innerHTML;
+</script></html>"""
 
 templateXhtml ="""<?xml version='1.0' encoding='utf-8'?>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='fr'>
