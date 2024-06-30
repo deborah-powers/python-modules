@@ -3,7 +3,7 @@
 from sys import argv
 import numpy
 numpy.seterr (all='warn')
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageOps, ImageChops
 import cv2
 import fileLocal
 import warnings
@@ -25,10 +25,6 @@ def ouvrirImage (nomOriginal):
 	nomNouveau = nomOriginal[:d]
 	return nomNouveau, imageOriginal
 
-def dessinerImage (nomNouveau, imageNouvelle):
-	drawing = ImageDraw.Draw (imageNouvelle)
-	imageNouvelle.save (nomNouveau)
-
 def tabColor (nomOriginal, extension, funcPixel):
 	nomNouveau, imageOriginal = ouvrirImage (nomOriginal)
 	nomNouveau = nomNouveau +'-'+ extension +'.bmp'
@@ -36,20 +32,18 @@ def tabColor (nomOriginal, extension, funcPixel):
 	rangeWidth = range (imageOriginal.size[0])
 	rangeHeight = range (imageOriginal.size[1])
 	for w in rangeWidth:
-		for h in rangeHeight:
-		#	print (imageOriginal.size, w,h)
-			imageArray[h][w] = funcPixel (imageArray[h][w])
+		for h in rangeHeight: imageArray[h][w] = funcPixel (imageArray[h][w])
 	# dessiner la nouvelle image
 	imageNouvelle = Image.fromarray (imageArray)
-	dessinerImage (nomNouveau, imageNouvelle)
+	imageNouvelle.save (nomNouveau)
 
-def reverseColor (pixel):
+def reverseColorPixel (pixel):
 	pixel[0] = 255- pixel[0]
 	pixel[1] = 255- pixel[1]
 	pixel[2] = 255- pixel[2]
 	return pixel
 
-def reverseLum (pixel):
+def reverseLumPixel (pixel):
 	lumTot = int (pixel[0]) + int (pixel[1]) + int (pixel[2])
 	lumTot = lumTot /3
 	lumTot = 255- 2* lumTot
@@ -59,20 +53,36 @@ def reverseLum (pixel):
 	pixel[2] += lumTot
 	return pixel
 
-def reverseAll (pixel):
-	lumTot = int (pixel[0]) + int (pixel[1]) + int (pixel[2])
-	lumTot = lumTot /3
-	lumTot = 255- 2* lumTot
-	lumTot = int (lumTot)
-	pixel[0] += lumTot
-	pixel[1] += lumTot
-	pixel[2] += lumTot
-	pixel[0] = 255- pixel[0]
-	pixel[1] = 255- pixel[1]
-	pixel[2] = 255- pixel[2]
-	return pixel
+def reverseAll (nomOriginal):
+	nomNouveau, imageOriginal = ouvrirImage (nomOriginal)
+	nomNouveau = nomNouveau +'-reverse-all.bmp'
+	imageOriginal = ImageOps.invert (imageOriginal)
+	rangeWidth = range (imageOriginal.size[0])
+	rangeHeight = range (imageOriginal.size[1])
+	imageArray = numpy.array (imageOriginal)
+	for w in rangeWidth:
+		for h in rangeHeight: imageArray[h][w] = reverseLumPixel (imageArray[h][w])
+	# dessiner la nouvelle image
+	imageNouvelle = Image.fromarray (imageArray)
+	imageNouvelle.save (nomNouveau)
+
+def reverseLum (nomOriginal):
+	pass
+
+def tobw (nomOriginal):
+	nomNouveau, imageOriginal = ouvrirImage (nomOriginal)
+	nomNouveau = nomNouveau +'-nb.bmp'
+	imageNouvelle = ImageOps.grayscale (imageOriginal)
+	imageNouvelle.save (nomNouveau)
+
+def reverseColor (nomOriginal):
+	nomNouveau, imageOriginal = ouvrirImage (nomOriginal)
+	nomNouveau = nomNouveau +'-reverse-color.bmp'
+	imageNouvelle = ImageOps.invert (imageOriginal)
+	imageNouvelle.save (nomNouveau)
 
 if len (argv) <3: print ("entrez le nom de l'image et l'action à faire", help)
-elif argv[2] == 'col': tabColor (argv[1], 'reverse-color', reverseColor)
-elif argv[2] == 'lum': tabColor (argv[1], 'reverse-lum', reverseLum)
-elif argv[2] == 'all': tabColor (argv[1], 'reverse-all', reverseAll)
+# elif argv[2] == 'col': tabColor (argv[1], 'reverse-color', reverseColorPixel)
+elif argv[2] == 'col': reverseColor (argv[1])
+elif argv[2] == 'all': reverseAll (argv[1])
+elif argv[2] == 'lum': tabColor (argv[1], 'reverse-lum', reverseLumPixel)
