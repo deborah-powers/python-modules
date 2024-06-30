@@ -145,20 +145,3 @@ else:
 	elif width / height >=0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
 	elif width / height <0.5: squareVideo (nomCarre, width, height, imageOriginal)
 	else: squarePicture (nomCarre, width, height, imageOriginal)
-"""
-else:
-	# récupérer l'image originale
-	nomOriginal = fileLocal.shortcut (argv[1])
-	imageOriginal = Image.open (nomOriginal)
-	width = imageOriginal.size[0]
-	height = imageOriginal.size[1]
-	# vérification sur ses dimensions
-	if width == height: print ("votre image est déjà un carré, vous n'avez pas besoin de la transformer")
-	elif width > height and height / width >=0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
-	elif width < height and width / height >=0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
-	else:
-		d= nomOriginal.rfind ('.')
-		nomCarre = nomOriginal[:d]
-		if len (argv) ==2: squarePicture (nomCarre, width, height, imageOriginal)
-		else: squareVideo (nomCarre, width, height, imageOriginal)
-"""
