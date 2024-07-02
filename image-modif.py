@@ -115,6 +115,7 @@ def reverseColor (imageName):
 	imageNouvelle.save (newName)
 
 def kmeansColor (colorList):
+	scoreDifference =675
 	colorGroup =[[[ colorList[0][0], colorList[0][1], colorList[0][2] ], colorList[0] ]]	# la case 0 contient la moyenne
 	rangeColors = range (1, len (colorList))
 	for c in rangeColors:
@@ -126,7 +127,7 @@ def kmeansColor (colorList):
 		# trouver le groupe dont elle est le plus proche
 		groupId = min (scores)
 		# ajouter la color à un groupe existant
-		if groupId <=60:
+		if groupId <= scoreDifference:
 			groupId = scores.index (groupId)
 			colorGroup [groupId].append (colorList[c])
 			# calculer la nouvelle moyenne
@@ -146,6 +147,26 @@ def kmeansColor (colorList):
 	rangeGroup = range (len (colorGroup))
 	for g in rangeGroup: colorGroup[g][0] =[ int (colorGroup[g][0][0]), int (colorGroup[g][0][1]), int (colorGroup[g][0][2]) ]
 	return colorGroup
+
+def findBorder (imageName):
+	newName, imageOriginal = openImage (imageName)
+	newName = newName + '-simple.bmp'
+	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
+	rangeWidth = range (imageOriginal.size[0])
+	rangeHeight = range (1, imageOriginal.size[1])
+	for w in rangeWidth:
+		for h in rangeHeight:
+			score = (int (imageArray[h][w][0]) - int (imageArray[h-1][w][0])) **2 + (int (imageArray[h][w][1]) - int (imageArray[h-1][w][1])) **2 + (int (imageArray[h][w][2]) - int (imageArray[h-1][w][2])) **2
+			if score <=1200: imageArray[h][w] = imageArray[h-1][w]
+	rangeWidth = range (1, imageOriginal.size[0])
+	rangeHeight = range (imageOriginal.size[1])
+	for w in rangeWidth:
+		for h in rangeHeight:
+			score = (int (imageArray[h][w][0]) - int (imageArray[h][w-1][0])) **2 + (int (imageArray[h][w][1]) - int (imageArray[h][w-1][1])) **2 + (int (imageArray[h][w][2]) - int (imageArray[h][w-1][2])) **2
+			if score <=1200: imageArray[h][w] = imageArray[h][w-1]
+	# dessiner la nouvelle image
+	imageNouvelle = Image.fromarray (imageArray)
+	imageNouvelle.save (newName)
 
 def simplifyImage (imageName):
 	newName, imageOriginal = openImage (imageName)
@@ -173,10 +194,11 @@ def reverseLumPixel (pixel):
 	return pixel
 
 if len (argv) <3: print ("entrez le nom de l'image et l'action à faire", help)
+elif argv[2] == 'bord': findBorder (argv[1])
 elif argv[2] == 'nb': tobw (argv[1])
 elif argv[2] == 'col': reverseColor (argv[1])
 elif argv[2] == 'simple': simplifyImage (argv[1])
-elif argv[2] == 'all': replaceColors (argv[1], 'reverse', reverseLumColors)
+elif argv[2] == 'all': replaceColors (argv[1], 'reverse', reverseAllColors)
 elif argv[2] == 'lum': replaceColors (argv[1], 'reverse', reverseLumColors)
 elif argv[2] == 'del' and len (argv) >3: eraseColors (argv[1], argv[3])
 # elif argv[2] == 'lum': replacePixels (argv[1], 'reverse', reverseLumPixel)
