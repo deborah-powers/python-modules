@@ -114,8 +114,37 @@ def reverseColor (imageName):
 	imageNouvelle = ImageOps.invert (imageOriginal)
 	imageNouvelle.save (newName)
 
+def kmeansGrey (colorList):
+	scoreDifference =36
+	colorGroup =[[ colorList[0], colorList[0] ]]	# la case 0 contient la moyenne
+	rangeColors = range (1, len (colorList))
+	for c in rangeColors:
+		# calculer les scores de la color étudiée avec la moyenne de chaque groupe
+		scores =[]
+		for group in colorGroup:
+			score = (group[0] - colorList[c]) **2
+			scores.append (score)
+		# trouver le groupe dont elle est le plus proche
+		groupId = min (scores)
+		# ajouter la color à un groupe existant
+		if groupId <= scoreDifference:
+			groupId = scores.index (groupId)
+			colorGroup [groupId].append (colorList[c])
+			# calculer la nouvelle moyenne
+			lenGroup = len (colorGroup [groupId])
+			rangeGroup = range (1, lenGroup)
+			colorGroup [groupId][0] =0
+			for g in rangeGroup: colorGroup [groupId][0] += colorGroup [groupId][g]
+			lenGroup -=1
+			colorGroup [groupId][0] /= lenGroup
+		# créer un nouveau groupe
+		else: colorGroup.append ([ colorList[c], colorList[c] ])
+	rangeGroup = range (len (colorGroup))
+	for g in rangeGroup: colorGroup[g][0] = int (colorGroup[g][0])
+	return colorGroup
+
 def kmeansColor (colorList):
-	scoreDifference =675
+	scoreDifference =300
 	colorGroup =[[[ colorList[0][0], colorList[0][1], colorList[0][2] ], colorList[0] ]]	# la case 0 contient la moyenne
 	rangeColors = range (1, len (colorList))
 	for c in rangeColors:
@@ -148,22 +177,145 @@ def kmeansColor (colorList):
 	for g in rangeGroup: colorGroup[g][0] =[ int (colorGroup[g][0][0]), int (colorGroup[g][0][1]), int (colorGroup[g][0][2]) ]
 	return colorGroup
 
-def findBorder (imageName):
+def findBorderVa (imageName):
 	newName, imageOriginal = openImage (imageName)
+	imageOriginal = ImageOps.grayscale (imageOriginal)
 	newName = newName + '-simple.bmp'
 	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
 	rangeWidth = range (imageOriginal.size[0])
 	rangeHeight = range (1, imageOriginal.size[1])
 	for w in rangeWidth:
 		for h in rangeHeight:
-			score = (int (imageArray[h][w][0]) - int (imageArray[h-1][w][0])) **2 + (int (imageArray[h][w][1]) - int (imageArray[h-1][w][1])) **2 + (int (imageArray[h][w][2]) - int (imageArray[h-1][w][2])) **2
-			if score <=1200: imageArray[h][w] = imageArray[h-1][w]
+			if imageArray[h][w] != imageArray[h-1][w]:
+				score = (int (imageArray[h][w][0]) - int (imageArray[h-1][w][0])) **2 + (int (imageArray[h][w][1]) - int (imageArray[h-1][w][1])) **2 + (int (imageArray[h][w][2]) - int (imageArray[h-1][w][2])) **2
+				if score <=1200: imageArray[h][w] = imageArray[h-1][w]
 	rangeWidth = range (1, imageOriginal.size[0])
 	rangeHeight = range (imageOriginal.size[1])
 	for w in rangeWidth:
 		for h in rangeHeight:
-			score = (int (imageArray[h][w][0]) - int (imageArray[h][w-1][0])) **2 + (int (imageArray[h][w][1]) - int (imageArray[h][w-1][1])) **2 + (int (imageArray[h][w][2]) - int (imageArray[h][w-1][2])) **2
-			if score <=1200: imageArray[h][w] = imageArray[h][w-1]
+			if imageArray[h][w] != imageArray[h][w-1]:
+				score = (int (imageArray[h][w][0]) - int (imageArray[h][w-1][0])) **2 + (int (imageArray[h][w][1]) - int (imageArray[h][w-1][1])) **2 + (int (imageArray[h][w][2]) - int (imageArray[h][w-1][2])) **2
+				if score <=1200: imageArray[h][w] = imageArray[h][w-1]
+	# dessiner la nouvelle image
+	imageNouvelle = Image.fromarray (imageArray)
+	imageNouvelle.save (newName)
+
+def countColorArray (array, color):
+	nbSameColor =0
+	for c in array:
+		if numpy.array_equal (c, color): nbSameColor +=1
+	return nbSameColor
+
+def eraseLonelyPixel (imageArray):
+	rangeWidth = range (len (imageArray[0]))
+	rangeHeight = range (len (imageArray))
+	width = len (imageArray[0]) -1
+	height = len (imageArray) -1
+	for w in rangeWidth:
+		for h in rangeHeight:
+			# récupérer les voisins
+			neighbors =[]
+			if h>0:
+				if w>0: neighbors.append (imageArray[h-1][w-1])
+				if w< width: neighbors.append (imageArray[h-1][w+1])
+				neighbors.append (imageArray[h-1][w])
+			if h< height:
+				if w>0: neighbors.append (imageArray[h+1][w-1])
+				if w< width: neighbors.append (imageArray[h+1][w+1])
+				neighbors.append (imageArray[h+1][w])
+			if w>0: neighbors.append (imageArray[h][w-1])
+			if w< width: neighbors.append (imageArray[h][w+1])
+			# vérifier si les voisins sont de la même couleur que le pixel analysé
+			nbNeighbors = len (neighbors) /2
+			nbSameColor = countColorArray (neighbors, imageArray[h][w])
+			# peux de pixel de la même couleur, l'effacer
+			if nbSameColor <= nbNeighbors:
+				arraySameColor =[]
+				rangeNeighbors = range (len (neighbors) -1)
+				for n in rangeNeighbors: arraySameColor.append (countColorArray (neighbors, neighbors[n]))
+				nbSameColor = max (arraySameColor)
+				if nbSameColor >= nbNeighbors: imageArray[h][w] = neighbors [arraySameColor.index (nbSameColor)]
+	return imageArray
+
+
+def eraseLonelyPixelVa (imageArray):
+	rangeWidth = range (len (imageArray[0]))
+	rangeHeight = range (len (imageArray))
+	width = len (imageArray[0]) -1
+	height = len (imageArray) -1
+	for w in rangeWidth:
+		for h in rangeHeight:
+			# récupérer les voisins
+			neighbors =[]
+			if h>0:
+				if w>0: neighbors.append (imageArray[h-1][w-1])
+				if w< width: neighbors.append (imageArray[h-1][w+1])
+				neighbors.append (imageArray[h-1][w])
+			if h< height:
+				if w>0: neighbors.append (imageArray[h+1][w-1])
+				if w< width: neighbors.append (imageArray[h+1][w+1])
+				neighbors.append (imageArray[h+1][w])
+			if w>0: neighbors.append (imageArray[h][w-1])
+			if w< width: neighbors.append (imageArray[h][w+1])
+			# vérifier si les voisins sont de la même couleur que le pixel analysé
+			nbNeighbors = len (neighbors) /2
+			nbSameColor = neighbors.count (imageArray[h][w])
+			# peux de pixel de la même couleur, l'effacer
+			if nbSameColor <= nbNeighbors:
+				arraySameColor =[]
+				rangeNeighbors = range (len (neighbors) -1)
+				for n in rangeNeighbors: arraySameColor.append (neighbors.count (neighbors[n]))
+				nbSameColor = max (arraySameColor)
+				if nbSameColor >= nbNeighbors: imageArray[h][w] = neighbors [arraySameColor.index (nbSameColor)]
+	return imageArray
+
+def findBorder (imageName):
+	newName, imageOriginal = openImage (imageName)
+	newName = newName + '-bord.bmp'
+	imageOriginal = ImageOps.grayscale (imageOriginal)
+	colorsOriginal = imageOriginal.getcolors (imageOriginal.size[0] * imageOriginal.size[1])
+	# simplifier les couleurs avec la méthode des kmeans
+	colorList =[]
+	for nb, color in colorsOriginal:
+		if color not in colorList: colorList.append (color)
+	colorList.sort()
+	colorGroup = kmeansGrey (colorList)
+	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
+	imageArray = eraseLonelyPixel (imageArray)
+	imageArray = eraseLonelyPixel (imageArray)
+	imageArray = eraseLonelyPixel (imageArray)
+	imageArray = eraseLonelyPixel (imageArray)
+	grey = imageArray.T		# Temporarily unpack the bands for readability
+	for group in colorGroup:
+		for g in group:
+			colorArea = (grey == g)
+			imageArray[colorArea.T] = group[0]
+	# éffacer les points isolés
+	voisins = [ imageArray[0][1], imageArray[1][0], imageArray[1][1] ]
+	if voisins.count (imageArray[0][0]) <2:
+		for v in (1,2):
+			if voisins.count (voisins[v]) >1: imageArray[0][0] = voisins[v]
+
+	# dessiner la nouvelle image
+	imageNouvelle = Image.fromarray (imageArray)
+	imageNouvelle.save (newName)
+
+
+def findBorderVb (imageOriginal, imageArray):
+	rangeWidth = range (imageOriginal.size[0])
+	rangeHeight = range (1, imageOriginal.size[1])
+	for w in rangeWidth:
+		for h in rangeHeight:
+			if imageArray[h][w] != imageArray[h-1][w]:
+				score = (int (imageArray[h][w]) - int (imageArray[h-1][w])) **2
+				if score <= 225: imageArray[h][w] = imageArray[h-1][w]
+	rangeWidth = range (1, imageOriginal.size[0])
+	rangeHeight = range (imageOriginal.size[1])
+	for w in rangeWidth:
+		for h in rangeHeight:
+			if imageArray[h][w] != imageArray[h][w-1]:
+				score = (int (imageArray[h][w]) - int (imageArray[h][w-1])) **2
+				if score <= 225: imageArray[h][w] = imageArray[h][w-1]
 	# dessiner la nouvelle image
 	imageNouvelle = Image.fromarray (imageArray)
 	imageNouvelle.save (newName)
@@ -174,6 +326,7 @@ def simplifyImage (imageName):
 	colorList = extractColors (imageOriginal)
 	colorGroup = kmeansColor (colorList)
 	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
+#	imageArray = eraseLonelyPixel (imageArray)
 	red, green, blue = imageArray.T		# Temporarily unpack the bands for readability
 	for group in colorGroup:
 		for r,g,b in group:
