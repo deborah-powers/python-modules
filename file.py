@@ -18,7 +18,6 @@ les valeurs de tag
 	comp:		comparer deux fichiers
 	art:		transformer un texte simple en article
 """
-print (argv)
 nbArg = len (argv)
 if nbArg <3: print (help)
 elif argv[2] == 'help':
