@@ -94,7 +94,7 @@ def squarePictureDraw (colorA, colorB, length, horizontal=True):
 	# la hauteur est plus grande que la largeur
 	else: drawing.rectangle (((0,0), (lengthalf, length)), fill=( colorA[0], colorA[1], colorA[2] ))
 	drawing = ImageDraw.Draw (imageObj)
-	return imageObj, drawing
+	return imageObj
 
 def squarePicture (nomCarre, width, height, imageOriginal):
 	nomCarre = nomCarre +'-carre.jpg'
@@ -111,7 +111,7 @@ def squarePicture (nomCarre, width, height, imageOriginal):
 			colorA = squarePictureComputeColors (colorA, imageArray[0][i])
 			colorB = squarePictureComputeColors (colorB, imageArray[-1][i])
 		# dessiner la nouvelle image
-		imageObj, drawing = squarePictureDraw (colorA, colorB, width, True)
+		imageObj = squarePictureDraw (colorA, colorB, width, True)
 		wStripe = int ((width - height) /2)
 		imageObj.paste (imageOriginal, (0, wStripe))
 	# la hauteur est plus grande que la largeur
@@ -122,7 +122,7 @@ def squarePicture (nomCarre, width, height, imageOriginal):
 			colorA = squarePictureComputeColors (colorA, imageArray[i][0])
 			colorB = squarePictureComputeColors (colorB, imageArray[i][-1])
 		# dessiner la nouvelle image
-		imageObj, drawing = squarePictureDraw (colorA, colorB, height, False)
+		imageObj = squarePictureDraw (colorA, colorB, height, False)
 		wStripe = int ((height - width) /2)
 		imageObj.paste (imageOriginal, (wStripe, 0))
 	imageObj.save (nomCarre)
@@ -136,9 +136,9 @@ else:
 	# vérification sur ses dimensions
 	if width == height: print ("votre image est déjà un carré, vous n'avez pas besoin de la transformer")
 	elif width > height:
-		if height / width >=0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
+		if height / width >=0.0: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
 		elif height / width <0.5: squareVideo (nomCarre, width, height, imageOriginal)
 		else: squarePicture (nomCarre, width, height, imageOriginal)
-	elif width / height >=0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
+	elif width / height >=0.9: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
 	elif width / height <0.5: squareVideo (nomCarre, width, height, imageOriginal)
 	else: squarePicture (nomCarre, width, height, imageOriginal)
