@@ -1,10 +1,11 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from sys import argv
+import os
+import time
 import numpy
 numpy.seterr (all='warn')
-from PIL import Image, ImageDraw, ImageOps, ImageChops
-import cv2
+from PIL import Image, ImageOps
 import fileLocal
 
 help ="""modifier des images
@@ -111,6 +112,9 @@ def reverseColor (imageName):
 	imageNouvelle = ImageOps.invert (imageOriginal)
 	imageNouvelle.save (newName)
 
+def computeScore (pixelA, pixelO):
+	return (int (pixelA[0]) - int (pixelO[0])) **2 + (int (pixelA[1]) - int (pixelO[1])) **2 + (int (pixelA[2]) - int (pixelO[2])) **2
+
 def kmeansColor (colorList):
 	scoreDifference =300
 	colorGroup =[[[ colorList[0][0], colorList[0][1], colorList[0][2] ], colorList[0] ]]	# la case 0 contient la moyenne
@@ -119,7 +123,7 @@ def kmeansColor (colorList):
 		# calculer les scores de la color étudiée avec la moyenne de chaque groupe
 		scores =[]
 		for group in colorGroup:
-			score = (group[0][0] - colorList[c][0]) **2 + (group[0][1] - colorList[c][1]) **2 + (group[0][2] - colorList[c][2]) **2
+			score = computeScore (group[0], colorList[c])
 			scores.append (score)
 		# trouver le groupe dont elle est le plus proche
 		groupId = min (scores)

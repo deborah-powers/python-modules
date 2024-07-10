@@ -3,10 +3,15 @@
 import os
 import codecs
 import json
+from datetime import datetime
 import listFct
 import textFct
 from fileLocal import *
 import loggerFct as log
+
+dateFormatFull = '%Y/%m/%d %H:%M:%S'
+dateFormatDay = '%Y-%m-%d'
+dateFormatHour = dateFormatDay + '-%H'
 
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")
@@ -37,13 +42,25 @@ class File():
 		fileCommon.text = comparerText (self.text, fileB.text)
 		fileCommon.write()
 
+	def getDateCreation (self):
+		# self.path est bien au bon format
+		self.toPath()
+		dateCreation = os.path.getctime (self.path)
+		strCreation =""
+		strCreation = datetime.fromtimestamp (dateCreation).strftime (dateFormatDay)
+		if strCreation < '2005':
+			dateCreation = os.path.getctime (self.path)
+			strCreation = datetime.fromtimestamp (dateCreation).strftime (dateFormatDay)
+		return strCreation
+
 	def renameDate (self):
 		months =( '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12')
 		days =( '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31')
-		if '2023' in self.title or '2024' in self.title:
+		if '2024' in self.title and '2024-' not in self.title and '2024 ' not in self.title:
 			self.fromPath()
 			newPath = self.title.lower()
 			newPath = newPath.replace ('img_20', '20')
+			newPath = newPath.replace ('img-20', '20')
 			newPath = newPath.replace ('vid_20', '20')
 			newPath = newPath.replace ('video_20', '20')
 			newPath = newPath.replace ('20230', '2023-0')
@@ -56,6 +73,24 @@ class File():
 			newPath = newPath.replace ('_', ' ')
 			newPath = newPath.replace ('- ', ' ')
 			newPath = newPath.replace (' -', '-')
+			if '2024-' in newPath and '-2024' not in newPath and ' 2024' not in newPath and newPath[:5] != '2024-':
+				# images transformées avec l'appli photo resizer
+				d= newPath.find (" ")
+				queue = newPath[d+1:]
+				newPath = newPath[:d]
+				d= newPath.find ('2024-')
+				hour = newPath[d+5:d+7]
+				newPath = newPath[:d]
+				if len (newPath) ==2: newPath = months [int (newPath[0])] +'-'+ days [int (newPath[1])]
+				elif len (newPath) ==4: newPath = months [int (newPath[0:2])] +'-'+ days [int (newPath[2:4])]
+				elif len (newPath) ==3 and newPath[0] == '1': newPath = months [int (newPath[0:2])] +'-'+ days [int (newPath[2])]
+				elif len (newPath) ==3: newPath = months [int (newPath[0])] +'-'+ days [int (newPath[1:3])]
+				newPath = '2024-' + newPath +'-'+ hour +' '+ queue
+			elif '2024-' in newPath or '2024 ' in newPath: pass
+			else:
+				newPath = newPath.replace ('2024', '')
+				newPath = self.getDateCreation() +' '+ newPath
+				self.fromPath()
 			while '  ' in newPath: newPath = newPath.replace ('  ', ' ')
 			newPath = self.path.replace ('\t', newPath)
 			self.toPath()

@@ -3,15 +3,6 @@
 from datetime import datetime
 from inspect import stack
 
-addDate = False
-
-def traceDate():
-	# date est un objet datetime.datetime
-	now = datetime.today()
-	strDate = '%02d:%02d:%02d:%02d'% (now.hour, now.minute, now.second, now.microsecond)
-	while len (strDate) <15: strDate = strDate +' '
-	return strDate
-
 def traceLine():
 	stackList = stack()
 	stackLen = len (stackList)
@@ -31,7 +22,17 @@ def traceLine():
 	strFile = strFile.replace ('mantis-0.1-py3.8.egg\\mantis', 'mantis')
 	return '%s\t%s %s' % (strFile, strNum, stackList[i].function)
 
-def tolog (message):
+def computeTrace():
+	# date est un objet datetime.datetime
+	now = datetime.today()
+	strDate = '%02d:%02d:%02d:%02d'% (now.hour, now.minute, now.second, now.microsecond)
+	while len (strDate) <15: strDate = strDate +' '
+	return strDate
+
+def traceDate():
+	return computeTrace() + traceLine()
+
+def objToStr (message):
 	if type (message) == int and message ==0: return 'O'
 	elif type (message) == bool:
 		if message: return 'oui'
@@ -39,31 +40,41 @@ def tolog (message):
 	elif not message: return ""
 	elif type (message) == dict:
 		messageKeys = list (message.keys())
-		res = "dictionnaire à "+ tolog (len (messageKeys)) + " entrées\n"
+		res = "dictionnaire à "+ objToStr (len (messageKeys)) + " entrées\n"
 		nbkeys = len (messageKeys)
 		if nbkeys >10: nbkeys =10
 		rkeys = range (nbkeys)
-		for k in rkeys: res = res + tolog (messageKeys[k]) +"\t"+ tolog (message[messageKeys[k]]) +"\n"
+		for k in rkeys: res = res + objToStr (messageKeys[k]) +"\t"+ objToStr (message[messageKeys[k]]) +"\n"
 		return res
 	elif type (message) == list:
-		res = "liste à "+ tolog (len (message)) + " éléments\n"
-		for line in message[:10]: res = res + tolog (line) +"\n"
+		res = "liste à "+ objToStr (len (message)) + " éléments\n"
+		for line in message[:10]: res = res + objToStr (line) +"\n"
 		return res
 	elif type (message) == str: return message[:100]
 	else: return str (message)
 
-def logone (message):
+def logInfo (showDate=False):
 	trace = traceLine()
-	# trace = traceDate() +' '+ trace
-	res = tolog (message)
+	if showDate: trace = computeTrace() + trace
+	print (trace)
+
+
+def logMsg (message, showDate=False):
+	trace = traceLine()
+	if showDate: trace = computeTrace() + trace
+	res = objToStr (message)
 	trace = trace +'\t'+ res
 	print (trace)
 
-def log (*messages):
+def coucou (showDate=False):
+	logMsg ('coucou', showDate)
+
+def logLst (*messages, showDate=False):
 	trace = traceLine()
+	if showDate: trace = computeTrace() + trace
 	# trace = traceDate() +' '+ trace
 	for message in messages:
-		res = tolog (message)
+		res = objToStr (message)
 		if '\n' in res: trace = trace +'\n'+ res
 		else: trace = trace +'\t'+ res
 	print (trace)
@@ -71,9 +82,6 @@ def log (*messages):
 def exists (obj):
 	if (obj): log (obj)
 	else: log ('objet null')
-
-def coucou():
-	log ('coucou')
 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 letterPos =0

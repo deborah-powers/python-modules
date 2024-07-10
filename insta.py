@@ -5,6 +5,7 @@ import numpy
 from PIL import Image, ImageDraw
 import cv2
 import fileLocal
+from imgModif import openImage
 """
 créer un gif animé carré afin de mettre une grande image sur instagram
 
@@ -70,8 +71,33 @@ def squareVideo (nomCarre, width, height, imageOriginal):
 	for img in images: video.write (cv2.cvtColor (numpy.array (img), cv2.COLOR_RGB2BGR))
 	video.release()
 
+def squarePictureComputeColors (color, pixel):
+	color[0] += pixel[0]
+	color[1] += pixel[1]
+	color[2] += pixel[2]
+	return color
+
+def squarePictureDraw (colorA, colorB, length, horizontal=True):
+	# couleurs moyenne
+	colorA[0] = int (colorA[0] / length)
+	colorA[1] = int (colorA[1] / length)
+	colorA[2] = int (colorA[2] / length)
+	colorB[0] = int (colorB[0] / length)
+	colorB[1] = int (colorB[1] / length)
+	colorB[2] = int (colorB[2] / length)
+	lengthalf = int (length /2)
+	# dessiner la nouvelle image
+	imageObj = Image.new (mode='RGB', size=(length, length), color=(colorB[0], colorB[1], colorB[2]))
+	drawing = ImageDraw.Draw (imageObj)
+	# la largeur est plus grande que la hauteur
+	if horizontal: drawing.rectangle (((0,0), (length, lengthalf)), fill=( colorA[0], colorA[1], colorA[2] ))
+	# la hauteur est plus grande que la largeur
+	else: drawing.rectangle (((0,0), (lengthalf, length)), fill=( colorA[0], colorA[1], colorA[2] ))
+	drawing = ImageDraw.Draw (imageObj)
+	return imageObj, drawing
+
 def squarePicture (nomCarre, width, height, imageOriginal):
-	nomCarre = nomCarre +'-carre.bmp'
+	nomCarre = nomCarre +'-carre.jpg'
 	# calculer la couleur des bords
 	colorA =[ 0,0,0 ]
 	colorB =[ 0,0,0 ]
@@ -82,61 +108,32 @@ def squarePicture (nomCarre, width, height, imageOriginal):
 		# calculer les couleurs des bords
 		rangeBord = range (width)
 		for i in rangeBord:
-			colorA[0] += imageArray[0][i][0]
-			colorA[1] += imageArray[0][i][1]
-			colorA[2] += imageArray[0][i][2]
-			colorB[0] += imageArray[-1][i][0]
-			colorB[1] += imageArray[-1][i][1]
-			colorB[2] += imageArray[-1][i][2]
-		colorA[0] = int (colorA[0] / width)
-		colorA[1] = int (colorA[1] / width)
-		colorA[2] = int (colorA[2] / width)
-		colorB[0] = int (colorB[0] / width)
-		colorB[1] = int (colorB[1] / width)
-		colorB[2] = int (colorB[2] / width)
+			colorA = squarePictureComputeColors (colorA, imageArray[0][i])
+			colorB = squarePictureComputeColors (colorB, imageArray[-1][i])
 		# dessiner la nouvelle image
-		imageObj = Image.new ('RGBA', (width, width))
-		drawing = ImageDraw.Draw (imageObj)
+		imageObj, drawing = squarePictureDraw (colorA, colorB, width, True)
 		wStripe = int ((width - height) /2)
 		imageObj.paste (imageOriginal, (0, wStripe))
-		drawing.rectangle (((0,0), (width, wStripe)), fill=( colorA[0], colorA[1], colorA[2] ))
-		drawing.rectangle (((0, height + wStripe), (width, height + 2* wStripe)), fill=( colorB[0], colorB[1], colorB[2] ))
 	# la hauteur est plus grande que la largeur
 	else:
 		# calculer les couleurs des bords
 		rangeBord = range (height)
 		for i in rangeBord:
-			colorA[0] += imageArray[i][0][0]
-			colorA[1] += imageArray[i][0][1]
-			colorA[2] += imageArray[i][0][2]
-			colorB[0] += imageArray[i][-1][0]
-			colorB[1] += imageArray[i][-1][1]
-			colorB[2] += imageArray[i][-1][2]
-		colorA[0] = int (colorA[0] / height)
-		colorA[1] = int (colorA[1] / height)
-		colorA[2] = int (colorA[2] / height)
-		colorB[0] = int (colorB[0] / height)
-		colorB[1] = int (colorB[1] / height)
-		colorB[2] = int (colorB[2] / height)
+			colorA = squarePictureComputeColors (colorA, imageArray[i][0])
+			colorB = squarePictureComputeColors (colorB, imageArray[i][-1])
 		# dessiner la nouvelle image
-		imageObj = Image.new ('RGBA', (height, height))
-		drawing = ImageDraw.Draw (imageObj)
+		imageObj, drawing = squarePictureDraw (colorA, colorB, height, False)
 		wStripe = int ((height - width) /2)
 		imageObj.paste (imageOriginal, (wStripe, 0))
-		drawing.rectangle (((0,0), (wStripe, height)), fill=( colorA[0], colorA[1], colorA[2] ))
-		drawing.rectangle (((width + wStripe, 0), (width + 2* wStripe, height)), fill=( colorB[0], colorB[1], colorB[2] ))
 	imageObj.save (nomCarre)
 
 if len (argv) <2: print ("entrez le nom de l'image")
 else:
 	# récupérer l'image originale
-	nomOriginal = fileLocal.shortcut (argv[1])
-	imageOriginal = Image.open (nomOriginal)
+	nomCarre, imageOriginal = openImage (argv[1])
 	width = imageOriginal.size[0]
 	height = imageOriginal.size[1]
 	# vérification sur ses dimensions
-	d= nomOriginal.rfind ('.')
-	nomCarre = nomOriginal[:d]
 	if width == height: print ("votre image est déjà un carré, vous n'avez pas besoin de la transformer")
 	elif width > height:
 		if height / width >=0.8: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
