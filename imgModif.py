@@ -7,6 +7,7 @@ import numpy
 numpy.seterr (all='warn')
 from PIL import Image, ImageOps
 import fileLocal
+import loggerFct as log
 
 help ="""modifier des images
 utilisation
@@ -115,34 +116,31 @@ def reverseColor (imageName):
 def computeScore (pixelA, pixelO):
 	return (int (pixelA[0]) - int (pixelO[0])) **2 + (int (pixelA[1]) - int (pixelO[1])) **2 + (int (pixelA[2]) - int (pixelO[2])) **2
 
+def computeScoreKmeans (pixelA, pixelO):
+	return (pixelA[0] - pixelO[0]) **2 + (pixelA[1] - pixelO[1]) **2 + (pixelA[2] - pixelO[2]) **2
+
 def kmeansColor (colorList):
-	scoreDifference =300
+	scoreDifference =675
 	colorGroup =[[[ colorList[0][0], colorList[0][1], colorList[0][2] ], colorList[0] ]]	# la case 0 contient la moyenne
 	rangeColors = range (1, len (colorList))
 	for c in rangeColors:
 		# calculer les scores de la color étudiée avec la moyenne de chaque groupe
-		scores =[]
-		for group in colorGroup:
-			score = computeScore (group[0], colorList[c])
-			scores.append (score)
+		groupId =0
+		groupScore = 1000000
+		rangeGroup = range (len (colorGroup))
+		for g in rangeGroup:
+			score = computeScoreKmeans (colorGroup[g][0], colorList[c])
+			if score < groupScore:
+				groupScore = score
+				groupId = g
 		# trouver le groupe dont elle est le plus proche
-		groupId = min (scores)
-		# ajouter la color à un groupe existant
-		if groupId <= scoreDifference:
-			groupId = scores.index (groupId)
-			colorGroup [groupId].append (colorList[c])
+		if groupScore <= scoreDifference:
 			# calculer la nouvelle moyenne
-			lenGroup = len (colorGroup [groupId])
-			rangeGroup = range (1, lenGroup)
-			colorGroup [groupId][0] = [0,0,0]
-			for g in rangeGroup:
-				colorGroup [groupId][0][0] += colorGroup [groupId][g][0]
-				colorGroup [groupId][0][1] += colorGroup [groupId][g][1]
-				colorGroup [groupId][0][2] += colorGroup [groupId][g][2]
-			lenGroup -=1
-			colorGroup [groupId][0][0] /= lenGroup
-			colorGroup [groupId][0][1] /= lenGroup
-			colorGroup [groupId][0][2] /= lenGroup
+			lenGroup = len (colorGroup [groupId]) -1
+			colorGroup [groupId][0][0] = (colorGroup [groupId][0][0] * lenGroup + colorList[c][0]) / (lenGroup +1)
+			colorGroup [groupId][0][1] = (colorGroup [groupId][0][1] * lenGroup + colorList[c][1]) / (lenGroup +1)
+			colorGroup [groupId][0][2] = (colorGroup [groupId][0][2] * lenGroup + colorList[c][2]) / (lenGroup +1)
+			colorGroup [groupId].append (colorList[c])
 		# créer un nouveau groupe
 		else: colorGroup.append ([[ colorList[c][0], colorList[c][1], colorList[c][2] ], colorList[c] ])
 	rangeGroup = range (len (colorGroup))
@@ -156,10 +154,12 @@ def countColorArray (array, color):
 	return nbSameColor
 
 def eraseLonelyPixel (imageArray):
-	rangeWidth = range (len (imageArray[0]))
-	rangeHeight = range (len (imageArray))
-	width = len (imageArray[0]) -1
-	height = len (imageArray) -1
+	width = len (imageArray[0])
+	height = len (imageArray)
+	rangeWidth = range (width)
+	rangeHeight = range (height)
+	width -=1
+	height -=1
 	for w in rangeWidth:
 		for h in rangeHeight:
 			# récupérer les voisins
@@ -190,12 +190,12 @@ def simplifyImageOriginal (imageOriginal):
 	colorList = extractColors (imageOriginal)
 	colorGroup = kmeansColor (colorList)
 	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
-	imageArray = eraseLonelyPixel (imageArray)
 	red, green, blue = imageArray.T		# Temporarily unpack the bands for readability
 	for group in colorGroup:
 		for r,g,b in group:
 			colorArea = (red == r) & (green == g) & (blue == b)
 			imageArray[colorArea.T] =(group[0][0], group[0][1], group[0][2])
+#	imageArray = eraseLonelyPixel (imageArray)
 	return imageArray
 
 def simplifyImage (imageName):

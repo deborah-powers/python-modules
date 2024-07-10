@@ -5,6 +5,7 @@ numpy.seterr (all='warn')
 from PIL import Image, ImageDraw, ImageOps, ImageChops
 import cv2
 from imgModif import openImage, eraseLonelyPixel, simplifyImageOriginal, extractColors, computeScore, countColorArray
+import loggerFct as log
 
 def eraseColor (imageLine, x):
 	xd=x-1
@@ -55,51 +56,43 @@ def eraseLonelyPixelVb (imageArray):
 	else: return eraseLonelyPixelVb (imageArray)
 
 def findBorder (imageName):
-	scoreDifference =27
+	scoreDifference = 675
 	newName, imageOriginal = openImage (imageName)
 	newName = newName + '-bord.bmp'
-	"""
-	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
-	imageArray = eraseLonelyPixelVb (imageArray)
 	imageArray = simplifyImageOriginal (imageOriginal)
-	rangeWidth = range (imageOriginal.size[0])
+	# si les deux pixels sont de couleur proches, le premier est coloré comme le second
 	rangeHeight = range (1, imageOriginal.size[1])
-	for w in rangeWidth:
-		for h in rangeHeight:
-			if numpy.array_equal (imageArray[h][w], imageArray[h-1][w]): imageArray[h-1][w] =(255,255,255)
 	rangeWidth = range (1, imageOriginal.size[0])
-	rangeHeight = range (imageOriginal.size[1])
-	for w in rangeWidth:
-		for h in rangeHeight:
-			if numpy.array_equal (imageArray[h][w], imageArray[h][w-1]): imageArray[h][w-1] =(255,255,255)
-	imageOriginal = Image.fromarray (imageArray)
+	for h in rangeHeight:
+		for w in rangeWidth:
+			scoreH = 1000000
+			scoreW = 1000000
+			if numpy.array_equal (imageArray[h][w], imageArray[h-1][w]): imageArray[h-1][w] = (255,255,255)
+			else: scoreH = computeScore (imageArray[h][w], imageArray[h-1][w])
+			if numpy.array_equal (imageArray[h][w], imageArray[h][w-1]): imageArray[h][w-1] = (255,255,255)
+			else: scoreW = computeScore (imageArray[h][w], imageArray[h-1][w])
+			if scoreH <= scoreDifference and scoreW <= scoreDifference:
+				imageArray[h-1][w] = (255,255,255)
+				imageArray[h][w-1] = (255,255,255)
+	"""
+			if not numpy.array_equal (imageArray[h][w], imageArray[h-1][w]):
+				score = computeScore (imageArray[h][w], imageArray[h-1][w])
+				log.logMsg (score)
+				if score <= scoreDifference: imageArray[h-1][w] = (255,255,255)
+			if not numpy.array_equal (imageArray[h][w], imageArray[h][w-1]):
+				score = computeScore (imageArray[h][w], imageArray[h][w-1])
+				if score <= scoreDifference: imageArray[h][w-1] = (255,255,255)
 
-	for w in rangeWidth:
-		for h in rangeHeight:
 			if not numpy.array_equal (imageArray[h][w], imageArray[h-1][w]):
 				score = computeScore (imageArray[h][w], imageArray[h-1][w])
 				if score <= scoreDifference: imageArray[h][w] = imageArray[h-1][w]
-	rangeWidth = range (1, imageOriginal.size[0])
-	rangeHeight = range (imageOriginal.size[1])
-	for w in rangeWidth:
-		for h in rangeHeight:
 			if not numpy.array_equal (imageArray[h][w], imageArray[h][w-1]):
 				score = computeScore (imageArray[h][w], imageArray[h][w-1])
 				if score <= scoreDifference: imageArray[h][w] = imageArray[h][w-1]
-	# décolorer le tour
-	limitD =0
-	limitF = len (imageArray[0])
-	for h in rangeHeight:
-		rangeWidth = range (limitD)
-		limitD, limitF = eraseColor (imageArray[h], limit[0])
-	# je considère que le pixel (0,0) fait partie du fond à détourer
-	red, green, blue = imageArray.T		# Temporarily unpack the bands for readability
-	colorArea = (red == imageArray[0][0][0]) & (green == imageArray[0][0][1]) & (blue == imageArray[0][0][2])
-	imageArray[colorArea.T] = (255, 255, 255)
+	"""
 	# dessiner la nouvelle image
 	imageNouvelle = Image.fromarray (imageArray)
 	imageNouvelle.save (newName)
-	"""
 
 def findBorderVa (imageName):
 	scoreDifference =300

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from inspect import stack
+from fileLocal import pathRoot, pathDesktop
 
 def traceLine():
 	stackList = stack()
@@ -11,22 +12,19 @@ def traceLine():
 	strNum = str (stackList[i].lineno)
 	while len (strNum) <3: strNum = strNum +' '
 	strFile = stackList[i].filename
-	strFile = strFile.replace ('/home/deborah/python/', "")
-	strFile = strFile.replace ('/home/deborah/Bureau/', "")
-	strFile = strFile.replace ('/home/deborah/', "")
-	strFile = strFile.replace ('C:\\Users\\deborah.powers\\python\\debutils\\', "")
-	strFile = strFile.replace ('C:\\Users\\deborah.powers\\python\\', "")
-	strFile = strFile.replace ('C:\\Users\\deborah.powers\\', "")
 	strFile = strFile.replace ('AppData\\Local\\Programs\\Python\\Python38\\lib\\site-packages\\', "")
 	strFile = strFile.replace ('\\__init__.py', "")
-	strFile = strFile.replace ('mantis-0.1-py3.8.egg\\mantis', 'mantis')
+	strFile = strFile.replace (pathDesktop + 'python\\', "")
+	strFile = strFile.replace (pathDesktop, "")
+	strFile = strFile.replace (pathRoot, "")
 	return '%s\t%s %s' % (strFile, strNum, stackList[i].function)
 
 def computeTrace():
 	# date est un objet datetime.datetime
 	now = datetime.today()
 	strDate = '%02d:%02d:%02d:%02d'% (now.hour, now.minute, now.second, now.microsecond)
-	while len (strDate) <15: strDate = strDate +' '
+	strDate = strDate[:12]
+	while len (strDate) <13: strDate = strDate +' '
 	return strDate
 
 def traceDate():
@@ -57,7 +55,6 @@ def logInfo (showDate=False):
 	trace = traceLine()
 	if showDate: trace = computeTrace() + trace
 	print (trace)
-
 
 def logMsg (message, showDate=False):
 	trace = traceLine()
