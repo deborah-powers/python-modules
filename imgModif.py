@@ -120,7 +120,7 @@ def computeScoreKmeans (pixelA, pixelO):
 	return (pixelA[0] - pixelO[0]) **2 + (pixelA[1] - pixelO[1]) **2 + (pixelA[2] - pixelO[2]) **2
 
 def kmeansColor (colorList):
-	scoreDifference =675
+	scoreDifference = 1200	# 27 75 300 675 1200
 	colorGroup =[[[ colorList[0][0], colorList[0][1], colorList[0][2] ], colorList[0] ]]	# la case 0 contient la moyenne
 	rangeColors = range (1, len (colorList))
 	for c in rangeColors:
@@ -149,40 +149,44 @@ def kmeansColor (colorList):
 
 def eraseLonelyPixel (imageArray):
 	# coin haut gauche
-	if numpy.array_not_equal (imageArray[0][0], imageArray[0][1]) and numpy.array_not_equal (imageArray[0][0], imageArray[1][0]):
+	if not numpy.array_equal (imageArray[0][0], imageArray[0][1]) and not numpy.array_equal (imageArray[0][0], imageArray[1][0]):
 		imageArray[0][0] = imageArray[0][1]
 	# coin bas droit
-	if numpy.array_not_equal (imageArray[-1][-2], imageArray[-1][-1]) and numpy.array_not_equal (imageArray[-2][-1], imageArray[-1][-1]):
+	if not numpy.array_equal (imageArray[-1][-2], imageArray[-1][-1]) and not numpy.array_equal (imageArray[-2][-1], imageArray[-1][-1]):
 		imageArray[-1][-1] = imageArray[-1][-2]
 	# coin bas gauche
-	if numpy.array_not_equal (imageArray[-1][1], imageArray[-1][0]) and numpy.array_not_equal (imageArray[-2][0], imageArray[-1][0]):
+	if not numpy.array_equal (imageArray[-1][1], imageArray[-1][0]) and not numpy.array_equal (imageArray[-2][0], imageArray[-1][0]):
 		imageArray[-1][0] = imageArray[-1][1]
 	# coin haut droit
-	if numpy.array_not_equal (imageArray[0][-2], imageArray[0][-1]) and numpy.array_not_equal (imageArray[1][-1], imageArray[0][-1]):
+	if not numpy.array_equal (imageArray[0][-2], imageArray[0][-1]) and not numpy.array_equal (imageArray[1][-1], imageArray[0][-1]):
 		imageArray[0][-1] = imageArray[0][-2]
 	# bords haut et bas
 	rangeWidth = range (1, len (imageArray[0]) -1)
 	for w in rangeWidth:
 		# bord haut
-		if numpy.array_not_equal (imageArray[0][w-1], imageArray[0][w]) and numpy.array_not_equal (imageArray[0][w+1], imageArray[0][w]) and numpy.array_not_equal (imageArray[1][w], imageArray[0][w]):
+		if not numpy.array_equal (imageArray[0][w-1], imageArray[0][w]) and not numpy.array_equal (imageArray[0][w+1], imageArray[0][w]):
+			# and not numpy.array_equal (imageArray[1][w], imageArray[0][w]):
 			imageArray[0][w] = imageArray[0][w+1]
 		# bord bas
-		if numpy.array_not_equal (imageArray[-1][w-1], imageArray[-1][w]) and numpy.array_not_equal (imageArray[-1][w+1], imageArray[-1][w]) and numpy.array_not_equal (imageArray[-2][w], imageArray[-1][w]):
+		if not numpy.array_equal (imageArray[-1][w-1], imageArray[-1][w]) and not numpy.array_equal (imageArray[-1][w+1], imageArray[-1][w]):
+			# and not numpy.array_equal (imageArray[-2][w], imageArray[-1][w]):
 			imageArray[-1][w] = imageArray[-1][w+1]
 	# bords gauche et droit
 	rangeHeight = range (1, len (imageArray) -1)
 	for h in rangeHeight:
 		# bord gauche
-		if numpy.array_not_equal (imageArray[h-1][0], imageArray[h][0]) and numpy.array_not_equal (imageArray[h+1][0], imageArray[h][0]) and numpy.array_not_equal (imageArray[h][1], imageArray[h][0]):
+		if not numpy.array_equal (imageArray[h-1][0], imageArray[h][0]) and not numpy.array_equal (imageArray[h+1][0], imageArray[h][0]):
+			# and not numpy.array_equal (imageArray[h][1], imageArray[h][0]):
 			imageArray[h][0] = imageArray[h][1]
 		# bord droit
-		if numpy.array_not_equal (imageArray[h-1][-1], imageArray[h][-1]) and numpy.array_not_equal (imageArray[h+1][-1], imageArray[h][-1]) and numpy.array_not_equal (imageArray[h][-2], imageArray[h][-1]):
+		if not numpy.array_equal (imageArray[h-1][-1], imageArray[h][-1]) and not numpy.array_equal (imageArray[h+1][-1], imageArray[h][-1]):
+			# and not numpy.array_equal (imageArray[h][-2], imageArray[h][-1]):
 			imageArray[h][-1] = imageArray[h][-2]
 	# milieu
 	for h in rangeHeight:
 		for w in rangeWidth:
-		if numpy.array_not_equal (imageArray[h][w-1], imageArray[h][w]) and numpy.array_not_equal (imageArray[h][w+1], imageArray[h][w]) and numpy.array_not_equal (imageArray[h-1][w], imageArray[h][w]) and numpy.array_not_equal (imageArray[h+1][w], imageArray[h][w]):
-			imageArray[h][w] = imageArray[h][w+1]
+			if not numpy.array_equal (imageArray[h][w-1], imageArray[h][w]) and not numpy.array_equal (imageArray[h][w+1], imageArray[h][w]) or not numpy.array_equal (imageArray[h-1][w], imageArray[h][w]) and not numpy.array_equal (imageArray[h+1][w], imageArray[h][w]):
+				imageArray[h][w] = imageArray[h][w+1]
 	return imageArray
 
 def simplifyImageOriginal (imageOriginal):
@@ -194,7 +198,7 @@ def simplifyImageOriginal (imageOriginal):
 		for r,g,b in group:
 			colorArea = (red == r) & (green == g) & (blue == b)
 			imageArray[colorArea.T] =(group[0][0], group[0][1], group[0][2])
-#	imageArray = eraseLonelyPixel (imageArray)
+	imageArray = eraseLonelyPixel (imageArray)
 	return imageArray
 
 def simplifyImage (imageName):
