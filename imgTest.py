@@ -21,6 +21,33 @@ def eraseColor (imageLine, x):
 	# xd est le premier pixel blanc, xf est le premier pixel coloré
 	return (xd+1, xf)
 
+def eraseLonelyPixelCoin (imageArray):
+	nb =[ imageArray[0][1], imageArray[1][1], imageArray[1][0] ].count (imageArray[0][0])
+	nb =[ imageArray[0][1], imageArray[1][0] ].count (imageArray[0][0])
+	if nb ==0: imageArray[0][0] = imageArray[0][1]
+	return imageArray
+
+def eraseLonelyPixelBordHaut (imageArray, w):
+	nb =[ imageArray[0][w+1], imageArray[0][w-1], imageArray[1][w] ].count (imageArray[0][w])
+	if nb ==0: imageArray[0][0] = imageArray[0][1]
+	return imageArray
+
+
+def eraseLonelyPixelDf (imageArray):
+	nb =[ imageArray[0][-2], imageArray[1][-1] ].count (imageArray[0][-1])
+	if nb ==0: imageArray[0][-1] = imageArray[0][-2]
+	return imageArray
+
+def eraseLonelyPixelFd (imageArray):
+	nb =[ imageArray[-1][1], imageArray[-2][0] ].count (imageArray[-1][0])
+	if nb ==0: imageArray[-1][0] = imageArray[-1][1]
+	return imageArray
+
+def eraseLonelyPixelFf (imageArray):
+	nb =[ imageArray[-1][-2], imageArray[-2][-1] ].count (imageArray[-1][-1])
+	if nb ==0: imageArray[-1][-1] = imageArray[-1][-2]
+	return imageArray
+
 def eraseLonelyPixelVb (imageArray):
 	print ("éffaçage des pixels isolés")
 	refArray = numpy.copy (imageArray)
@@ -56,7 +83,7 @@ def eraseLonelyPixelVb (imageArray):
 	else: return eraseLonelyPixelVb (imageArray)
 
 def findBorder (imageName):
-	scoreDifference = 675
+	scoreDifference = 27	# 27 75 300 675
 	newName, imageOriginal = openImage (imageName)
 	newName = newName + '-bord.bmp'
 	imageArray = simplifyImageOriginal (imageOriginal)
@@ -65,6 +92,10 @@ def findBorder (imageName):
 	rangeWidth = range (1, imageOriginal.size[0])
 	for h in rangeHeight:
 		for w in rangeWidth:
+			if numpy.array_equal (imageArray[h][w], imageArray[h-1][w]) and numpy.array_equal (imageArray[h][w], imageArray[h][w-1]):
+				imageArray[h-1][w] = (255,255,255)
+				imageArray[h][w-1] = (255,255,255)
+	"""
 			scoreH = 1000000
 			scoreW = 1000000
 			if numpy.array_equal (imageArray[h][w], imageArray[h-1][w]): imageArray[h-1][w] = (255,255,255)
@@ -74,7 +105,6 @@ def findBorder (imageName):
 			if scoreH <= scoreDifference and scoreW <= scoreDifference:
 				imageArray[h-1][w] = (255,255,255)
 				imageArray[h][w-1] = (255,255,255)
-	"""
 			if not numpy.array_equal (imageArray[h][w], imageArray[h-1][w]):
 				score = computeScore (imageArray[h][w], imageArray[h-1][w])
 				log.logMsg (score)
