@@ -21,41 +21,76 @@ def eraseColor (imageLine, x):
 	# xd est le premier pixel blanc, xf est le premier pixel coloré
 	return (xd+1, xf)
 
-def eraseLonelyPixelCoinHautGauche (imageArray):
-	nb =[ imageArray[0][1], imageArray[1][1], imageArray[1][0] ].count (imageArray[0][0])
-	nb =[ imageArray[0][1], imageArray[1][0] ].count (imageArray[0][0])
-	if nb ==0: imageArray[0][0] = imageArray[0][1]
+def eraseLonelyPixelVd (imageArray):
+	# coin haut gauche
+	if numpy.array_not_equal (imageArray[0][0], imageArray[0][1]) and numpy.array_not_equal (imageArray[0][0], imageArray[1][0]):
+		imageArray[0][0] = imageArray[0][1]
+	# coin bas droit
+	if numpy.array_not_equal (imageArray[-1][-2], imageArray[-1][-1]) and numpy.array_not_equal (imageArray[-2][-1], imageArray[-1][-1]):
+		imageArray[-1][-1] = imageArray[-1][-2]
+	# coin bas gauche
+	if numpy.array_not_equal (imageArray[-1][1], imageArray[-1][0]) and numpy.array_not_equal (imageArray[-2][0], imageArray[-1][0]):
+		imageArray[-1][0] = imageArray[-1][1]
+	# coin haut droit
+	if numpy.array_not_equal (imageArray[0][-2], imageArray[0][-1]) and numpy.array_not_equal (imageArray[1][-1], imageArray[0][-1]):
+		imageArray[0][-1] = imageArray[0][-2]
+	# bords haut et bas
+	rangeWidth = range (1, len (imageArray[0]) -1)
+	for w in rangeWidth:
+		# bord haut
+		if numpy.array_not_equal (imageArray[0][w-1], imageArray[0][w]) and numpy.array_not_equal (imageArray[0][w+1], imageArray[0][w]) and numpy.array_not_equal (imageArray[1][w], imageArray[0][w]):
+			imageArray[0][w] = imageArray[0][w+1]
+		# bord bas
+		if numpy.array_not_equal (imageArray[-1][w-1], imageArray[-1][w]) and numpy.array_not_equal (imageArray[-1][w+1], imageArray[-1][w]) and numpy.array_not_equal (imageArray[-2][w], imageArray[-1][w]):
+			imageArray[-1][w] = imageArray[-1][w+1]
+	# bords gauche et droit
+	rangeHeight = range (1, len (imageArray) -1)
+	for h in rangeHeight:
+		# bord gauche
+		if numpy.array_not_equal (imageArray[h-1][0], imageArray[h][0]) and numpy.array_not_equal (imageArray[h+1][0], imageArray[h][0]) and numpy.array_not_equal (imageArray[h][1], imageArray[h][0]):
+			imageArray[h][0] = imageArray[h][1]
+		# bord droit
+		if numpy.array_not_equal (imageArray[h-1][-1], imageArray[h][-1]) and numpy.array_not_equal (imageArray[h+1][-1], imageArray[h][-1]) and numpy.array_not_equal (imageArray[h][-2], imageArray[h][-1]):
+			imageArray[h][-1] = imageArray[h][-2]
+	# milieu
+	for h in rangeHeight:
+		for w in rangeWidth:
+		if numpy.array_not_equal (imageArray[h][w-1], imageArray[h][w]) and numpy.array_not_equal (imageArray[h][w+1], imageArray[h][w]) and numpy.array_not_equal (imageArray[h-1][w], imageArray[h][w]) and numpy.array_not_equal (imageArray[h+1][w], imageArray[h][w]):
+			imageArray[h][w] = imageArray[h][w+1]
 	return imageArray
 
-def eraseLonelyPixelBordHaut (imageArray, w):
-	nb =[ imageArray[0][w+1], imageArray[0][w-1], imageArray[1][w] ].count (imageArray[0][w])
-	if nb ==0: imageArray[0][w] = imageArray[0][w+1]
-	return imageArray
-
-def eraseLonelyPixelBordBas (imageArray, w):
-	nb =[ imageArray[-1][w+1], imageArray[-1][w-1], imageArray[-2][w] ].count (imageArray[-1][w])
-	if nb ==0: imageArray[-1][w] = imageArray[-1][w+1]
-	return imageArray
-
-def eraseLonelyPixelBordGauche (imageArray, h):
-	nb =[ imageArray[h-1][0], imageArray[h+1][0], imageArray[h][1] ].count (imageArray[h][0])
-	if nb ==0: imageArray[0][w] = imageArray[0][w+1]
-	return imageArray
-
-
-def eraseLonelyPixelDf (imageArray):
-	nb =[ imageArray[0][-2], imageArray[1][-1] ].count (imageArray[0][-1])
-	if nb ==0: imageArray[0][-1] = imageArray[0][-2]
-	return imageArray
-
-def eraseLonelyPixelFd (imageArray):
-	nb =[ imageArray[-1][1], imageArray[-2][0] ].count (imageArray[-1][0])
-	if nb ==0: imageArray[-1][0] = imageArray[-1][1]
-	return imageArray
-
-def eraseLonelyPixelCoinBasDroit (imageArray):
-	nb =[ imageArray[-1][-2], imageArray[-2][-1] ].count (imageArray[-1][-1])
-	if nb ==0: imageArray[-1][-1] = imageArray[-1][-2]
+def eraseLonelyPixelVc (imageArray):
+	# coin haut G
+	if imageArray[0][1] != imageArray[0][0] and imageArray[1][0] != imageArray[0][0]: imageArray[0][0] = imageArray[0][1]
+	# coin bas D
+	if imageArray[-1][-2] != imageArray[-1][-1] and imageArray[-2][-1] != imageArray[-1][-1]: imageArray[-1][-1] = imageArray[-1][-2]
+	# coin bas G
+	if imageArray[-1][1] != imageArray[-1][0] and imageArray[-2][0] != imageArray[-1][0]: imageArray[-1][0] = imageArray[-1][1]
+	# coin haut D
+	if imageArray[0][-2] != imageArray[0][-1] and imageArray[1][-1] != imageArray[0][-1]: imageArray[0][-1] = imageArray[0][-2]
+	# bords haut et bas
+	rangeWidth = range (1, len (imageArray[0]) -1)
+	for w in rangeWidth:
+		# bord H
+		if imageArray[0][w-1] != imageArray[0][w] and imageArray[0][w+1] != imageArray[0][w] and imageArray[1][w] != imageArray[0][w]:
+			imageArray[0][w] = imageArray[0][w+1]
+		# bord B
+		if imageArray[-1][w-1] != imageArray[-1][w] and imageArray[-1][w+1] != imageArray[-1][w] and imageArray[-2][w] != imageArray[-1][w]:
+			imageArray[-1][w] = imageArray[-1][w+1]
+	# bords gauche et droit
+	rangeHeight = range (1, len (imageArray) -1)
+	for h in rangeHeight:
+		# bord G
+		if imageArray[h-1][0] != imageArray[h][0] and imageArray[h+1][0] != imageArray[h][0] and imageArray[h][1] != imageArray[h][0]:
+			imageArray[h][0] = imageArray[h][1]
+		# bord D
+		if imageArray[h-1][-1] != imageArray[h][-1] and imageArray[h+1][-1] != imageArray[h][-1] and imageArray[h][-2] != imageArray[h][-1]:
+			imageArray[h][-1] = imageArray[h][-2]
+	# milieu
+	for h in rangeHeight:
+		for w in rangeWidth:
+			if imageArray[h][w] not in (imageArray[h-1][w], imageArray[h+1][w], imageArray[h][w-1], imageArray[h][w+1]):
+			imageArray[h][w] = imageArray[h][w+1]
 	return imageArray
 
 def eraseLonelyPixelVb (imageArray):
@@ -92,11 +127,54 @@ def eraseLonelyPixelVb (imageArray):
 	if numpy.array_equal (refArray, imageArray): return imageArray
 	else: return eraseLonelyPixelVb (imageArray)
 
+def countColorArray (array, color):
+	nbSameColor =0
+	for c in array:
+		if numpy.array_equal (c, color): nbSameColor +=1
+	return nbSameColor
+
+def eraseLonelyPixelVa (imageArray):
+	width = len (imageArray[0])
+	height = len (imageArray)
+	rangeWidth = range (width)
+	rangeHeight = range (height)
+	width -=1
+	height -=1
+	for w in rangeWidth:
+		for h in rangeHeight:
+			# récupérer les voisins
+			neighbors =[]
+			if h>0:
+				if w>0: neighbors.append (imageArray[h-1][w-1])
+				if w< width: neighbors.append (imageArray[h-1][w+1])
+				neighbors.append (imageArray[h-1][w])
+			if h< height:
+				if w>0: neighbors.append (imageArray[h+1][w-1])
+				if w< width: neighbors.append (imageArray[h+1][w+1])
+				neighbors.append (imageArray[h+1][w])
+			if w>0: neighbors.append (imageArray[h][w-1])
+			if w< width: neighbors.append (imageArray[h][w+1])
+			# vérifier si les voisins sont de la même couleur que le pixel analysé
+			nbSameColor = countColorArray (neighbors, imageArray[h][w])
+			# peux de pixel de la même couleur, l'effacer
+			if nbSameColor <2:
+				nbNeighbors = int (len (neighbors) /2)
+				arraySameColor =[]
+				rangeNeighbors = range (len (neighbors) -1)
+				for n in rangeNeighbors: arraySameColor.append (countColorArray (neighbors, neighbors[n]))
+				nbSameColor = max (arraySameColor)
+				if nbSameColor >= nbNeighbors: imageArray[h][w] = neighbors [arraySameColor.index (nbSameColor)]
+	return imageArray
+
 def findBorder (imageName):
 	scoreDifference = 27	# 27 75 300 675
 	newName, imageOriginal = openImage (imageName)
 	newName = newName + '-bord.bmp'
 	imageArray = simplifyImageOriginal (imageOriginal)
+	log.logInfos (True)
+	imageArray = eraseLonelyPixel (imageArray)
+	log.logInfos (True)
+	"""
 	# si les deux pixels sont de couleur proches, le premier est coloré comme le second
 	rangeHeight = range (1, imageOriginal.size[1])
 	rangeWidth = range (1, imageOriginal.size[0])
@@ -105,7 +183,6 @@ def findBorder (imageName):
 			if numpy.array_equal (imageArray[h][w], imageArray[h-1][w]) and numpy.array_equal (imageArray[h][w], imageArray[h][w-1]):
 				imageArray[h-1][w] = (255,255,255)
 				imageArray[h][w-1] = (255,255,255)
-	"""
 			scoreH = 1000000
 			scoreW = 1000000
 			if numpy.array_equal (imageArray[h][w], imageArray[h-1][w]): imageArray[h-1][w] = (255,255,255)
