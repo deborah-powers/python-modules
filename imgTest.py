@@ -21,7 +21,7 @@ def eraseColor (imageLine, x):
 	# xd est le premier pixel blanc, xf est le premier pixel coloré
 	return (xd+1, xf)
 
-def eraseLonelyPixelCoin (imageArray):
+def eraseLonelyPixelCoinHautGauche (imageArray):
 	nb =[ imageArray[0][1], imageArray[1][1], imageArray[1][0] ].count (imageArray[0][0])
 	nb =[ imageArray[0][1], imageArray[1][0] ].count (imageArray[0][0])
 	if nb ==0: imageArray[0][0] = imageArray[0][1]
@@ -29,7 +29,17 @@ def eraseLonelyPixelCoin (imageArray):
 
 def eraseLonelyPixelBordHaut (imageArray, w):
 	nb =[ imageArray[0][w+1], imageArray[0][w-1], imageArray[1][w] ].count (imageArray[0][w])
-	if nb ==0: imageArray[0][0] = imageArray[0][1]
+	if nb ==0: imageArray[0][w] = imageArray[0][w+1]
+	return imageArray
+
+def eraseLonelyPixelBordBas (imageArray, w):
+	nb =[ imageArray[-1][w+1], imageArray[-1][w-1], imageArray[-2][w] ].count (imageArray[-1][w])
+	if nb ==0: imageArray[-1][w] = imageArray[-1][w+1]
+	return imageArray
+
+def eraseLonelyPixelBordGauche (imageArray, h):
+	nb =[ imageArray[h-1][0], imageArray[h+1][0], imageArray[h][1] ].count (imageArray[h][0])
+	if nb ==0: imageArray[0][w] = imageArray[0][w+1]
 	return imageArray
 
 
@@ -43,7 +53,7 @@ def eraseLonelyPixelFd (imageArray):
 	if nb ==0: imageArray[-1][0] = imageArray[-1][1]
 	return imageArray
 
-def eraseLonelyPixelFf (imageArray):
+def eraseLonelyPixelCoinBasDroit (imageArray):
 	nb =[ imageArray[-1][-2], imageArray[-2][-1] ].count (imageArray[-1][-1])
 	if nb ==0: imageArray[-1][-1] = imageArray[-1][-2]
 	return imageArray
