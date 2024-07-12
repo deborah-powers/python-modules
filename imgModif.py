@@ -113,6 +113,55 @@ def reverseColor (imageName):
 	imageNouvelle = ImageOps.invert (imageOriginal)
 	imageNouvelle.save (newName)
 
+def constrast (imageArray):
+	lenHeight = len (imageArray)
+	lenWidth = len (imageArray[0])
+	rangeHeight = range (lenHeight)
+	rangeWidth = range (lenWidth)
+	pixelMoy =[0,0,0]
+	# trouver les moyennes de l'image
+	for h in rangeHeight:
+		for w in rangeWidth:
+			pixelMoy[0] += imageArray[h][w][0]
+			pixelMoy[1] += imageArray[h][w][1]
+			pixelMoy[2] += imageArray[h][w][2]
+	lenHeight *= lenWidth
+	pixelMoy[0] /= lenHeight
+	pixelMoy[1] /= lenHeight
+	pixelMoy[2] /= lenHeight
+	"""
+	pixelMoy[0] = int (pixelMoy[0])
+	pixelMoy[1] = int (pixelMoy[1])
+	pixelMoy[2] = int (pixelMoy[2])
+	"""
+	log.logMsg (pixelMoy)
+	# constraster l'image à partir de la référence
+	for h in rangeHeight:
+		for w in rangeWidth:
+			imageArray[h][w][0] = 2* imageArray[h][w][0] - pixelMoy[0]
+			if imageArray[h][w][0] >=255: imageArray[h][w][0] =255
+			elif imageArray[h][w][0] <=0: imageArray[h][w][0] =0
+			else: imageArray[h][w][0] = int (imageArray[h][w][0])
+			imageArray[h][w][1] = 2* imageArray[h][w][1] - pixelMoy[1]
+			if imageArray[h][w][1] >=255: imageArray[h][w][1] =255
+			elif imageArray[h][w][1] <=0: imageArray[h][w][1] =0
+			else: imageArray[h][w][1] = int (imageArray[h][w][1])
+			imageArray[h][w][2] = 2* imageArray[h][w][2] - pixelMoy[2]
+			if imageArray[h][w][2] >=255: imageArray[h][w][2] =255
+			elif imageArray[h][w][2] <=0: imageArray[h][w][2] =0
+			else: imageArray[h][w][2] = int (imageArray[h][w][2])
+	return imageArray
+
+def constrastSimple (imageArray):
+	rangeHeight = range (len (imageArray))
+	rangeWidth = range (len (imageArray[0]))
+	for h in rangeHeight:
+		for w in rangeWidth:
+			if imageArray[h][w][0] >=96 and imageArray[h][w][0] <=160: imageArray[h][w][0] = 2* imageArray[h][w][0] -128
+			if imageArray[h][w][1] >=96 and imageArray[h][w][1] <=160: imageArray[h][w][1] = 2* imageArray[h][w][1] -128
+			if imageArray[h][w][2] >=96 and imageArray[h][w][2] <=160: imageArray[h][w][2] = 2* imageArray[h][w][2] -128
+	return imageArray
+
 def computeScore (pixelA, pixelO):
 	return (int (pixelA[0]) - int (pixelO[0])) **2 + (int (pixelA[1]) - int (pixelO[1])) **2 + (int (pixelA[2]) - int (pixelO[2])) **2
 
@@ -198,6 +247,7 @@ def simplifyImageOriginal (imageOriginal):
 		for r,g,b in group:
 			colorArea = (red == r) & (green == g) & (blue == b)
 			imageArray[colorArea.T] =(group[0][0], group[0][1], group[0][2])
+	imageArray = constrast (imageArray)
 	imageArray = eraseLonelyPixel (imageArray)
 	return imageArray
 
@@ -205,6 +255,14 @@ def simplifyImage (imageName):
 	newName, imageOriginal = openImage (imageName)
 	newName = newName + '-simple.bmp'
 	imageArray = simplifyImageOriginal (imageOriginal)
+	imageNouvelle = Image.fromarray (imageArray)
+	imageNouvelle.save (newName)
+
+def constrastImage (imageName):
+	newName, imageOriginal = openImage (imageName)
+	newName = newName +'-contraste.bmp'
+	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
+	imageArray = constrast (imageArray)
 	imageNouvelle = Image.fromarray (imageArray)
 	imageNouvelle.save (newName)
 
@@ -218,11 +276,12 @@ def reverseLumPixel (pixel):
 	pixel[2] += lumTot
 	return pixel
 
-if __name__ != 'main': pass
+if __name__ != '__main__': pass
 elif len (argv) <3: print ("entrez le nom de l'image et l'action à faire", help)
 elif argv[2] == 'nb': tobw (argv[1])
 elif argv[2] == 'col': reverseColor (argv[1])
 elif argv[2] == 'simple': simplifyImage (argv[1])
+elif argv[2] == 'constrast': constrastImage (argv[1])
 elif argv[2] == 'all': replaceColors (argv[1], 'reverse', reverseAllColors)
 elif argv[2] == 'lum': replaceColors (argv[1], 'reverse', reverseLumColors)
 elif argv[2] == 'del' and len (argv) >3: eraseColors (argv[1], argv[3])

@@ -63,6 +63,8 @@ def findBorder (imageName):
 	scoreDifference = 27	# 27 75 300 675
 	newName, imageOriginal = openImage (imageName)
 	newName = newName + '-bord.bmp'
+	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
+	imageOriginal = Image.fromarray (imageArray)
 	imageArray = simplifyImageOriginal (imageOriginal)
 	"""
 	# si les deux pixels sont de couleur proches, le premier est coloré comme le second
