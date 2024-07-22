@@ -196,7 +196,7 @@ def kmeansColor (colorList):
 	for g in rangeGroup: colorGroup[g][0] =[ int (colorGroup[g][0][0]), int (colorGroup[g][0][1]), int (colorGroup[g][0][2]) ]
 	return colorGroup
 
-def eraseLonelyPixelColors (imageArray):
+def eraseLonelyPixel (imageArray):
 	# coin haut gauche
 	if not numpy.array_equal (imageArray[0][0], imageArray[0][1]) and not numpy.array_equal (imageArray[0][0], imageArray[1][0]):
 		imageArray[0][0] = imageArray[0][1]

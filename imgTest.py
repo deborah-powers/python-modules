@@ -21,52 +21,30 @@ def eraseColor (imageLine, x):
 	# xd est le premier pixel blanc, xf est le premier pixel coloré
 	return (xd+1, xf)
 
-def eraseLonelyPixelVa (imageArray):
-	# coin haut gauche
-	if not numpy.array_equal (imageArray[0][0], imageArray[0][1]) and not numpy.array_equal (imageArray[0][0], imageArray[1][0]):
-		imageArray[0][0] = imageArray[0][1]
-	# coin bas droit
-	if not numpy.array_equal (imageArray[-1][-2], imageArray[-1][-1]) and not numpy.array_equal (imageArray[-2][-1], imageArray[-1][-1]):
-		imageArray[-1][-1] = imageArray[-1][-2]
-	# coin bas gauche
-	if not numpy.array_equal (imageArray[-1][1], imageArray[-1][0]) and not numpy.array_equal (imageArray[-2][0], imageArray[-1][0]):
-		imageArray[-1][0] = imageArray[-1][1]
-	# coin haut droit
-	if not numpy.array_equal (imageArray[0][-2], imageArray[0][-1]) and not numpy.array_equal (imageArray[1][-1], imageArray[0][-1]):
-		imageArray[0][-1] = imageArray[0][-2]
-	# bords haut et bas
+def eraseLonelyPixel (imageArray):
+	# imageArray is a height x width numpy array, transformé par convert ('P', palette=Image.ADAPTIVE, colors=10)
+	rangeHeight = range (len (imageArray))
 	rangeWidth = range (1, len (imageArray[0]) -1)
-	for w in rangeWidth:
-		# bord haut
-		if not numpy.array_equal (imageArray[0][w-1], imageArray[0][w]) and not numpy.array_equal (imageArray[0][w+1], imageArray[0][w]) and not numpy.array_equal (imageArray[1][w], imageArray[0][w]):
-			imageArray[0][w] = imageArray[0][w+1]
-		# bord bas
-		if not numpy.array_equal (imageArray[-1][w-1], imageArray[-1][w]) and not numpy.array_equal (imageArray[-1][w+1], imageArray[-1][w]) and not numpy.array_equal (imageArray[-2][w], imageArray[-1][w]):
-			imageArray[-1][w] = imageArray[-1][w+1]
-	# bords gauche et droit
-	rangeHeight = range (1, len (imageArray) -1)
-	for h in rangeHeight:
-		# bord gauche
-		if not numpy.array_equal (imageArray[h-1][0], imageArray[h][0]) and not numpy.array_equal (imageArray[h+1][0], imageArray[h][0]) and not numpy.array_equal (imageArray[h][1], imageArray[h][0]):
-			imageArray[h][0] = imageArray[h][1]
-		# bord droit
-		if not numpy.array_equal (imageArray[h-1][-1], imageArray[h][-1]) and not numpy.array_equal (imageArray[h+1][-1], imageArray[h][-1]) and not numpy.array_equal (imageArray[h][-2], imageArray[h][-1]):
-			imageArray[h][-1] = imageArray[h][-2]
-	# milieu
 	for h in rangeHeight:
 		for w in rangeWidth:
-			if not numpy.array_equal (imageArray[h][w-1], imageArray[h][w]) and not numpy.array_equal (imageArray[h][w+1], imageArray[h][w]) and not numpy.array_equal (imageArray[h-1][w], imageArray[h][w]) and not numpy.array_equal (imageArray[h+1][w], imageArray[h][w]):
-				imageArray[h][w] = imageArray[h][w+1]
+			if imageArray[h][w-1] != imageArray[h][w] and imageArray[h][w+1] != imageArray[h][w]: imageArray[h][w] = imageArray[h][w-1]
+	rangeHeight = range (1, len (imageArray) -1)
+	rangeWidth = range (len (imageArray[0]))
+	for h in rangeHeight:
+		for w in rangeWidth:
+			if imageArray[h-1][w] != imageArray[h][w] and imageArray[h+1][w] != imageArray[h][w]: imageArray[h][w] = imageArray[h-1][w]
 	return imageArray
 
 def findBorder (imageName):
-	scoreDifference = 27	# 27 75 300 675
 	newName, imageOriginal = openImage (imageName)
 	newName = newName + '-bord.bmp'
-	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
-	imageOriginal = Image.fromarray (imageArray)
-	imageArray = simplifyImageOriginal (imageOriginal)
+	imageOriginal = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=15)
+	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width numpy array
+	# éliminer les points isolés
+	eraseLonelyPixel (imageArray)
+
 	"""
+	imageArray = simplifyImageOriginal (imageOriginal)
 	# si les deux pixels sont de couleur proches, le premier est coloré comme le second
 	rangeHeight = range (1, imageOriginal.size[1])
 	rangeWidth = range (1, imageOriginal.size[0])
@@ -99,31 +77,16 @@ def findBorder (imageName):
 				score = computeScore (imageArray[h][w], imageArray[h][w-1])
 				if score <= scoreDifference: imageArray[h][w] = imageArray[h][w-1]
 	"""
-	# dessiner la nouvelle image
-	imageNouvelle = Image.fromarray (imageArray)
-	imageNouvelle.save (newName)
-
-def findBorderVa (imageName):
-	scoreDifference =300
-	newName, imageOriginal = openImage (imageName)
-	newName = newName + '-bord.bmp'
-	imageArray = simplifyImageOriginal (imageOriginal)
-	rangeWidth = range (imageOriginal.size[0])
-	rangeHeight = range (1, imageOriginal.size[1])
-	for w in rangeWidth:
-		for h in rangeHeight:
-			if not numpy.array_equal (imageArray[h][w], imageArray[h-1][w]):
-				score = (int (imageArray[h][w][0]) - int (imageArray[h-1][w][0])) **2 + (int (imageArray[h][w][1]) - int (imageArray[h-1][w][1])) **2 + (int (imageArray[h][w][2]) - int (imageArray[h-1][w][2])) **2
-				if score <= scoreDifference: imageArray[h][w] = imageArray[h-1][w]
-	rangeWidth = range (1, imageOriginal.size[0])
+	# retransformer imageArray en tableau de pixel
+	newArray = numpy.ndarray (shape=(imageOriginal.size[1], imageOriginal.size[0], 3), dtype=int, order='F')
 	rangeHeight = range (imageOriginal.size[1])
-	for w in rangeWidth:
-		for h in rangeHeight:
-			if not numpy.array_equal (imageArray[h][w], imageArray[h][w-1]):
-				score = (int (imageArray[h][w][0]) - int (imageArray[h][w-1][0])) **2 + (int (imageArray[h][w][1]) - int (imageArray[h][w-1][1])) **2 + (int (imageArray[h][w][2]) - int (imageArray[h][w-1][2])) **2
-				if score <= scoreDifference: imageArray[h][w] = imageArray[h][w-1]
+	rangeWidth = range (imageOriginal.size[0])
+	for h in rangeHeight:
+		for w in rangeWidth:
+			value = 255 - 17* imageArray[h][w]
+			newArray[h][w] =( value, value, value)
 	# dessiner la nouvelle image
-	imageNouvelle = Image.fromarray (imageArray)
+	imageNouvelle = Image.fromarray (newArray.astype (numpy.uint8))
 	imageNouvelle.save (newName)
 
 imageName = 'b/test.bmp'
