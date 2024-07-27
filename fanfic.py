@@ -23,6 +23,7 @@ class Fanfic (htmlCls.Html, Article):
 		if subject: self.subject = subject
 		if 'http://archiveofourown.org/' in self.text:	self.fromAooo()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
+		elif 'scoubidou'	in url: self.scoubidou()
 
 		elif 'b/ffnet.html' == url:		self.ffNet()
 		elif 'b/fpress.html' == url:	self.fPress()
@@ -69,14 +70,14 @@ class Fanfic (htmlCls.Html, Article):
 	def usePlaceholders (self):
 		placeholders = ('y/n', 'e/c', 'h/c', 'l/n')
 		for ph in placeholders:
-			self.text = self.text.replace (ph.upper(), ph)
-			self.text = self.text.replace ('('+ ph +')', ph)
-			self.text = self.text.replace ('['+ ph +']', ph)
-			self.text = self.text.replace ('{'+ ph +'}', ph)
-		self.text = self.text.replace ('y/n', 'Deborah')
-		self.text = self.text.replace ('e/c', 'grey')
-		self.text = self.text.replace ('h/c', 'dark blond')
-		self.text = self.text.replace ('l/n', 'Powers')
+			self.replace (ph.upper(), ph)
+			self.replace ('('+ ph +')', ph)
+			self.replace ('['+ ph +']', ph)
+			self.replace ('{'+ ph +'}', ph)
+		self.replace ('y/n', 'Deborah')
+		self.replace ('e/c', 'grey')
+		self.replace ('h/c', 'dark blond')
+		self.replace ('l/n', 'Powers')
 
 	def ebGratuit (self):
 		# l'auteur
@@ -128,6 +129,40 @@ class Fanfic (htmlCls.Html, Article):
 			self.text = self.text [:f]
 	#	self.delImgLink()
 
+	def scoubidou (self):
+		# pages de lartdesscoubidous.com
+		self.title = htmlCls.getTitle (self.text)
+		if ' |' in self.title:
+			d= self.title.find (' |')
+			self.title = self.title[:d]
+		self.author = 'art des scoubidous'
+		self.autlink = 'https://lartdesscoubidous.com/'
+		self.link = 'https://lartdesscoubidous.com/'
+		self.subject = 'travaux manuels'
+		self.text = htmlCls.getcontentByTag (self.text, 'section')
+		d= self.text.find ('<aside')
+		self.text = self.text[:d]
+		self.replace ('<hr/>')
+		self.replace ('<table><tbody><tr><td>', '<figure><figcaption>')
+		self.replace ('</td></tr></tbody></table>', '</figure>')
+		self.replace ('</td></tr><tr><td>', '</figure><figure><figcaption>')
+		self.replace ('</td><td>', '</figcaption>')
+		self.replace ('<br/>', '</p><p>')
+		self.replace ('</strong>', "")
+		self.replace ('<strong>', "")
+		self.replace ('.jpg"', ".jpg'")
+		self.replace (".jpg'></p>", ".jpg'>")
+		self.replace ('alt=""></p>', 'alt="">')
+		self.replace (".jpg'></figcaption>", ".jpg'>")
+		self.replace ('alt=""></figcaption>', 'alt="">')
+		self.replace ('<p><img', '<img')
+		self.replace ('<figcaption><img', '<figcaption></figcaption><img')
+		self.replace (' src="https://lartdesscoubidous.com/wp-content/uploads/2012/10/', " src='photos/")
+		self.replace ('><h', '>\n<h')
+		self.replace ('><figure', '>\n<figure')
+		chiffres =( ('10', 'j'), ('11', 'k'), ('12', 'l'), ('13', 'm'), ('14', 'n'), ('15', 'o'), ('16', 'p'), ('17', 'q'), ('18', 'r'), ('19', 's'), ('20', 't'), ('21', 'u'), ('22', 'v'), ('23', 'w'), ('24', 'x'), ('25', 'y'), ('26', 'z'), ('1', 'a'), ('2', 'b'), ('3', 'c'), ('4', 'd'), ('5', 'e'), ('6', 'f'), ('7', 'g'), ('8', 'h'), ('9', 'i') )
+		for c,l in chiffres: self.replace (c+ '.jpg', '-'+l+ '.jpg')
+
 	def fromAooo (self):
 		# fanfic enregistrée via le bouton télécharger en html
 		self.meta ={}
@@ -155,8 +190,8 @@ class Fanfic (htmlCls.Html, Article):
 		tag = htmlCls.getById (self.text, 'chapters')
 		self.text = tag.innerHtml
 		self.delClasses()
-		self.text = self.text.replace ('<div>',"")
-		self.text = self.text.replace ('</div>',"")
+		self.replace ('<div>',"")
+		self.replace ('</div>',"")
 
 	def fromAoooVa (self):
 		# fanfic enregistrée en faisant un ctl+ click
@@ -194,29 +229,29 @@ class Fanfic (htmlCls.Html, Article):
 		d= self.text.find ('<p>')
 		f= self.text.rfind ('</p>') +4
 		self.text = self.text [d:f]
-		self.text = self.text.replace ('<div>', "")
-		self.text = self.text.replace ('</div>', "")
-		self.text = self.text.replace ('<img', '</p><img')
-		self.text = self.text.replace ("png'>","png'><p>")
-		self.text = self.text.replace ('<p><p>', '<p>')
-		self.text = self.text.replace ('</p></p>', '</p>')
-		self.text = self.text.replace ('<p>', '</p><p>')
-		self.text = self.text.replace ('</p>', '</p><p>')
-		self.text = self.text.replace ('<p></p>', "")
-		self.text = self.text.replace ('<p><p>', '<p>')
-		self.text = self.text.replace ('<p><img', '<img')
-		self.text = self.text.replace ("png'></p>","png'>")
+		self.replace ('<div>', "")
+		self.replace ('</div>', "")
+		self.replace ('<img', '</p><img')
+		self.replace ("png'>","png'><p>")
+		self.replace ('<p><p>', '<p>')
+		self.replace ('</p></p>', '</p>')
+		self.replace ('<p>', '</p><p>')
+		self.replace ('</p>', '</p><p>')
+		self.replace ('<p></p>', "")
+		self.replace ('<p><p>', '<p>')
+		self.replace ('<p><img', '<img')
+		self.replace ("png'></p>","png'>")
 		self.text = self.text [4:-3]
-		self.text = self.text.replace ('../res/', 'bv-'+ subject +'/')
-		self.text = self.text.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01.png'><p>", ' <b>ADP +P --> ATP</b> ')
-		self.text = self.text.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01_1.png'><p>", ' <b>ATP --> ADP +P</b> ')
+		self.replace ('../res/', 'bv-'+ subject +'/')
+		self.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01.png'><p>", ' <b>ADP +P --> ATP</b> ')
+		self.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01_1.png'><p>", ' <b>ATP --> ADP +P</b> ')
 		self.styles.append ('unisciel.css')
 
 	def menaceTheoriste (self):
 		self.subject = 'sciences'
 		self.clean()
-		self.text = self.text.replace ('<div>', "")
-		self.text = self.text.replace ('</div>', "")
+		self.replace ('<div>', "")
+		self.replace ('</div>', "")
 		d= self.text.find ("par<a href='https://menace-theoriste.fr/author/") +12
 		f= self.text.find ('>', d) -1
 		self.autlink = self.text [d:f]
@@ -250,8 +285,8 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text [d:f]
 		f= self.text.rfind ('</p>') +4
 		self.text = self.text [:f]
-		self.text = self.text.replace ('<div>', "")
-		self.text = self.text.replace ('</div>', "")
+		self.replace ('<div>', "")
+		self.replace ('</div>', "")
 	#	self.delImgLink()
 
 	def reddit (self):
@@ -265,16 +300,16 @@ class Fanfic (htmlCls.Html, Article):
 		d= self.text.find ('<p>', d)
 		f= self.text.find ('<div>reddit Inc')
 		self.text = self.text [d:f]
-		self.text = self.text.replace ('<div>', "")
-		self.text = self.text.replace ('</div>', "")
+		self.replace ('<div>', "")
+		self.replace ('</div>', "")
 		# auteur
 		f= self.link.find ('/', 26)
 		self.autlink = self.link [:f]
 		self.author = self.autlink [25:]
 		self.title = self.title.replace ('#', ' ')
 		# finir le texte
-		self.text = self.text.replace ('<li><p>', '<li>')
-		self.text = self.text.replace ('</p></li>', '</li>')
+		self.replace ('<li><p>', '<li>')
+		self.replace ('</p></li>', '</li>')
 		f= self.text.rfind ('<hr>Created')
 		self.text = self.text [:f]
 		# zapper les commentaires

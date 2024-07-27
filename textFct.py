@@ -16,13 +16,13 @@ codeKeywords =(
 )
 urlWords =( (': /', ':/'), ('localhost: ', 'localhost:'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js'), (': 80', ':80'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico') )
 weirdChars =(
-	('« ', '"'), (' »', '"'), ('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('…', '...'),
+	('« ', '"'), (' »', '"'), ('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('&#8230;', '...'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
 	('\\u00c2', 'Â'), ('\\u00ca', 'Ê'), ('\\u00cb', 'Ë'), ('\\u00ce', 'Î'), ('\\u00cf', 'Ï'), ('\\u00d4', 'Ô'), ('\\u00d6', 'Ö'), ('\\u00db', 'Û'), ('\\u00e0', 'à'), ('\\u00e2', 'â'), ('\\u00e7', 'ç'), ('\\u00e8', 'è'), ('\\u00e9', 'é'), ('\\u00ea', 'ê'), ('\\u00eb', 'ë'), ('\\u00ee', 'î'), ('\\u00ef', 'ï'), ('\\u00f4', 'ô'), ('\\u00f6', 'ö'), ('\\u00fb', 'û'),
 	('\\', '/'),
 	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x97', "'"), ('\x9c', ' '), ('\xa0', ' '),
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'), ('&apos;', "'"),
-	('&mdash;', ' '), ('&nbsp;', ''), ('&oelig;', 'oe'), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"), ('&#8220;', '"'), ('&#8221;', '"'),
+	('&mdash;', ' '), ('&nbsp;', ''), ('&oelig;', 'oe'), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&lsquo;', '"'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"), ('&laquo;', '"'), ('&raquo;', '"'), ('&#8220;', '"'), ('&#8221;', '"'), ('&#8211;', '-'),
 	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'"), ('\n" ', '\n"')
 )
 tagHtml =(
@@ -166,6 +166,40 @@ def cleanCss (text):
 	return text
 
 def cleanText (text):
+	text = cleanBasic (text)
+	# la ponctuation
+	punctuation = '?!;.:,'
+	for p in punctuation: text = text.replace (' '+p, p)
+	while '....' in text: text = text.replace ('....', '...')
+	for letter in letters:
+		text = text.replace (letter +'!', letter +' !')
+		text = text.replace (letter +';', letter +' ;')
+		text = text.replace ('...' + letter, '... '+ letter)
+	while '  ' in text: text = text.replace ('  ', ' ')
+	# restaurer les url
+	textList = text.split ('?')
+	textRange = range (len (textList) -1)
+	for t in textRange:
+		if 'http' in textList[t]:
+			d= textList[t].find ('http')
+			if " " in textList[t][d:] or '\n' " " in textList[t][d:]: textList[t] = textList[t] +" "
+		else: textList[t] = textList[t] +" "
+	text = '?'.join (textList)
+	# restaurer les heures
+	textList = text.split (':')
+	textRange = range (len (textList) -1)
+	for t in textRange:
+		if textList[t][-2] in '012345' and textList[t][-1] in '0123456789' and textList[t+1][0] in '012345' and textList[t+1][1] in '0123456789': continue
+		else: textList[t+1] =" "+ textList[t+1]
+	text = ':'.join (textList)
+	while '  ' in text: text = text.replace ('  ', ' ')
+	charEndUrl = '\n\t \'",;!()[]{}'
+	for wordStart, wordEnd in urlWords[:8]: text = text.replace (wordStart, wordEnd)
+	for wordStart, wordEnd in urlWords[8:]:
+		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
+	return text
+
+def cleanTextVa (text):
 	text = cleanBasic (text)
 	# la ponctuation
 	punctuation = '?!;.:,'

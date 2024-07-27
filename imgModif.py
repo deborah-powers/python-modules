@@ -42,20 +42,6 @@ def replacePixels (imageName, extension, funcPixel):
 	imageNouvelle = Image.fromarray (imageArray)
 	imageNouvelle.save (newName)
 
-def replaceColors (imageName, extension, funcPixel):
-	newName, imageOriginal = openImage (imageName)
-	newName = newName +'-'+ extension +'.bmp'
-	colors = extractColors (imageOriginal)
-	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b) numpy array
-	red, green, blue = imageArray.T				# Temporarily unpack the bands for readability
-	for r,g,b in colors:
-		colorArea = (red == r) & (green == g) & (blue == b)
-		newColor = funcPixel (r,g,b)
-		imageArray[colorArea.T] = newColor
-	# dessiner la nouvelle image
-	imageNouvelle = Image.fromarray (imageArray)
-	imageNouvelle.save (newName)
-
 def extractColors (imageOriginal):
 	colorsOriginal = imageOriginal.getcolors (imageOriginal.size[0] * imageOriginal.size[1])
 	colors =[]
@@ -69,6 +55,20 @@ def extractColorsFromReference (nomReference):
 	imageOriginal = Image.open (nomReference)
 	imageOriginal = imageOriginal.convert ('RGB')
 	return extractColors (imageOriginal)
+
+def replaceColors (imageName, extension, funcPixel):
+	newName, imageOriginal = openImage (imageName)
+	newName = newName +'-'+ extension +'.bmp'
+	colors = extractColors (imageOriginal)
+	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b) numpy array
+	red, green, blue = imageArray.T				# Temporarily unpack the bands for readability
+	for r,g,b in colors:
+		colorArea = (red == r) & (green == g) & (blue == b)
+		newColor = funcPixel (r,g,b)
+		imageArray[colorArea.T] = newColor
+	# dessiner la nouvelle image
+	imageNouvelle = Image.fromarray (imageArray)
+	imageNouvelle.save (newName)
 
 def eraseColors (imageName, nomReference):
 	# éffacer certaines colors d'une image à partir d'une image de référence qui les contient
@@ -164,92 +164,6 @@ def constrastSimple (imageArray):
 
 def computeScore (pixelA, pixelO):
 	return (int (pixelA[0]) - int (pixelO[0])) **2 + (int (pixelA[1]) - int (pixelO[1])) **2 + (int (pixelA[2]) - int (pixelO[2])) **2
-
-def computeScoreKmeans (pixelA, pixelO):
-	return (pixelA[0] - pixelO[0]) **2 + (pixelA[1] - pixelO[1]) **2 + (pixelA[2] - pixelO[2]) **2
-
-def kmeansColor (colorList):
-	scoreDifference = 1200	# 27 75 300 675 1200
-	colorGroup =[[[ colorList[0][0], colorList[0][1], colorList[0][2] ], colorList[0] ]]	# la case 0 contient la moyenne
-	rangeColors = range (1, len (colorList))
-	for c in rangeColors:
-		# calculer les scores de la color étudiée avec la moyenne de chaque groupe
-		groupId =0
-		groupScore = 1000000
-		rangeGroup = range (len (colorGroup))
-		for g in rangeGroup:
-			score = computeScoreKmeans (colorGroup[g][0], colorList[c])
-			if score < groupScore:
-				groupScore = score
-				groupId = g
-		# trouver le groupe dont elle est le plus proche
-		if groupScore <= scoreDifference:
-			# calculer la nouvelle moyenne
-			lenGroup = len (colorGroup [groupId]) -1
-			colorGroup [groupId][0][0] = (colorGroup [groupId][0][0] * lenGroup + colorList[c][0]) / (lenGroup +1)
-			colorGroup [groupId][0][1] = (colorGroup [groupId][0][1] * lenGroup + colorList[c][1]) / (lenGroup +1)
-			colorGroup [groupId][0][2] = (colorGroup [groupId][0][2] * lenGroup + colorList[c][2]) / (lenGroup +1)
-			colorGroup [groupId].append (colorList[c])
-		# créer un nouveau groupe
-		else: colorGroup.append ([[ colorList[c][0], colorList[c][1], colorList[c][2] ], colorList[c] ])
-	rangeGroup = range (len (colorGroup))
-	for g in rangeGroup: colorGroup[g][0] =[ int (colorGroup[g][0][0]), int (colorGroup[g][0][1]), int (colorGroup[g][0][2]) ]
-	return colorGroup
-
-def eraseLonelyPixelColors (imageArray):
-	# coin haut gauche
-	if not numpy.array_equal (imageArray[0][0], imageArray[0][1]) and not numpy.array_equal (imageArray[0][0], imageArray[1][0]):
-		imageArray[0][0] = imageArray[0][1]
-	# coin bas droit
-	if not numpy.array_equal (imageArray[-1][-2], imageArray[-1][-1]) and not numpy.array_equal (imageArray[-2][-1], imageArray[-1][-1]):
-		imageArray[-1][-1] = imageArray[-1][-2]
-	# coin bas gauche
-	if not numpy.array_equal (imageArray[-1][1], imageArray[-1][0]) and not numpy.array_equal (imageArray[-2][0], imageArray[-1][0]):
-		imageArray[-1][0] = imageArray[-1][1]
-	# coin haut droit
-	if not numpy.array_equal (imageArray[0][-2], imageArray[0][-1]) and not numpy.array_equal (imageArray[1][-1], imageArray[0][-1]):
-		imageArray[0][-1] = imageArray[0][-2]
-	# bords haut et bas
-	rangeWidth = range (1, len (imageArray[0]) -1)
-	for w in rangeWidth:
-		# bord haut
-		if not numpy.array_equal (imageArray[0][w-1], imageArray[0][w]) and not numpy.array_equal (imageArray[0][w+1], imageArray[0][w]):
-			# and not numpy.array_equal (imageArray[1][w], imageArray[0][w]):
-			imageArray[0][w] = imageArray[0][w+1]
-		# bord bas
-		if not numpy.array_equal (imageArray[-1][w-1], imageArray[-1][w]) and not numpy.array_equal (imageArray[-1][w+1], imageArray[-1][w]):
-			# and not numpy.array_equal (imageArray[-2][w], imageArray[-1][w]):
-			imageArray[-1][w] = imageArray[-1][w+1]
-	# bords gauche et droit
-	rangeHeight = range (1, len (imageArray) -1)
-	for h in rangeHeight:
-		# bord gauche
-		if not numpy.array_equal (imageArray[h-1][0], imageArray[h][0]) and not numpy.array_equal (imageArray[h+1][0], imageArray[h][0]):
-			# and not numpy.array_equal (imageArray[h][1], imageArray[h][0]):
-			imageArray[h][0] = imageArray[h][1]
-		# bord droit
-		if not numpy.array_equal (imageArray[h-1][-1], imageArray[h][-1]) and not numpy.array_equal (imageArray[h+1][-1], imageArray[h][-1]):
-			# and not numpy.array_equal (imageArray[h][-2], imageArray[h][-1]):
-			imageArray[h][-1] = imageArray[h][-2]
-	# milieu
-	for h in rangeHeight:
-		for w in rangeWidth:
-			if not numpy.array_equal (imageArray[h][w-1], imageArray[h][w]) and not numpy.array_equal (imageArray[h][w+1], imageArray[h][w]) or not numpy.array_equal (imageArray[h-1][w], imageArray[h][w]) and not numpy.array_equal (imageArray[h+1][w], imageArray[h][w]):
-				imageArray[h][w] = imageArray[h][w+1]
-	return imageArray
-
-def simplifyImageOriginalVa (imageOriginal):
-	colorList = extractColors (imageOriginal)
-	colorGroup = kmeansColor (colorList)
-	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
-	red, green, blue = imageArray.T		# Temporarily unpack the bands for readability
-	for group in colorGroup:
-		for r,g,b in group:
-			colorArea = (red == r) & (green == g) & (blue == b)
-			imageArray[colorArea.T] =(group[0][0], group[0][1], group[0][2])
-	imageArray = constrast (imageArray)
-	imageArray = eraseLonelyPixel (imageArray)
-	return imageArray
 
 def simplifyImageOriginal (imageOriginal):
 	imageOriginal = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=10)

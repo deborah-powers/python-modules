@@ -9,6 +9,7 @@ from fileCls import File, Article
 import loggerFct as log
 
 listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body' )
+listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'a')
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
 templateHtml = """<!DOCTYPE html><html><head>
@@ -366,7 +367,7 @@ class Html (File):
 		self.text = '<'.join (listeCoins)
 
 	def delClasses (self):
-		self.text = self.text.replace (' id=', ' class=')
+		self.replace (' id=', ' class=')
 		textList = self.text.split (' class="')
 		textRange = range (1, len (textList))
 		for t in textRange:
@@ -380,24 +381,32 @@ class Html (File):
 			textList[t] = textList[t][f:]
 		self.text = "".join (textList)
 		for tag in listTags:
-			while '<'+ tag + '></'+ tag + '>' in self.text: self.text = self.text.replace ('<'+ tag + '></'+ tag + '>', "")
+			while '<'+ tag + '></'+ tag + '>' in self.text: self.replace ('<'+ tag + '></'+ tag + '>', "")
 
 	def cleanBody (self):
 		# nettoyage de base
-		self.text = self.text.replace ('\n', ' ')
-		self.text = self.text.replace ('\t', ' ')
+		self.replace ('\n', ' ')
+		self.replace ('\t', ' ')
 		self.text = textFct.cleanBasic (self.text)
-		self.text = self.text.replace ('> ', '>')
-		self.text = self.text.replace (' <', '<')
-		self.text = self.text.replace (' >', '>')
-		self.text = self.text.replace (' />', '/>')
+		self.replace ('> ', '>')
+		self.replace (' <', '<')
+		self.replace (' >', '>')
+		self.replace (' />', '/>')
 		# standardiser tags
 		for tag in listTags:
-			self.text = self.text.replace ('<'+ tag.upper(), '<'+ tag)
-			self.text = self.text.replace ('</'+ tag.upper(), '</'+ tag)
+			self.replace ('<'+ tag.upper(), '<'+ tag)
+			self.replace ('</'+ tag.upper(), '</'+ tag)
 		for tag in listTagsSelfClosing:
-			self.text = self.text.replace ('<'+ tag.upper(), '<'+ tag)
-			self.text = self.text.replace (tag +'>', tag +'/>')
+			self.replace ('<'+ tag.upper(), '<'+ tag)
+			self.replace (tag +'>', tag +'/>')
+	"""
+		# ajouter des sauts de ligne
+		alphabet = 'abcdefghijklmnopqrstuvwxyz'
+		for l in alphabet: self.replace ('><' +l, '>\n<' +l)
+		for t in listTagsIntern:
+			self.replace ('\n<' +t+" ", '<'+t+" ")
+			self.replace ('\n<' +t+'>', '<'+t+'>')
+	"""
 
 	""" ________________________ texte du web ________________________ """
 
@@ -490,14 +499,26 @@ class Html (File):
 		self.setBody()
 		# self.text = self.delAttributes()
 
+	def writeVa (self):
+		log.coucou()
+		# affichage des liens
+		self.replace ("<a ", " <a ")
+		while '  ' in self.text: self.replace ('  ', ' ')
+		self.replace ('</figure>', '\n</figure>')
+		self.replace ('</figure>\n<figure', '</figure><figure')
+		self.replace ('<figcaption>', '\n\t<figcaption>')
+		self.replace ('<img', '\n\t<img')
+		self.replace ('><h', '>\n<h')
+
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body
-		self.text = self.text.replace ('><', '>\n<')
-		self.text = self.text.replace ('>\n</', '></')
+		self.replace ('><', '>\n<')
+		self.replace ('>\n</', '></')
 		self.meta['link'] = self.link
 		self.cleanBody()
 		self.title = cleanTitle (self.title)
-		self.text = templateHtml % (self.title, self.getMetas(), self.text)
+		self.writeVa()
+	#	self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		File.write (self, mode)
 
 
