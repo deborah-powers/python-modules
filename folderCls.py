@@ -87,9 +87,11 @@ class Folder():
 		self.get()
 		for file in self.list:
 			index.text = index.text + "<a href='" + file.path +"'>"+ file.title +'</a>\n'
+		"""
 		index.styles.append ('C:\\wamp64\\www\\site-dp\\library-css\\structure.css')
 		index.styles.append ('C:\\wamp64\\www\\site-dp\\library-css\\perso.css')
 		index.styles.append ('C:\\wamp64\\www\\site-dp\\library-css\\index-dossier.css')
+		"""
 		index.write()
 
 	def read (self):
