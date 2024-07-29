@@ -189,7 +189,7 @@ def cleanText (text):
 	textList = text.split (':')
 	textRange = range (len (textList) -1)
 	for t in textRange:
-		if textList[t][-2] in '012345' and textList[t][-1] in '0123456789' and textList[t+1][0] in '012345' and textList[t+1][1] in '0123456789': continue
+		if len (textList[t]) >1 and len (textList[t+1]) >1 and textList[t][-2] in '012345' and textList[t][-1] in '0123456789' and textList[t+1][0] in '012345' and textList[t+1][1] in '0123456789': continue
 		else: textList[t+1] =" "+ textList[t+1]
 	text = ':'.join (textList)
 	while '  ' in text: text = text.replace ('  ', ' ')

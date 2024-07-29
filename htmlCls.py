@@ -510,15 +510,25 @@ class Html (File):
 		self.replace ('<img', '\n\t<img')
 		self.replace ('><h', '>\n<h')
 
+	def addIndentation (self):
+		self.replace ('\n'," ")
+		self.replace ('\t'," ")
+		while "  " in self.text: self.replace ("  "," ")
+		self.replace ("> ",'>')
+		self.replace (" <",'<')
+		self.replace ('><', '>\n<')
+	#	self.replace ('>\n</', '></')
+		for tag in listTagsIntern:
+			self.replace ('\n<' + tag, '<'+ tag)
+			self.replace ('</' + tag + '>\n', '</' + tag +'>')
+
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body
-		self.replace ('><', '>\n<')
-		self.replace ('>\n</', '></')
+		self.addIndentation()
 		self.meta['link'] = self.link
 		self.cleanBody()
 		self.title = cleanTitle (self.title)
-		self.writeVa()
-	#	self.text = templateHtml % (self.title, self.getMetas(), self.text)
+		self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		File.write (self, mode)
 
 
