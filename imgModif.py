@@ -165,10 +165,38 @@ def constrastSimple (imageArray):
 def computeScore (pixelA, pixelO):
 	return (int (pixelA[0]) - int (pixelO[0])) **2 + (int (pixelA[1]) - int (pixelO[1])) **2 + (int (pixelA[2]) - int (pixelO[2])) **2
 
+def eraseLonelyPixelNb (imageArray):
+	# imageArray is a height x width numpy array, transformé par convert ('P', palette=Image.ADAPTIVE, colors=10)
+	rangeHeight = range (len (imageArray))
+	rangeWidth = range (1, len (imageArray[0]) -1)
+	for h in rangeHeight:
+		for w in rangeWidth:
+			if imageArray[h][w-1] != imageArray[h][w] and imageArray[h][w+1] != imageArray[h][w]: imageArray[h][w] = imageArray[h][w-1]
+	rangeHeight = range (1, len (imageArray) -1)
+	rangeWidth = range (len (imageArray[0]))
+	for h in rangeHeight:
+		for w in rangeWidth:
+			if imageArray[h-1][w] != imageArray[h][w] and imageArray[h+1][w] != imageArray[h][w]: imageArray[h][w] = imageArray[h-1][w]
+	return imageArray
+
+def eraseLonelyPixel (imageArray):
+	# imageArray is a height x width x (r,v,b) numpy array
+	rangeHeight = range (len (imageArray))
+	rangeWidth = range (1, len (imageArray[0]) -1)
+	for h in rangeHeight:
+		for w in rangeWidth:
+			if not numpy.array_equal (imageArray[h][w-1], imageArray[h][w]) and not numpy.array_equal (imageArray[h][w+1], imageArray[h][w]): imageArray[h][w] = imageArray[h][w-1]
+	rangeHeight = range (1, len (imageArray) -1)
+	rangeWidth = range (len (imageArray[0]))
+	for h in rangeHeight:
+		for w in rangeWidth:
+			if not numpy.array_equal (imageArray[h-1][w], imageArray[h][w]) and not numpy.array_equal (imageArray[h+1][w], imageArray[h][w]): imageArray[h][w] = imageArray[h-1][w]
+	return imageArray
+
 def simplifyImageOriginal (imageOriginal):
 	imageOriginal = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=10)
 	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
-#	imageArray = eraseLonelyPixel (imageArray)
+	imageArray = eraseLonelyPixelNb (imageArray)
 	return imageArray
 
 def simplifyImage (imageName):

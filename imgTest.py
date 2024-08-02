@@ -21,7 +21,7 @@ def eraseColor (imageLine, x):
 	# xd est le premier pixel blanc, xf est le premier pixel coloré
 	return (xd+1, xf)
 
-def eraseLonelyPixel (imageArray):
+def eraseLonelyPixelNb (imageArray):
 	# imageArray is a height x width numpy array, transformé par convert ('P', palette=Image.ADAPTIVE, colors=10)
 	rangeHeight = range (len (imageArray))
 	rangeWidth = range (1, len (imageArray[0]) -1)
@@ -38,10 +38,10 @@ def eraseLonelyPixel (imageArray):
 def findBorder (imageName):
 	newName, imageOriginal = openImage (imageName)
 	newName = newName + '-bord.bmp'
-	imageOriginal = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=15)
+	imageOriginal = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=16)
 	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width numpy array
 	# éliminer les points isolés
-	eraseLonelyPixel (imageArray)
+	eraseLonelyPixelNb (imageArray)
 
 	"""
 	imageArray = simplifyImageOriginal (imageOriginal)
