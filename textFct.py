@@ -181,7 +181,7 @@ def cleanText (text):
 	textRange = range (len (textList) -1)
 	for t in textRange:
 		if 'http' in textList[t]:
-			d= textList[t].find ('http')
+			d= textList[t].rfind ('http')
 			if " " in textList[t][d:] or '\n' " " in textList[t][d:]: textList[t] = textList[t] +" "
 		else: textList[t] = textList[t] +" "
 	text = '?'.join (textList)

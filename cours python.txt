@@ -17,6 +17,20 @@ Variable contre littéral: Un littéral est une donnée (le nombre 3) utilisée 
 26/5 = 5.2
 26%5 = 1
 
+*** erreur 403 quand je fais du web scrapping ***
+
+https://stackoverflow.com/questions/16627227/how-do-i-avoid-http-error-403-when-web-scraping-with-python
+
+This is probably because of mod_security or some similar server security feature which blocks known spider/bot user agents (urllib uses something like python urllib/3.3.0, it's easily detected). Try setting a known browser user agent with:
+
+myRequest = Request(
+	url='http://www.cmegroup.com/trading/products/#sortField=oi&sortAsc=false&venues=3&page=1&cleared=1&group=1', 
+	headers={'User-Agent': 'Mozilla/5.0'}
+)
+myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
+
+
+
 ============ Espaces de nom ============
 
 Dictionnaire contenant les noms des fonctions, des variables et leurs valeurs pour un script.

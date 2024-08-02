@@ -19,7 +19,6 @@ class Fanfic (htmlCls.Html, Article):
 	def __init__ (self, url, subject=None):
 		Article.__init__ (self)
 		htmlCls.Html.__init__ (self, url)
-		self.delAttributes()
 		if subject: self.subject = subject
 		if 'http://archiveofourown.org/' in self.text:	self.fromAooo()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
@@ -33,7 +32,7 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel()
 		elif 'egb'		in url: self.ebGratuit()
 		elif 'medium'	in url: self.medium()
-		elif '</article>' in self.text: self.text = htmlCls.getcontentByTag (self.text, 'article')
+		elif '</article>' in self.text and self.text.count ('</article>') ==1: self.text = htmlCls.getcontentByTag (self.text, 'article')
 		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
 		self.delClasses()
 		article = self.toText()

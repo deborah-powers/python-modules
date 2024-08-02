@@ -415,11 +415,10 @@ class Html (File):
 		myRequest = None
 		response = None
 		paramsUrl = None
-		res = True
 		if params:
 			paramsUrl = ul.parse.urlencode (params).encode ('utf-8')
-			myRequest = urlRequest.Request (self.link, method='POST')
-		else: myRequest = urlRequest.Request (self.link)
+			myRequest = urlRequest.Request (self.link, method='POST', headers={ 'User-Agent': 'Mozilla/5.0' })
+		else: myRequest = urlRequest.Request (self.link, headers={ 'User-Agent': 'Mozilla/5.0' })
 		try:
 			response = urlRequest.urlopen (myRequest, paramsUrl)
 			tmpByte = response.read()
@@ -431,21 +430,22 @@ class Html (File):
 			self.setTitle()
 			self.setMetas()
 			self.setBody()
-			self.text = self.delAttributes()
+			self.delAttributes()
 			return True
 		except Exception as e: return False
 
 	def fromUrlVb (self):
-		res = False
 		self.title = 'tmp'
 		self.toPath()
 		try: urlRequest.urlretrieve (self.link, self.path)
 		except Exception as e:
+			log.coucou()
 			print (e)
+			log.coucou()
 			return False
 		else:
 			self.read()
-			self.text = self.delAttributes()
+			self.delAttributes()
 			remove (self.path.replace ('\t', 'tmp'))
 			return True
 
@@ -497,7 +497,7 @@ class Html (File):
 		self.setTitle()
 		self.setMetas()
 		self.setBody()
-		# self.text = self.delAttributes()
+		# self.delAttributes()
 
 	def writeVa (self):
 		log.coucou()
