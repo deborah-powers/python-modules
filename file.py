@@ -3,7 +3,7 @@
 from sys import argv
 import textFct
 from fileCls import File, Article
-import loggerFct
+import loggerFct as log
 
 help ="""traiter des fichiers
 utilisation
