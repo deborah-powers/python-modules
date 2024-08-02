@@ -35,7 +35,7 @@ class HtmlTag():
 
 	def fromString (self, tagStr):
 		""" tagStr est envoyée par getByPos
-		<p arrt='xyz'><innerHtml>
+		<p attr='xyz'><innerHtml>
 		<img src='xyz'
 		"""
 		attributesExists = False
@@ -128,11 +128,13 @@ def getText (tag):
 			text = tag[d:f] +'\n'+ text
 	return text
 
-def getByPos (text, posStart):
+def getByPos (text, posStart, isTag=True):
 	# posStart = pos <tag
 	f= text.find ('>', posStart)
 	# balise auto-fermante
-	if text[f-1] == '/': return HtmlTag (text [posStart:f-1])
+	if text[f-1] == '/':
+		if isTag: return HtmlTag (text [posStart:f-1])
+		else: return ""
 	else:
 		# balise contenant du texte
 		if " " in text[posStart:f]: f= text.find (" ", posStart)
@@ -148,15 +150,18 @@ def getByPos (text, posStart):
 			f= text.find (tagEnd, f+3)
 			nbStart = text[d+1:f].count (tagStart)
 			nbEnd = nbEnd +1
-		return HtmlTag (text[d:f])
+		if isTag: return HtmlTag (text[d:f])
+		else:
+			d=1+ text.find ('>',d)
+			return text[d:f]
 
-def getById (text, index):
-	text = text.replace ('"', "'")
-	if " id='" + index +"'" in text:
-		posStart = text.find (" id='" + index +"'")
-		posStart = text [:posStart].rfind ('<')
-		return getByPos (text, posStart)
-	else: return None
+def getByTagFirst (text, tagName, isTag=True):
+	tagStart = '<'+ tagName
+	if tagStart not in text:
+		if isTag: return None
+		else: return ""
+	d= text.find (tagStart)
+	return getByPos (text, d, isTag)
 
 def getByClass (text, className):
 	if 'class=' not in text: return []
@@ -194,33 +199,53 @@ def getByTag (text, tagName):
 		d=d+2
 	return textList
 
-def getcontentByTag (text, tagName):
-	tagEnd = '</' + tagName + '>'
-	if tagEnd not in text: return ""
-	tagStart = '<'+ tagName
-	f= text.rfind (tagEnd)
-	d= text[:f].find (tagStart)
-	d= text.find ('>',d) +1
-	return text[d:f]
-
 def getTitle (text):
 	title = getcontentByTag (text, 'title')
 	if not title: title = getcontentByTag (text, 'h1')
 	return cleanTitle (title)
 
-def getByTagAndClass (text, tagName, className):
+def getByAttributeFirst (text, tagName, name, value, isTag=True):
 	tagStart = '<'+ tagName +" "
-	if tagStart not in text or className not in text: return []
+	if tagStart not in text or value not in text or name +'=' not in text:
+		if isTag: return None
+		else: return ""
+	# identifier les balises d'intérêt
+	textList = text.split (tagStart)
+	lenText = len (textList)
+	t=1
+	while t< lenText:
+		fBracket= textList[t].find ('>')
+		if name +'=' in textList[t][:fBracket]:
+			d=2+ textList[t].find (name +'=')
+			d+= len (name)
+			f= textList[t].find ("'",d)
+			if name +'="' in textList[t][:fBracket]: f= textList[t].find ('"',d)
+			if value in textList[t][d:f]:
+				textList[t-1] = textList[t-1] +'$'
+				t= lenText
+		t+=1
+	text = tagStart.join (textList)
+	# récupérer les balises
+	if '$<' in text:
+		d=1+ text.find ('$<')
+		return getByPos (text, d, isTag)
+	elif isTag: return None
+	else: return ""
+
+def getByAttributeList (text, tagName, name, value):
+	tagStart = '<'+ tagName +" "
+	if tagStart not in text or value not in text or name +'=' not in text: return []
 	# identifier les balises d'intérêt
 	textList = text.split (tagStart)
 	reta = range (1, len (textList))
 	for m in reta:
 		fBracket= textList[t].find ('>')
-		if 'class=' not in textList[t][:fBracket]: continue
-		d= 7+ textList[t].find ('class=')
+		if name +'=' not in textList[t][:fBracket]: continue
+			d=2+ textList[t].find (name +'=')
+			d+= len (name)
 		f= textList[t].find ("'",d)
-		if 'class="' in textList[t]: f= textList[t].find ('"',d)
-		if className in textList[t][d:f]: textList[t-1] = textList[t-1] +'$'
+		if name +'="' in textList[t]: f= textList[t].find ('"',d)
+		if value in textList[t][d:f]: textList[t-1] = textList[t-1] +'$'
 	text = tagStart.join (textList)
 	# récupérer les balises
 	d=1+ text.find ('$'+ tagStart)
@@ -231,6 +256,15 @@ def getByTagAndClass (text, tagName, className):
 		d=d+2
 	text = text.replace ('$'+ tagStart, tagStart)
 	return textList
+
+def getById (text, index, isTag=True):
+	text = text.replace ('"', "'")
+	if " id='" + index +"'" in text:
+		posStart = text.find (" id='" + index +"'")
+		posStart = text [:posStart].rfind ('<')
+		return getByPos (text, posStart, isTag)
+	elif isTag: return None
+	else: return ""
 
 def getByClassFirst (text, className):
 	if 'class=' not in text: return None
@@ -261,59 +295,11 @@ def getByClassFirst (text, className):
 		return getByPos (text, d)
 	else: return None
 
-def getByTagFirst (text, tagName):
-	tagStart = '<'+ tagName
-	if tagStart not in text: return None
-	d= text.find (tagStart)
-	return getByPos (text, d)
+def getByTagAndClassFirst (text, tagName, className, isTag=True):
+	return getByAttributeFirst (text, tagName, 'class', className, isTag)
 
-def getByTagAndClassFirst (text, tagName, className):
-	tagStart = '<'+ tagName +" "
-	if tagStart not in text or className not in text: return None
-	# identifier les balises d'intérêt
-	textList = text.split (tagStart)
-	lenText = len (textList)
-	t=1
-	while t< lenText:
-		fBracket= textList[t].find ('>')
-		if 'class=' in textList[t][:fBracket]:
-			d= 7+ textList[t].find ('class=')
-			f= textList[t].find ("'",d)
-			if 'class="' in textList[t][:fBracket]: f= textList[t].find ('"',d)
-			if className in textList[t][d:f]:
-				textList[t-1] = textList[t-1] +'$'
-				t= lenText
-		t+=1
-	text = tagStart.join (textList)
-	# récupérer les balises
-	if '$<' in text:
-		d=1+ text.find ('$<',d)
-		return getByPos (text, d)
-	else: return None
-
-def getByRelFirst (text, tagName, relation):
-	tagStart = '<'+ tagName +" "
-	if tagStart not in text or relation not in text: return None
-	# identifier les balises d'intérêt
-	textList = text.split (tagStart)
-	lenText = len (textList)
-	t=1
-	while t< lenText:
-		fBracket= textList[t].find ('>')
-		if 'class=' in textList[t][:fBracket]:
-			d= 7+ textList[t].find ('class=')
-			f= textList[t].find ("'",d)
-			if 'class="' in textList[t][:fBracket]: f= textList[t].find ('"',d)
-			if className in textList[t][d:f]:
-				textList[t-1] = textList[t-1] +'$'
-				t= lenText
-		t+=1
-	text = tagStart.join (textList)
-	# récupérer les balises
-	if '$<' in text:
-		d=1+ text.find ('$<',d)
-		return getByPos (text, d)
-	else: return None
+def getByTagAndClass (text, tagName, className):
+	return getByAttributeList (text, tagName, 'class', className)
 
 class Html (File):
 	def __init__ (self, file =None):
