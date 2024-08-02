@@ -291,6 +291,30 @@ def getByTagAndClassFirst (text, tagName, className):
 		return getByPos (text, d)
 	else: return None
 
+def getByRelFirst (text, tagName, relation):
+	tagStart = '<'+ tagName +" "
+	if tagStart not in text or relation not in text: return None
+	# identifier les balises d'intérêt
+	textList = text.split (tagStart)
+	lenText = len (textList)
+	t=1
+	while t< lenText:
+		fBracket= textList[t].find ('>')
+		if 'class=' in textList[t][:fBracket]:
+			d= 7+ textList[t].find ('class=')
+			f= textList[t].find ("'",d)
+			if 'class="' in textList[t][:fBracket]: f= textList[t].find ('"',d)
+			if className in textList[t][d:f]:
+				textList[t-1] = textList[t-1] +'$'
+				t= lenText
+		t+=1
+	text = tagStart.join (textList)
+	# récupérer les balises
+	if '$<' in text:
+		d=1+ text.find ('$<',d)
+		return getByPos (text, d)
+	else: return None
+
 class Html (File):
 	def __init__ (self, file =None):
 		File.__init__ (self)

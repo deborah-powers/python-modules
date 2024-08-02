@@ -20,7 +20,7 @@ class Fanfic (htmlCls.Html, Article):
 		Article.__init__ (self)
 		htmlCls.Html.__init__ (self, url)
 		if subject: self.subject = subject
-		if 'http://archiveofourown.org/' in self.text:	self.fromAooo()
+		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link:	self.fromAooo()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
 		elif 'scoubidou'	in url: self.scoubidou()
 
@@ -164,9 +164,10 @@ class Fanfic (htmlCls.Html, Article):
 		# fanfic enregistrée via le bouton télécharger en html
 		self.meta ={}
 		# le lien de la fanfic
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'p', 'message')
-		tag = htmlCls.getByTag (tag.innerHtml, 'a')[1]
-		self.link = tag.attributes['href']
+		if not self.link:
+			tag = htmlCls.getByTagAndClassFirst (self.text, 'p', 'message')
+			tag = htmlCls.getByTag (tag.innerHtml, 'a')[1]
+			self.link = tag.attributes['href']
 		# le titre
 		self.title = htmlCls.getcontentByTag (self.text, 'h1')
 		self.title = htmlCls.cleanTitle (self.title)
