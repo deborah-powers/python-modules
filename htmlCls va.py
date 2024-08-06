@@ -31,58 +31,8 @@ class HtmlTag():
 		self.className =""
 		self.id =""
 		self.attributes ={}
-		self.children =[]
 		self.fromString (tagStr)
-		self.findChildren()
-
-	# ________________________ récupérer le noeud d'intérêt ________________________
-
-	def getOne (self, funcFound):
-		if funcFound (self): return self
-		elif len (self.children) ==0: return None
-		else:
-			c=0
-			nbChildren = len (self.children)
-			newTag = None
-			while newTag == None and c< nbChildren:
-				newTag = self.children[c].getOne (funcFound)
-				c+=1
-
-	def getOneVa (self, key, value):
-		if key == 'id' and self.id == value: return self
-		elif key == 'class' and self.className == value: return self
-		elif key == 'tag' and self.name == value: return self
-		elif len (self.children) ==0: return None
-
-	def getByTag (self, tagName):
-		tagok = lambda tag: tag.name == tagName
-		return self.getOne (tagok)
-
-	def getById (self, index):
-		idok = lambda tag: tag.id == index
-		return self.getOne (idok)
-
-	def getByClass (self, className):
-		classok = lambda tag: tag.className == className
-		return self.getOne (classok)
-
-	def getByAttribute (self, attributeName, attributeValue):
-		attrok = lambda tag: tag.attributes[attributeName] == attributeValue
-		return self.getOne (attrok)
-
-	def getByTagClass (self, tagName, className):
-		tagok = lambda tag: tag.name == tagName and tag.className == className
-		return self.getOne (tagok)
-
-	def getAll (self, funcFound):
-		tags =[]
-		if funcFound (self): tags.append (self)
-		for child in self.children:
-			newTags = child.getAll (funcFound)
-			tags.extend (newTag)
-		return tags
-
-		# ________________________ création du noeud ________________________
+		self.simplifyNesting()
 
 	def fromString (self, tagStr):
 		""" tagStr est envoyée par getByPos
@@ -122,32 +72,25 @@ class HtmlTag():
 			f=1+ tagStr.find ('>')
 			self.innerHtml = tagStr[f:]
 
-	def findChildren (self):
-		self.children =[]
+	def simplifyNesting (self):
 		d=1
-		while '<' in self.innerHtml[d:]:
+		nbChildren =0
+		posChildren =[]
+		while '<' in self.innerHtml[d:] and nbChildren <3:
 			d= self.innerHtml.find ('<',d)
 			if self.innerHtml[d+1] in 'abcdefghijklmnopqrstuvwxyz' and self.innerHtml[d+1:d+3] not in 'br hr':
-				newTag = getByPos (self.innerHtml, d, True)
-				self.children.append (newTag)
+				nbChildren +=1
+				posChildren.append (d)
 			d+=1
-		# en cas d'enfants emboités, ne garder que le parent
-		if len (self.children) ==1:
-			self.innerHtml = self.children[0].innerHtml
-			if not self.id: self.id = self.children[0].id
-			if not self.className: self.className = self.children[0].className
-			else: self.className = self.className +" "+ self.children[0].className
-			for child in self.children[0].children: self.children.append (child)
-			if self.children[0].name in 'a svg img':
-				self.name = self.children[0].name
-				self.attributes ={}
-				attributes = self.children[0].attributes.keys()
-				for attr in attributes: self.attributes[attr] = self.children[0].attributes[attr]
-			self.children.pop (0)
-
-	def fromTree (self):
-		self.innerHtml =""
-		for child in self.children: self.innerHtml = self.innerHtml + child.__str__()
+		if nbChildren ==1:
+			newTag = getByPos (self.innerHtml, posChildren[0], True)
+			self.innerHtml = newTag.innerHtml
+			if not self.id: self.id = newTag.id
+			if not self.className: self.className = newTag.className
+			else: self.className = self.className +" "+ newTag.className
+			if newTag.name in 'a svg img':
+				self.name = newTag.name
+				self.attributes = newTag.attributes
 
 	def __str__(self):
 		res = '<'+ self.name
@@ -156,9 +99,7 @@ class HtmlTag():
 		attributes = self.attributes.keys()
 		for attr in attributes: res = res +" "+ attr +"='"+ self.attributes[attr] +"'"
 		if self.name in listTagsSelfClosing: res = res +'/>'
-		else:
-			self.fromTree()
-			res = res +'>'+ self.innerHtml +'</'+ self.name +'>'
+		else: res = res +'>'+ self.innerHtml +'</'+ self.name +'>'
 		return res
 
 """ ________________________ nettoyer le texte ________________________ """
@@ -388,8 +329,6 @@ class Html (File):
 		File.__init__ (self)
 		self.meta ={}
 		self.link =""
-		self.tree = None
-
 		if file and file[:4] == 'http':
 			self.link = file
 			self.path = 'b/tmp.html'
@@ -402,10 +341,9 @@ class Html (File):
 
 	def setBody (self):
 		d= self.text.find ('<body')
-		self.tree = getByPos (self.text, d)
 		d= self.text.find ('>',d) +1
 		f= self.text.rfind ('</body>')
-		self.text = self.tree.innerHtml
+		self.text = self.text[d:f]
 
 	def setTitle (self):
 		d= self.text.find ('<title')
