@@ -20,6 +20,9 @@ les valeurs de tag
 	del: éffacer les couleurs contenues dans l'image de référence
 	nb: passer l'image en nuance de gris
 	simple: simplifier les couleurs
+
+https://www.geeksforgeeks.org/python-pil-image-point-method/
+https://pillow.readthedocs.io/en/stable/reference/ImageOps.html
 """ % __file__
 
 def openImage (imageName):
