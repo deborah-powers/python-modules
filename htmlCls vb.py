@@ -124,16 +124,18 @@ class HtmlTag():
 
 	def simplifyNesting (self):
 		# vérifier que le tag contient bien des enfants
+		log.logLst (self.name, self.innerHtml[:5], self.innerHtml[-7:])
 		if self.name == 'svg' or self.name in listTagsSelfClosing: return
-		elif self.innerHtml[0] == '<' and self.innerHtml[1] in 'abcdefghilmnopqrstuvy' and self.innerHtml[-1] == '>':
-			posEnd = getPosEnd (self.innerHtml, 0)
-			f= self.innerHtml.find ('>')
-			if " " in self.innerHtml[:f]: f= self.innerHtml.find (" ")
-			if '\t' in self.innerHtml[:f]: f= self.innerHtml.find ('\t')
-			if '\n' in self.innerHtml[:f]: f= self.innerHtml.find ('\n')
-			if len (self.innerHtml) == f+2+ posEnd:
-				d=1+ self.innerHtml.find ('>')
-				self.innerHtml = self.innerHtml [d:posEnd]
+		elif self.innerHtml[:4] == '<div' and self.innerHtml[-6:] == '</div>' and self.innerHtml.count ('</div>') ==1:
+			log.logMsg ('div')
+			d=1+ self.innerHtml.find ('>')
+			self.innerHtml = self.innerHtml[d:-6]
+		if self.innerHtml[:5] == '<span' and self.innerHtml[-7:] == '</span>' and self.innerHtml.count ('</span>') ==1:
+			log.logMsg ('span')
+			d=1+ self.innerHtml.find ('>')
+			self.innerHtml = self.innerHtml[d:-7]
+		if self.innerHtml[0] == '<' and self.innerHtml[1] in 'abcdefghilmnopqrstuvy' and self.innerHtml[-1] == '>':
+			log.coucou()
 
 	def findChildren (self):
 	#	log.logLst (self.name, self.className, self.id, len (self.children), showDate=True)
@@ -224,10 +226,13 @@ def getText (tag):
 			text = tag[d:f] +'\n'+ text
 	return text
 
-def getPosEnd (text, posStart):
+def getByPos (text, posStart, isTag=True):
+	# posStart = pos <tag
 	f= text.find ('>', posStart)
 	# balise auto-fermante
-	if text[f-1] == '/': return f
+	if text[f-1] == '/':
+		if isTag: return HtmlTag (text [posStart:f-1])
+		else: return ""
 	else:
 		# balise contenant du texte
 		if " " in text[posStart:f]: f= text.find (" ", posStart)
@@ -243,24 +248,10 @@ def getPosEnd (text, posStart):
 			f= text.find (tagEnd, f+3)
 			nbStart = text[d+1:f].count (tagStart)
 			nbEnd = nbEnd +1
-		return f
-
-def getByPos (text, posStart, isTag=True):
-	""" posStart = pos <tag
-	la fonction renvoi
-	<p attr='xyz'><innerHtml>
-	<img src='xyz'
-	"""
-	f= getPosEnd (text, posStart)
-	# balise auto-fermante
-	if text[f-1] == '/':
-		if isTag: return HtmlTag (text [posStart:f-1])
-		else: return ""
-	# balise contenant du texte
-	elif isTag: return HtmlTag (text [posStart:f])
-	else:
-		d=1+ text.find ('>',d)
-		return text [posStart:f]
+		if isTag: return HtmlTag (text[d:f])
+		else:
+			d=1+ text.find ('>',d)
+			return text[d:f]
 
 def getByTagFirst (text, tagName, isTag=True):
 	tagStart = '<'+ tagName
@@ -578,7 +569,9 @@ class Html (File):
 		self.toPath()
 		try: urlRequest.urlretrieve (self.link, self.path)
 		except Exception as e:
+			log.coucou()
 			print (e)
+			log.coucou()
 			return False
 		else:
 			self.read()

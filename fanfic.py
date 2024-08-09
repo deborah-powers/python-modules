@@ -23,7 +23,6 @@ class Fanfic (htmlCls.Html, Article):
 		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link:	self.fromAooo()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
 		elif 'scoubidou'	in url: self.scoubidou()
-
 		elif 'b/ffnet.html' == url:		self.ffNet()
 		elif 'b/fpress.html' == url:	self.fPress()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
@@ -32,7 +31,7 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'http://uel.unisciel.fr/' in url:				self.unisciel()
 		elif 'egb'		in url: self.ebGratuit()
 		elif 'medium'	in url: self.medium()
-		elif '</article>' in self.text and self.text.count ('</article>') ==1: self.text = htmlCls.getcontentByTag (self.text, 'article')
+		elif '</article>' in self.text and self.text.count ('</article>') ==1: self.text = htmlCls.getByTag (self.text, 'article', False)
 		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
 		self.delClasses()
 		article = self.toText()
@@ -265,7 +264,7 @@ class Fanfic (htmlCls.Html, Article):
 		f= self.text [:f].rfind ('>') +1
 		self.text = self.text [:f]
 
-	def medium (self, subject):
+	def medium (self, subject=""):
 		# récupérer les metadonnées
 		self.link = self.title
 		d= self.text.find ('"creator":') +12
@@ -362,6 +361,7 @@ class Fanfic (htmlCls.Html, Article):
 		d= self.text.find ("<div class='storytext")
 		d= self.text.find ('>',d) +1
 		f= self.text.find ("<div style='height: 5px'>", d)
+		log.logMsg (self.text, True)
 		self.text = self.text[d:f]
 		self.text = self.text.strip()
 		self.text = '<p>'+ self.text +'</p>'

@@ -197,6 +197,10 @@ def cleanText (text):
 	for wordStart, wordEnd in urlWords[:8]: text = text.replace (wordStart, wordEnd)
 	for wordStart, wordEnd in urlWords[8:]:
 		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
+	text = text.replace ('\n ', '\n')
+	text = text.replace (' \n', '\n')
+	text = text.replace ('\t ', '\t')
+	text = text.replace (' \t', '\t')
 	return text
 
 def cleanTextVa (text):
