@@ -12,50 +12,44 @@ listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'h1', 'h2', 'h3', 'h4', 
 listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'a')
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
-templateHtml = """<!DOCTYPE html><html><head>
-<title>%s</title>
-<base target='_blank'>
-<meta charset='utf-8'/>
-<meta name='viewport' content='width=device-width, initial-scale=1'/>
-%s
-<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
-<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
-</head><body>
-%s
-</body></html>"""
+
+noeudC = """<body class='corps'>hello, 
+	<h1 id='titre' style='width:100%'>coucou</h1>
+	ok, 
+	<p>je suis un paragraphe</p>
+	<p style='color:red'>et moi un autre</p>
+	de test.
+</body>"""
 
 class HtmlTag():
 	def __init__ (self, tagStr):
-		self.name =""
+		self.tag =""
 		self.innerHtml =""
 		self.className =""
 		self.id =""
 		self.attributes ={}
 		self.children =[]
 		self.fromString (tagStr)
-		self.simplifyNesting()
 
-	# ________________________ récupérer le noeud d'intérêt ________________________
+	# ________________________ manipuler les noeuds ________________________
 
-	def getOne (self, funcFound):
-		if funcFound (self): return self
-		elif len (self.children) ==0: return None
-		else:
-			c=0
-			nbChildren = len (self.children)
-			newTag = None
-			while newTag == None and c< nbChildren:
-				newTag = self.children[c].getOne (funcFound)
-				c+=1
+	def delAttributes (self):
+		attributes = self.attributes.keys()
+		for attr in attributes:
+			if attr not in listAttributes: self.attributes.pop (attr)
+		for child in self.children: child.delAttributes()
+		self.toInnerHtml()
 
-	def getOneVa (self, key, value):
-		if key == 'id' and self.id == value: return self
-		elif key == 'class' and self.className == value: return self
-		elif key == 'tag' and self.name == value: return self
-		elif len (self.children) ==0: return None
+	def delId (self):
+		self.className =""
+		self.id =""
+		for child in self.children: child.delId()
+		self.toInnerHtml()
+
+	# ________________________ récupérer les noeuds d'intérêt ________________________
 
 	def getByTag (self, tagName):
-		tagok = lambda tag: tag.name == tagName
+		tagok = lambda tag: tag.tag == tagName
 		return self.getOne (tagok)
 
 	def getById (self, index):
@@ -66,118 +60,201 @@ class HtmlTag():
 		classok = lambda tag: tag.className == className
 		return self.getOne (classok)
 
+	def getByTagClass (self, tagName, className):
+		tagok = lambda tag: tag.tag == tagName and tag.className == className
+		return self.getOne (tagok)
+
 	def getByAttribute (self, attributeName, attributeValue):
-		attrok = lambda tag: tag.attributes[attributeName] == attributeValue
+		attrok = lambda tag: attributeName in tag.attributes.keys() and tag.attributes[attributeName] == attributeValue
 		return self.getOne (attrok)
 
-	def getByTagClass (self, tagName, className):
-		tagok = lambda tag: tag.name == tagName and tag.className == className
-		return self.getOne (tagok)
+	def getOne (self, funcFound):
+		if funcFound (self): return self
+		elif len (self.children) ==0: return None
+		else:
+			log.logMsg (self.tag)
+			c=0
+			nbChildren = len (self.children)
+			newTag = None
+			while newTag == None and c< nbChildren:
+				log.logLst (c, self.children[c].tag, self.children[c].attributes)
+				newTag = self.children[c].getOne (funcFound)
+				c+=1
+			return newTag
+
+	def getByTagAll (self, tagName):
+		tagok = lambda tag: tag.tag == tagName
+		return self.getAll (tagok)
+
+	def getByClassAll (self, className):
+		classok = lambda tag: tag.className == className
+		return self.getAll (classok)
+
+	def getByTagClassAll (self, tagName, className):
+		tagok = lambda tag: tag.tag == tagName and tag.className == className
+		return self.getAll (tagok)
+
+	def getByAttributeAll (self, attributeName, attributeValue):
+		attrok = lambda tag: attributeName in tag.attributes.keys() and tag.attributes[attributeName] == attributeValue
+		return self.getAll (attrok)
 
 	def getAll (self, funcFound):
 		tags =[]
 		if funcFound (self): tags.append (self)
 		for child in self.children:
 			newTags = child.getAll (funcFound)
-			tags.extend (newTag)
+			tags.extend (newTags)
 		return tags
 
-		# ________________________ création du noeud ________________________
+	# ________________________ création du noeud ________________________
 
 	def fromString (self, tagStr):
-		""" tagStr est envoyée par getByPos
-		<p attr='xyz'><innerHtml>
-		<img src='xyz'
-		"""
-		attributesExists = False
-		f= tagStr.find ('>')
-		if " " in tagStr[:f]:
-			f= tagStr.find (" ")
-			attributesExists = True
-		self.name = tagStr[1:f]
+		# tagStr contient l'outerHtml
+		if '\n' in tagStr or '\t' in tagStr or "  " in tagStr: self.clean (tagStr)
+		else: self.innerHtml = tagStr
+		if '<' not in tagStr or '>' not in tagStr:
+			self.innerHtml = tagStr
+			self.tag = 'text'
+		else:
+			self.setAttributes()
+			self.setInnerHtml()
+			self.setChildren()
+
+	def setAttributes (self):
+		# innerHtml contient l'outerHtml
+		# récupérer le tag
+		f= self.innerHtml.find ('>')
+		if " " in self.innerHtml[:f]: f= self.innerHtml.find (" ")
+		d=1+ self.innerHtml.find ('<')
+		self.tag = self.innerHtml[d:f]
 		# récupérer les attributs
-		if attributesExists:
-			tagStr = tagStr[f+1:]
-			f= tagStr.find ('>')
-			attributeStr = tagStr[:f].replace ('"',"")
-			attributeStr = attributeStr.replace ("'","")
-			attributes = attributeStr[:f].split (" ")
-			attrRge = reversed (range (1, len (attributes)))
-			for a in attrRge:
-				if '=' in attributes[a]:
-					d= attributes[a].find ('=')
-					if attributes[a][:d] == 'class': self.className = attributes[a][d+1:]
-					elif attributes[a][:d] == 'id': self.id = attributes[a][d+1:]
-					elif attributes[a][:d] in listAttributes: self.attributes [attributes[a][:d]] = attributes[a][d+1:]
-				else:
-					end = attributes.pop (a)
-					attributes[a-1] = attributes[a-1] +" "+ end
-			# examiner le premier attribut
-			d= attributes[0].find ('=')
-			if attributes[0][:d] == 'class': self.className = attributes[0][d+1:]
-			elif attributes[0][:d] == 'id': self.id = attributes[0][d+1:]
-			elif attributes[0][:d] in listAttributes: self.attributes [attributes[0][:d]] = attributes[0][d+1:]
-		# récupérer le texte
-		if self.name not in listTagsSelfClosing:
-			f=1+ tagStr.find ('>')
-			self.innerHtml = tagStr[f:]
+		f= self.innerHtml.find ('>')
+		if " " in self.innerHtml[:f]:
+			d=1+ self.innerHtml.find (" ")
+			attriStr = self.innerHtml[d:f]
+			attriStr = attriStr.replace (' =','=')
+			attriStr = attriStr.replace ('= ','=')
+			attriStr = attriStr.replace ('="',"='")
+			attriLst = attriStr.split ("='")
+			attriLst2 =[ attriLst[0], ]
+			attriRge = range (1, len (attriLst) -1)
+			for a in attriRge:
+				d= attriLst[a].rfind (" ")
+				attriLst2.append (attriLst[a][:d-1])
+				attriLst2.append (attriLst[a][d+1:])
+			attriLst2.append (attriLst[-1][:-1])
+			attriRge = range (1, len (attriLst2), 2)
+			for a in attriRge:
+				if attriLst2[a-1] == 'class': self.className = attriLst2[a]
+				elif attriLst2[a-1] == 'id': self.id = attriLst2[a]
+				else: self.attributes [attriLst2[a-1]] = attriLst2[a]
 
-	def simplifyNesting (self):
-		# vérifier que le tag contient bien des enfants
-		if self.name == 'svg' or self.name in listTagsSelfClosing: return
-		elif self.innerHtml[0] == '<' and self.innerHtml[1] in 'abcdefghilmnopqrstuvy' and self.innerHtml[-1] == '>':
-			posEnd = getPosEnd (self.innerHtml, 0)
-			f= self.innerHtml.find ('>')
-			if " " in self.innerHtml[:f]: f= self.innerHtml.find (" ")
-			if '\t' in self.innerHtml[:f]: f= self.innerHtml.find ('\t')
-			if '\n' in self.innerHtml[:f]: f= self.innerHtml.find ('\n')
-			if len (self.innerHtml) == f+2+ posEnd:
-				d=1+ self.innerHtml.find ('>')
-				self.innerHtml = self.innerHtml [d:posEnd]
+	def setInnerHtml (self):
+		# innerHtml contient l'outerHtml
+		if self.tag == 'text': return
+		elif self.tag in listTagsSelfClosing: self.innerHtml =""
+		elif self.tag == 'svg':
+			d=1+ self.innerHtml.find ('>')
+			f= self.innerHtml.find ('</svg>',d)
+			self.innerHtml = self.innerHtml[d:f]
+		# balise contenant du texte
+		else:
+			tagStart = '<'+ self.tag
+			tagEnd = '</'+ self.tag +'>'
+			d=1+ self.innerHtml.find ('>')
+			f= self.innerHtml.find (tagEnd, d)
+			nbEnd =0
+			nbStart = self.innerHtml[d:f].count (tagStart)
+			lenText = len (self.innerHtml) -3
+			while nbEnd < nbStart and f< lenText:
+				log.logMsg (tagEnd)
+				f= self.innerHtml.find (tagEnd, f+3)
+				nbStart = self.innerHtml[d:f].count (tagStart)
+				nbEnd = nbEnd +1
+			self.innerHtml = self.innerHtml[d:f]
 
-	def findChildren (self):
-	#	log.logLst (self.name, self.className, self.id, len (self.children), showDate=True)
+	def setChildren (self):
 		self.children =[]
-		d=1
+		if '<' not in self.innerHtml or '>' not in self.innerHtml or self.tag == 'text': return
+		d= self.innerHtml.find ('<')
+		if d>0: self.children.append (HtmlTag (self.innerHtml[:d]))
 		while '<' in self.innerHtml[d:]:
-			d= self.innerHtml.find ('<',d)
-			if self.innerHtml[d+1] in 'abcdefghijklmnopqrstuvwxyz' and self.innerHtml[d+1:d+3] not in 'br hr':
-				newTag = getByPos (self.innerHtml, d, True)
-				self.children.append (newTag)
-			d+=1
-		# en cas d'enfants emboités, ne garder que le parent
+			newTag = HtmlTag (self.innerHtml[d:])
+			d= self.innerHtml.find (newTag.innerHtml, d+1)
+			d=1+ self.innerHtml.find ('>',d+1)
+			self.children.append (newTag)
+			if self.innerHtml[d] !='<':
+				f= self.innerHtml.find ('<',d)
+				if f<0: f= self.lenght()
+				self.children.append (HtmlTag (self.innerHtml[d:f]))
+		# éliminer les emboîtements inutiles
 		if len (self.children) ==1:
-			log.logLst (self.name, self.className, showDate=True)
-			self.innerHtml = self.children[0].innerHtml
-			if not self.id: self.id = self.children[0].id
-			if not self.className: self.className = self.children[0].className
-			else: self.className = self.className +" "+ self.children[0].className
-			log.logLst (self.name, self.className, showDate=True)
-			for child in self.children[0].children: self.children.append (child)
-			if self.children[0].name in 'a svg img':
-				self.name = self.children[0].name
+			if self.tag == 'a':
+				if self.children[0].tag not in listTagsSelfClosing and self.children[0].tag != 'svg': self.unnestOneChild()
+			elif self.children[0].tag == 'span': self.unnestOneChild()
+			elif self.tag != 'svg':
+				self.tag = self.children[0].tag
 				self.attributes ={}
 				attributes = self.children[0].attributes.keys()
 				for attr in attributes: self.attributes[attr] = self.children[0].attributes[attr]
-			self.children.pop (0)
+				self.unnestOneChild()
 
-	def fromTree (self):
+	def unnestOneChild (self):
+		self.innerHtml = self.children[0].innerHtml
+		if not self.id and self.children[0].id: self.id = self.children[0].id
+		if self.children[0].className:
+			if self.className: self.className = self.className +" "+ self.children[0].className
+			else: self.className = self.children[0].className
+		for child in self.children[0].children: self.children.append (child)
+		self.children.pop (0)
+
+
+	# ________________________ manipulations basiques ________________________
+
+	def clean (self, tagStr):
+		""" tagStr contient l'outerHtml et peut-être des artéfacts autour
+		self.innerHtml contient le outerHtml
+		"""
+		tagStr = textFct.cleanHtml (tagStr)
+		d= tagStr.find ('<')
+		f=1+ tagStr.rfind ('>')
+		self.innerHtml = tagStr[d:f]
+
+	def lenght (self):
+		return len (self.innerHtml)
+
+	def __lt__ (self, other):
+		if self.tag < other.tag: return True
+		elif self.className < other.className: return True
+		elif self.id < other.id: return True
+		elif self.tag == 'a' and other.tag == 'a':
+			if self.attributes['href'] < other.attributes['href']: return True
+			elif self.innerHtml < other.innerHtml: return True
+			else: return False
+		elif self.tag == 'img' and other.tag == 'img':
+			if self.attributes['src'] < other.attributes['src']: return True
+			if self.attributes['alt'] < other.attributes['alt']: return True
+			else: return False
+		elif self.innerHtml < other.innerHtml: return True
+		else: return False
+
+	def toInnerHtml (self):
 		self.innerHtml =""
 		for child in self.children: self.innerHtml = self.innerHtml + child.__str__()
 
-	def __str__(self):
-		res = '<'+ self.name
-		if self.className: res = res +" class='"+ self.className +"'"
-		if self.id: res = res +" id='"+ self.id +"'"
-		attributes = self.attributes.keys()
-		for attr in attributes: res = res +" "+ attr +"='"+ self.attributes[attr] +"'"
-		if self.name in listTagsSelfClosing: res = res +'/>'
-		else:
-			self.fromTree()
-			res = res +'>'+ self.innerHtml +'</'+ self.name +'>'
-		return res
+	def __str__ (self):
+		if self.tag == 'text': return self.innerHtml
+		tagStr = '<'+ self.tag
+		if self.className: tagStr = tagStr +" class='"+ self.className +"'"
+		if self.id: tagStr = tagStr +" id='"+ self.id +"'"
+		if self.attributes:
+			attributes = self.attributes.keys()
+			for attr in attributes: tagStr = tagStr +" "+ attr +"='"+ self.attributes[attr] +"'"
+		if self.tag in listTagsSelfClosing: tagStr = tagStr +'/>'
+		else: tagStr = tagStr +'>'+ self.innerHtml +'</'+ self.tag +'>'
+		return tagStr
 
-""" ________________________ nettoyer le texte ________________________ """
+	# ________________________ auxilières ________________________
 
 def cleanTitle (title):
 	title = title.lower()
@@ -185,230 +262,6 @@ def cleanTitle (title):
 	for char in charToErase: title = title.replace (char," ")
 	title = textFct.cleanBasic (title)
 	return title
-
-""" ________________________ récupérer des balises ________________________ """
-
-def getAttribute (tag, attr):
-	if attr +'=' not in tag: return ""
-	lenAttr = len (attr)
-	d=2+ lenAttr + tag.find (attr +'=')
-	f= tag.find ("'",d)
-	if attr +'="' in tag: f= tag.find ('"',d)
-	return tag[d:f]
-
-def getText (tag):
-	""" tag à été obtenu par get by pos
-	<p id='id' attr='bla bla'><inner html/>
-	ou <img src='...' attr='bla bla'
-	"""
-	text =""
-	d=-1
-	f=-1
-	if tag[:5] == '<img ':
-		d=5+ tag.find ('src=')
-		if "src='" in tag: f= tag.find ("'",d)
-		elif 'src="' in tag: f= tag.find ('"',d)
-		text = tag[d:f]
-		if 'alt=' in tag:
-			d=5+ tag.find ('alt=')
-			if "alt='" in tag: f= tag.find ("'",d)
-			elif 'alt="' in tag: f= tag.find ('"',d)
-			text = text +'\n'+ tag[d:f]
-	else:
-		f=1+ tag.find ('>')
-		text = tag[f:]
-		if tag[:3] == '<a ':
-			d=6+ tag.find ('href=')
-			if 'href="' in tag: f= tag.find ('"',d)
-			elif 'href="' in tag: f= tag.find ("'",d)
-			text = tag[d:f] +'\n'+ text
-	return text
-
-def getPosEnd (text, posStart):
-	f= text.find ('>', posStart)
-	# balise auto-fermante
-	if text[f-1] == '/': return f
-	else:
-		# balise contenant du texte
-		if " " in text[posStart:f]: f= text.find (" ", posStart)
-		tagStart = text[posStart +1:f]
-		tagEnd = '</'+ tagStart +'>'
-		tagStart = '<'+ tagStart
-		d= text.find (tagStart, posStart)
-		f= text.find (tagEnd, posStart)
-		nbEnd =0
-		nbStart = text[d+1:f].count (tagStart)
-		lenText = len (text) -3
-		while nbEnd < nbStart and f< lenText:
-			f= text.find (tagEnd, f+3)
-			nbStart = text[d+1:f].count (tagStart)
-			nbEnd = nbEnd +1
-		return f
-
-def getByPos (text, posStart, isTag=True):
-	""" posStart = pos <tag
-	la fonction renvoi
-	<p attr='xyz'><innerHtml>
-	<img src='xyz'
-	"""
-	f= getPosEnd (text, posStart)
-	# balise auto-fermante
-	if text[f-1] == '/':
-		if isTag: return HtmlTag (text [posStart:f-1])
-		else: return ""
-	# balise contenant du texte
-	elif isTag: return HtmlTag (text [posStart:f])
-	else:
-		d=1+ text.find ('>',d)
-		return text [posStart:f]
-
-def getByTagFirst (text, tagName, isTag=True):
-	tagStart = '<'+ tagName
-	if tagStart not in text:
-		if isTag: return None
-		else: return ""
-	d= text.find (tagStart)
-	return getByPos (text, d, isTag)
-
-def getByTag (text, tagName):
-	tagStart = '<'+ tagName
-	if tagStart not in text: return []
-	textList =[]
-	d=0
-	while tagStart in text[d:]:
-		d= text.find (tagStart, d)
-		textList.append (getByPos (text, d))
-		d=d+2
-	return textList
-
-def getByAttributeFirst (text, tagName, name, value, isTag=True):
-	tagStart = '<'+ tagName +" "
-	if tagStart not in text or value not in text or name +'=' not in text:
-		if isTag: return None
-		else: return ""
-	# identifier les balises d'intérêt
-	textList = text.split (tagStart)
-	lenText = len (textList)
-	t=1
-	while t< lenText:
-		fBracket= textList[t].find ('>')
-		if name +'=' in textList[t][:fBracket]:
-			d=2+ textList[t].find (name +'=')
-			d+= len (name)
-			f= textList[t].find ("'",d)
-			if name +'="' in textList[t][:fBracket]: f= textList[t].find ('"',d)
-			if value in textList[t][d:f]:
-				textList[t-1] = textList[t-1] +'$'
-				t= lenText
-		t+=1
-	text = tagStart.join (textList)
-	# récupérer les balises
-	if '$<' in text:
-		d=1+ text.find ('$<')
-		return getByPos (text, d, isTag)
-	elif isTag: return None
-	else: return ""
-
-def getByAttribute (text, tagName, name, value):
-	tagStart = '<'+ tagName +" "
-	if tagStart not in text or value not in text or name +'=' not in text: return []
-	# identifier les balises d'intérêt
-	textList = text.split (tagStart)
-	reta = range (1, len (textList))
-	for m in reta:
-		fBracket= textList[t].find ('>')
-		if name +'=' not in textList[t][:fBracket]: continue
-		d=2+ textList[t].find (name +'=')
-		d+= len (name)
-		f= textList[t].find ("'",d)
-		if name +'="' in textList[t]: f= textList[t].find ('"',d)
-		if value in textList[t][d:f]: textList[t-1] = textList[t-1] +'$'
-	text = tagStart.join (textList)
-	# récupérer les balises
-	d=1+ text.find ('$'+ tagStart)
-	textList =[]
-	while '$'+ tagStart in text[d:]:
-		textList.append (getByPos (text, d))
-		d= 3+ text.find ('$'+ tagStart, d)
-	text = text.replace ('$'+ tagStart, tagStart)
-	return textList
-
-def getByClassFirst (text, className, isTag=True):
-	if 'class=' not in text and className not in text:
-		if isTag: return None
-		else: return ""
-	# repérer les balises
-	textList = text.split ("class='")
-	lenText = len (textList)
-	t=1
-	while t< lenText:
-		f= textList[t].find ("'")
-		if className in textList[t][:f]:
-			textList[t-1] = textList[t-1] +'$'
-			t= lenText
-		t+=1
-	text = "class='".join (textList)
-	textList = text.split ('class="')
-	lenText = len (textList)
-	t=1
-	while t< lenText:
-		f= textList[t].find ('"')
-		if className in textList[t][:f]:
-			textList[t-1] = textList[t-1] +'$'
-			t= lenText
-		t+=1
-	text = 'class="'.join (textList)
-	# récupérer les balises
-	if '$<' in text:
-		d=1+ text.find ('$<',d)
-		return getByPos (text, d, isTag)
-	elif isTag: return None
-	else: return ""
-
-def getByClass (text, className):
-	if 'class=' not in text and className not in text: return []
-	# repérer les balises
-	textList = text.split ("class='")
-	textRange = range (1, len (textList))
-	for t in textRange:
-		f= textList[t].find ("'")
-		if className in textList[t][:f]: textList[t-1] = textList[t-1] +'$'
-	text = "class='".join (textList)
-	textList = text.split ('class="')
-	textRange = range (1, len (textList))
-	for t in textRange:
-		f= textList[t].find ('"')
-		if className in textList[t][:f]: textList[t-1] = textList[t-1] +'$'
-	text = 'class="'.join (textList)
-	# récupérer les balises
-	textList =[]
-	d=0
-	while '$<' in text[d:]:
-		d=1+ text.find ('$<',d)
-		textList.append (getByPos (text, d))
-		d=d+2
-	text = text.replace ('$<', '<')
-	return textList
-
-def getById (text, index, isTag=True):
-	text = text.replace ('"', "'")
-	if " id='" + index +"'" in text:
-		posStart = text.find (" id='" + index +"'")
-		posStart = text [:posStart].rfind ('<')
-		return getByPos (text, posStart, isTag)
-	elif isTag: return None
-	else: return ""
-
-def getByTagAndClassFirst (text, tagName, className, isTag=True):
-	return getByAttributeFirst (text, tagName, 'class', className, isTag)
-
-def getByTagAndClass (text, tagName, className):
-	return getByAttribute (text, tagName, 'class', className)
-
-def getTitle (text):
-	title = getcontentByTag (text, 'title')
-	if not title: title = getcontentByTag (text, 'h1')
-	return cleanTitle (title)
 
 class Html (File):
 	def __init__ (self, file =None):
@@ -427,13 +280,12 @@ class Html (File):
 			self.fromPath()
 			self.read()
 
+	# ________________________ finir la lecture, préparer l'écriture ________________________
+
 	def setBody (self):
 		d= self.text.find ('<body')
-		log.coucou (True)
-		self.tree = getByPos (self.text, d)
-		log.coucou (True)
-		d= self.text.find ('>',d) +1
-		f= self.text.rfind ('</body>')
+		f=7+ self.text.rfind ('</body>')
+		self.tree = HtmlTag (self.text[d:f])
 		self.text = self.tree.innerHtml
 
 	def setTitle (self):
@@ -463,153 +315,7 @@ class Html (File):
 		metas =""
 		for meta in self.meta.keys(): metas = metas + "<meta name='%s' content='%s'/>" % (meta, self.meta[meta])
 		return metas
-
-	""" ________________________ nettoyer le texte ________________________ """
-
-	def delAttributes (self):
-		# éffacer les attributs inutiles
-		listeCoins = self.text.split ('<')
-		rangeCoins = range (1, len (listeCoins))
-		for c in rangeCoins:
-			if '>' not in listeCoins[c]: continue
-			f= listeCoins[c].find ('>')
-			if " " not in listeCoins[c][:f]: continue
-			# examiner les attributs
-			attributes = listeCoins[c][:f].split (" ")
-			rattr = reversed (range (2, len (attributes)))
-			for a in rattr:
-				if '=' in attributes[a]:
-					d= attributes[a].find ('=')
-					if attributes[a][:d] not in listAttributes: end = attributes.pop (a)
-				else:
-					end = attributes.pop (a)
-					attributes[a-1] = attributes[a-1] +" "+ end
-			# examiner le premier attribut
-			d= attributes[1].find ('=')
-			if attributes[1][:d] not in listAttributes: end = attributes.pop (1)
-			listeCoins[c] = " ".join (attributes) + listeCoins[c][f:]
-		self.text = '<'.join (listeCoins)
-
-	def delClasses (self):
-		self.replace (' id=', ' class=')
-		textList = self.text.split (' class="')
-		textRange = range (1, len (textList))
-		for t in textRange:
-			f= 1+ textList[t].find ('"')
-			textList[t] = textList[t][f:]
-		self.text = "".join (textList)
-		textList = self.text.split (" class='")
-		textRange = range (1, len (textList))
-		for t in textRange:
-			f= 1+ textList[t].find ("'")
-			textList[t] = textList[t][f:]
-		self.text = "".join (textList)
-		for tag in listTags:
-			while '<'+ tag + '></'+ tag + '>' in self.text: self.replace ('<'+ tag + '></'+ tag + '>', "")
-
-	def delScript (self):
-		while '</script>' in self.text:
-			d= self.text.find ('<script')
-			f=9+ self.text.find ('</script>')
-			self.text = self.text[:d] + self.text[f:]
-		while '</style>' in self.text:
-			d= self.text.find ('<style')
-			f=8+ self.text.find ('</style>')
-			self.text = self.text[:d] + self.text[f:]
-		while '<!--' in self.text:
-			d= self.text.find ('<!--')
-			f=3+ self.text.find ('-->')
-			self.text = self.text[:d] + self.text[f:]
-
-	def cleanBody (self):
-		# nettoyage de base
-		self.replace ('\n', ' ')
-		self.replace ('\t', ' ')
-		self.text = textFct.cleanBasic (self.text)
-		self.replace ('> ', '>')
-		self.replace (' <', '<')
-		self.replace (' >', '>')
-		self.replace (' />', '/>')
-		# standardiser tags
-		for tag in listTags:
-			self.replace ('<'+ tag.upper(), '<'+ tag)
-			self.replace ('</'+ tag.upper(), '</'+ tag)
-		for tag in listTagsSelfClosing:
-			self.replace ('<'+ tag.upper(), '<'+ tag)
-			self.replace (tag +'>', tag +'/>')
-		self.delScript()
-	"""
-		# ajouter des sauts de ligne
-		alphabet = 'abcdefghijklmnopqrstuvwxyz'
-		for l in alphabet: self.replace ('><' +l, '>\n<' +l)
-		for t in listTagsIntern:
-			self.replace ('\n<' +t+" ", '<'+t+" ")
-			self.replace ('\n<' +t+'>', '<'+t+'>')
-	"""
-
-	""" ________________________ texte du web ________________________ """
-
-	def fromUrlVa (self, params=None):
-		# récupérer le texte. les params servent à remplir les formulaires
-		myRequest = None
-		response = None
-		paramsUrl = None
-		if params:
-			paramsUrl = ul.parse.urlencode (params).encode ('utf-8')
-			myRequest = urlRequest.Request (self.link, method='POST', headers={ 'User-Agent': 'Mozilla/5.0' })
-		else: myRequest = urlRequest.Request (self.link, headers={ 'User-Agent': 'Mozilla/5.0' })
-		try:
-			response = urlRequest.urlopen (myRequest, paramsUrl)
-			tmpByte = response.read()
-			self.text = codecs.decode (tmpByte, 'utf-8', errors='ignore')
-			if not self.text: self.text = tmpByte.decode ('utf-8')
-			response.close()
-			# self.titleFromUrl()
-			self.cleanBody()
-			self.setTitle()
-			self.setMetas()
-			self.setBody()
-			self.delAttributes()
-			return True
-		except Exception as e: return False
-
-	def fromUrlVb (self):
-		self.title = 'tmp'
-		self.toPath()
-		try: urlRequest.urlretrieve (self.link, self.path)
-		except Exception as e:
-			print (e)
-			return False
-		else:
-			self.read()
-			self.delAttributes()
-			remove (self.path.replace ('\t', 'tmp'))
-			return True
-
-	def fromUrl (self, params=None):
-		pathTmp = self.path
-		self.toPath()
-		res = False
-		if params: res = self.fromUrlVa (params)
-		else:
-			res = self.fromUrlVa()
-			if not res: res = self.fromUrlVb()
-		self.path = pathTmp
-		if not res: print ('la récupération à échoué, impossible de récupérer les données')
-
-	def titleFromUrl (self):
-		title = self.link.strip ('/')
-		pos = title.rfind ('/') +1
-		title = title [pos:]
-		endTitle = '?.'
-		for end in endTitle:
-			if end in title:
-				pos = title.rfind (end)
-				title = title [:pos]
-		title = cleanTitle (title)
-		self.title = title
-
-	""" ________________________ lire et écrire dans un fichier html ________________________ """
+	# ________________________ lire et écrire dans un fichier html ________________________
 
 	def toText (self):
 		if '</a>' in self.text or '<img' in self.text: return None
@@ -637,7 +343,6 @@ class Html (File):
 		# self.delAttributes()
 
 	def writeVa (self):
-		log.coucou()
 		# affichage des liens
 		self.replace ("<a ", " <a ")
 		while '  ' in self.text: self.replace ('  ', ' ')
@@ -668,5 +373,86 @@ class Html (File):
 		self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		File.write (self, mode)
 
+	# ________________________ texte du web ________________________
 
+	def fromUrlVa (self, params=None):
+		# récupérer le texte. les params servent à remplir les formulaires
+		myRequest = None
+		response = None
+		paramsUrl = None
+		if params:
+			paramsUrl = ul.parse.urlencode (params).encode ('utf-8')
+			myRequest = urlRequest.Request (self.link, method='POST', headers={ 'User-Agent': 'Mozilla/5.0' })
+		else: myRequest = urlRequest.Request (self.link, headers={ 'User-Agent': 'Mozilla/5.0' })
+		try:
+			response = urlRequest.urlopen (myRequest, paramsUrl)
+			tmpByte = response.read()
+			self.text = codecs.decode (tmpByte, 'utf-8', errors='ignore')
+			if not self.text: self.text = tmpByte.decode ('utf-8')
+			response.close()
+			return True
+		except Exception as e: return False
 
+	def fromUrlVb (self):
+		self.title = 'tmp'
+		self.toPath()
+		try: urlRequest.urlretrieve (self.link, self.path)
+		except Exception as e:
+			print (e)
+			return False
+		else:
+			self.read()
+			remove (self.path.replace ('\t', 'tmp'))
+			return True
+
+	def fromUrl (self, params=None):
+		pathTmp = self.path
+		self.toPath()
+		res = False
+		if params: res = self.fromUrlVa (params)
+		else:
+			res = self.fromUrlVa()
+			if not res: res = self.fromUrlVb()
+		self.path = pathTmp
+		if res:
+			self.cleanBody()
+			self.setTitle()
+			self.setMetas()
+			self.setBody()
+			self.delAttributes()
+		else: print ('la récupération à échoué, impossible de récupérer les données')
+
+	""" ________________________ nettoyer le texte ________________________ """
+
+	def delAttributes (self):
+		self.tree.delAttributes()
+		self.text = self.tree.innerHtml
+
+	def delId (self):
+		self.tree.delId()
+		self.text = self.tree.innerHtml
+
+	def delScript (self):
+		while '</script>' in self.text:
+			d= self.text.find ('<script')
+			f=9+ self.text.find ('</script>')
+			self.text = self.text[:d] + self.text[f:]
+		while '</style>' in self.text:
+			d= self.text.find ('<style')
+			f=8+ self.text.find ('</style>')
+			self.text = self.text[:d] + self.text[f:]
+		while '<!--' in self.text:
+			d= self.text.find ('<!--')
+			f=3+ self.text.find ('-->')
+			self.text = self.text[:d] + self.text[f:]
+
+	def cleanBody (self):
+		self.text = textFct.cleanHtml (self.text)
+		# standardiser tags
+		for tag in listTags:
+			self.replace ('<'+ tag.upper(), '<'+ tag)
+			self.replace ('</'+ tag.upper(), '</'+ tag)
+		for tag in listTagsSelfClosing:
+			self.replace ('<'+ tag.upper(), '<'+ tag)
+			self.replace (tag +'>', tag +'/>')
+		self.delScript()
