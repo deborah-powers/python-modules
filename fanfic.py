@@ -33,7 +33,7 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'medium'	in url: self.medium()
 		elif '</article>' in self.text and self.text.count ('</article>') ==1: self.text = htmlCls.getByTag (self.text, 'article', False)
 		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
-		self.delClasses()
+		self.delId()
 		article = self.toText()
 		if article: article.divide()
 		else: self.divide()
@@ -164,55 +164,37 @@ class Fanfic (htmlCls.Html, Article):
 		self.meta ={}
 		# le lien de la fanfic
 		if not self.link:
-			tag = htmlCls.getByTagAndClassFirst (self.text, 'p', 'message')
-			tag = htmlCls.getByTag (tag.innerHtml, 'a')[1]
-			self.link = tag.attributes['href']
+			tag = self.getOneByTagClass ('dd', 'bookmarks')
+			tag.setBodyById ('a')
+			self.link = 'https://archiveofourown.org' + tag.attributes['href'].replace ('bookmarks', "")
+			"""
+			tag = self.getOneByTagClass ('p', 'message')
+			tags = tag.getAllByTag ('a')
+			self.link = tags[1].attributes['href']
+			"""
 		# le titre
-		self.title = htmlCls.getcontentByTag (self.text, 'h1')
+		self.title = self.getOneByTag ('h1').innerHtml
 		self.title = htmlCls.cleanTitle (self.title)
 		# l'auteur
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'div', 'byline')
-		tag = htmlCls.getByTagFirst (tag.innerHtml, 'a')
+		tag = self.getOneByTagClass ('div', 'byline')
+	#	tag = self.getOneByTagClass ('h3', 'byline heading')
+		tag = tag.getOneByTag ('a')
+		self.author = tag.innerHtml
 		self.autlink = tag.attributes['href']
 		f= self.autlink.find ('/pseuds/')
 		self.autlink = self.autlink[:f]
-		self.author = tag.innerHtml
 		# le sujet
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'dl', 'tags')
+		tag = self.getOneByTagClass ('dl', 'tags')
+	#	tag = self.getOneByTagClass ('dd', 'fandom tags')
 		tag.innerHtml = tag.innerHtml.replace ('http://archiveofourown.org/tags/', "")
-		tags = htmlCls.getByTag (tag.innerHtml, 'a')
+		tags = tag.getAllByTag ('a')
 		for link in tags: self.subject = self.subject +'\t'+ link.innerHtml
 		self.findSubject()
 		# le texte
-		tag = htmlCls.getById (self.text, 'chapters')
-		self.text = tag.innerHtml
-		self.delClasses()
+		self.setBodyById ('chapters')
+		self.delId()
 		self.replace ('<div>',"")
 		self.replace ('</div>',"")
-
-	def fromAoooVa (self):
-		# fanfic enregistrée en faisant un ctl+ click
-		self.meta ={}
-		# le titre
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'h2', 'title heading')
-		self.title = htmlCls.cleanTitle (tag.innerHtml)
-		# l'auteur
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'h3', 'byline heading')
-		tag = htmlCls.getByTagFirst (tag.innerHtml, 'a')
-		self.autlink = 'https://archiveofourown.org' + tag.attributes['href']
-		self.author = htmlCls.cleanTitle (tag.innerHtml)
-		# le sujet
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'dd', 'fandom tags')
-		tag = htmlCls.getByTagFirst (tag.innerHtml, 'a')
-		self.subject = htmlCls.cleanTitle (tag.innerHtml)
-		self.findSubject()
-		# le lien de la fanfic
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'dd', 'bookmarks')
-		tag = htmlCls.getByTagFirst (tag.innerHtml, 'a')
-		self.link = 'https://archiveofourown.org' + tag.attributes['href'].replace ('bookmarks', "")
-		# le texte
-		tag = htmlCls.getById (self.text, 'chapters')
-		self.text = tag.innerHtml
 
 	def unisciel (self, subject):
 		self.subject = 'cours'

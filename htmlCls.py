@@ -13,14 +13,6 @@ listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'a')
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
 
-noeudC = """<body class='corps'>hello, 
-	<h1 id='titre' style='width:100%'>coucou</h1>
-	ok, 
-	<p>je suis un paragraphe</p>
-	<p style='color:red'>et moi un autre</p>
-	de test.
-</body>"""
-
 class HtmlTag():
 	def __init__ (self, tagStr):
 		self.tag =""
@@ -48,23 +40,23 @@ class HtmlTag():
 
 	# ________________________ récupérer les noeuds d'intérêt ________________________
 
-	def getByTag (self, tagName):
+	def getOneByTag (self, tagName):
 		tagok = lambda tag: tag.tag == tagName
 		return self.getOne (tagok)
 
-	def getById (self, index):
+	def getOneById (self, index):
 		idok = lambda tag: tag.id == index
 		return self.getOne (idok)
 
-	def getByClass (self, className):
+	def getOneByClass (self, className):
 		classok = lambda tag: tag.className == className
 		return self.getOne (classok)
 
-	def getByTagClass (self, tagName, className):
+	def getOneByTagClass (self, tagName, className):
 		tagok = lambda tag: tag.tag == tagName and tag.className == className
 		return self.getOne (tagok)
 
-	def getByAttribute (self, attributeName, attributeValue):
+	def getOneByAttribute (self, attributeName, attributeValue):
 		attrok = lambda tag: attributeName in tag.attributes.keys() and tag.attributes[attributeName] == attributeValue
 		return self.getOne (attrok)
 
@@ -82,19 +74,19 @@ class HtmlTag():
 				c+=1
 			return newTag
 
-	def getByTagAll (self, tagName):
+	def getAllByTag (self, tagName):
 		tagok = lambda tag: tag.tag == tagName
 		return self.getAll (tagok)
 
-	def getByClassAll (self, className):
+	def getAllByClass (self, className):
 		classok = lambda tag: tag.className == className
 		return self.getAll (classok)
 
-	def getByTagClassAll (self, tagName, className):
+	def getAllByTagClass (self, tagName, className):
 		tagok = lambda tag: tag.tag == tagName and tag.className == className
 		return self.getAll (tagok)
 
-	def getByAttributeAll (self, attributeName, attributeValue):
+	def getAllByAttribute (self, attributeName, attributeValue):
 		attrok = lambda tag: attributeName in tag.attributes.keys() and tag.attributes[attributeName] == attributeValue
 		return self.getAll (attrok)
 
@@ -280,6 +272,61 @@ class Html (File):
 			self.fromPath()
 			self.read()
 
+	# ________________________ récupérer les noeuds d'intérêt ________________________
+
+	def getOneByTag (self, tagName):
+		return self.tree.getOneByTag (tagName)
+
+	def getOneByClass (self, className):
+		return self.tree.getOneByClass (className)
+
+	def getOneById (self, index):
+		return self.tree.getOneById (index)
+
+	def getOneByTagClass (self, tagName, className):
+		return self.tree.getOneByTagClass (tagName, className)
+
+	def getOneByAttribute (self, attributeName, attributeValue):
+		return self.tree.getOneByAttribute (attributeName, attributeValue)
+
+	def getAllByTag (self, tagName):
+		return self.tree.getAllByTag (tagName)
+
+	def getAllByClass (self, className):
+		return self.tree.getAllByClass (className)
+
+	def getAllByTagClass (self, tagName, className):
+		return self.tree.getAllByTagClass (tagName, className)
+
+	def getAllByAttribute (self, attributeName, attributeValue):
+		return self.tree.getAllByAttribute (attributeName, attributeValue)
+
+	def setBodyByTag (self, tagName):
+		node = self.tree.getOneByTag (tagName)
+		self.setBodyFromTag (node)
+
+	def setBodyByClass (self, className):
+		node = self.tree.getOneByClass (className)
+		self.setBodyFromTag (node)
+
+	def setBodyById (self, index):
+		node = self.tree.getOneById (index)
+		self.setBodyFromTag (node)
+
+	def setBodyByTagClass (self, tagName, className):
+		node = self.tree.getOneByTagClass (tagName, className)
+		self.setBodyFromTag (node)
+
+	def setBodyByAttribute (self, attributeName, attributeValue):
+		node = self.tree.getOneByAttribute (attributeName, attributeValue)
+		self.setBodyFromTag (node)
+
+	def setBodyFromTag (self, node):
+		if node != None:
+			self.tree = node
+			self.tree.tag = 'body'
+			self.innerHtml = node.innerHtml
+
 	# ________________________ finir la lecture, préparer l'écriture ________________________
 
 	def setBody (self):
@@ -341,16 +388,6 @@ class Html (File):
 		self.setMetas()
 		self.setBody()
 		# self.delAttributes()
-
-	def writeVa (self):
-		# affichage des liens
-		self.replace ("<a ", " <a ")
-		while '  ' in self.text: self.replace ('  ', ' ')
-		self.replace ('</figure>', '\n</figure>')
-		self.replace ('</figure>\n<figure', '</figure><figure')
-		self.replace ('<figcaption>', '\n\t<figcaption>')
-		self.replace ('<img', '\n\t<img')
-		self.replace ('><h', '>\n<h')
 
 	def addIndentation (self):
 		self.replace ('\n'," ")
