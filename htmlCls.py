@@ -49,6 +49,21 @@ class HtmlTag():
 		for child in self.children: child.delId()
 		self.toInnerHtml()
 
+	def delete (self, childToDel):
+		if len (self.children) ==0: return None
+		elif childToDel in self.children:
+			d= self.children.index (childToDel)
+			return self.children.pop (d)
+		else:
+			c=0
+			lenChildren = len (self.children)
+			res = None
+			while c< lenChildren and not res:
+				res = self.children[c].delete (childToDel)
+				c+=1
+			return res
+
+
 	# ________________________ récupérer les noeuds d'intérêt ________________________
 
 	def getOneByTag (self, tagName):
@@ -186,6 +201,7 @@ class HtmlTag():
 			if self.innerHtml[d] =='<' and self.innerHtml[d+1] in 'abcdefghilmnopqrstv':
 				newTag = HtmlTag (self.innerHtml[d:])
 				d= self.innerHtml.find (newTag.innerHtml, d+1)
+				d= d+ len (newTag.innerHtml)
 				d=1+ self.innerHtml.find ('>',d+1)
 				self.children.append (newTag)
 				if d< lenHtml and self.innerHtml[d] !='<':
@@ -217,15 +233,6 @@ class HtmlTag():
 
 
 	# ________________________ manipulations basiques ________________________
-
-	def clean (self, tagStr):
-		""" tagStr contient l'outerHtml et peut-être des artéfacts autour
-		self.innerHtml contient le outerHtml
-		"""
-		tagStr = textFct.cleanHtml (tagStr)
-		d= tagStr.find ('<')
-		f=1+ tagStr.rfind ('>')
-		self.innerHtml = tagStr[d:f]
 
 	def lenght (self):
 		return len (self.innerHtml)
@@ -316,31 +323,30 @@ class Html (File):
 	def getAllByAttribute (self, attributeName, attributeValue):
 		return self.tree.getAllByAttribute (attributeName, attributeValue)
 
-	def setBodyByTag (self, tagName):
+	def setByTag (self, tagName):
 		node = self.tree.getOneByTag (tagName)
-		self.setBodyFromTag (node)
+		self.setFromTag (node)
 
-	def setBodyByClass (self, className):
+	def setByClass (self, className):
 		node = self.tree.getOneByClass (className)
-		self.setBodyFromTag (node)
+		self.setFromTag (node)
 
-	def setBodyById (self, index):
+	def setById (self, index):
 		node = self.tree.getOneById (index)
-		self.setBodyFromTag (node)
+		self.setFromTag (node)
 
-	def setBodyByTagClass (self, tagName, className):
+	def setByTagClass (self, tagName, className):
 		node = self.tree.getOneByTagClass (tagName, className)
-		self.setBodyFromTag (node)
+		self.setFromTag (node)
 
-	def setBodyByAttribute (self, attributeName, attributeValue):
+	def setByAttribute (self, attributeName, attributeValue):
 		node = self.tree.getOneByAttribute (attributeName, attributeValue)
-		self.setBodyFromTag (node)
+		self.setFromTag (node)
 
-	def setBodyFromTag (self, node):
+	def setFromTag (self, node):
 		if node != None:
 			self.tree = node
-			self.tree.tag = 'body'
-			self.innerHtml = node.innerHtml
+			self.text = node.innerHtml
 
 	# ________________________ finir la lecture, préparer l'écriture ________________________
 
@@ -350,34 +356,25 @@ class Html (File):
 		self.tree = HtmlTag (self.text[d:f])
 		self.text = self.tree.innerHtml
 
-	def setBody (self):
+	def set (self):
 		d= self.text.find ('<body')
 		f=7+ self.text.rfind ('</body>')
 		self.tree = HtmlTag (self.text[d:f])
 		self.text = self.tree.innerHtml
 
 	def setTitle (self):
-		d= self.text.find ('<title')
-		d= self.text.find ('>',d) +1
-		f= self.text.rfind ('</title>')
-		self.title = self.text[d:f]
-		self.title = cleanTitle (self.title)
+		if '</title>' in self.text: self.title = cleanTitle (self.getOneByTag ('title').innerHtml)
+		elif '</h1>' in self.text: self.title = cleanTitle (self.getOneByTag ('h1').innerHtml)
 
 	def setMetas (self):
+		metaList = self.tree.getAllByTag ('meta')
 		self.meta ={}
-		metaList = self.text.split ('<meta ')
-		reta = range (1, len (metaList))
-		for m in reta:
-			fBracket= metaList[m].find ('>')
-			if 'name=' not in metaList[m][:fBracket] or 'content=' not in metaList[m][:fBracket] or 'viewport' in metaList[m][:fBracket]: continue
-			d= 6+ metaList[m].find ('name=')
-			f= metaList[m].find ("'",d)
-			if 'name="' in metaList[m]: f= metaList[m].find ('"',d)
-			name = metaList[m][d:f]
-			d= 9+ metaList[m].find ('content=')
-			f= metaList[m].find ("'",d)
-			if 'content="' in metaList[m]: f= metaList[m].find ('"',d)
-			if name and metaList[m][d:f]: self.meta[name] = metaList[m][d:f]
+	#	log.logMsg (metaList)
+		for meta in metaList:
+			attributes = meta.attributes.keys()
+			if 'content' in attributes and 'name' in attributes and meta.attributes['name'][:5] != 'csrf-':
+				self.meta [meta.attributes['name']] = meta.attributes['content']
+			self.tree.delete (meta)
 
 	def getMetas (self):
 		metas =""
@@ -406,14 +403,11 @@ class Html (File):
 		File.read (self)
 		self.cleanBody()
 		self.setHtml()
-		log.logMsg (self.tree.children)
-
-		"""
 		self.setTitle()
 		self.setMetas()
-		self.setBody()
+		self.setFromTag ('body')
+		self.tree.tag = 'body'
 		# self.delAttributes()
-		"""
 
 	def addIndentation (self):
 		self.replace ('\n'," ")
@@ -481,8 +475,9 @@ class Html (File):
 			self.cleanBody()
 			self.setTitle()
 			self.setMetas()
-			self.setBody()
-			self.delAttributes()
+			self.setFromTag ('body')
+			self.tree.tag = 'body'
+		#	self.delAttributes()
 		else: print ('la récupération à échoué, impossible de récupérer les données')
 
 	""" ________________________ nettoyer le texte ________________________ """
