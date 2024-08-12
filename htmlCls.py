@@ -10,8 +10,19 @@ import loggerFct as log
 
 listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body' )
 listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'a')
-listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta' )
+listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta', 'link', 'base' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
+templateHtml = """<!DOCTYPE html><html><head>
+	<title>%s</title>
+	<base target='_blank'>
+	<meta charset='utf-8'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1'/>
+	%s
+	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
+	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
+</head><body>
+%s
+</body></html>"""
 
 class HtmlTag():
 	def __init__ (self, tagStr):
@@ -64,12 +75,10 @@ class HtmlTag():
 		if funcFound (self): return self
 		elif len (self.children) ==0: return None
 		else:
-			log.logMsg (self.tag)
 			c=0
 			nbChildren = len (self.children)
 			newTag = None
 			while newTag == None and c< nbChildren:
-				log.logLst (c, self.children[c].tag, self.children[c].attributes)
 				newTag = self.children[c].getOne (funcFound)
 				c+=1
 			return newTag
@@ -102,12 +111,13 @@ class HtmlTag():
 
 	def fromString (self, tagStr):
 		# tagStr contient l'outerHtml
-		if '\n' in tagStr or '\t' in tagStr or "  " in tagStr: self.clean (tagStr)
-		else: self.innerHtml = tagStr
 		if '<' not in tagStr or '>' not in tagStr:
 			self.innerHtml = tagStr
 			self.tag = 'text'
 		else:
+			d= tagStr.find ('<')
+			f=1+ tagStr.rfind ('>')
+			self.innerHtml = tagStr[d:f]
 			self.setAttributes()
 			self.setInnerHtml()
 			self.setChildren()
@@ -121,6 +131,7 @@ class HtmlTag():
 		self.tag = self.innerHtml[d:f]
 		# récupérer les attributs
 		f= self.innerHtml.find ('>')
+		if self.innerHtml[f-1] =='/': f-=1
 		if " " in self.innerHtml[:f]:
 			d=1+ self.innerHtml.find (" ")
 			attriStr = self.innerHtml[d:f]
@@ -158,8 +169,7 @@ class HtmlTag():
 			nbEnd =0
 			nbStart = self.innerHtml[d:f].count (tagStart)
 			lenText = len (self.innerHtml) -3
-			while nbEnd < nbStart and f< lenText:
-				log.logMsg (tagEnd)
+			while nbEnd < nbStart and f< lenText and f>=0:
 				f= self.innerHtml.find (tagEnd, f+3)
 				nbStart = self.innerHtml[d:f].count (tagStart)
 				nbEnd = nbEnd +1
@@ -168,20 +178,25 @@ class HtmlTag():
 	def setChildren (self):
 		self.children =[]
 		if '<' not in self.innerHtml or '>' not in self.innerHtml or self.tag == 'text': return
+		elif '<' not in self.innerHtml: return
 		d= self.innerHtml.find ('<')
 		if d>0: self.children.append (HtmlTag (self.innerHtml[:d]))
-		while '<' in self.innerHtml[d:]:
-			newTag = HtmlTag (self.innerHtml[d:])
-			d= self.innerHtml.find (newTag.innerHtml, d+1)
-			d=1+ self.innerHtml.find ('>',d+1)
-			self.children.append (newTag)
-			if self.innerHtml[d] !='<':
-				f= self.innerHtml.find ('<',d)
-				if f<0: f= self.lenght()
-				self.children.append (HtmlTag (self.innerHtml[d:f]))
-		# éliminer les emboîtements inutiles
+		lenHtml = self.lenght()
+		while d< lenHtml and '<' in self.innerHtml[d:]:
+			if self.innerHtml[d] =='<' and self.innerHtml[d+1] in 'abcdefghilmnopqrstv':
+				newTag = HtmlTag (self.innerHtml[d:])
+				d= self.innerHtml.find (newTag.innerHtml, d+1)
+				d=1+ self.innerHtml.find ('>',d+1)
+				self.children.append (newTag)
+				if d< lenHtml and self.innerHtml[d] !='<':
+					f= self.innerHtml.find ('<',d)
+					if f<0: f= self.lenght()
+					self.children.append (HtmlTag (self.innerHtml[d:f]))
+			else: d= self.innerHtml.find ('<', d+1)
+			# éliminer les emboîtements inutiles
 		if len (self.children) ==1:
-			if self.tag == 'a':
+			if self.children[0].tag == 'text': self.children =[]
+			elif self.tag == 'a':
 				if self.children[0].tag not in listTagsSelfClosing and self.children[0].tag != 'svg': self.unnestOneChild()
 			elif self.children[0].tag == 'span': self.unnestOneChild()
 			elif self.tag != 'svg':
@@ -329,6 +344,12 @@ class Html (File):
 
 	# ________________________ finir la lecture, préparer l'écriture ________________________
 
+	def setHtml (self):
+		d= self.text.find ('<html')
+		f=7+ self.text.rfind ('</html>')
+		self.tree = HtmlTag (self.text[d:f])
+		self.text = self.tree.innerHtml
+
 	def setBody (self):
 		d= self.text.find ('<body')
 		f=7+ self.text.rfind ('</body>')
@@ -384,10 +405,15 @@ class Html (File):
 	def read (self):
 		File.read (self)
 		self.cleanBody()
+		self.setHtml()
+		log.logMsg (self.tree.children)
+
+		"""
 		self.setTitle()
 		self.setMetas()
 		self.setBody()
 		# self.delAttributes()
+		"""
 
 	def addIndentation (self):
 		self.replace ('\n'," ")
