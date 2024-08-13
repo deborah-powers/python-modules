@@ -15,12 +15,27 @@ utilisation: python fanfic.py url
 l'url peut correspondre à une page ou un fichier local
 """
 
+def uniscielImg (self):
+	if self.tag == 'a' and len (self.children) ==1 and self.children[0].tag == 'img':
+		self.tag = 'img'
+		self.innerHtml =""
+		src = self.attributes['href']
+		self.attributes ={}
+		self.attributes['src'] = src
+		self.children =[]
+	elif self.children:
+		for child in self.children: child.uniscielImg()
+
+setattr (htmlCls.HtmlTag, 'uniscielImg', uniscielImg)
+
 class Fanfic (htmlCls.Html, Article):
 	def __init__ (self, url, subject=None):
+		if url in 'aooo unisciel': url = 'b/' + url + '.html'
 		Article.__init__ (self)
 		htmlCls.Html.__init__ (self, url)
 		if subject: self.subject = subject
-		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link:	self.fromAooo()
+		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link or url == 'b/aooo.html': self.fromAooo()
+		elif 'http://uel.unisciel.fr/' in url or url == 'b/unisciel.html':				self.unisciel()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
 		elif 'scoubidou'	in url: self.scoubidou()
 		elif 'b/ffnet.html' == url:		self.ffNet()
@@ -28,12 +43,11 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'https://www.reddit.com/r/' in url:			self.reddit()
-		elif 'http://uel.unisciel.fr/' in url:				self.unisciel()
 		elif 'egb'		in url: self.ebGratuit()
 		elif 'medium'	in url: self.medium()
-		elif '</article>' in self.text and self.text.count ('</article>') ==1: self.text = htmlCls.getByTag (self.text, 'article', False)
+		else: self.setMain()
 		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
-		self.delId()
+		self.delIds()
 		article = self.toText()
 		if article: article.divide()
 		else: self.divide()
@@ -52,7 +66,8 @@ class Fanfic (htmlCls.Html, Article):
 			'hellsing': ('integra', 'axi', 'damned caeli'),
 			'monstre': ('mythology', 'vampire', 'naga', 'pokemon'),
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
-			'tricot': ('tricot', 'point', 'crochet')
+			'tricot': ('tricot', 'point', 'crochet'),
+			'programmation': ( 'test de recette', "test d'usine", 'cahier de test', 'cas de test' )
 		}
 		subjectKeys = subjectDict.keys()
 		for subject in subjectKeys:
@@ -74,6 +89,52 @@ class Fanfic (htmlCls.Html, Article):
 		self.replace ('e/c', 'grey')
 		self.replace ('h/c', 'dark blond')
 		self.replace ('l/n', 'Powers')
+
+	def fromAooo (self):
+		# fanfic enregistrée via le bouton télécharger en html
+		self.meta ={}
+		# le lien de la fanfic
+		if not self.link:
+			tag = self.getOneByTagClass ('dd', 'bookmarks')
+			tag.setBodyById ('a')
+			self.link = 'https://archiveofourown.org' + tag.attributes['href'].replace ('bookmarks', "")
+			"""
+			tag = self.getOneByTagClass ('p', 'message')
+			tags = tag.getAllByTag ('a')
+			self.link = tags[1].attributes['href']
+			"""
+		# le titre
+		self.title = self.getOneByTag ('h1').innerHtml
+		self.title = htmlCls.cleanTitle (self.title)
+		# l'auteur
+		tag = self.getOneByTagClass ('div', 'byline')
+	#	tag = self.getOneByTagClass ('h3', 'byline heading')
+		tag = tag.getOneByTag ('a')
+		self.author = tag.innerHtml
+		self.autlink = tag.attributes['href']
+		f= self.autlink.find ('/pseuds/')
+		self.autlink = self.autlink[:f]
+		# le sujet
+		tag = self.getOneByTagClass ('dl', 'tags')
+	#	tag = self.getOneByTagClass ('dd', 'fandom tags')
+		tag.innerHtml = tag.innerHtml.replace ('http://archiveofourown.org/tags/', "")
+		tags = tag.getAllByTag ('a')
+		for link in tags: self.subject = self.subject +'\t'+ link.innerHtml
+		self.findSubject()
+		# le texte
+		self.setById ('chapters')
+		self.delId()
+		self.replace ('<div>',"")
+		self.replace ('</div>',"")
+
+	def unisciel (self):
+		self.subject = 'biologie'
+		self.author = 'unisciel'
+		self.autlink = 'https://uel.unisciel.fr/biologie/module1/module1_ch01/co/module1_ch01.html'
+		if not self.link: self.link = 'https://uel.unisciel.fr/biologie/module1/module1_ch01/co/'
+		self.setByTag ('section')
+		self.tree.uniscielImg()
+	#	self.styles.append ('unisciel.css')
 
 	def ebGratuit (self):
 		# l'auteur
@@ -158,73 +219,6 @@ class Fanfic (htmlCls.Html, Article):
 		self.replace ('><figure', '>\n<figure')
 		chiffres =( ('10', 'j'), ('11', 'k'), ('12', 'l'), ('13', 'm'), ('14', 'n'), ('15', 'o'), ('16', 'p'), ('17', 'q'), ('18', 'r'), ('19', 's'), ('20', 't'), ('21', 'u'), ('22', 'v'), ('23', 'w'), ('24', 'x'), ('25', 'y'), ('26', 'z'), ('1', 'a'), ('2', 'b'), ('3', 'c'), ('4', 'd'), ('5', 'e'), ('6', 'f'), ('7', 'g'), ('8', 'h'), ('9', 'i') )
 		for c,l in chiffres: self.replace (c+ '.jpg', '-'+l+ '.jpg')
-
-	def fromAooo (self):
-		# fanfic enregistrée via le bouton télécharger en html
-		self.meta ={}
-		# le lien de la fanfic
-		if not self.link:
-			tag = self.getOneByTagClass ('dd', 'bookmarks')
-			tag.setBodyById ('a')
-			self.link = 'https://archiveofourown.org' + tag.attributes['href'].replace ('bookmarks', "")
-			"""
-			tag = self.getOneByTagClass ('p', 'message')
-			tags = tag.getAllByTag ('a')
-			self.link = tags[1].attributes['href']
-			"""
-		# le titre
-		self.title = self.getOneByTag ('h1').innerHtml
-		self.title = htmlCls.cleanTitle (self.title)
-		# l'auteur
-		tag = self.getOneByTagClass ('div', 'byline')
-	#	tag = self.getOneByTagClass ('h3', 'byline heading')
-		tag = tag.getOneByTag ('a')
-		self.author = tag.innerHtml
-		self.autlink = tag.attributes['href']
-		f= self.autlink.find ('/pseuds/')
-		self.autlink = self.autlink[:f]
-		# le sujet
-		tag = self.getOneByTagClass ('dl', 'tags')
-	#	tag = self.getOneByTagClass ('dd', 'fandom tags')
-		tag.innerHtml = tag.innerHtml.replace ('http://archiveofourown.org/tags/', "")
-		tags = tag.getAllByTag ('a')
-		for link in tags: self.subject = self.subject +'\t'+ link.innerHtml
-		self.findSubject()
-		# le texte
-		self.setBodyById ('chapters')
-		self.delId()
-		self.replace ('<div>',"")
-		self.replace ('</div>',"")
-
-	def unisciel (self, subject):
-		self.subject = 'cours'
-		self.author = 'unisciel'
-		self.text = findTextBetweenTag (self.text, 'body')
-		self.clean()
-		self.delScript()
-		d= self.text.find ('<td>') +4
-		f= self.text.find ('</td>', d)
-		self.title = self.text [d:f].lower()
-		d= self.text.find ('<p>')
-		f= self.text.rfind ('</p>') +4
-		self.text = self.text [d:f]
-		self.replace ('<div>', "")
-		self.replace ('</div>', "")
-		self.replace ('<img', '</p><img')
-		self.replace ("png'>","png'><p>")
-		self.replace ('<p><p>', '<p>')
-		self.replace ('</p></p>', '</p>')
-		self.replace ('<p>', '</p><p>')
-		self.replace ('</p>', '</p><p>')
-		self.replace ('<p></p>', "")
-		self.replace ('<p><p>', '<p>')
-		self.replace ('<p><img', '<img')
-		self.replace ("png'></p>","png'>")
-		self.text = self.text [4:-3]
-		self.replace ('../res/', 'bv-'+ subject +'/')
-		self.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01.png'><p>", ' <b>ADP +P --> ATP</b> ')
-		self.replace ("</p><img src='bv-" + subject + "/apprendre_ch2_01_1.png'><p>", ' <b>ATP --> ADP +P</b> ')
-		self.styles.append ('unisciel.css')
 
 	def menaceTheoriste (self):
 		self.subject = 'sciences'

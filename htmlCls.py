@@ -43,10 +43,10 @@ class HtmlTag():
 		for child in self.children: child.delAttributes()
 		self.toInnerHtml()
 
-	def delId (self):
+	def delIds (self):
 		self.className =""
 		self.id =""
-		for child in self.children: child.delId()
+		for child in self.children: child.delIds()
 		self.toInnerHtml()
 
 	def delScript (self):
@@ -216,9 +216,20 @@ class HtmlTag():
 		# éliminer les emboîtements inutiles
 		if len (self.children) ==1:
 			if self.children[0].tag == 'text': self.children =[]
-			elif self.tag == 'a':
-				if self.children[0].tag not in listTagsSelfClosing and self.children[0].tag != 'svg': self.unnestOneChild()
 			elif self.children[0].tag == 'span': self.unnestOneChild()
+			elif self.tag == 'a':
+				"""
+				if self.children[0].tag == 'img' and self.attributes['href'][-3:] in 'jpg png bmp gif svg':
+					self.tag = 'img'
+					src = self.attributes['href']
+					self.attributes ={}
+					self.attributes['src'] = src
+					self.children =[]
+					self.children[0].attributes['alt'] = 'oki'
+					self.innerHtml =""
+				elif self.children[0].tag == 'img': self.children[0].attributes['alt'] = 'image'
+				"""
+				if self.children[0].tag not in listTagsSelfClosing and self.children[0].tag != 'svg': self.unnestOneChild()
 			elif self.tag != 'svg':
 				self.tag = self.children[0].tag
 				self.attributes ={}
@@ -486,8 +497,8 @@ class Html (File):
 		self.tree.delAttributes()
 		self.text = self.tree.innerHtml
 
-	def delId (self):
-		self.tree.delId()
+	def delIds (self):
+		self.tree.delIds()
 		self.text = self.tree.innerHtml
 
 	def delScript (self):
