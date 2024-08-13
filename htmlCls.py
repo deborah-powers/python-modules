@@ -49,6 +49,12 @@ class HtmlTag():
 		for child in self.children: child.delId()
 		self.toInnerHtml()
 
+	def delScript (self):
+		tags = self.getAllByTag ('script')
+		for tag in tags: self.delete (tag)
+		tags = self.getAllByTag ('style')
+		for tag in tags: self.delete (tag)
+
 	def delete (self, childToDel):
 		if len (self.children) ==0: return None
 		elif childToDel in self.children:
@@ -62,8 +68,6 @@ class HtmlTag():
 				res = self.children[c].delete (childToDel)
 				c+=1
 			return res
-
-
 	# ________________________ récupérer les noeuds d'intérêt ________________________
 
 	def getOneByTag (self, tagName):
@@ -209,7 +213,7 @@ class HtmlTag():
 					if f<0: f= self.lenght()
 					self.children.append (HtmlTag (self.innerHtml[d:f]))
 			else: d= self.innerHtml.find ('<', d+1)
-			# éliminer les emboîtements inutiles
+		# éliminer les emboîtements inutiles
 		if len (self.children) ==1:
 			if self.children[0].tag == 'text': self.children =[]
 			elif self.tag == 'a':
@@ -230,7 +234,6 @@ class HtmlTag():
 			else: self.className = self.children[0].className
 		for child in self.children[0].children: self.children.append (child)
 		self.children.pop (0)
-
 
 	# ________________________ manipulations basiques ________________________
 
@@ -253,6 +256,7 @@ class HtmlTag():
 		else: return False
 
 	def toInnerHtml (self):
+		if not self.children: return
 		self.innerHtml =""
 		for child in self.children: self.innerHtml = self.innerHtml + child.__str__()
 
@@ -347,6 +351,7 @@ class Html (File):
 		if node != None:
 			self.tree = node
 			self.text = node.innerHtml
+			self.tree.tag = 'body'
 
 	# ________________________ finir la lecture, préparer l'écriture ________________________
 
@@ -356,20 +361,18 @@ class Html (File):
 		self.tree = HtmlTag (self.text[d:f])
 		self.text = self.tree.innerHtml
 
-	def set (self):
-		d= self.text.find ('<body')
-		f=7+ self.text.rfind ('</body>')
-		self.tree = HtmlTag (self.text[d:f])
-		self.text = self.tree.innerHtml
-
 	def setTitle (self):
 		if '</title>' in self.text: self.title = cleanTitle (self.getOneByTag ('title').innerHtml)
 		elif '</h1>' in self.text: self.title = cleanTitle (self.getOneByTag ('h1').innerHtml)
 
+	def setMain (self):
+		if '</main>' in self.text: self.setByTag ('main')
+		if self.text.count ('</article>') ==1: self.setByTag ('article')
+	#	if self.text.count ('</section>') ==1: self.setByTag ('section')
+
 	def setMetas (self):
 		metaList = self.tree.getAllByTag ('meta')
 		self.meta ={}
-	#	log.logMsg (metaList)
 		for meta in metaList:
 			attributes = meta.attributes.keys()
 			if 'content' in attributes and 'name' in attributes and meta.attributes['name'][:5] != 'csrf-':
@@ -402,12 +405,6 @@ class Html (File):
 	def read (self):
 		File.read (self)
 		self.cleanBody()
-		self.setHtml()
-		self.setTitle()
-		self.setMetas()
-		self.setFromTag ('body')
-		self.tree.tag = 'body'
-		# self.delAttributes()
 
 	def addIndentation (self):
 		self.replace ('\n'," ")
@@ -415,8 +412,18 @@ class Html (File):
 		while "  " in self.text: self.replace ("  "," ")
 		self.replace ("> ",'>')
 		self.replace (" <",'<')
+		# rajouter les espaces autour des balises internes
+		self.replace ("<a ", " <a ")
+		self.replace ("> <a ", "><a ")
+		for tag in listTagsIntern[:-1]:
+			self.replace ('<'+ tag, ' <'+ tag)
+			self.replace ('> <'+ tag, '><'+ tag)
+		tagPoint = '<.:;'
+		for tag in listTagsIntern:
+			self.replace ('</'+ tag +'>', '</'+ tag +'> ')
+			for point in tagPoint: self.replace ('</'+ tag +'> '+ point, '</'+ tag +'>'+ point)
+		# rajouter les sauts de ligne
 		self.replace ('><', '>\n<')
-	#	self.replace ('>\n</', '></')
 		for tag in listTagsIntern:
 			self.replace ('\n<' + tag, '<'+ tag)
 			self.replace ('</' + tag + '>\n', '</' + tag +'>')
@@ -425,7 +432,6 @@ class Html (File):
 		# self.text ne contient plus que le corps du body
 		self.addIndentation()
 		self.meta['link'] = self.link
-		self.cleanBody()
 		self.title = cleanTitle (self.title)
 		self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		File.write (self, mode)
@@ -471,13 +477,7 @@ class Html (File):
 			res = self.fromUrlVa()
 			if not res: res = self.fromUrlVb()
 		self.path = pathTmp
-		if res:
-			self.cleanBody()
-			self.setTitle()
-			self.setMetas()
-			self.setFromTag ('body')
-			self.tree.tag = 'body'
-		#	self.delAttributes()
+		if res: self.cleanBody()
 		else: print ('la récupération à échoué, impossible de récupérer les données')
 
 	""" ________________________ nettoyer le texte ________________________ """
@@ -513,4 +513,8 @@ class Html (File):
 		for tag in listTagsSelfClosing:
 			self.replace ('<'+ tag.upper(), '<'+ tag)
 			self.replace (tag +'>', tag +'/>')
-		self.delScript()
+		self.setHtml()
+		self.setTitle()
+		self.setMetas()
+		self.setByTag ('body')
+	#	self.delScript()

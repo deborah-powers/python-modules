@@ -34,11 +34,9 @@ class Fanfic (htmlCls.Html, Article):
 		elif '</article>' in self.text and self.text.count ('</article>') ==1: self.text = htmlCls.getByTag (self.text, 'article', False)
 		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
 		self.delId()
-		"""
 		article = self.toText()
 		if article: article.divide()
 		else: self.divide()
-		"""
 
 	def findSubject (self):
 		if self.subject:
