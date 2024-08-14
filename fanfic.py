@@ -47,6 +47,7 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'medium'	in url: self.medium()
 		else: self.setMain()
 		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
+		self.delAttributes()
 		self.delIds()
 		article = self.toText()
 		if article: article.divide()
@@ -134,6 +135,13 @@ class Fanfic (htmlCls.Html, Article):
 		if not self.link: self.link = 'https://uel.unisciel.fr/biologie/module1/module1_ch01/co/'
 		self.setByTag ('section')
 		self.tree.uniscielImg()
+		self.delAttributes()
+		self.delIds()
+		self.replace ('<div>')
+		self.replace ('</div>')
+		self.replace ('../res/', 'https://uel.unisciel.fr/biologie/module1/module1_ch01/res/')
+		newTag = '<body>' + self.text + '</body>'
+		self.tree = htmlCls.HtmlTag (newTag)
 	#	self.styles.append ('unisciel.css')
 
 	def ebGratuit (self):
