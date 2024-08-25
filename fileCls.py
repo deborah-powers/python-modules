@@ -390,8 +390,10 @@ class Article (File):
 
 	def read (self):
 		File.read (self)
+		log.logMsg (self.text)
 		metadata =[]
 		if self.type in 'xhtml':
+			self.text = textFct.cleanHtml (self.text)
 			if self.type == 'html': metadata = textFct.fromModel (self.text, templateHtml)
 			else: metadata = textFct.fromModel (self.text, templateXhtml)
 			self.subject = metadata[1].strip()
@@ -400,12 +402,13 @@ class Article (File):
 			self.autlink = metadata[4].strip()
 			self.text = metadata[5].strip()
 		elif self.type == 'txt':
+			self.text = textFct.cleanText (self.text)
 			metadata = textFct.fromModel (self.text, templateText)
 			self.subject = metadata[0].strip()
 			self.author = metadata[1].strip()
 			self.link = metadata[2].strip()
 			self.autlink = metadata[3].strip()
-			self.text = metadata[4].strip()
+			self.text = metadata[5].strip()
 
 	def write (self, independant=False):
 		self.title = self.title.lower()

@@ -35,7 +35,7 @@ class Fanfic (htmlCls.Html, Article):
 		htmlCls.Html.__init__ (self, url)
 		if subject: self.subject = subject
 		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link or url == 'b/aooo.html': self.fromAooo()
-		elif 'http://uel.unisciel.fr/' in url or url == 'b/unisciel.html':				self.unisciel()
+		elif '://uel.unisciel.fr/' in url or url == 'b/unisciel.html':				self.unisciel()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
 		elif 'scoubidou'	in url: self.scoubidou()
 		elif 'b/ffnet.html' == url:		self.ffNet()
@@ -139,9 +139,12 @@ class Fanfic (htmlCls.Html, Article):
 		self.delIds()
 		self.replace ('<div>')
 		self.replace ('</div>')
-		self.replace ('../res/', 'https://uel.unisciel.fr/biologie/module1/module1_ch01/res/')
+		self.replace ('../res/', 'evo/')
+	#	self.replace ('../res/', 'https://uel.unisciel.fr/biologie/module1/module1_ch01/res/')
 		newTag = '<body>' + self.text + '</body>'
 		self.tree = htmlCls.HtmlTag (newTag)
+		# le titre
+		self.title = 'unisciel-recup'
 	#	self.styles.append ('unisciel.css')
 
 	def ebGratuit (self):

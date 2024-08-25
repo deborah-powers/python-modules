@@ -6,6 +6,7 @@ import time
 import numpy
 numpy.seterr (all='warn')
 from PIL import Image, ImageOps
+import colorsys
 import fileLocal
 import loggerFct as log
 
@@ -33,53 +34,53 @@ def openImage (imageName):
 	newName = imageName[:d]
 	return newName, imageOriginal
 
-def replacePixels (imageName, extension, funcPixel):
-	newName, imageOriginal = openImage (imageName)
-	newName = newName +'-'+ extension +'.bmp'
-	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b) numpy array
-	rangeWidth = range (imageOriginal.size[0])
-	rangeHeight = range (imageOriginal.size[1])
-	for w in rangeWidth:
-		for h in rangeHeight: imageArray[h][w] = funcPixel (imageArray[h][w])
-	# dessiner la nouvelle image
-	imageNouvelle = Image.fromarray (imageArray)
-	imageNouvelle.save (newName)
+""" ________________________________________________ modifier les couleurs ________________________________________________ """
 
-def extractColors (imageOriginal):
+rgb_to_hsv = numpy.vectorize (colorsys.rgb_to_hsv)
+hsv_to_rgb = numpy.vectorize (colorsys.hsv_to_rgb)
+
+def imGtoHsv (imageOriginal):
+	"""
+	hue is a height x width x (0.0 ... 1) numpy array
+	saturation is a height x width x (0.0 ... 1) numpy array
+	value is a height x width x (0.0 ... 256) numpy array
+	"""
+	imageArray = numpy.array (imageOriginal).astype ('float')
+	red, green, blue = imageArray.T
+	hue, saturation, value = rgb_to_hsv (red, green, blue)
+	return hue, saturation, value
+
+def hsVtoImg (hue, saturation, value):
+	red, green, blue = hsv_to_rgb (hue, saturation, value)
+	red = red.T
+	green = green.T
+	blue = blue.T
+	imageArray = numpy.dstack ((red, green, blue))
+	imageArray = imageArray.astype ('uint8')
+	return imageArray
+
+def eraseColors (imageName, referName):
+	# éffacer certaines couleurs d'une image à partir d'une image de référence qui les contient
+	# récupérer l'image de référence
+	referName = fileLocal.shortcut (referName)
+	referImg = Image.open (referName)
+	referImg = referImg.convert ('RGB')
+	# récupérer les couleurs à partir de l'image de référence
 	colorsOriginal = imageOriginal.getcolors (imageOriginal.size[0] * imageOriginal.size[1])
 	colors =[]
 	for nb, color in colorsOriginal:
 		if (color[0], color[1], color[2]) not in colors: colors.append ((color[0], color[1], color[2]))
 	colors.sort()
-	return colors
-
-def extractColorsFromReference (nomReference):
-	nomReference = fileLocal.shortcut (nomReference)
-	imageOriginal = Image.open (nomReference)
-	imageOriginal = imageOriginal.convert ('RGB')
-	return extractColors (imageOriginal)
-
-def replaceColors (imageName, extension, funcPixel):
-	newName, imageOriginal = openImage (imageName)
-	newName = newName +'-'+ extension +'.bmp'
-	colors = extractColors (imageOriginal)
-	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b) numpy array
-	red, green, blue = imageArray.T				# Temporarily unpack the bands for readability
-	for r,g,b in colors:
-		colorArea = (red == r) & (green == g) & (blue == b)
-		newColor = funcPixel (r,g,b)
-		imageArray[colorArea.T] = newColor
-	# dessiner la nouvelle image
-	imageNouvelle = Image.fromarray (imageArray)
-	imageNouvelle.save (newName)
-
-def eraseColors (imageName, nomReference):
-	# éffacer certaines colors d'une image à partir d'une image de référence qui les contient
-	colors = extractColorsFromReference (nomReference)
+	# récupérer l'image à modifier
 	newName, imageOriginal = openImage (imageName)
 	newName = newName +'-del.bmp'
-	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b) numpy array
-	red, green, blue = imageArray.T		# Temporarily unpack the bands for readability
+	imageArray = numpy.array (imageOriginal)
+	red, green, blue = imageArray.T
+	"""
+	imageArray is a height x width x (r,g,b) numpy array
+	red is a height x width x (0.0 ... 100) numpy array
+	"""
+	# éffacer les couleurs
 	for r,g,b in colors:
 		colorArea = (red == r) & (green == g) & (blue == b)
 		imageArray[colorArea.T] = (255, 255, 255)
@@ -87,22 +88,28 @@ def eraseColors (imageName, nomReference):
 	imageNouvelle = Image.fromarray (imageArray)
 	imageNouvelle.save (newName)
 
-def reverseLumColors (r,g,b):
-	lumTot = r+g+b
-	lumTot = lumTot /3
-	lumTot = 255- 2* lumTot
-	lumTot = int (lumTot)
-	r+= lumTot
-	g+= lumTot
-	b+= lumTot
-	return (r,g,b)
+def reverseColors (imageName):
+	newName, imageOriginal = openImage (imageName)
+	newName = newName +'-reverse.bmp'
+	imageNouvelle = ImageOps.invert (imageOriginal)
+	imageNouvelle.save (newName)
 
-def reverseAllColors (r,g,b):
-	r,g,b = reverseLumColors (r,g,b)
-	r= 255 -r
-	g= 255 -g
-	b= 255 -b
-	return (r,g,b)
+def reverseLumins (imageName):
+	newName, imageOriginal = openImage (imageName)
+	newName = newName +'-reverse.bmp'
+	hue, saturation, value = imGtoHsv (imageOriginal)
+	value = 255 - value
+	imageNouvelle = hsVtoImg (hue, saturation, value)
+	imageNouvelle.save (newName)
+
+def reverseImage (imageName):
+	newName, imageOriginal = openImage (imageName)
+	newName = newName +'-reverse.bmp'
+	imageNouvelle = ImageOps.invert (imageOriginal)
+	hue, saturation, value = imGtoHsv (imageNouvelle)
+	value = 255 - value
+	imageNouvelle = hsVtoImg (hue, saturation, value)
+	imageNouvelle.save (newName)
 
 def tobw (imageName):
 	newName, imageOriginal = openImage (imageName)
@@ -110,77 +117,7 @@ def tobw (imageName):
 	imageNouvelle = ImageOps.grayscale (imageOriginal)
 	imageNouvelle.save (newName)
 
-def reverseColor (imageName):
-	newName, imageOriginal = openImage (imageName)
-	newName = newName +'-reverse.bmp'
-	imageNouvelle = ImageOps.invert (imageOriginal)
-	imageNouvelle.save (newName)
-
-def constrast (imageArray):
-	lenHeight = len (imageArray)
-	lenWidth = len (imageArray[0])
-	rangeHeight = range (lenHeight)
-	rangeWidth = range (lenWidth)
-	pixelMoy =[0,0,0]
-	# trouver les moyennes de l'image
-	for h in rangeHeight:
-		for w in rangeWidth:
-			pixelMoy[0] += imageArray[h][w][0]
-			pixelMoy[1] += imageArray[h][w][1]
-			pixelMoy[2] += imageArray[h][w][2]
-	lenHeight *= lenWidth
-	pixelMoy[0] /= lenHeight
-	pixelMoy[1] /= lenHeight
-	pixelMoy[2] /= lenHeight
-	"""
-	pixelMoy[0] = int (pixelMoy[0])
-	pixelMoy[1] = int (pixelMoy[1])
-	pixelMoy[2] = int (pixelMoy[2])
-	"""
-	log.logMsg (pixelMoy)
-	# constraster l'image à partir de la référence
-	for h in rangeHeight:
-		for w in rangeWidth:
-			imageArray[h][w][0] = 2* imageArray[h][w][0] - pixelMoy[0]
-			if imageArray[h][w][0] >=255: imageArray[h][w][0] =255
-			elif imageArray[h][w][0] <=0: imageArray[h][w][0] =0
-			else: imageArray[h][w][0] = int (imageArray[h][w][0])
-			imageArray[h][w][1] = 2* imageArray[h][w][1] - pixelMoy[1]
-			if imageArray[h][w][1] >=255: imageArray[h][w][1] =255
-			elif imageArray[h][w][1] <=0: imageArray[h][w][1] =0
-			else: imageArray[h][w][1] = int (imageArray[h][w][1])
-			imageArray[h][w][2] = 2* imageArray[h][w][2] - pixelMoy[2]
-			if imageArray[h][w][2] >=255: imageArray[h][w][2] =255
-			elif imageArray[h][w][2] <=0: imageArray[h][w][2] =0
-			else: imageArray[h][w][2] = int (imageArray[h][w][2])
-	return imageArray
-
-def constrastSimple (imageArray):
-	rangeHeight = range (len (imageArray))
-	rangeWidth = range (len (imageArray[0]))
-	for h in rangeHeight:
-		for w in rangeWidth:
-			if imageArray[h][w][0] >=96 and imageArray[h][w][0] <=160: imageArray[h][w][0] = 2* imageArray[h][w][0] -128
-			if imageArray[h][w][1] >=96 and imageArray[h][w][1] <=160: imageArray[h][w][1] = 2* imageArray[h][w][1] -128
-			if imageArray[h][w][2] >=96 and imageArray[h][w][2] <=160: imageArray[h][w][2] = 2* imageArray[h][w][2] -128
-	return imageArray
-
-def computeScore (pixelA, pixelO):
-	return (int (pixelA[0]) - int (pixelO[0])) **2 + (int (pixelA[1]) - int (pixelO[1])) **2 + (int (pixelA[2]) - int (pixelO[2])) **2
-
-def eraseLonelyPixelNb (imageArray):
-	# imageArray is a height x width numpy array, transformé par convert ('P', palette=Image.ADAPTIVE, colors=10)
-	rangeHeight = range (len (imageArray))
-	rangeWidth = range (1, len (imageArray[0]) -1)
-	for h in rangeHeight:
-		for w in rangeWidth:
-			if imageArray[h][w-1] != imageArray[h][w] and imageArray[h][w+1] != imageArray[h][w]: imageArray[h][w] = imageArray[h][w-1]
-	rangeHeight = range (1, len (imageArray) -1)
-	rangeWidth = range (len (imageArray[0]))
-	for h in rangeHeight:
-		for w in rangeWidth:
-			if imageArray[h-1][w] != imageArray[h][w] and imageArray[h+1][w] != imageArray[h][w]: imageArray[h][w] = imageArray[h-1][w]
-	return imageArray
+""" ________________________________________________ simplifier l'image ________________________________________________ """
 
 def eraseLonelyPixel (imageArray):
 	# imageArray is a height x width x (r,v,b) numpy array
@@ -196,44 +133,36 @@ def eraseLonelyPixel (imageArray):
 			if not numpy.array_equal (imageArray[h-1][w], imageArray[h][w]) and not numpy.array_equal (imageArray[h+1][w], imageArray[h][w]): imageArray[h][w] = imageArray[h-1][w]
 	return imageArray
 
-def simplifyImageOriginal (imageOriginal):
-	imageOriginal = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=10)
-	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
-	imageArray = eraseLonelyPixelNb (imageArray)
+def eraseLonelyPixelNb (imageArray):
+	# imageArray is a height x width numpy array, transformé par convert ('P', palette=Image.ADAPTIVE, colors=10)
+	rangeHeight = range (len (imageArray))
+	rangeWidth = range (1, len (imageArray[0]) -1)
+	for h in rangeHeight:
+		for w in rangeWidth:
+			if imageArray[h][w-1] != imageArray[h][w] and imageArray[h][w+1] != imageArray[h][w]: imageArray[h][w] = imageArray[h][w-1]
+	rangeHeight = range (1, len (imageArray) -1)
+	rangeWidth = range (len (imageArray[0]))
+	for h in rangeHeight:
+		for w in rangeWidth:
+			if imageArray[h-1][w] != imageArray[h][w] and imageArray[h+1][w] != imageArray[h][w]: imageArray[h][w] = imageArray[h-1][w]
 	return imageArray
 
 def simplifyImage (imageName):
 	newName, imageOriginal = openImage (imageName)
 	newName = newName + '-simple.bmp'
-	imageArray = simplifyImageOriginal (imageOriginal)
+	imageLd = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=10)
+	imageLd = ImageOps.grayscale (imageLd)
+
+	imageArray = numpy.array (imageLd)
+	imageArray = eraseLonelyPixelNb (imageArray)
 	imageNouvelle = Image.fromarray (imageArray)
 	imageNouvelle.save (newName)
-
-def constrastImage (imageName):
-	newName, imageOriginal = openImage (imageName)
-	newName = newName +'-contraste.bmp'
-	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x (r,g,b,a) numpy array
-	imageArray = constrast (imageArray)
-	imageNouvelle = Image.fromarray (imageArray)
-	imageNouvelle.save (newName)
-
-def reverseLumPixel (pixel):
-	lumTot = int (pixel[0]) + int (pixel[1]) + int (pixel[2])
-	lumTot = lumTot /3
-	lumTot = 255- 2* lumTot
-	lumTot = int (lumTot)
-	pixel[0] += lumTot
-	pixel[1] += lumTot
-	pixel[2] += lumTot
-	return pixel
 
 if __name__ != '__main__': pass
-elif len (argv) <3: print ("entrez le nom de l'image et l'action à faire", help)
+elif len (argv) <3: print (help)
 elif argv[2] == 'nb': tobw (argv[1])
-elif argv[2] == 'col': reverseColor (argv[1])
-elif argv[2] == 'simple': simplifyImage (argv[1])
-elif argv[2] == 'constrast': constrastImage (argv[1])
-elif argv[2] == 'all': replaceColors (argv[1], 'reverse', reverseAllColors)
-elif argv[2] == 'lum': replaceColors (argv[1], 'reverse', reverseLumColors)
+elif argv[2] == 'color': reverseColors (argv[1])
+elif argv[2] == 'lumin': reverseLumins (argv[1])
+elif argv[2] == 'reverse': reverseImage (argv[1])
 elif argv[2] == 'del' and len (argv) >3: eraseColors (argv[1], argv[3])
-# elif argv[2] == 'lum': replacePixels (argv[1], 'reverse', reverseLumPixel)
+elif argv[2] == 'simple': simplifyImage (argv[1])

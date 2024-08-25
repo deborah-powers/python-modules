@@ -38,8 +38,10 @@ class HtmlTag():
 
 	def delAttributes (self):
 		attributes = self.attributes.keys()
+		newAttributes ={}
 		for attr in attributes:
-			if attr not in listAttributes: self.attributes.pop (attr)
+			if attr in listAttributes: newAttributes[attr] = self.attributes[attr]
+		self.attributes = newAttributes
 		for child in self.children: child.delAttributes()
 		self.toInnerHtml()
 
@@ -438,13 +440,16 @@ class Html (File):
 		for tag in listTagsIntern:
 			self.replace ('\n<' + tag, '<'+ tag)
 			self.replace ('</' + tag + '>\n', '</' + tag +'>')
+		self.replace ('><img', '>\n<img')
+		self.replace ('><meta', '>\n<meta')
+		self.replace ('><base', '>\n<base')
 
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body
-		self.addIndentation()
 		self.meta['link'] = self.link
 		self.title = cleanTitle (self.title)
 		self.text = templateHtml % (self.title, self.getMetas(), self.text)
+		self.addIndentation()
 		File.write (self, mode)
 
 	# ________________________ texte du web ________________________
