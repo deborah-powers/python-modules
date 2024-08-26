@@ -120,41 +120,53 @@ def tobw (imageName):
 """ ________________________________________________ simplifier l'image ________________________________________________ """
 
 def eraseLonelyPixel (imageArray):
-	# imageArray is a height x width x (r,v,b) numpy array
-	rangeHeight = range (len (imageArray))
-	rangeWidth = range (1, len (imageArray[0]) -1)
-	for h in rangeHeight:
-		for w in rangeWidth:
-			if not numpy.array_equal (imageArray[h][w-1], imageArray[h][w]) and not numpy.array_equal (imageArray[h][w+1], imageArray[h][w]): imageArray[h][w] = imageArray[h][w-1]
-	rangeHeight = range (1, len (imageArray) -1)
-	rangeWidth = range (len (imageArray[0]))
-	for h in rangeHeight:
-		for w in rangeWidth:
-			if not numpy.array_equal (imageArray[h-1][w], imageArray[h][w]) and not numpy.array_equal (imageArray[h+1][w], imageArray[h][w]): imageArray[h][w] = imageArray[h-1][w]
-	return imageArray
-
-def eraseLonelyPixelNb (imageArray):
 	# imageArray is a height x width numpy array, transformé par convert ('P', palette=Image.ADAPTIVE, colors=10)
-	rangeHeight = range (len (imageArray))
+	# coins hg, hd, bg, bd
+	if imageArray[0][0] != imageArray[0][1] and imageArray[0][0] != imageArray[1][0]: imageArray[0][0] = imageArray[0][1]
+	if imageArray[0][-1] != imageArray[0][-2] and imageArray[0][-1] != imageArray[1][-1]: imageArray[0][-1] = imageArray[0][-2]
+	if imageArray[-1][0] != imageArray[-1][1] and imageArray[-1][0] != imageArray[-2][0]: imageArray[-1][0] = imageArray[-1][0]
+	if imageArray[-1][-1] != imageArray[-1][1] and imageArray[-1][-1] != imageArray[-2][-1]: imageArray[-1][-1] = imageArray[-1][-2]
+	# lignes h et b
 	rangeWidth = range (1, len (imageArray[0]) -1)
-	for h in rangeHeight:
-		for w in rangeWidth:
-			if imageArray[h][w-1] != imageArray[h][w] and imageArray[h][w+1] != imageArray[h][w]: imageArray[h][w] = imageArray[h][w-1]
+	for b in rangeWidth:
+		if imageArray[0][b] not in [ imageArray[1][b], imageArray[0][b+1], imageArray[0][b-1] ]:
+			if imageArray[1][b] in [ imageArray[0][b+1], imageArray[0][b-1] ]: imageArray[0][b] = imageArray[1][b]
+			else: imageArray[0][b] = imageArray[0][b+1]
+		if imageArray[-1][b] not in [ imageArray[-2][b], imageArray[-1][b+1], imageArray[-1][b-1] ]:
+			if imageArray[-2][b] in [ imageArray[-1][b+1], imageArray[-1][b-1] ]: imageArray[-1][b] = imageArray[-2][b]
+			else: imageArray[-1][b] = imageArray[-1][b+1]
+	# lignes g et d
 	rangeHeight = range (1, len (imageArray) -1)
-	rangeWidth = range (len (imageArray[0]))
+	for b in rangeHeight:
+		if imageArray[b][0] not in [ imageArray[b][1], imageArray[b-1][0], imageArray[b+1][0] ]:
+			if imageArray[b][1] in [ imageArray[b-1][0], imageArray[b+1][0] ]: imageArray[b][0] = imageArray[b][1]
+			else: imageArray[b][0] = imageArray[b-1][0]
+		if imageArray[b][-1] not in [ imageArray[b][-2], imageArray[b-1][-1], imageArray[b+1][-1] ]:
+			if imageArray[b][-2] in [ imageArray[b-1][-1], imageArray[b+1][-1] ]: imageArray[b][-1] = imageArray[b][-2]
+			else: imageArray[b][-1] = imageArray[b-1][-1]
+	# milieu
 	for h in rangeHeight:
 		for w in rangeWidth:
-			if imageArray[h-1][w] != imageArray[h][w] and imageArray[h+1][w] != imageArray[h][w]: imageArray[h][w] = imageArray[h-1][w]
+			if [ imageArray[h][w-1], imageArray[h][w+1], imageArray[h-1][w], imageArray[h+1][w] ].count (imageArray[h][w]) <2:
+				if imageArray[h][w-1] in [ imageArray[h][w+1], imageArray[h-1][w], imageArray[h+1][w] ]: imageArray[h][w] = imageArray[h][w-1]
+				elif imageArray[h][w+1] in [ imageArray[h-1][w], imageArray[h+1][w] ]: imageArray[h][w] = imageArray[h][w+1]
+				else: imageArray[h][w] = imageArray[h-1][w]
+			"""
+			if imageArray[h][w] not in [ imageArray[h][w-1], imageArray[h][w+1], imageArray[h-1][w], imageArray[h+1][w] ]:
+				if imageArray[h][w-1] in [ imageArray[h][w+1], imageArray[h-1][w], imageArray[h+1][w] ]: imageArray[h][w] = imageArray[h][w-1]
+				elif imageArray[h][w+1] in [ imageArray[h-1][w], imageArray[h+1][w] ]: imageArray[h][w] = imageArray[h][w+1]
+				else: imageArray[h][w] = imageArray[h-1][w]
+			"""
 	return imageArray
 
 def simplifyImage (imageName):
+	# simplifier une image en vue de détecter sa bordure
 	newName, imageOriginal = openImage (imageName)
 	newName = newName + '-simple.bmp'
-	imageLd = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=10)
+	imageLd = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=3)
 	imageLd = ImageOps.grayscale (imageLd)
-
 	imageArray = numpy.array (imageLd)
-	imageArray = eraseLonelyPixelNb (imageArray)
+	imageArray = eraseLonelyPixel (imageArray)
 	imageNouvelle = Image.fromarray (imageArray)
 	imageNouvelle.save (newName)
 
