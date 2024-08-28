@@ -390,6 +390,8 @@ class Html (File):
 			attributes = meta.attributes.keys()
 			if 'content' in attributes and 'name' in attributes and meta.attributes['name'][:5] != 'csrf-':
 				self.meta [meta.attributes['name']] = meta.attributes['content']
+			elif 'content' in attributes and 'property' in attributes:
+				self.meta [meta.attributes['property']] = meta.attributes['content']
 			self.tree.delete (meta)
 
 	def getMetas (self):
@@ -507,18 +509,19 @@ class Html (File):
 		self.text = self.tree.innerHtml
 
 	def delScript (self):
-		while '</script>' in self.text:
-			d= self.text.find ('<script')
-			f=9+ self.text.find ('</script>')
-			self.text = self.text[:d] + self.text[f:]
-		while '</style>' in self.text:
-			d= self.text.find ('<style')
-			f=8+ self.text.find ('</style>')
-			self.text = self.text[:d] + self.text[f:]
-		while '<!--' in self.text:
-			d= self.text.find ('<!--')
-			f=3+ self.text.find ('-->')
-			self.text = self.text[:d] + self.text[f:]
+		self.tree.delScript()
+		self.text = self.tree.innerHtml
+
+	def delEmptyTags (self):
+		# utiliser après delids et delAttributes
+		for tag in listTags: self.text = self.text.replace ('<'+ tag + '></' + tag +'>', "")
+		d=0
+		while '></' in self.text[d:] and d< len (self.text):
+			d= self.text.find ('></', d+1)
+			c=1+ self.text[:d].rfind ('<')
+			e= self.text.find ('>', d+1)
+			if self.text[c:d] == self.text[d+3:e]: self.text = self.text.replace (self.text[c-1:e+1], "")
+		self.tree = HtmlTag ('<body>' + self.text + '</body>')
 
 	def cleanBody (self):
 		self.text = textFct.cleanHtml (self.text)

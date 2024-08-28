@@ -30,13 +30,14 @@ setattr (htmlCls.HtmlTag, 'uniscielImg', uniscielImg)
 
 class Fanfic (htmlCls.Html, Article):
 	def __init__ (self, url, subject=None):
-		if url in 'aooo unisciel': url = 'b/' + url + '.html'
+		if url in 'aooo unisciel recette': url = 'b/' + url + '.html'
 		Article.__init__ (self)
 		htmlCls.Html.__init__ (self, url)
 		if subject: self.subject = subject
 		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link or url == 'b/aooo.html': self.fromAooo()
 		elif '://uel.unisciel.fr/' in url or url == 'b/unisciel.html':				self.unisciel()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
+		elif 'https://www.test-recette.fr/recette/' in url or url == 'b/recette.html':	self.testRecette()
 		elif 'scoubidou'	in url: self.scoubidou()
 		elif 'b/ffnet.html' == url:		self.ffNet()
 		elif 'b/fpress.html' == url:	self.fPress()
@@ -146,6 +147,23 @@ class Fanfic (htmlCls.Html, Article):
 		# le titre
 		self.title = 'unisciel-recup'
 	#	self.styles.append ('unisciel.css')
+
+	def testRecette (self):
+		self.subject = 'programmation'
+		self.title = self.title[8:]
+		self.author = 'test-recette'
+		self.autlink = 'https://www.test-recette.fr/recette/'
+		if not self.link: self.link = self.meta['og:url']
+		self.delScript()
+		self.delAttributes()
+		self.delIds()
+		self.delEmptyTags()
+		self.text = self.text.replace ('<div>',"")
+		self.text = self.text.replace ('</div>',"")
+		d= self.text.find ('<h1')
+		self.text = self.text[d:]
+		self.text = '<body>' + self.text + '</body>'
+		self.tree = htmlCls.HtmlTag (self.text)
 
 	def ebGratuit (self):
 		# l'auteur
