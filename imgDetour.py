@@ -5,7 +5,7 @@ import numpy
 numpy.seterr (all='warn')
 from PIL import Image, ImageOps
 import colorsys
-from imgModif import openImage, getColors
+from imgModif import openImage, getColors, imGtoHsv, hsVtoImg
 import loggerFct as log
 
 help ="""
@@ -19,7 +19,7 @@ def unifyClosesColors (imageArray, colorList):
 	rangeColors = range (1, len (colorList))
 	for c in rangeColors:
 		score = int (colorList[c]) - int (colorList[c-1])
-		if score >= -10 and score <= 10:
+		if score >= -2 and score <=2:
 			colorArea = imageArray == colorList[c-1]
 			imageArray[colorArea] = colorList[c]
 
@@ -144,7 +144,16 @@ def eraseCenterColor (imageArray):
 
 def findBorder (imageOriginal):
 	# détecter la bordure d'une image en la simplifiant
+	# accentuer les couleurs
 	imageLd = ImageOps.autocontrast (imageOriginal)
+	hue, saturation, value = imGtoHsv (imageLd)
+	rangeHeight = range (len (saturation))
+	rangeWidth = range (len (saturation[0]))
+	for h in rangeHeight:
+		for w in rangeWidth: saturation[h][w] = 1.0
+	imageArray = hsVtoImg (hue, saturation, value)
+	imageLd = Image.fromarray (imageArray)
+	# passage au noir et blanc
 	imageLd = imageLd.convert ('P', palette=Image.ADAPTIVE, colors=3)
 	imageLd = ImageOps.grayscale (imageLd)
 	colors = getColors (imageLd)

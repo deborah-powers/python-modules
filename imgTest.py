@@ -15,9 +15,7 @@ hue, saturation, value = imGtoHsv (imgObj)
 rangeHeight = range (len (saturation))
 rangeWidth = range (len (saturation[0]))
 for h in rangeHeight:
-	for w in rangeWidth:
-	#	hue[h][w] = 0.8
-		saturation[h][w] = 0.8
+	for w in rangeWidth: saturation[h][w] = 1.0
 imgNameBis = imgNameBis + '-bis.bmp'
 imgArray = hsVtoImg (hue, saturation, value)
 imgObj = Image.fromarray (imgArray)
