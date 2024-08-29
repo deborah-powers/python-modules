@@ -144,11 +144,18 @@ def eraseCenterColor (imageArray):
 
 def findBorder (imageOriginal):
 	# détecter la bordure d'une image en la simplifiant
-	imageLd = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=3)
+	imageLd = ImageOps.autocontrast (imageOriginal)
+	imageLd = imageLd.convert ('P', palette=Image.ADAPTIVE, colors=3)
 	imageLd = ImageOps.grayscale (imageLd)
 	colors = getColors (imageLd)
 	imageArray = numpy.array (imageLd)
 	unifyClosesColors (imageArray, colors)
+	# éliminer les pixels noirs et blancs
+	colorArea = imageArray <10
+	imageArray[colorArea] =10
+	colorArea = imageArray >245
+	imageArray[colorArea] =245
+	# unification de l'image
 	imageArray = eraseLonelyPixel (imageArray)
 	imageArray = eraseBordColor (imageArray)
 	imageArray = eraseCenterColor (imageArray)
