@@ -14,8 +14,10 @@ attention, le détourage fonctionne mal pour les zones dont la couleur est proch
 le script fait le plus gros du travail, mais il faut le corriger manuellement
 """
 
-def unifyClosesColors (imageArray, colorList):
+ def unifyClosesColors (imageArray, colorList):
 	# les couleurs, en nb, sont codées par un unique nombre
+	colorList = getColors (imageOriginal)
+	imageArray = numpy.array (imageOriginal)
 	rangeColors = range (1, len (colorList))
 	for c in rangeColors:
 		score = int (colorList[c]) - int (colorList[c-1])

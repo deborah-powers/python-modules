@@ -6,16 +6,20 @@ numpy.seterr (all='warn')
 from PIL import Image, ImageOps
 import colorsys
 from imgModif import openImage, imGtoHsv, hsVtoImg
-from imgDetour import eraseLonelyPixel
+from imgDetour import eraseLonelyPixel, unifyClosesColors
 import loggerFct as log
 
 imgName = 'b/test.bmp'
-imgNameBis, imgObj = openImage (imgName)
+imgNameBis, imageOriginal = openImage (imgName)
 imgNameBis = imgNameBis + '-bis.bmp'
-hue, saturation, value = imGtoHsv (imgObj)
+imageOriginal = ImageOps.grayscale (imageOriginal)
+imageArray = unifyClosesColors (imageOriginal)
+imageOriginal = Image.fromarray (imageArray)
+hue, saturation, value = imGtoHsv (imageOriginal)
 
 rangeHeight = range (len (saturation))
 rangeWidth = range (len (saturation[0]))
+
 for h in rangeHeight:
 	colorArea = numpy.logical_and (hue == hue[h][0], value == value[h][0])
 	saturation[colorArea] = 0.5
@@ -34,12 +38,14 @@ for w in rangeWidth:
 	saturation[colorArea] = 0.5
 	value[colorArea] =100
 	hue[colorArea] = 0.4
-imgArray = hsVtoImg (hue, saturation, value)
-imgObj = Image.fromarray (imgArray)
-imgObj = imgObj.convert ('P', palette=Image.ADAPTIVE, colors=3)
-imgObj = ImageOps.grayscale (imgObj)
-imgArray = numpy.array (imgObj)
-imgArray = eraseLonelyPixel (imgArray)
-imgObj = Image.fromarray (imgArray)
-imgObj.save (imgNameBis)
+imageArray = hsVtoImg (hue, saturation, value)
+imageOriginal = Image.fromarray (imageArray)
+"""
+imageOriginal = imageOriginal.convert ('P', palette=Image.ADAPTIVE, colors=10)
+imageOriginal = ImageOps.grayscale (imageOriginal)
+imageArray = numpy.array (imageOriginal)
+imageArray = eraseLonelyPixel (imageArray)
+imageOriginal = Image.fromarray (imageArray)
+"""
+imageOriginal.save (imgNameBis)
 
