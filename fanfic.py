@@ -15,18 +15,7 @@ utilisation: python fanfic.py url
 l'url peut correspondre à une page ou un fichier local
 """
 
-def uniscielImg (self):
-	if self.tag == 'a' and len (self.children) ==1 and self.children[0].tag == 'img':
-		self.tag = 'img'
-		self.innerHtml =""
-		src = self.attributes['href']
-		self.attributes ={}
-		self.attributes['src'] = src
-		self.children =[]
-	elif self.children:
-		for child in self.children: child.uniscielImg()
-
-setattr (htmlCls.HtmlTag, 'uniscielImg', uniscielImg)
+# setattr (htmlCls.HtmlTag, 'uniscielImg', uniscielImg)
 
 class Fanfic (htmlCls.Html, Article):
 	def __init__ (self, url, subject=None):
@@ -132,19 +121,16 @@ class Fanfic (htmlCls.Html, Article):
 	def unisciel (self):
 		self.subject = 'biologie'
 		self.author = 'unisciel'
-		self.autlink = 'https://uel.unisciel.fr/biologie/module1/module1_ch01/co/module1_ch01.html'
+		self.autlink = 'https://uel.unisciel.fr/biologie/module1/module1/co/module1_1.html'
 		if not self.link: self.link = 'https://uel.unisciel.fr/biologie/module1/module1_ch01/co/'
 		self.setByTag ('section')
-		self.tree.uniscielImg()
 		self.delAttributes()
 		self.delIds()
 		self.replace ('<div>')
 		self.replace ('</div>')
 		self.replace ('../res/', 'evo/')
 	#	self.replace ('../res/', 'https://uel.unisciel.fr/biologie/module1/module1_ch01/res/')
-		newTag = '<body>' + self.text + '</body>'
-		self.tree = htmlCls.HtmlTag (newTag)
-		# le titre
+		self.tree = htmlCls.HtmlTag ('<body>' + self.text + '</body>')
 		self.title = 'unisciel-recup'
 	#	self.styles.append ('unisciel.css')
 

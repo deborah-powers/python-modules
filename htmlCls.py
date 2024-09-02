@@ -233,11 +233,13 @@ class HtmlTag():
 				"""
 				if self.children[0].tag not in listTagsSelfClosing and self.children[0].tag != 'svg': self.unnestOneChild()
 			elif self.tag != 'svg':
+				if self.tag == 'figure': log.logLst (self.innerHtml, self.children)
 				self.tag = self.children[0].tag
 				self.attributes ={}
 				attributes = self.children[0].attributes.keys()
 				for attr in attributes: self.attributes[attr] = self.children[0].attributes[attr]
-				self.unnestOneChild()
+				if self.tag in listTagsSelfClosing: self.children =[]
+				else: self.unnestOneChild()
 
 	def unnestOneChild (self):
 		self.innerHtml = self.children[0].innerHtml
@@ -509,19 +511,52 @@ class Html (File):
 		self.text = self.tree.innerHtml
 
 	def delScript (self):
+		"""
 		self.tree.delScript()
 		self.text = self.tree.innerHtml
+		"""
+		if '<script' in self.text:
+			textList = self.text.split ('<script')
+			textRange = range (1, len (textList))
+			for l in textRange:
+				d=9+ textList[l].find ('</script>')
+				textList[l] = textList[l][d:]
+			self.text = "".join (textList)
+		if '<style' in self.text:
+			textList = self.text.split ('<style')
+			textRange = range (1, len (textList))
+			for l in textRange:
+				d=8+ textList[l].find ('</style>')
+				textList[l] = textList[l][d:]
+			self.text = "".join (textList)
+		if '<!--' in self.text:
+			textList = self.text.split ('<!--')
+			textRange = range (1, len (textList))
+			for l in textRange:
+				d=3+ textList[l].find ('-->')
+				textList[l] = textList[l][d:]
+			self.text = "".join (textList)
+	#	self.tree = HtmlTag ('<body>' + self.text + '</body>')
 
 	def delEmptyTags (self):
-		# utiliser après delids et delAttributes
 		for tag in listTags: self.text = self.text.replace ('<'+ tag + '></' + tag +'>', "")
+		for tag in listTags:
+			if '></' + tag +'>' in self.text:
+				lenTag = len (tag)
+				textList = self.text.split ('></' + tag +'>')
+				textRange = range (len (textList) -1)
+				for l in textRange:
+					d= textList[l].rfind ('<')
+					if textList[l][d+1:d+1+ lenTag] == tag: textList[l] = textList[l][:d]
+					else: textList[l] = textList[l] + '></' + tag +'>'
+				self.text = "".join (textList)
 		d=0
 		while '></' in self.text[d:] and d< len (self.text):
 			d= self.text.find ('></', d+1)
 			c=1+ self.text[:d].rfind ('<')
 			e= self.text.find ('>', d+1)
 			if self.text[c:d] == self.text[d+3:e]: self.text = self.text.replace (self.text[c-1:e+1], "")
-		self.tree = HtmlTag ('<body>' + self.text + '</body>')
+	#	self.tree = HtmlTag ('<body>' + self.text + '</body>')
 
 	def cleanBody (self):
 		self.text = textFct.cleanHtml (self.text)
@@ -532,8 +567,9 @@ class Html (File):
 		for tag in listTagsSelfClosing:
 			self.replace ('<'+ tag.upper(), '<'+ tag)
 			self.replace (tag +'>', tag +'/>')
+		self.delScript()
+		self.delEmptyTags()
 		self.setHtml()
 		self.setTitle()
 		self.setMetas()
 		self.setByTag ('body')
-	#	self.delScript()
