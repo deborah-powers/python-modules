@@ -34,64 +34,6 @@ class HtmlTag():
 		self.children =[]
 		self.fromString (tagStr)
 
-	# ________________________ récupérer les noeuds d'intérêt ________________________
-
-	def getOneByTag (self, tagName):
-		tagok = lambda tag: tag.tag == tagName
-		return self.getOne (tagok)
-
-	def getOneById (self, index):
-		idok = lambda tag: tag.id == index
-		return self.getOne (idok)
-
-	def getOneByClass (self, className):
-		classok = lambda tag: tag.className == className
-		return self.getOne (classok)
-
-	def getOneByTagClass (self, tagName, className):
-		tagok = lambda tag: tag.tag == tagName and tag.className == className
-		return self.getOne (tagok)
-
-	def getOneByAttribute (self, attributeName, attributeValue):
-		attrok = lambda tag: attributeName in tag.attributes.keys() and tag.attributes[attributeName] == attributeValue
-		return self.getOne (attrok)
-
-	def getOne (self, funcFound):
-		if funcFound (self): return self
-		elif len (self.children) ==0: return None
-		else:
-			c=0
-			nbChildren = len (self.children)
-			newTag = None
-			while newTag == None and c< nbChildren:
-				newTag = self.children[c].getOne (funcFound)
-				c+=1
-			return newTag
-
-	def getAllByTag (self, tagName):
-		tagok = lambda tag: tag.tag == tagName
-		return self.getAll (tagok)
-
-	def getAllByClass (self, className):
-		classok = lambda tag: tag.className == className
-		return self.getAll (classok)
-
-	def getAllByTagClass (self, tagName, className):
-		tagok = lambda tag: tag.tag == tagName and tag.className == className
-		return self.getAll (tagok)
-
-	def getAllByAttribute (self, attributeName, attributeValue):
-		attrok = lambda tag: attributeName in tag.attributes.keys() and tag.attributes[attributeName] == attributeValue
-		return self.getAll (attrok)
-
-	def getAll (self, funcFound):
-		tags =[]
-		if funcFound (self): tags.append (self)
-		for child in self.children:
-			newTags = child.getAll (funcFound)
-			tags.extend (newTags)
-		return tags
-
 	# ________________________ création du noeud ________________________
 
 	def fromString (self, tagStr):
@@ -105,7 +47,6 @@ class HtmlTag():
 			self.innerHtml = tagStr[d:f]
 			self.setAttributes()
 			self.setInnerHtml()
-			self.setChildren()
 
 	def setAttributes (self):
 		# innerHtml contient l'outerHtml
@@ -159,51 +100,6 @@ class HtmlTag():
 				nbStart = self.innerHtml[d:f].count (tagStart)
 				nbEnd = nbEnd +1
 			self.innerHtml = self.innerHtml[d:f]
-
-	def setChildren (self):
-		self.children =[]
-		if '<' not in self.innerHtml or '>' not in self.innerHtml or self.tag == 'text': return
-		elif '<' not in self.innerHtml: return
-		d= self.innerHtml.find ('<')
-		if d>0: self.children.append (HtmlTag (self.innerHtml[:d]))
-		lenHtml = self.lenght()
-		while d< lenHtml and '<' in self.innerHtml[d:]:
-			if self.innerHtml[d] =='<' and self.innerHtml[d+1] in 'abcdefghilmnopqrstv':
-				newTag = HtmlTag (self.innerHtml[d:])
-				d= self.innerHtml.find (newTag.innerHtml, d+1)
-				d= d+ len (newTag.innerHtml)
-				d=1+ self.innerHtml.find ('>',d+1)
-				self.children.append (newTag)
-				if d< lenHtml and self.innerHtml[d] !='<':
-					f= self.innerHtml.find ('<',d)
-					if f<0: f= self.lenght()
-					self.children.append (HtmlTag (self.innerHtml[d:f]))
-			else: d= self.innerHtml.find ('<', d+1)
-		# éliminer les emboîtements inutiles
-		if len (self.children) ==1:
-			if self.children[0].tag == 'text': self.children =[]
-			elif self.children[0].tag == 'span': self.unnestOneChild()
-			elif self.tag == 'a':
-				"""
-				if self.children[0].tag == 'img' and self.attributes['href'][-3:] in 'jpg png bmp gif svg':
-					self.tag = 'img'
-					src = self.attributes['href']
-					self.attributes ={}
-					self.attributes['src'] = src
-					self.children =[]
-					self.children[0].attributes['alt'] = 'oki'
-					self.innerHtml =""
-				elif self.children[0].tag == 'img': self.children[0].attributes['alt'] = 'image'
-				"""
-				if self.children[0].tag not in listTagsSelfClosing and self.children[0].tag != 'svg': self.unnestOneChild()
-			elif self.tag != 'svg':
-				if self.tag == 'figure': log.logLst (self.innerHtml, self.children)
-				self.tag = self.children[0].tag
-				self.attributes ={}
-				attributes = self.children[0].attributes.keys()
-				for attr in attributes: self.attributes[attr] = self.children[0].attributes[attr]
-				if self.tag in listTagsSelfClosing: self.children =[]
-				else: self.unnestOneChild()
 
 	def unnestOneChild (self):
 		self.innerHtml = self.children[0].innerHtml
@@ -307,6 +203,10 @@ def getOneFromTagClass (text, tagName, className):
 	textBis = textList.join ('<'+ tagName +" ")
 	d= textBis.find ('$<')
 	return getFromPos (text, d)
+
+def getOneFromAttribute (text, tagId):
+	pass
+
 
 def getAllFromTag (text, tagName):
 	if '<'+ tagName not in text: return []
