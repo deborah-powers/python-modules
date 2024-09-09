@@ -38,7 +38,6 @@ class Fanfic (htmlCls.Html, Article):
 		else: self.setMain()
 		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
 		self.delAttributes()
-		self.delIds()
 		article = self.toText()
 		if article: article.divide()
 		else: self.divide()
@@ -95,7 +94,7 @@ class Fanfic (htmlCls.Html, Article):
 			self.link = tags[1].attributes['href']
 			"""
 		# le titre
-		self.title = self.getOneByTag ('h1').innerHtml
+		self.title = self.getOneByTag ('h1')
 		self.title = htmlCls.cleanTitle (self.title)
 		# l'auteur
 		tag = self.getOneByTagClass ('div', 'byline')
@@ -125,12 +124,10 @@ class Fanfic (htmlCls.Html, Article):
 		if not self.link: self.link = 'https://uel.unisciel.fr/biologie/module1/module1_ch01/co/'
 		self.setByTag ('section')
 		self.delAttributes()
-		self.delIds()
 		self.replace ('<div>')
 		self.replace ('</div>')
 		self.replace ('../res/', 'evo/')
 	#	self.replace ('../res/', 'https://uel.unisciel.fr/biologie/module1/module1_ch01/res/')
-		self.tree = htmlCls.HtmlTag ('<body>' + self.text + '</body>')
 		self.title = 'unisciel-recup'
 	#	self.styles.append ('unisciel.css')
 
@@ -142,14 +139,11 @@ class Fanfic (htmlCls.Html, Article):
 		if not self.link: self.link = self.meta['og:url']
 		self.delScript()
 		self.delAttributes()
-		self.delIds()
 		self.delEmptyTags()
 		self.text = self.text.replace ('<div>',"")
 		self.text = self.text.replace ('</div>',"")
 		d= self.text.find ('<h1')
 		self.text = self.text[d:]
-		self.text = '<body>' + self.text + '</body>'
-		self.tree = htmlCls.HtmlTag (self.text)
 
 	def ebGratuit (self):
 		# l'auteur
