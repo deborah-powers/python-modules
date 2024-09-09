@@ -81,61 +81,41 @@ def getOneById (text, tagId):
 	d= textBis[:d].rfind ('<')
 	return getFromPos (text, d)
 
-def getOneByClass (text, tagClass):
-	if tagClass not in text or 'class=' not in text: return ""
-	textBis = text.replace ('"',"'")
-	textList = textBis.split ('class=')
-	lenList = len (textList)
-	t=1
-	while t< lenList:
-		f= textList[t].find ("'")
-		if tagClass in textList[t][:f]:
-			d= textList[t-1].rfind ('<')
-			textList[t-1] = textList[t-1][:d] +'$'+ textList[t-1][d:]
-			t=1+ lenList
-		t+=1
-	textJoin = 'class='
-	textBis = textJoin.join (textList)
-	d= textBis.find ('$<')
-	return getFromPos (text, d)
+def getOneByClass (text, className):
+	if className not in text or 'class=' not in text: return ""
+	lenText = len (text)
+	index =-1
+	d=0
+	while d< lenText and className in text[d:] and 'class=' in text[d:]:
+		d=6+ text.find ('class=')
+		f= text.find (text[d], d+1)
+		if className in text[d:f]:
+			index = text[:d].rfind ('<')
+			d=1+ lenText
+	if index ==-1: return ""
+	else: return getFromPos (text, index)
 
 def getOneByTagClass (text, tagName, className):
-	if '<'+ tagName +" " not in text or tagClass not in text or 'class=' not in text: return ""
-	textBis = text.replace ('"',"'")
-	textList = textBis.split ('<'+ tagName +" ")
-	lenList = len (textList)
-	t=1
-	while t< lenList:
-		f= textList[t].find ('>')
-		if 'class=' in textList[t][:f]:
-			d=7+ textList[t].find ('class=')
-			f= textList[t].find ("'",d)
-			if className in textList[t][d:f]:
-				d= textList[t-1].rfind ('<')
-				textList[t-1] = textList[t-1][:d] +'$'+ textList[t-1][d:]
-				t=1+ lenList
-		t+=1
-	textJoin = '<'+ tagName +" "
-	textBis = textJoin +"='".join (textList)
-	d= textBis.find ('$<')
-	return getFromPos (text, d)
+	if '<'+ tagName +" " not in text or className not in text or 'class=' not in text: return ""
+	lenText = len (text)
+	index =-1
+	d=0
+	while d< lenText and '<'+ tagName +" " in text[d:] and 'class=' in text[d:] and className in text[d:]:
+		d=6+ text.find ('class=')
+		f= text.find (text[d], d+1)
+		if className in text[d:f]:
+			index = text[:d].rfind ('<')
+			if tagName == text [index +1:d]:
+				d=1+ lenText
+	if index ==-1: return ""
+	else: return getFromPos (text, index)
 
 def getOneByAttribute (text, attrName, attrValue):
 	if attrValue not in text or attrName +'=' not in text: return ""
 	textBis = text.replace ('"',"'")
-	textList = textBis.split (attrName +"='")
-	lenList = len (textList)
-	t=1
-	while t< lenList:
-		f= textList[t].find ("'",d)
-		if attrValue in textList[t][:f]:
-			d= textList[t-1].rfind ('<')
-			textList[t-1] = textList[t-1][:d] +'$'+ textList[t-1][d:]
-			t=1+ lenList
-		t+=1
-	textJoin = attrName +"='"
-	textBis = textJoin.join (textList)
-	d= textBis.find ('$<')
+	if attrName +"='"+ attrValue +"'" not in textBis: return ""
+	d= textBis.find (attrName +"='"+ attrValue +"'")
+	d= textBis[:d].rfind ('<')
 	return getFromPos (text, d)
 
 def getAllByTag (text, tagName):
@@ -147,8 +127,8 @@ def getAllByTag (text, tagName):
 		text = text[d+1:]
 	return tagList
 
-def getAllByClass (text, tagClass):
-	if tagClass not in text or 'class=' not in text: return []
+def getAllByClass (text, className):
+	if className not in text or 'class=' not in text: return []
 	# repérer les tags intéressants
 	textBis = text.replace ('"',"'")
 	textList = textBis.split ('class=')
@@ -156,7 +136,7 @@ def getAllByClass (text, tagClass):
 	t=1
 	while t< lenList:
 		f= textList[t].find ("'")
-		if tagClass in textList[t][:f]:
+		if className in textList[t][:f]:
 			d= textList[t-1].rfind ('<')
 			textList[t-1] = textList[t-1][:d] +'$'+ textList[t-1][d:]
 		t+=1
@@ -170,7 +150,7 @@ def getAllByClass (text, tagClass):
 	return tagList
 
 def getAllByTagClass (text, tagName, className):
-	if '<'+ tagName +" " not in text or tagClass not in text or 'class=' not in text: return []
+	if '<'+ tagName +" " not in text or className not in text or 'class=' not in text: return []
 	# repérer les tags intéressants
 	textBis = text.replace ('"',"'")
 	textList = textBis.split ('<'+ tagName +" ")
@@ -217,6 +197,8 @@ def getAllByAttribute (text, attrName, attrValue):
 		tagList.append (getFromPos (text, d))
 		textBis = textBis.replace ('$<', '<', 1)
 	return tagList
+
+
 
 class Html (File):
 	def __init__ (self, file =None):
