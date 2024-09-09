@@ -276,6 +276,7 @@ class Html (File):
 		self._setByTagSimple ('body')
 	def setByMain (self):
 		self._setByTagSimple ('main')
+		self._setByTagSimple ('article')
 
 	# ________________________ finir la lecture, préparer l'écriture ________________________
 

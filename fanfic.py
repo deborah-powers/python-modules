@@ -35,7 +35,7 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'https://www.reddit.com/r/' in url:			self.reddit()
 		elif 'egb'		in url: self.ebGratuit()
 		elif 'medium'	in url: self.medium()
-		else: self.setMain()
+		else: self.setByMain()
 		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
 		self.delAttributes()
 		article = self.toText()
