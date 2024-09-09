@@ -154,20 +154,20 @@ def getFromPos (text, pos):
 			nbEnd = nbEnd +1
 		return text[:f]
 
-def getOneFromTag (text, tagName):
+def getOneByTag (text, tagName):
 	if '<'+ tagName not in text: return ""
 	d= text.find ('<'+ tagName)
 	return getFromPos (text, d)
 
-def getOneFromId (text, tagId):
+def getOneById (text, tagId):
 	if tagId not in text or 'id=' not in text: return ""
 	textBis = text.replace ('"',"'")
 	if "id='"+ tagId +"'" not in textBis: return ""
 	d= textBis.find ("id='"+ tagId +"'")
-	d= textBis[:d] .rfind ('<')
+	d= textBis[:d].rfind ('<')
 	return getFromPos (text, d)
 
-def getOneFromClass (text, tagClass):
+def getOneByClass (text, tagClass):
 	if tagClass not in text or 'class=' not in text: return ""
 	textBis = text.replace ('"',"'")
 	textList = textBis.split ('class=')
@@ -180,11 +180,12 @@ def getOneFromClass (text, tagClass):
 			textList[t-1] = textList[t-1][:d] +'$'+ textList[t-1][d:]
 			t=1+ lenList
 		t+=1
-	textBis = textList.join ('class=')
+	textJoin = 'class='
+	textBis = textJoin.join (textList)
 	d= textBis.find ('$<')
 	return getFromPos (text, d)
 
-def getOneFromTagClass (text, tagName, className):
+def getOneByTagClass (text, tagName, className):
 	if '<'+ tagName +" " not in text or tagClass not in text or 'class=' not in text: return ""
 	textBis = text.replace ('"',"'")
 	textList = textBis.split ('<'+ tagName +" ")
@@ -200,15 +201,30 @@ def getOneFromTagClass (text, tagName, className):
 				textList[t-1] = textList[t-1][:d] +'$'+ textList[t-1][d:]
 				t=1+ lenList
 		t+=1
-	textBis = textList.join ('<'+ tagName +" ")
+	textJoin = '<'+ tagName +" "
+	textBis = textJoin +"='".join (textList)
 	d= textBis.find ('$<')
 	return getFromPos (text, d)
 
-def getOneFromAttribute (text, tagId):
-	pass
+def getOneByAttribute (text, attrName, attrValue):
+	if attrValue not in text or attrName +'=' not in text: return ""
+	textBis = text.replace ('"',"'")
+	textList = textBis.split (attrName +"='")
+	lenList = len (textList)
+	t=1
+	while t< lenList:
+		f= textList[t].find ("'",d)
+		if attrValue in textList[t][:f]:
+			d= textList[t-1].rfind ('<')
+			textList[t-1] = textList[t-1][:d] +'$'+ textList[t-1][d:]
+			t=1+ lenList
+		t+=1
+	textJoin = attrName +"='"
+	textBis = textJoin.join (textList)
+	d= textBis.find ('$<')
+	return getFromPos (text, d)
 
-
-def getAllFromTag (text, tagName):
+def getAllByTag (text, tagName):
 	if '<'+ tagName not in text: return []
 	tagList =[]
 	d=-1
@@ -218,7 +234,7 @@ def getAllFromTag (text, tagName):
 		if text[d+1] in "> ": tagList.append (getFromPos (text, d))
 	return tagList
 
-def getAllFromClass (text, tagClass):
+def getAllByClass (text, tagClass):
 	if tagClass not in text or 'class=' not in text: return []
 	# repérer les tags intéressants
 	textBis = text.replace ('"',"'")
@@ -240,7 +256,7 @@ def getAllFromClass (text, tagClass):
 		textBis = textBis.replace ('$<', '<', 1)
 	return tagList
 
-def getAllFromTagClass (text, tagName, className):
+def getAllByTagClass (text, tagName, className):
 	if '<'+ tagName +" " not in text or tagClass not in text or 'class=' not in text: return []
 	# repérer les tags intéressants
 	textBis = text.replace ('"',"'")
@@ -256,7 +272,31 @@ def getAllFromTagClass (text, tagName, className):
 				d= textList[t-1].rfind ('<')
 				textList[t-1] = textList[t-1][:d] +'$'+ textList[t-1][d:]
 		t+=1
-	textBis = textList.join ('<'+ tagName +" ")
+	textJoin = '<'+ tagName +" "
+	textBis = textJoin.join (textList)
+	# récupérer les tags
+	tagList =[]
+	while '$<' in textBis:
+		d= textBis.find ('$<')
+		tagList.append (getFromPos (text, d))
+		textBis = textBis.replace ('$<', '<', 1)
+	return tagList
+
+def getAllByAttribute (text, attrName, attrValue):
+	if attrValue not in text or attrName +'=' not in text: return []
+	# repérer les tags intéressants
+	textBis = text.replace ('"',"'")
+	textList = textBis.split (attrName +"='")
+	lenList = len (textList)
+	t=1
+	while t< lenList:
+		f= textList[t].find ("'",d)
+		if attrValue in textList[t][:f]:
+			d= textList[t-1].rfind ('<')
+			textList[t-1] = textList[t-1][:d] +'$'+ textList[t-1][d:]
+		t+=1
+	textJoin = attrName +"='"
+	textBis = textJoin.join (textList)
 	# récupérer les tags
 	tagList =[]
 	while '$<' in textBis:
@@ -285,85 +325,62 @@ class Html (File):
 	# ________________________ récupérer les noeuds d'intérêt ________________________
 
 	def getOneByTag (self, tagName):
-		return self.tree.getOneByTag (tagName)
-
+		return getOneByTag (self.text, tagName)
 	def getOneByClass (self, className):
-		return self.tree.getOneByClass (className)
-
+		return getOneByClass (self.text, className)
 	def getOneById (self, index):
-		return self.tree.getOneById (index)
-
+		return getOneById (self.text, index)
 	def getOneByTagClass (self, tagName, className):
-		return self.tree.getOneByTagClass (tagName, className)
-
+		return getOneByTagClass (self.text, tagName, className)
 	def getOneByAttribute (self, attributeName, attributeValue):
-		return self.tree.getOneByAttribute (attributeName, attributeValue)
-
+		return getOneByAttribute (self.text, attributeName, attributeValue)
 	def getAllByTag (self, tagName):
-		return self.tree.getAllByTag (tagName)
-
+		return getAllByTag (self.text, tagName)
 	def getAllByClass (self, className):
-		return self.tree.getAllByClass (className)
-
+		return getAllByClass (self.text, className)
 	def getAllByTagClass (self, tagName, className):
-		return self.tree.getAllByTagClass (tagName, className)
-
+		return getAllByTagClass (self.text, tagName, className)
 	def getAllByAttribute (self, attributeName, attributeValue):
-		return self.tree.getAllByAttribute (attributeName, attributeValue)
+		return getAllByAttribute (self.text, attributeName, attributeValue)
 
-	def setByTag (self, tagName):
-		node = self.tree.getOneByTag (tagName)
-		self.setFromTag (node)
+	def setFromTag (self, tagName):
+		if '</'+ tagName +'>' not in self.text or self.text.count ('</'+ tagName +'>') >1: return
+		d= self.text.find ('<'+ tagName)
+		d=1+ self.text.find ('>',d)
+		f= self.text.find ('</'+ tagName +'>')
+		self.text = self.text[d:f]
 
-	def setByClass (self, className):
-		node = self.tree.getOneByClass (className)
-		self.setFromTag (node)
-
-	def setById (self, index):
-		node = self.tree.getOneById (index)
-		self.setFromTag (node)
-
-	def setByTagClass (self, tagName, className):
-		node = self.tree.getOneByTagClass (tagName, className)
-		self.setFromTag (node)
-
-	def setByAttribute (self, attributeName, attributeValue):
-		node = self.tree.getOneByAttribute (attributeName, attributeValue)
-		self.setFromTag (node)
-
-	def setFromTag (self, node):
-		if node != None:
-			self.tree = node
-			self.text = node.innerHtml
-			self.tree.tag = 'body'
+	def setFromHtml (self):
+		self.setFromTag ('html')
+	def setFromBody (self):
+		self.setFromTag ('body')
+	def setFromMain (self):
+		self.setFromTag ('main')
 
 	# ________________________ finir la lecture, préparer l'écriture ________________________
-
-	def setHtml (self):
-		d= self.text.find ('<html')
-		d=1+ self.text.find ('>',d)
-		f= self.text.rfind ('</html>')
-		self.text = self.text[d:f]
 
 	def setTitle (self):
 		if '</title>' in self.text: self.title = cleanTitle (self.getOneByTag ('title').innerHtml)
 		elif '</h1>' in self.text: self.title = cleanTitle (self.getOneByTag ('h1').innerHtml)
 
-	def setMain (self):
-		if '</main>' in self.text: self.setByTag ('main')
-		if self.text.count ('</article>') ==1: self.setByTag ('article')
-	#	if self.text.count ('</section>') ==1: self.setByTag ('section')
-
 	def setMetas (self):
-		metaList = self.tree.getAllByTag ('meta')
+		metaList = getAllByTag ('meta')
 		self.meta ={}
 		for meta in metaList:
-			attributes = meta.attributes.keys()
-			if 'content' in attributes and 'name' in attributes and meta.attributes['name'][:5] != 'csrf-':
-				self.meta [meta.attributes['name']] = meta.attributes['content']
-			elif 'content' in attributes and 'property' in attributes:
-				self.meta [meta.attributes['property']] = meta.attributes['content']
-			self.tree.delete (meta)
+			if 'content' in meta and 'name' in meta and 'csrf-' not in meta:
+				d=5+ meta.find ('name=')
+				f= meta.find (meta[d], d)
+				name = meta[d+1:f]
+				d=8+ meta.find ('content=')
+				f= meta.find (meta[d], d)
+				self.meta [name] = meta[d+1:f]
+			elif 'content' in meta and 'property' in meta and 'csrf-' not in meta:
+				d=9+ meta.find ('property=')
+				f= meta.find (meta[d], d)
+				name = meta[d+1:f]
+				d=8+ meta.find ('content=')
+				f= meta.find (meta[d], d)
+				self.meta [name] = meta[d+1:f]
 
 	def getMetas (self):
 		metas =""
