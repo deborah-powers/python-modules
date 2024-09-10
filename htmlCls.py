@@ -23,6 +23,7 @@ templateHtml = """<!DOCTYPE html><html><head>
 </head><body>
 %s
 </body></html>"""
+listTagsLocal =[]
 
 # ________________________ auxilières ________________________
 
@@ -54,6 +55,43 @@ def getInnerHtml (text):
 		d=1+ text.find ('>')
 		return text[d:]
 
+def singleChild (text):
+	# vérifier si le texte transformé par getFromPos ne contient qu'un seul enfant
+	# TODO gérer les cadres "a href"
+	if text[:3] == 'svg' or '>' not in text: return text
+	d=1+ text.find ('>')
+	textBis = text[d:]
+	if '>' not in textBis: return text
+	elif textBis[0] =='<' and textBis[-1] =='>':
+		d= textBis.find ('>')
+		if " " in textBis[:d]: d= textBis.find (" ")
+		# nom du premier tag enfant
+		tagName = textBis[1:d]
+		lenTag =3+ len (tagName)
+		tagStart = '<'+ tagName
+		tagEnd = '</'+ tagName +'>'
+		# compter les emboîtement
+		lenText = len (textBis) - lenTag
+		if textBis[lenText:] == tagEnd:
+			if textBis.count (tagEnd) ==1:
+				d= text.find (tagStart, 1)
+				return getFromPos (text, d)
+			else:
+				f= textBis.find (tagEnd)
+				nbEnd =1
+				nbStart = textBis[:f].count (tagStart)
+				while nbEnd < nbStart and tagEnd in textBis[f:]:
+					f= textBis.find (tagEnd, f+1)
+					nbStart = textBis[:f].count (tagStart)
+					nbEnd = nbEnd +1
+				# emboîtement
+				if f== lenText:
+					d= text.find (tagStart, 1)
+					return getFromPos (text, d)
+				else: return text
+		else: return text
+	else: return text
+
 def getFromPos (text, pos):
 	""" pos est la postion de <tag ...
 	renvoi tag attr='value'>content
@@ -62,19 +100,20 @@ def getFromPos (text, pos):
 	"""
 	# retrouver le tag
 	text = text[pos+1:]
-	f= min (text.find ('>'), text.find (' '))
+	f= text.find ('>')
+	if " " in text[:f]: f= text.find (" ")
 	tagName = text[:f]
 	# tag auto-fermant
 	if tagName in listTagsSelfClosing:
 		f= text.find ('>')
 		if text[f-1] =='/': f-=1
 		return text[:f]
+	# erreur, pas de tag fermant
+	elif '</'+ tagName +'>' not in text: return ""
 	# une seule occurence du tag
 	elif text.count ('</'+ tagName +'>') ==1:
 		f= text.find ('</'+ tagName +'>')
-		return text[:f]
-	# erreur, pas de tag fermant
-	elif '</'+ tagName +'>' not in text: return ""
+		return singleChild (text[:f])
 	# plusieurs tags similaires. retrouver la balise fermante associé au mien
 	else:
 		tagStart = '<'+ tagName
@@ -87,7 +126,7 @@ def getFromPos (text, pos):
 			f= text.find (tagEnd, f+3)
 			nbStart = text[:f].count (tagStart)
 			nbEnd = nbEnd +1
-		return text[:f]
+		return singleChild (text[:f])
 
 def getOneByTag (text, tagName):
 	if '<'+ tagName not in text: return ""
@@ -108,7 +147,7 @@ def getOneByClass (text, className):
 	index =-1
 	d=0
 	while d< lenText and className in text[d:] and 'class=' in text[d:]:
-		d=6+ text.find ('class=')
+		d=6+ text.find ('class=', d)
 		f= text.find (text[d], d+1)
 		if className in text[d:f]:
 			index = text[:d].rfind ('<')
@@ -122,11 +161,11 @@ def getOneByTagClass (text, tagName, className):
 	index =-1
 	d=0
 	while d< lenText and '<'+ tagName +" " in text[d:] and 'class=' in text[d:] and className in text[d:]:
-		d=6+ text.find ('class=')
+		d=6+ text.find ('class=', d)
 		f= text.find (text[d], d+1)
 		if className in text[d:f]:
 			index = text[:d].rfind ('<')
-			if tagName == text [index +1:d]:
+			if tagName == text [index +1:d-7]:
 				d=1+ lenText
 	if index ==-1: return ""
 	else: return getFromPos (text, index)
@@ -260,7 +299,7 @@ class Html (File):
 		tagStr = getOneByTag (self.text, tagName)
 		self._setOne (tagStr)
 	def setById (self, index):
-		tagStr = getOneByClass (self.text, index)
+		tagStr = getOneById (self.text, index)
 		self._setOne (tagStr)
 	def setByClass (self, className):
 		tagStr = getOneByClass (self.text, className)
@@ -276,7 +315,7 @@ class Html (File):
 		# balise ouvrante
 		if '>' in tagStr:
 			d=1+ tagStr.find ('>')
-			self.text = self.text[d:]
+			self.text = tagStr[d:]
 		# balise auto-fermante
 		else:
 			tagStr = tagStr +'/>'
@@ -307,6 +346,31 @@ class Html (File):
 		elif '</h1>' in self.text: self.title = cleanTitle (self.getOneByTag ('h1'))
 		d=1+ self.title.find ('>')
 		self.title = self.title[d:]
+
+	def findTagsLocals (self):
+		text = self.text.strip()
+		for tag in listTags:
+			text = text.replace ('</'+ tag +'>', '$')
+			text = text.replace ('<'+ tag +'>', '$')
+			text = text.replace ('<'+ tag +" ", '$ ')
+		textList = text.split ('</')
+		for line in textList[1:]:
+			if line[0] in 'abcdefghijklmnopqrstuvwxyz' and '>' in line:
+				f= line.find ('>')
+				if line[:f] not in listTagsLocal:
+					listTagsLocal.append (line[:f])
+					text = text.replace ('</'+ line[:f] +'>', '$')
+					text = text.replace ('<'+ line[:f] +'>', '$')
+					text = text.replace ('<'+ line[:f] +" ", '$ ')
+		textList = text.split ('<')
+		for line in textList[1:]:
+			if line[0] in 'abcdefghijklmnopqrstuvwxyz' and '>' in line and " " in line:
+				f= line.find ('>')
+				if " " in line[:f]: f= line.find (" ")
+				if line[:f] not in listTagsLocal:
+					listTagsLocal.append (line[:f])
+					text = text.replace ('<'+ line[:f] +'>', '$')
+					text = text.replace ('<'+ line[:f] +" ", '$ ')
 
 	def setMetas (self):
 		metaList = getAllByTag (self.text, 'meta')
@@ -494,6 +558,15 @@ class Html (File):
 					else: textList[t] = textList[t][f:]
 				textJoin = '<'+ tagName
 				self.text = textJoin.join (textList)
+		for tagName in listTagsLocal:
+			if '<'+ tagName +" " in self.text:
+				textList = self.text.split ('<'+ tagName +" ")
+				textRange = range (1, len (textList))
+				for t in textRange:
+					f= textList[t].find ('>')
+					textList[t] = textList[t][f:]
+				textJoin = '<'+ tagName
+				self.text = textJoin.join (textList)
 
 	def delScript (self):
 		if '<script' in self.text:
@@ -520,7 +593,18 @@ class Html (File):
 
 	def delEmptyTags (self):
 		for tag in listTags: self.text = self.text.replace ('<'+ tag + '></' + tag +'>', "")
+		for tag in listTagsLocal: self.text = self.text.replace ('<'+ tag + '></' + tag +'>', "")
 		for tag in listTags:
+			if '></' + tag +'>' in self.text:
+				lenTag = len (tag)
+				textList = self.text.split ('></' + tag +'>')
+				textRange = range (len (textList) -1)
+				for l in textRange:
+					d= textList[l].rfind ('<')
+					if textList[l][d+1:d+1+ lenTag] == tag: textList[l] = textList[l][:d]
+					else: textList[l] = textList[l] + '></' + tag +'>'
+				self.text = "".join (textList)
+		for tag in listTagsLocal:
 			if '></' + tag +'>' in self.text:
 				lenTag = len (tag)
 				textList = self.text.split ('></' + tag +'>')
@@ -543,6 +627,7 @@ class Html (File):
 		self.setByHtml()
 		self.setTitle()
 		self.delScript()
-		self.delEmptyTags()
 		self.setMetas()
 		self.setByBody()
+		self.findTagsLocals()
+		self.delEmptyTags()

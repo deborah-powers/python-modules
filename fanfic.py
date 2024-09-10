@@ -86,34 +86,39 @@ class Fanfic (htmlCls.Html, Article):
 		# le lien de la fanfic
 		if not self.link:
 			tag = self.getOneByTagClass ('dd', 'bookmarks')
-			tag.setBodyById ('a')
-			self.link = 'https://archiveofourown.org' + tag.attributes['href'].replace ('bookmarks', "")
+			tag = htmlCls.getOneByTag (tag, 'a')
+			tag = htmlCls.getAttribute (tag, 'href')
+			self.link = 'https://archiveofourown.org' + tag.replace ('bookmarks', "")
 			"""
 			tag = self.getOneByTagClass ('p', 'message')
-			tags = tag.getAllByTag ('a')
-			self.link = tags[1].attributes['href']
+			log.logMsg (tag)
+			tags = htmlCls.getAllByTag (tag, 'a')
+			self.link = htmlCls.getAttribute (tags[1], 'href')
 			"""
 		# le titre
-		self.title = self.getOneByTag ('h1')
+	#	self.title = self.getOneByTag ('h1')
+		self.title = self.getOneByTagClass ('h2', 'title heading')
+		self.title = htmlCls.getInnerHtml (self.title)
 		self.title = htmlCls.cleanTitle (self.title)
 		# l'auteur
-		tag = self.getOneByTagClass ('div', 'byline')
-	#	tag = self.getOneByTagClass ('h3', 'byline heading')
-		tag = tag.getOneByTag ('a')
-		self.author = tag.innerHtml
-		self.autlink = tag.attributes['href']
+	#	tag = self.getOneByTagClass ('div', 'byline')
+		tag = self.getOneByTagClass ('h3', 'byline heading')
+		tag = htmlCls.getOneByTag (tag, 'a')
+		self.author = htmlCls.getInnerHtml (tag)
+		self.autlink = htmlCls.getAttribute (tag, 'href')
 		f= self.autlink.find ('/pseuds/')
 		self.autlink = self.autlink[:f]
 		# le sujet
 		tag = self.getOneByTagClass ('dl', 'tags')
 	#	tag = self.getOneByTagClass ('dd', 'fandom tags')
-		tag.innerHtml = tag.innerHtml.replace ('http://archiveofourown.org/tags/', "")
-		tags = tag.getAllByTag ('a')
-		for link in tags: self.subject = self.subject +'\t'+ link.innerHtml
+		tag = tag.replace ('http://archiveofourown.org/tags/', "")
+		tags = htmlCls.getAllByTag (tag, 'a')
+		for link in tags: self.subject = self.subject +'\t'+ htmlCls.getInnerHtml (link)
 		self.findSubject()
 		# le texte
-		self.setById ('chapters')
-		self.delId()
+		self.setById ('workskin')
+	#	self.setById ('chapters')
+		self.delAttributes()
 		self.replace ('<div>',"")
 		self.replace ('</div>',"")
 
