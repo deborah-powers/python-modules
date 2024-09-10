@@ -33,6 +33,27 @@ def cleanTitle (title):
 	title = textFct.cleanBasic (title)
 	return title
 
+def getAttribute (text, attrName):
+	# récupérer un attribut d'un texte tranformé par getFromPos
+	if '>' in text:
+		f= text.find ('>')
+		text = text[:f]
+	if attrName +'=' not in text: return ""
+	else:
+		d=1+ len (attrName) + text.find (attrName +'=')
+		f= text.find (text[d], d+1)
+		return text[d+1:f]
+
+def getInnerHtml (text):
+	# récupérer le innerHtml d'un texte tranformé par getFromPos
+	# if text[:2] == 'a ': return getAttribute (text, 'href')
+	if text[:4] == 'img ': return getAttribute (text, 'src')
+	elif text[:6] == 'input ': return getAttribute (text, 'value')
+	elif '>' not in text: return ""
+	else:
+		d=1+ text.find ('>')
+		return text[d:]
+
 def getFromPos (text, pos):
 	""" pos est la postion de <tag ...
 	renvoi tag attr='value'>content
@@ -198,8 +219,6 @@ def getAllByAttribute (text, attrName, attrValue):
 		textBis = textBis.replace ('$<', '<', 1)
 	return tagList
 
-
-
 class Html (File):
 	def __init__ (self, file =None):
 		File.__init__ (self)
@@ -279,6 +298,9 @@ class Html (File):
 		self._setByTagSimple ('article')
 
 	# ________________________ finir la lecture, préparer l'écriture ________________________
+
+	def getAttribute (self, attrName):
+		return getAttribute (self.text, attributeName)
 
 	def setTitle (self):
 		if '</title>' in self.text: self.title = cleanTitle (self.getOneByTag ('title'))
