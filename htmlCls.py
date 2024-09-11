@@ -55,6 +55,38 @@ def getInnerHtml (text):
 		d=1+ text.find ('>')
 		return text[d:]
 
+def endFromPos (text, pos, tagName=""):
+	""" pos est la postion de <tag ...
+	renvoyer la position après la balise fermante
+	<tag attr='value'>content</tag>posRenvoyee
+	ou
+	<img src='path.img'/>posRenvoyee
+	"""
+	# retrouver le tag
+	if not tagName:
+		f= text.find ('>', pos)
+		if " " in text[pos:f]: f= text.find (" ", pos)
+		tagName = text[pos +1:f]
+	# tag auto-fermant
+	if tagName in listTagsSelfClosing: return 1+ text.find ('>', pos)
+	# erreur, pas de tag fermant
+	elif '</'+ tagName +'>' not in text: return -1
+	# une seule occurence du tag
+	elif text.count ('</'+ tagName +'>') ==1: return 3+ len (tagName) + text.find ('</'+ tagName +'>')
+	# plusieurs tags similaires. retrouver la balise fermante associé au mien
+	else:
+		tagStart = '<'+ tagName
+		tagEnd = '</'+ tagName +'>'
+		f= text.find (tagEnd, pos)
+		nbEnd =1
+		nbStart = text[pos:f].count (tagStart)
+		lenText = len (text) -3
+		while nbEnd < nbStart:
+			f= text.find (tagEnd, f+3)
+			nbStart = text[:f].count (tagStart)
+			nbEnd = nbEnd +1
+		return f+3+ len (tagName)
+
 def singleChild (text):
 	# vérifier si le texte transformé par getFromPos ne contient qu'un seul enfant
 	# TODO gérer les cadres "a href"
@@ -92,15 +124,6 @@ def singleChild (text):
 		else: return text
 	else: return text
 
-def endFromPos (text, pos, tagName):
-	""" pos est la postion de <tag ...
-	renvoi tag attr='value'>content
-	ou
-	img src='path.img'
-	"""
-	if tagName not in listTags: return -1
-	tags
-
 def getFromPos (text, pos):
 	""" pos est la postion de <tag ...
 	renvoi tag attr='value'>content
@@ -108,34 +131,22 @@ def getFromPos (text, pos):
 	img src='path.img'
 	"""
 	# retrouver le tag
-	text = text[pos+1:]
-	f= text.find ('>')
-	if " " in text[:f]: f= text.find (" ")
-	tagName = text[:f]
-	# tag auto-fermant
-	if tagName in listTagsSelfClosing:
-		f= text.find ('>')
-		if text[f-1] =='/': f-=1
-		return text[:f]
+	f= text.find ('>', pos)
+	if " " in text[pos:f]: f= text.find (" ", pos)
+	tagName = text[pos+1:f]
+	f= endFromPos (text, pos, tagName)
 	# erreur, pas de tag fermant
-	elif '</'+ tagName +'>' not in text: return ""
-	# une seule occurence du tag
-	elif text.count ('</'+ tagName +'>') ==1:
-		f= text.find ('</'+ tagName +'>')
-		return singleChild (text[:f])
-	# plusieurs tags similaires. retrouver la balise fermante associé au mien
-	else:
-		tagStart = '<'+ tagName
-		tagEnd = '</'+ tagName +'>'
-		f= text.find (tagEnd)
-		nbEnd =0
-		nbStart = text[:f].count (tagStart)
-		lenText = len (text) -3
-		while nbEnd < nbStart and f< lenText and f>=0:
-			f= text.find (tagEnd, f+3)
-			nbStart = text[:f].count (tagStart)
-			nbEnd = nbEnd +1
-		return singleChild (text[:f])
+	pos +=1
+	f-=1
+	if f<1: return ""
+	# tag auto-fermant
+	elif tagName in listTagsSelfClosing:
+		if text[f-1] =='/': f-=1
+		return text[pos:f]
+	# tag avec du innerHtml
+	elif tagName in listTags:
+		f= text[:f].rfind ('</'+ tagName +'>')
+		return singleChild (text[pos:f])
 
 def getOneByTag (text, tagName):
 	if '<'+ tagName not in text: return ""
