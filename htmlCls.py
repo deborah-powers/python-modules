@@ -92,6 +92,15 @@ def singleChild (text):
 		else: return text
 	else: return text
 
+def endFromPos (text, pos, tagName):
+	""" pos est la postion de <tag ...
+	renvoi tag attr='value'>content
+	ou
+	img src='path.img'
+	"""
+	if tagName not in listTags: return -1
+	tags
+
 def getFromPos (text, pos):
 	""" pos est la postion de <tag ...
 	renvoi tag attr='value'>content
@@ -347,6 +356,14 @@ class Html (File):
 		d=1+ self.title.find ('>')
 		self.title = self.title[d:]
 
+	def singleChild (self):
+		d=0
+		for tag in listTags:
+			while '<'+ tag +'>' in self.text[d:]:
+				d= self.text.find ('<'+ tag +'>', d)
+				d=d+1
+
+
 	def findTagsLocals (self):
 		text = self.text.strip()
 		for tag in listTags:
@@ -395,6 +412,7 @@ class Html (File):
 		metas =""
 		for meta in self.meta.keys(): metas = metas + "<meta name='%s' content='%s'/>" % (meta, self.meta[meta])
 		return metas
+
 	# ________________________ lire et écrire dans un fichier html ________________________
 
 	def toText (self):
