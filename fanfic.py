@@ -149,7 +149,6 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.replace ('</div>',"")
 		d= self.text.find ('<h1')
 		self.text = self.text[d:]
-		self.setByTag ('section')
 
 	def ebGratuit (self):
 		# l'auteur

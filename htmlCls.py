@@ -8,7 +8,7 @@ import textFct
 from fileCls import File, Article
 import loggerFct as log
 
-listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body' )
+listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body' )
 listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'a')
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta', 'link', 'base' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
@@ -89,7 +89,6 @@ def endFromPos (text, pos, tagName=""):
 
 def singleChild (text):
 	# vérifier si le texte transformé par getFromPos ne contient qu'un seul enfant
-	# TODO gérer les cadres "a href"
 	if text[:3] == 'svg' or '>' not in text: return text
 	d=1+ text.find ('>')
 	textBis = text[d:]
@@ -107,7 +106,14 @@ def singleChild (text):
 		if textBis[lenText:] == tagEnd:
 			if textBis.count (tagEnd) ==1:
 				d= text.find (tagStart, 1)
-				return getFromPos (text, d)
+				innerTag = getFromPos (text, d)
+				# gérer les liens
+				if text[:2] == 'a ':
+					d=1+ text.find ('>')
+					# tag contenant du innerHtml
+					if '>' in innerTag: innerTag = getInnerHtml (innerTag)
+					return text[:d] + getInnerHtml (innerTag)
+				else: return innerTag
 			else:
 				f= textBis.find (tagEnd)
 				nbEnd =1
@@ -119,7 +125,14 @@ def singleChild (text):
 				# emboîtement
 				if f== lenText:
 					d= text.find (tagStart, 1)
-					return getFromPos (text, d)
+					innerTag = getFromPos (text, d)
+					# gérer les liens
+					if text[:2] == 'a ':
+						d=1+ text.find ('>')
+						# tag contenant du innerHtml
+						if '>' in innerTag: innerTag = getInnerHtml (innerTag)
+						return text[:d] + getInnerHtml (innerTag)
+					else: return innerTag
 				else: return text
 		else: return text
 	else: return text
@@ -135,18 +148,22 @@ def getFromPos (text, pos):
 	if " " in text[pos:f]: f= text.find (" ", pos)
 	tagName = text[pos+1:f]
 	f= endFromPos (text, pos, tagName)
-	# erreur, pas de tag fermant
 	pos +=1
 	f-=1
+	# erreur, pas de tag fermant
 	if f<1: return ""
 	# tag auto-fermant
-	elif tagName in listTagsSelfClosing:
+	elif tagName in listTagsSelfClosing or '>' not in text[pos:f]:
 		if text[f-1] =='/': f-=1
 		return text[pos:f]
 	# tag avec du innerHtml
-	elif tagName in listTags:
-		f= text[:f].rfind ('</'+ tagName +'>')
+	elif tagName in listTags or tagName in listTagsLocal:
+		f= text[:f].rfind ('<')
 		return singleChild (text[pos:f])
+	# cas inconnu, erreurs
+	else:
+		log.logLst ('erreur pour:', tagName, pos, f)
+		return text
 
 def getOneByTag (text, tagName):
 	if '<'+ tagName not in text: return ""
