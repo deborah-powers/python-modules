@@ -364,7 +364,6 @@ class Article (File):
 	def toHtml (self):
 		if self.type in 'xhtml': return self
 		article = Article()
-		article.text = self.text
 		article.path = self.path.replace ('.txt', '.html')
 		article.title = self.title
 		article.subject = self.subject
@@ -372,7 +371,7 @@ class Article (File):
 		article.link = self.link
 		article.author = self.author
 		article.autlink = self.autlink
-		article.text = textFct.toHtml (article.text)
+		article.text = textFct.toHtml (self.text)
 		if '</' in article.text: return article
 		else: return self
 
@@ -390,7 +389,6 @@ class Article (File):
 
 	def read (self):
 		File.read (self)
-		log.logMsg (self.text)
 		metadata =[]
 		if self.type in 'xhtml':
 			self.text = textFct.cleanHtml (self.text)
@@ -408,7 +406,7 @@ class Article (File):
 			self.author = metadata[1].strip()
 			self.link = metadata[2].strip()
 			self.autlink = metadata[3].strip()
-			self.text = metadata[5].strip()
+			self.text = metadata[4].strip()
 
 	def write (self, independant=False):
 		self.title = self.title.lower()

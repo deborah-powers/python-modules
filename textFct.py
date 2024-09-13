@@ -274,19 +274,23 @@ def fromModel (text, model):
 	# remplacer scanf
 	# préparer le modèle
 	text = cleanBasic (text)
+	text = text.lower()
 	model = cleanBasic (model)
+	model = model.lower()
 	typeList = ['d', 'f', 's']
 	model = model.replace ('%%', '$')
 	modelTmp = model
 	for t in typeList: modelTmp = modelTmp.replace ('%'+t, '%')
 	# récupérer les données du message sous forme de string
 	modelList = modelTmp.split ('%')
+	if not modelList[-1]: trash = modelList.pop (-1)
+	if not modelList[0]: trash = modelList.pop (0)
 	results = []
 	for line in modelList:
-		d= find (text, line)
-		results.append (text [:d])
+		d= text.find (line)
+		if d>0: results.append (text[:d])
 		d+= len (line)
-		text = text [d:]
+		text = text[d:]
 	if len (text) >0: results.append (text)
 	if not results[0]: trash = results.pop (0)
 	d=0
@@ -294,8 +298,8 @@ def fromModel (text, model):
 	for r in rangeRes:
 		d= model.find ('%', d) +1
 		if d==0: continue
-		if model [d] =='d': results [r] = int (results [r])
-		elif model [d] =='f': results [r] = float (results [r])
+		if model[d] =='d': results[r] = int (results[r])
+		elif model[d] =='f': results[r] = float (results[r])
 	if (len (results) >2+ modelTmp.count ('%')): print ('erreur: %=', modelTmp.count ('%'), 'item =', len (results))
 	return results
 
