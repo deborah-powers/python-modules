@@ -13,9 +13,7 @@ jsonDataA = jsonFileA.readJson()
 jsonFileB = File (jsonTitleB)
 jsonDataB = jsonFileB.readJson()
 
-jsonDataC ={}
 for b in jsonDataB.keys():
-	jsonDataC[b] =[]
 	if b not in jsonDataA.keys():
 		print ('nouvelle catégorie', b)
 		jsonDataA[b] = jsonDataB[b]
@@ -34,11 +32,13 @@ for b in jsonDataB.keys():
 					jsonDataA[b].append (c)
 			jsonDataA[b] = sorted (jsonDataA[b], key=lambda d: d['name'])
 
-jsonFileC = File (jsonTitleC)
-jsonFileC.text = json.dumps (jsonDataA)
-jsonFileC.replace ('}, {', ' },\n\t{ ')
-jsonFileC.replace ('}], "', ' }\n],\n"')
-jsonFileC.replace ('": [{"', '": [\n\t{ "')
-jsonFileC.text = 'var linkList ={\n' + jsonFileC.text[1:]
-jsonFileC.replace ('}]}', ' }\n]};')
-jsonFileC.write()
+if jsonDataA == jsonDataB: print ("les fichiers sont identiques")
+else:
+	jsonFileC = File (jsonTitleC)
+	jsonFileC.text = json.dumps (jsonDataA)
+	jsonFileC.replace ('}, {', ' },\n\t{ ')
+	jsonFileC.replace ('}], "', ' }\n],\n"')
+	jsonFileC.replace ('": [{"', '": [\n\t{ "')
+	jsonFileC.text = 'var linkList ={\n' + jsonFileC.text[1:]
+	jsonFileC.replace ('}]}', ' }\n]};')
+	jsonFileC.write()
