@@ -349,8 +349,9 @@ class Html (File):
 		self._setOne (tagStr)
 
 	def _setOne (self, tagStr):
+		if not tagStr: return
 		# balise ouvrante
-		if '>' in tagStr:
+		elif '>' in tagStr:
 			d=1+ tagStr.find ('>')
 			self.text = tagStr[d:]
 		# balise auto-fermante
@@ -371,6 +372,7 @@ class Html (File):
 		self._setByTagSimple ('body')
 	def setByMain (self):
 		self._setByTagSimple ('main')
+		self.setById ('main')
 		self._setByTagSimple ('article')
 
 	# ________________________ finir la lecture, préparer l'écriture ________________________
