@@ -14,7 +14,7 @@ else:
 		else: newToken = 'mauvais token'
 
 fileNamePython = 'b/python'
-fileNameWebext = 'b/web-extension'
+fileNameWebext = 'b/webext'
 fileNameHtml = 'C:\\wamp64\\www\\html'
 fileNameSite = 'C:\\wamp64\\www\\site-dp'
 
