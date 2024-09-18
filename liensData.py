@@ -13,13 +13,16 @@ jsonDataA = jsonFileA.readJson()
 jsonFileB = File (jsonTitleB)
 jsonDataB = jsonFileB.readJson()
 
+modif = False
 for b in jsonDataB.keys():
 	if b not in jsonDataA.keys():
 		print ('nouvelle catégorie', b)
 		jsonDataA[b] = jsonDataB[b]
+		modif = True
 	elif jsonDataB[b] != jsonDataA[b]:
 		for c in jsonDataB[b]:
 			if c not in jsonDataA[b]:
+				modif = True
 				nouveau = True
 				for a in jsonDataA[b]:
 					if a['name'] == c['name']: nouveau = False
@@ -32,8 +35,7 @@ for b in jsonDataB.keys():
 					jsonDataA[b].append (c)
 			jsonDataA[b] = sorted (jsonDataA[b], key=lambda d: d['name'])
 
-if jsonDataA == jsonDataB: print ("les fichiers sont identiques")
-else:
+if modif:
 	jsonFileC = File (jsonTitleC)
 	jsonFileC.text = json.dumps (jsonDataA)
 	jsonFileC.replace ('}, {', ' },\n\t{ ')
@@ -42,3 +44,4 @@ else:
 	jsonFileC.text = 'var linkList ={\n' + jsonFileC.text[1:]
 	jsonFileC.replace ('}]}', ' }\n]};')
 	jsonFileC.write()
+else: print ("les fichiers sont identiques")
