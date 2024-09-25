@@ -35,7 +35,7 @@ tagHtml =(
 
 def upperCaseIntern (text):
 	text ='\n'+ text
-	points =( '\n', '. ', '! ', '? ', ': ', '\n_ ', '\n* ', '\n- ', '\n\t', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
+	points =( '\n', '. ', '! ', '? ', ': ', ':\t', '\n_ ', '\n* ', '\n- ', '\n\t', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
 	for i, j in uppercaseLetters:
 		for p in points: text = text.replace (p+i, p+j)
 	punctuation = '({[?!;.,:]})"\' \n\t'
@@ -173,18 +173,29 @@ def cleanText (text):
 	while '....' in text: text = text.replace ('....', '...')
 	for letter in letters:
 		text = text.replace (letter +'!', letter +' !')
+		text = text.replace (letter +'?', letter +' ?')
 		text = text.replace (letter +';', letter +' ;')
 		text = text.replace ('...' + letter, '... '+ letter)
 	while '  ' in text: text = text.replace ('  ', ' ')
 	# restaurer les url
-	textList = text.split ('?')
-	textRange = range (len (textList) -1)
-	for t in textRange:
-		if 'http' in textList[t]:
-			d= textList[t].rfind ('http')
-			if " " in textList[t][d:] or '\n' " " in textList[t][d:]: textList[t] = textList[t] +" "
-		else: textList[t] = textList[t] +" "
-	text = '?'.join (textList)
+	if 'http' in text:
+		"""
+		textList = text.split ('http')
+		textRange = range (1, len (textList))
+		for t in textRange:
+			print ('t',t)
+			f= textList[t].find ('\n')
+			if '\t' in textList[t][:f]: f= textList[t].find ('\t')
+			if " ?" in textList[t][:f]: print (textList[t][:f])
+		"""
+		textList = text.split ('?')
+		textRange = range (len (textList) -1)
+		for t in textRange:
+			if 'http' in textList[t]:
+				d= textList[t].rfind ('http')
+				if " " in textList[t][d:] or '\n' " " in textList[t][d:]: textList[t] = textList[t] +" "
+			else: textList[t] = textList[t] +" "
+		text = '?'.join (textList)
 	# restaurer les heures
 	textList = text.split (':')
 	textRange = range (len (textList) -1)
@@ -199,6 +210,8 @@ def cleanText (text):
 		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
 	text = text.replace (' \n', '\n')
 	text = text.replace (' \t', '\t')
+	text = text.replace ('\t ', '\t')
+	text = text.replace ('\n ', '\n')
 	return text
 
 def cleanTextVa (text):
