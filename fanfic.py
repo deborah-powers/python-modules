@@ -36,7 +36,7 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'egb'		in url: self.ebGratuit()
 		elif 'medium'	in url: self.medium()
 		else: self.setByMain()
-		self.meta ={ 'link': self.link, 'author': self.author, 'autlink': self.autlink, 'subject': self.subject }
+		self.meta ={ 'subject': self.subject, 'author': self.author, 'link': self.link, 'autlink': self.autlink }
 		self.delAttributes()
 		article = self.toText()
 		if article: article.divide()
@@ -50,10 +50,11 @@ class Fanfic (htmlCls.Html, Article):
 		storyData = self.title.lower() +'\t'+ self.subject.lower() +'\t'+ self.author.lower()
 		subjectList =""
 		subjectDict = {
-			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars', 'integra', 'axi', 'damned caeli'),
+			'romance': ('romance', ' sex', 'x reader', 'rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars', 'integra', 'axi', 'damned caeli', 'jareth'),
 			'rocker': ('rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars'),
 			'tstm': ('30 seconds to mars', ), 'him': ('him (band)', 'ville valo'), '69eyes': ('jyrki', ),
 			'hellsing': ('integra', 'axi', 'damned caeli'),
+			'labyrinth': ('jareth'),
 			'monstre': ('mythology', 'vampire', 'naga', 'pokemon'),
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
 			'tricot': ('tricot', 'point', 'crochet'),
@@ -86,7 +87,7 @@ class Fanfic (htmlCls.Html, Article):
 		# le lien de la fanfic
 		if not self.link:
 			tag = self.getOneByTagClass ('dd', 'bookmarks')
-			tag = htmlCls.getOneByTag (tag, 'a')
+		#	tag = htmlCls.getOneByTag (tag, 'a')	le a est automatiquement trouvé via la dé-nidification
 			tag = htmlCls.getAttribute (tag, 'href')
 			self.link = 'https://archiveofourown.org' + tag.replace ('bookmarks', "")
 			"""
@@ -103,7 +104,7 @@ class Fanfic (htmlCls.Html, Article):
 		# l'auteur
 	#	tag = self.getOneByTagClass ('div', 'byline')
 		tag = self.getOneByTagClass ('h3', 'byline heading')
-		tag = htmlCls.getOneByTag (tag, 'a')
+	#	tag = htmlCls.getOneByTag (tag, 'a')	le a est automatiquement trouvé via la dé-nidification
 		self.author = htmlCls.getInnerHtml (tag)
 		self.autlink = htmlCls.getAttribute (tag, 'href')
 		f= self.autlink.find ('/pseuds/')
@@ -112,13 +113,18 @@ class Fanfic (htmlCls.Html, Article):
 		tag = self.getOneByTagClass ('dl', 'tags')
 	#	tag = self.getOneByTagClass ('dd', 'fandom tags')
 		tag = tag.replace ('http://archiveofourown.org/tags/', "")
+		tag = tag.replace ('/tags/', "")
 		tags = htmlCls.getAllByTag (tag, 'a')
 		for link in tags: self.subject = self.subject +'\t'+ htmlCls.getInnerHtml (link)
 		self.findSubject()
 		# le texte
 		self.setById ('workskin')
 	#	self.setById ('chapters')
+		d= self.text.find ('<a rel="author"')
+		d= self.text.find ('</h3>', d) +5
+		self.text = self.text[d:]
 		self.delAttributes()
+		self.replace ('<h3>chapter text</h3>',"")
 		self.replace ('<div>',"")
 		self.replace ('</div>',"")
 
@@ -351,7 +357,6 @@ class Fanfic (htmlCls.Html, Article):
 		d= self.text.find ("<div class='storytext")
 		d= self.text.find ('>',d) +1
 		f= self.text.find ("<div style='height: 5px'>", d)
-		log.logMsg (self.text, True)
 		self.text = self.text[d:f]
 		self.text = self.text.strip()
 		self.text = '<p>'+ self.text +'</p>'

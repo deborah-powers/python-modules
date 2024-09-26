@@ -392,8 +392,10 @@ class Article (File):
 		metadata =[]
 		if self.type in 'xhtml':
 			self.text = textFct.cleanHtml (self.text)
-			if self.type == 'html': metadata = textFct.fromModel (self.text, templateHtml)
-			else: metadata = textFct.fromModel (self.text, templateXhtml)
+			templateBis =""
+			if self.type == 'html': templateBis = textFct.cleanHtml (templateHtml)
+			else: templateBis = textFct.cleanHtml (templateXhtml)
+			metadata = textFct.fromModel (self.text, templateBis)
 			self.subject = metadata[1].strip()
 			self.author = metadata[2].strip()
 			self.link = metadata[3].strip()

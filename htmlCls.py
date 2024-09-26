@@ -83,7 +83,7 @@ def endFromPos (text, pos, tagName=""):
 		lenText = len (text) -3
 		while nbEnd < nbStart:
 			f= text.find (tagEnd, f+3)
-			nbStart = text[:f].count (tagStart)
+			nbStart = text[pos:f].count (tagStart)
 			nbEnd = nbEnd +1
 		return f+3+ len (tagName)
 
