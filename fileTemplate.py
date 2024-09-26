@@ -24,7 +24,7 @@ templateHtml = """<!DOCTYPE html><html><head>
 
 templateHtmlIndependant = """<!DOCTYPE html><html><head>
 	<title>%s</title>
-	<base target='_blank'>
+	<base target='_self'>
 	<meta charset='utf-8'/>
 	<meta name='viewport' content='width=device-width, initial-scale=1'/>
 	<meta name='subject' content='%s'/>
