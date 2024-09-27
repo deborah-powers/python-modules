@@ -6,13 +6,14 @@ from urllib import request as urlRequest
 import codecs
 import textFct
 from fileCls import File, Article
+from fileTemplate import templateHtml
 import loggerFct as log
 
 listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body' )
 listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'a')
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta', 'link', 'base' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
-templateHtml = """<!DOCTYPE html><html><head>
+templateHtmlBis = """<!DOCTYPE html><html><head>
 	<title>%s</title>
 	<base target='_blank'>
 	<meta charset='utf-8'/>
@@ -493,9 +494,10 @@ class Html (File):
 
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body
-		self.meta['link'] = self.link
+	#	self.meta['link'] = self.link
 		self.title = cleanTitle (self.title)
-		self.text = templateHtml % (self.title, self.getMetas(), self.text)
+		self.text = templateHtml % (self.title, self.subject, self.author, self.link, self.autlink, self.text)
+	#	self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		self.addIndentation()
 		File.write (self, mode)
 
