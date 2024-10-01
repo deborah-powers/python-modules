@@ -26,7 +26,7 @@ weirdChars =(
 	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'"), ('\n" ', '\n"')
 )
 tagHtml =(
-	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n--- '), ('</h4>\n', ' ---\n'),
+	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n______ '), ('</h4>\n', ' ______\n'),
 	('\n<hr>', '\n\n************************************************\n\n'), ("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
 	('\n<li>', '\n\t')
 )
@@ -72,8 +72,8 @@ def upperCase (text, case=""):
 			paragraphList = text.split ('\ncode\n')
 			paragraphRange = range (1, len (paragraphList))
 			for i in paragraphRange:
-				d= paragraphList [i].find ('\n/code\n') +7
-				paragraphList [i] = paragraphList [i][:d] + upperCaseIntern (paragraphList [i][d:])
+				d= paragraphList[i].find ('\n/code\n') +7
+				paragraphList[i] = paragraphList[i][:d] + upperCaseIntern (paragraphList[i][d:])
 			text = '\ncode\n'.join (paragraphList)
 		else: text = upperCaseIntern (text)
 	text = text.strip()
@@ -263,10 +263,10 @@ def shape (text, case=""):
 	text = cleanText (text)
 	text = '\n'+ text +'\n'
 	for char in '*#=~-_':
-		while 3* char in text: text = text.replace (3* char, 2* char)
-		text = text.replace (' '+ 2* char +'\n', ' '+ 12* char +'\n\n')
-		text = text.replace ('\n'+ 2* char +' ', '\n\n'+ 12* char +' ')
-		text = text.replace ('\n'+ 2* char +'\n', '\n\n'+ 48* char +'\n\n')
+		while 4* char in text: text = text.replace (4* char, 3* char)
+		text = text.replace (' '+ 3* char +'\n', ' '+ 12* char +'\n\n')
+		text = text.replace ('\n'+ 3* char +' ', '\n\n'+ 12* char +' ')
+		text = text.replace ('\n'+ 3* char +'\n', '\n\n'+ 48* char +'\n\n')
 	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
 	if case: text = upperCase (text, case)
 	return text
@@ -359,7 +359,7 @@ def toHtml (text):
 	paragraphList = text.split ('\n')
 	paragraphRange = range (len (paragraphList))
 	for i in paragraphRange:
-		if '<img' in paragraphList [i]: paragraphList [i] = paragraphList [i] +"'/>"
+		if '<img' in paragraphList[i]: paragraphList[i] = paragraphList[i] +"'/>"
 	text = '\n'.join (paragraphList)
 	# les formules
 	if '\nM\t' in text:
@@ -382,24 +382,24 @@ def toHtml (text):
 		paragraphRange= range (1, len (paragraphList), 2)
 		for i in paragraphRange:
 			# nettoyer le texte pour faciliter sa transformation
-			paragraphList [i] = paragraphList [i].strip ('\n')
-			paragraphList [i] = paragraphList [i].split ('\n')
-			paragraphRange = range (len (paragraphList [i]) -1)
+			paragraphList[i] = paragraphList[i].strip ('\n')
+			paragraphList[i] = paragraphList[i].split ('\n')
+			paragraphRange = range (len (paragraphList[i]) -1)
 			for j in paragraphRange:
 				# les images ont deja ete modifiees precedement
-				if paragraphList [i][j][:4] != '<img':
-					paragraphList [i][j] = '<figcaption>' + paragraphList [i][j] + '</figcaption>'
-			paragraphList [i] = "".join (paragraphList [i])
+				if paragraphList[i][j][:4] != '<img':
+					paragraphList[i][j] = '<figcaption>' + paragraphList[i][j] + '</figcaption>'
+			paragraphList[i] = "".join (paragraphList[i])
 		text = 'figure>'.join (paragraphList)
 	# les bloc de code
 	if '<xmp>' in text:
 		paragraphList = text.split ('xmp>')
 		paragraphRange = range (1, len (paragraphList), 2)
 		for i in paragraphRange:
-			paragraphList [i] = paragraphList [i].strip()
-			paragraphList [i] = paragraphList [i].strip ('\n\t ')
-			paragraphList [i] = paragraphList [i].replace ('\n', '\a')
-			paragraphList [i] = paragraphList [i].replace ('\t', '\f')
+			paragraphList[i] = paragraphList[i].strip()
+			paragraphList[i] = paragraphList[i].strip ('\n\t ')
+			paragraphList[i] = paragraphList[i].replace ('\n', '\a')
+			paragraphList[i] = paragraphList[i].replace ('\t', '\f')
 		text = 'xmp>'.join (paragraphList)
 		text = text.replace ('\a</xmp>', '</xmp>')
 	# les listes
@@ -431,6 +431,15 @@ def toHtml (text):
 		text = text.strip ('\n')
 		while '<li>\t' in text: text = text.replace ('<li>\t', '<li>')
 		while '<ul>\t' in text: text = text.replace ('<ul>\t', '<ul>')
+		# liste ordonnée
+		while '<li>#' in text:
+			d= text.find ('<li># ')
+			d= text[:d].rfind ('<ul>')
+			text = text[:d] + '<ol>' + text[d+4:]
+			f= text.find ('</ul>', d)
+			while text[d:f].count ('<ul>') != text[d:f].count ('</ul>'): f= text.find ('</ul>', f+4)
+			text = text[:f] + '</ol>' + text[f+5:]
+			text = text.replace ('<li># ', '<li>', 1)
 	# les tableaux
 	if '\t' in text:
 		paragraphList = text.split ('\n')
@@ -439,10 +448,10 @@ def toHtml (text):
 		while i< len_chn:
 			# rechercher une table
 			d=-1; c=-1
-			if d==-1 and c==-1 and '\t' in paragraphList [i]:
-				c= paragraphList [i].count ('\t')
+			if d==-1 and c==-1 and '\t' in paragraphList[i]:
+				c= paragraphList[i].count ('\t')
 				d=i; i+=1
-			while i< len_chn and paragraphList [i].count ('\t') ==c: i+=1
+			while i< len_chn and paragraphList[i].count ('\t') ==c: i+=1
 			c=i-d
 			# une table a ete trouve
 			if c>1 and d>0:
@@ -458,12 +467,19 @@ def toHtml (text):
 			i+=1
 		text = '\n'.join (paragraphList)
 		# les titres de colonnes ou de lignes
+		if ':</td></tr>' in text:
+			paragraphList = text.split (':</td></tr>')
+			paragraphRange = range (len (paragraphList) -1)
+			for p in paragraphRange:
+				d= paragraphList[p].rfind ('<tr><td>')
+				paragraphList[p] = paragraphList[p][:d] +'<tr><th>'+ paragraphList[p][d+8:].replace ('td>', 'th>')
+			text = '</th></tr>'.join (paragraphList)
 		if ':</td>' in text:
 			paragraphList = text.split (':</td>')
 			paragraphRange = range (len (paragraphList) -1)
 			for p in paragraphRange:
-				d= paragraphList [p].rfind ('<td>')
-				paragraphList [p] = paragraphList [p][:d] +'<th>'+ paragraphList [p][d+4:]
+				d= paragraphList[p].rfind ('<td>')
+				paragraphList[p] = paragraphList[p][:d] +'<th>'+ paragraphList[p][d+4:]
 			text = '</th>'.join (paragraphList)
 	# nettoyer le texte pour faciliter la suite des transformations
 	text = text.replace ('\t', "")
@@ -487,11 +503,11 @@ def toHtml (text):
 	if '<' not in text [0:3]: text = '<p>'+ text
 	if '>' not in text [-3:]: text = text +'</p>'
 	# transformer les p contenant un lien en a
-	endingChars = '<;, !?\t\n'
+	endingChars = '<;, !\t\n'
 	paragraphList = text.split ('http')
 	paragraphRange = range (1, len (paragraphList))
 	for p in paragraphRange:
-		paragraphTmp = paragraphList [p]
+		paragraphTmp = paragraphList[p]
 		e=-1; f=-1; d=-1
 		for char in endingChars:
 			if char in paragraphTmp:
@@ -502,8 +518,13 @@ def toHtml (text):
 		e= len (paragraphTmp)
 		if '.' in paragraphTmp[d:]: e= paragraphTmp.rfind ('.')
 		title = paragraphTmp [d:e].replace ('-',' ')
+		if paragraphList[p][f:f+2] == ' (':
+			e= paragraphList[p].find (')')
+			title = paragraphList[p][f+2:e]
+			paragraphList[p] = paragraphList[p][e+1:]
+		else: paragraphList[p] = paragraphList[p][f:]
 		title = title.replace ('_',' ')
-		paragraphList [p] = paragraphTmp +"'>"+ title +'</a> '+ paragraphList [p][f:]
+		paragraphList[p] = paragraphTmp +"'>"+ title +'</a> '+ paragraphList[p]
 	text = " <a href='http".join (paragraphList)
 	text = text.replace ('> <a ', '><a ')
 	# pour les blocs de code
