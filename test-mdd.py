@@ -4,7 +4,7 @@ import textFct
 from fileCls import File
 import loggerFct as log
 
-fileName = 'b/md-maison-test.mdd'
+fileName = 'C:\\wamp64\\www\\html\\md-maison-test.mdd'
 
 class Mdd (File):
 	def __init__ (self):

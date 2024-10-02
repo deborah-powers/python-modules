@@ -502,6 +502,37 @@ def toHtml (text):
 	# rajouter d'eventuel <p/> s'il n'y a pas de balise en debut ou fin de text
 	if '<' not in text [0:3]: text = '<p>'+ text
 	if '>' not in text [-3:]: text = text +'</p>'
+	# les images
+	imgExtension =( 'jpg', 'jpeg', 'bmp', 'gif', 'png')
+	imgCharStart = '>\n\t\'",;!()[]{}:'
+	for ext in imgExtension:
+		if '.'+ ext in text:
+			textList = text.split ('.'+ ext)
+			textRange = range (len (textList) -1)
+			for i in textRange:
+				d= textList[i].rfind (':')
+				f= textList[i][:d].rfind (' ')
+				for char in imgCharStart:
+					e= textList[i][:d].rfind (char)
+					if e>f: f=e
+				f=f+1
+				title = textList[i][f+1:].replace ('-'," ")
+				if textList[i+1][:2] == ' (':
+					e= textList[i+1].find (')')
+					title = textList[i+1][2:e]
+					textList[i+1] = textList[i+1][e+1:]
+					title = title.replace ('-'," ")
+				else:
+					if '/' in title:
+						d=1+ title.rfind ('/')
+						title = title[d:]
+					if '\\' in title:
+						d=1+ title.rfind ('\\')
+						title = title[d:]
+					title = cleanText (title)
+				title = title.replace ('_'," ")
+				textList[i] = textList[i][:f] + "<img src='" + textList[i][f:].replace ('http', 'ht/tp') +"."+ ext +"' alt='" + title +"'/>"
+			text = "".join (textList)
 	# transformer les p contenant un lien en a
 	endingChars = '<;, !\t\n'
 	paragraphList = text.split ('http')
@@ -524,9 +555,11 @@ def toHtml (text):
 			paragraphList[p] = paragraphList[p][e+1:]
 		else: paragraphList[p] = paragraphList[p][f:]
 		title = title.replace ('_',' ')
+		title = title.replace ('-',' ')
 		paragraphList[p] = paragraphTmp +"'>"+ title +'</a> '+ paragraphList[p]
 	text = " <a href='http".join (paragraphList)
 	text = text.replace ('> <a ', '><a ')
+	text = text.replace ('ht/tp', 'http')
 	# pour les blocs de code
 	text = text.replace ('\a', '\n')
 	text = text.replace ('\f', '\t')
