@@ -1,6 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-import textFct
+import htmlFct
 from fileCls import File
 import loggerFct as log
 
@@ -12,7 +12,7 @@ class Mdd (File):
 
 	def toHtml (self):
 		article = File()
-		article.text = textFct.toHtml (self.text)
+		article.text = htmlFct.toHtml (self.text)
 		if '</' in article.text:
 			article.path = self.path.replace ('.mdd', '.html')
 			article.title = self.title

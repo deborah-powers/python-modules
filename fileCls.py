@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 import listFct
 import textFct
+import htmlFct
 from fileLocal import *
 from fileTemplate import *
 import loggerFct as log
@@ -349,7 +350,7 @@ class Article (File):
 	def toText (self):
 		if self.type == 'txt': return self
 		article = Article()
-		article.text = textFct.fromHtml (self.text)
+		article.text = htmlFct.fromHtml (self.text)
 		if '</' in article.text: return self
 		article.path = self.path.replace ('.html', '.txt')
 		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
@@ -371,7 +372,7 @@ class Article (File):
 		article.link = self.link
 		article.author = self.author
 		article.autlink = self.autlink
-		article.text = textFct.toHtml (self.text)
+		article.text = htmlFct.toHtml (self.text)
 		if '</' in article.text: return article
 		else: return self
 
@@ -460,7 +461,7 @@ fkz,fzkl,fam; v adbazjkbdafaef"""
 		print ('lecture\t', self.text[:200])
 		print ('conversion en html')
 		self.path = self.path.replace ('.txt', '.html')
-		self.text = textFct.toHtml (self.text)
+		self.text = htmlFct.toHtml (self.text)
 		self.type = 'html'
 		print ('text html\t', self.text)
 		self.write()
