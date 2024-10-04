@@ -15,22 +15,22 @@ def toList (text):
 		lc= range (len (paragraphList))
 		# rajouter les balises fermantes
 		for l in lc:
-			if '<li>' in paragraphList [l]: paragraphList [l] = paragraphList [l] +'</li>'
+			if '<li>' in paragraphList[l]: paragraphList[l] = paragraphList[l] +'</li>'
 		lc= range (1, len (paragraphList) -1)
 		# rajouter les balises ouvrantes et fermantes delimitant la liste, <ul/>. reperer les listes imbriquees.
 		for l in lc:
-			if '<li>' in paragraphList [l]:
-				# compter le niveau d'imbrication (n) de l'element paragraphList [l]
+			if '<li>' in paragraphList[l]:
+				# compter le niveau d'imbrication (n) de l'element paragraphList[l]
 				n=0
-				while '<li>'+n*'\t' in paragraphList [l]: n+=1
+				while '<li>'+n*'\t' in paragraphList[l]: n+=1
 				n-=1
-				if '<li>'+n*'\t' in paragraphList [l]:
+				if '<li>'+n*'\t' in paragraphList[l]:
 					# debut de la liste (ou sous-liste), mettre le <ul>
-					if '<li>'+n*'\t' not in paragraphList [l-1]: paragraphList [l] = '<ul>'+ paragraphList [l]
+					if '<li>'+n*'\t' not in paragraphList [l-1]: paragraphList[l] = '<ul>'+ paragraphList[l]
 					# fin de la liste (ou sous-liste), mettre le </ul>
 					if '<li>'+n*'\t' not in paragraphList [l+1]:
 						while n >-1:
-							if '<li>'+n*'\t' not in paragraphList [l+1]: paragraphList [l] = paragraphList [l] + '</ul>'
+							if '<li>'+n*'\t' not in paragraphList [l+1]: paragraphList[l] = paragraphList[l] + '</ul>'
 							n-=1
 		# mettre le texte au propre
 		text = '\n'.join (paragraphList)
