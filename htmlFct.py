@@ -11,29 +11,29 @@ tagHtml =(
 def toList (text):
 	if '<li>' in text:
 		text = '\n'+ text +'\n'
-		paragraphList = text.split ('\n')
-		lc= range (len (paragraphList))
+		textList = text.split ('\n')
+		lc= range (len (textList))
 		# rajouter les balises fermantes
 		for l in lc:
-			if '<li>' in paragraphList[l]: paragraphList[l] = paragraphList[l] +'</li>'
-		lc= range (1, len (paragraphList) -1)
+			if '<li>' in textList[l]: textList[l] = textList[l] +'</li>'
+		lc= range (1, len (textList) -1)
 		# rajouter les balises ouvrantes et fermantes delimitant la liste, <ul/>. reperer les listes imbriquees.
 		for l in lc:
-			if '<li>' in paragraphList[l]:
-				# compter le niveau d'imbrication (n) de l'element paragraphList[l]
+			if '<li>' in textList[l]:
+				# compter le niveau d'imbrication (n) de l'element textList[l]
 				n=0
-				while '<li>'+n*'\t' in paragraphList[l]: n+=1
+				while '<li>'+n*'\t' in textList[l]: n+=1
 				n-=1
-				if '<li>'+n*'\t' in paragraphList[l]:
+				if '<li>'+n*'\t' in textList[l]:
 					# debut de la liste (ou sous-liste), mettre le <ul>
-					if '<li>'+n*'\t' not in paragraphList [l-1]: paragraphList[l] = '<ul>'+ paragraphList[l]
+					if '<li>'+n*'\t' not in textList [l-1]: textList[l] = '<ul>'+ textList[l]
 					# fin de la liste (ou sous-liste), mettre le </ul>
-					if '<li>'+n*'\t' not in paragraphList [l+1]:
+					if '<li>'+n*'\t' not in textList [l+1]:
 						while n >-1:
-							if '<li>'+n*'\t' not in paragraphList [l+1]: paragraphList[l] = paragraphList[l] + '</ul>'
+							if '<li>'+n*'\t' not in textList [l+1]: textList[l] = textList[l] + '</ul>'
 							n-=1
 		# mettre le texte au propre
-		text = '\n'.join (paragraphList)
+		text = '\n'.join (textList)
 		text = text.strip ('\n')
 		while '<li>\t' in text: text = text.replace ('<li>\t', '<li>')
 		while '<ul>\t' in text: text = text.replace ('<ul>\t', '<ul>')
@@ -50,46 +50,47 @@ def toList (text):
 
 def toTable (text):
 	if '\t' in text:
-		paragraphList = text.split ('\n')
-		len_chn = len (paragraphList)
+		textList = text.split ('\n')
+		len_chn = len (textList)
 		d=-1; c=-1; i=0
 		while i< len_chn:
 			# rechercher une table
 			d=-1; c=-1
-			if d==-1 and c==-1 and '\t' in paragraphList[i]:
-				c= paragraphList[i].count ('\t')
+			if d==-1 and c==-1 and '\t' in textList[i]:
+				c= textList[i].count ('\t')
 				d=i; i+=1
-			while i< len_chn and paragraphList[i].count ('\t') ==c: i+=1
+			while i< len_chn and textList[i].count ('\t') ==c: i+=1
 			c=i-d
 			# une table a ete trouve
 			if c>1 and d>0:
 				rtable = range (d, i)
 				for j in rtable:
 					# entre les cases
-					paragraphList [j] = paragraphList [j].replace ('\t', '</td><td>')
+					textList [j] = textList [j].replace ('\t', '</td><td>')
 					# bordure des cases
-					paragraphList [j] = '<tr><td>' + paragraphList [j] +'</td></tr>'
+					textList [j] = '<tr><td>' + textList [j] +'</td></tr>'
 				# les limites de la table
-				paragraphList [d] = '<table>\n' + paragraphList [d]
-				paragraphList [i-1] = paragraphList [i-1] +'\n</table>'
+				textList [d] = '<table>\n' + textList [d]
+				textList [i-1] = textList [i-1] +'\n</table>'
 			i+=1
-		text = '\n'.join (paragraphList)
+		text = '\n'.join (textList)
 		# les titres de colonnes ou de lignes
 		if ':</td></tr>' in text:
-			paragraphList = text.split (':</td></tr>')
-			paragraphRange = range (len (paragraphList) -1)
+			textList = text.split (':</td></tr>')
+			paragraphRange = range (len (textList) -1)
 			for p in paragraphRange:
-				d= paragraphList[p].rfind ('<tr><td>')
-				paragraphList[p] = paragraphList[p][:d] +'<tr><th>'+ paragraphList[p][d+8:].replace ('td>', 'th>')
-			text = '</th></tr>'.join (paragraphList)
+				d= textList[p].rfind ('<tr><td>')
+				textList[p] = textList[p][:d] +'<tr><th>'+ textList[p][d+8:].replace ('td>', 'th>')
+			text = '</th></tr>'.join (textList)
 		if ':</td>' in text:
-			paragraphList = text.split (':</td>')
-			paragraphRange = range (len (paragraphList) -1)
+			textList = text.split (':</td>')
+			paragraphRange = range (len (textList) -1)
 			for p in paragraphRange:
-				d= paragraphList[p].rfind ('<td>')
-				paragraphList[p] = paragraphList[p][:d] +'<th>'+ paragraphList[p][d+4:]
-			text = '</th>'.join (paragraphList)
+				d= textList[p].rfind ('<td>')
+				textList[p] = textList[p][:d] +'<th>'+ textList[p][d+4:]
+			text = '</th>'.join (textList)
 	text = text.replace ('\t', "")
+	text = text.replace ('<td>.</td>', '<td></td>')
 	return text
 
 def toImage (text):
@@ -119,18 +120,22 @@ def toImage (text):
 					if '\\' in title:
 						d=1+ title.rfind ('\\')
 						title = title[d:]
+					if '.' in title:
+						d=1+ title.rfind ('.')
+						title = title[d:]
 					title = cleanText (title)
 				title = title.replace ('_'," ")
+				title = title.replace ('.'," ")
 				textList[i] = textList[i][:f] + "<img src='" + textList[i][f:].replace ('http', 'ht/tp') +"."+ ext +"' alt='" + title +"'/>"
 			text = "".join (textList)
 	return text
 
 def toLink (text):
 	endingChars = '<;, !\t\n'
-	paragraphList = text.split ('http')
-	paragraphRange = range (1, len (paragraphList))
+	textList = text.split ('http')
+	paragraphRange = range (1, len (textList))
 	for p in paragraphRange:
-		paragraphTmp = paragraphList[p]
+		paragraphTmp = textList[p]
 		e=-1; f=-1; d=-1
 		for char in endingChars:
 			if char in paragraphTmp:
@@ -141,74 +146,75 @@ def toLink (text):
 		e= len (paragraphTmp)
 		if '.' in paragraphTmp[d:]: e= paragraphTmp.rfind ('.')
 		title = paragraphTmp [d:e].replace ('-',' ')
-		if paragraphList[p][f:f+2] == ' (':
-			e= paragraphList[p].find (')')
-			title = paragraphList[p][f+2:e]
-			paragraphList[p] = paragraphList[p][e+1:]
-		else: paragraphList[p] = paragraphList[p][f:]
+		if textList[p][f:f+2] == ' (':
+			e= textList[p].find (')')
+			title = textList[p][f+2:e]
+			textList[p] = textList[p][e+1:]
+		else: textList[p] = textList[p][f:]
 		title = title.replace ('_',' ')
 		title = title.replace ('-',' ')
-		paragraphList[p] = paragraphTmp +"'>"+ title +'</a> '+ paragraphList[p]
-	text = " <a href='http".join (paragraphList)
+		title = title.replace ('.'," ")
+		textList[p] = paragraphTmp +"'>"+ title +'</a> '+ textList[p]
+	text = " <a href='http".join (textList)
 	text = text.replace ('> <a ', '><a ')
 	return text
 
 def toEmphasis (text):
 	if '\n* ' in text:
-		paragraphList = text.split ('\n* ')
-		lc= range (len (paragraphList))
+		textList = text.split ('\n* ')
+		lc= range (len (textList))
 		# rajouter les balises fermantes
 		for l in lc:
-			if ': ' in paragraphList[l][1:100]:
-				paragraphList[l] = paragraphList[l].replace (': ',':</strong> ',1)
-				paragraphList[l] = '<strong>' + paragraphList[l]
-			text = '\n'.join (paragraphList)
+			if ': ' in textList[l][1:100]:
+				textList[l] = textList[l].replace (': ',':</strong> ',1)
+				textList[l] = '<strong>' + textList[l]
+		text = '\n'.join (textList)
 	return text
 
 def toMath (text):
 	if '\nM\t' in text:
-		paragraphList = text.split ('\n')
-		paragraphRange = range (1, len (paragraphList))
+		textList = text.split ('\n')
+		paragraphRange = range (1, len (textList))
 		for i in paragraphRange:
-			if paragraphList[i][:2] == 'M\t':
-				if 'f/' in paragraphList[i]:
-					paragraphList[i] = paragraphList[i].replace (' f/ ', '<mfrac><mrow>')
-					paragraphList[i] = paragraphList[i].replace ('\tf/ ', '<mfrac><mrow>')
-					paragraphList[i] = paragraphList[i].replace (' /f', '</mrow></mfrac>')
-					if '</mfrac>' not in paragraphList[i]: paragraphList[i] = paragraphList[i] + '</mrow></mfrac>'
-					paragraphList[i] = paragraphList[i].replace (' / ', '</mrow><mrow>')
-				paragraphList[i] = '<math>' + paragraphList[i][2:] + '</math>'
-		text = '\n'.join (paragraphList)
+			if textList[i][:2] == 'M\t':
+				if 'f/' in textList[i]:
+					textList[i] = textList[i].replace (' f/ ', '<mfrac><mrow>')
+					textList[i] = textList[i].replace ('\tf/ ', '<mfrac><mrow>')
+					textList[i] = textList[i].replace (' /f', '</mrow></mfrac>')
+					if '</mfrac>' not in textList[i]: textList[i] = textList[i] + '</mrow></mfrac>'
+					textList[i] = textList[i].replace (' / ', '</mrow><mrow>')
+				textList[i] = '<math>' + textList[i][2:] + '</math>'
+		text = '\n'.join (textList)
 	return text
 
 def toFigure (text):
 	if '<figure>' in text:
 		# mettre en forme le contenu des figures
-		paragraphList = text.split ('figure>')
-		paragraphRange= range (1, len (paragraphList), 2)
+		textList = text.split ('figure>')
+		paragraphRange= range (1, len (textList), 2)
 		for i in paragraphRange:
 			# nettoyer le texte pour faciliter sa transformation
-			paragraphList[i] = paragraphList[i].strip ('\n')
-			paragraphList[i] = paragraphList[i].split ('\n')
-			paragraphRange = range (len (paragraphList[i]) -1)
+			textList[i] = textList[i].strip ('\n')
+			textList[i] = textList[i].split ('\n')
+			paragraphRange = range (len (textList[i]) -1)
 			for j in paragraphRange:
 				# les images ont deja ete modifiees precedement
-				if paragraphList[i][j][:4] != '<img':
-					paragraphList[i][j] = '<figcaption>' + paragraphList[i][j] + '</figcaption>'
-			paragraphList[i] = "".join (paragraphList[i])
-		text = 'figure>'.join (paragraphList)
+				if textList[i][j][:4] != '<img':
+					textList[i][j] = '<figcaption>' + textList[i][j] + '</figcaption>'
+			textList[i] = "".join (textList[i])
+		text = 'figure>'.join (textList)
 	return text
 
 def toCode (text):
 	if '<xmp>' in text:
-		paragraphList = text.split ('xmp>')
-		paragraphRange = range (1, len (paragraphList), 2)
+		textList = text.split ('xmp>')
+		paragraphRange = range (1, len (textList), 2)
 		for i in paragraphRange:
-			paragraphList[i] = paragraphList[i].strip()
-			paragraphList[i] = paragraphList[i].strip ('\n\t ')
-			paragraphList[i] = paragraphList[i].replace ('\n', '\a')
-			paragraphList[i] = paragraphList[i].replace ('\t', '\f')
-		text = 'xmp>'.join (paragraphList)
+			textList[i] = textList[i].strip()
+			textList[i] = textList[i].strip ('\n\t ')
+			textList[i] = textList[i].replace ('\n', '\a')
+			textList[i] = textList[i].replace ('\t', '\f')
+		text = 'xmp>'.join (textList)
 		text = text.replace ('\a</xmp>', '</xmp>')
 	return text
 
@@ -218,7 +224,7 @@ def toHtml (text):
 	# transformer la mise en page en balises
 	for html, perso in tagHtml:
 		if perso in text: text = text.replace (perso, html)
-	text = '\n'.join (paragraphList)
+	text = '\n'.join (textList)
 	# autres modifications
 	text = toMath (text)
 	text = toFigure (text)

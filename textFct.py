@@ -9,7 +9,7 @@ wordsBeginMaj = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'd
 wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http', '\nPg_')
 codeKeywords =(
 	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where',
-	'having', 'group by', 'order by', 'insert into', 'if', 'elseif', 'end', 'loop', 'perform',
+	'having', 'group by', 'order by', 'insert into', 'if', 'elseif', 'end', 'loop', 'perform', 'drop ',
 	'cd', 'psql', 'git', 'return', 'mvn', 'python', 'else',
 	'def', 'class', 'console.log', 'var', 'function', 'private', 'protected', 'public',
 	'log.debug', 'log.info'
