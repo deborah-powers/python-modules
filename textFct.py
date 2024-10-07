@@ -28,7 +28,6 @@ urlWords =( (': /', ':/'), ('localhost: ', 'localhost:'), ('www. ', 'www.'), ('.
 
 # ________________________ ma mise en forme perso ________________________
 
-
 def upperCaseIntern (text):
 	text ='\n'+ text
 	points =( '\n', '. ', '! ', '? ', ': ', ':\t', '\n_ ', '\n* ', '\n- ', '\n\t', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')

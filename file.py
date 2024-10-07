@@ -53,8 +53,10 @@ elif nbArg >2:
 	filePerso = File (argv[1])
 	filePerso.read()
 	if 'clean' in argv:
-		if filePerso.path[-5:] == '.html': filePerso.text = textFct.cleanHtml (filePerso.text)
-		if filePerso.path[-4:] == '.css': filePerso.text = textFct.cleanCss (filePerso.text)
+		if filePerso.path[-5:] == '.html' or filePerso.path[-6:] == '.xhtml' or filePerso.path[-4:] == '.xml': filePerso.text = textFct.cleanHtml (filePerso.text)
+		# formats dérivés du xml
+		elif filePerso.path[-4:] == '.ops' or filePerso.path[-4:] == '.opf' or filePerso.path[-4:] == '.ncx': filePerso.text = textFct.cleanHtml (filePerso.text)
+		elif filePerso.path[-4:] == '.css': filePerso.text = textFct.cleanCss (filePerso.text)
 		else: filePerso.text = textFct.cleanText (filePerso.text)
 	elif 'mef' in argv: filePerso.text = textFct.shape (filePerso.text)
 	if nbArg >3:
