@@ -145,15 +145,16 @@ def toLink (text):
 		d= paragraphTmp.rfind ('/') +1
 		e= len (paragraphTmp)
 		if '.' in paragraphTmp[d:]: e= paragraphTmp.rfind ('.')
-		title = paragraphTmp [d:e].replace ('-',' ')
+		title =""
 		if textList[p][f:f+2] == ' (':
 			e= textList[p].find (')')
 			title = textList[p][f+2:e]
 			textList[p] = textList[p][e+1:]
-		else: textList[p] = textList[p][f:]
-		title = title.replace ('_',' ')
-		title = title.replace ('-',' ')
-		title = title.replace ('.'," ")
+		else:
+			textList[p] = textList[p][f:]
+			title = paragraphTmp [d:e].replace ('-',' ')
+			title = title.replace ('_',' ')
+			title = title.replace ('.'," ")
 		textList[p] = paragraphTmp +"'>"+ title +'</a> '+ textList[p]
 	text = " <a href='http".join (textList)
 	text = text.replace ('> <a ', '><a ')
