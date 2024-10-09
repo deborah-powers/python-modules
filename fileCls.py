@@ -382,6 +382,22 @@ class Article (File):
 		article.type = 'xhtml'
 		return article
 
+	def createSummary (self):
+		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
+			sommaire = "<section id='sommaire'>"
+			numero =1
+			textList = self.text.split ('<h1')
+			textRange = range (1, len (textList))
+			for t in textRange:
+				d=1+ textList[t].find ('>')
+				f= textList[t].find ('<')
+				chapid = 'chap-' + str(t)
+				sommaire = sommaire + "<a href='%s'>%s</a>" %( '#'+ chapid, textList[t][d:f])
+				textList[t] =" id='" + chapid +"'"+ textList[t]
+			sommaire = sommaire + '</section>'
+			self.text = '<h1'.join (textList)
+			self.text = sommaire + self.text
+
 	def fromPath (self):
 		File.fromPath (self)
 		if self.path[-3:] == 'txt': self.type = 'txt'
@@ -419,7 +435,10 @@ class Article (File):
 			while '  ' in self.text: self.replace ('  ', ' ')
 			self.replace ("> <a ", "><a ")
 			if self.type == 'html':
-				if independant: self.text = templateHtmlIndependant % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
+				if independant:
+					self.title = self.title +" reader"
+					self.createSummary()
+					self.text = templateHtmlEreader % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 				else: self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)

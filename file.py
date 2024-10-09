@@ -34,6 +34,10 @@ elif argv[2] == 'md':
 	page.read()
 	page.toMarkdown()
 	page.write()
+elif argv[1][-5:] == '.html' and argv[2] == 'inde':
+	page = Article (argv[1])
+	page.read()
+	page.write (True)
 elif argv[2] == 'convert':
 	page = Article (argv[1])
 	page.read()

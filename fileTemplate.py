@@ -22,6 +22,55 @@ templateHtml = """<!DOCTYPE html><html><head>
 %s
 </body></html>"""
 
+templateHtmlEreader = """<!DOCTYPE html><html><head>
+	<title>%s</title>
+	<base target='_self'>
+	<meta charset='utf-8'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1'/>
+	<meta name='subject' content='%s'/>
+	<meta name='author' content='%s'/>
+	<meta name='link' content='%s'/>
+	<meta name='autlink' content='%s'/>
+<style type='text/css'>
+	* {
+		box-sizing: border-box;
+		padding: 0;
+		margin-bottom: 1em;
+		font-size: 1em;
+		font-family: inherit;
+		font-style: normal;
+		font-weight: normal;
+		text-decoration: none;
+		line-height: 1.5em;
+		color: inherit;
+		background: none;
+	}
+	*:first-letter, title:first-letter { text-transform: uppercase; }
+	h1 {
+		font-size: 1.2em;
+		text-align: center;
+		color: white;
+		background-color: grey;
+	}
+	section#sommaire { column-count: 2; }
+	section#sommaire > a { display: block; }
+	section#sommaire > a.h1 { font-weight: bold; }
+</style></head><body>
+%s
+</body></html>"""
+
+templateHtmlEreaderjs = """<script type='text/javascript'>
+	var titles = document.getElementsByTagName ('h1');
+	var sommaire = "<section id='sommaire'>";
+	// que des titres h1
+	for (var h=0; h< titles.length; h++){
+		titles[h].id = 'title-' +h;
+		sommaire = sommaire + "<a href='#title-" +h+ "'>" + titles[h].innerHTML + '</a>';
+	}
+	sommaire = sommaire + '</section>';
+	document.body.innerHTML = sommaire + document.body.innerHTML;
+</script>"""
+
 templateHtmlIndependant = """<!DOCTYPE html><html><head>
 	<title>%s</title>
 	<base target='_self'>
@@ -65,6 +114,7 @@ templateHtmlIndependant = """<!DOCTYPE html><html><head>
 		text-align: center;
 		border-bottom: solid 2px teal;
 	}
+	section#sommaire { column-count: 2; }
 	section#sommaire > a { display: block; }
 	section#sommaire > a.h1 { font-weight: bold; }
 </style></head><body>
