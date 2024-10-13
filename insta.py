@@ -77,8 +77,46 @@ def squarePictureComputeColors (color, pixel):
 	color[2] += pixel[2]
 	return color
 
-def squarePictureDraw (colorA, colorB, length, horizontal=True):
-	# couleurs moyenne
+def drawBgStripes (imageArray, length, horizontal=True):
+	lengthalf = int (length /2)
+	# dessiner la nouvelle image
+	imageObj = Image.new (mode='RGB', size=(length, length), color=(0,0,0))
+	drawing = ImageDraw.Draw (imageObj)
+	rangeBord = range (length)
+	# la largeur est plus grande que la hauteur
+	if horizontal:
+		for p in rangeBord:
+			drawing.rectangle (((p, 0), (p+1, lengthalf)), fill=( imageArray[0][p][0], imageArray[0][p][1], imageArray[0][p][2] ))
+			drawing.rectangle (((p, lengthalf), (p+1, length)), fill=( imageArray[-1][p][0], imageArray[-1][p][1], imageArray[-1][p][2] ))
+	# la hauteur est plus grande que la largeur
+	else:
+		for p in rangeBord:
+			drawing.rectangle (((0, p), (lengthalf, p+1)), fill=( imageArray[p][0][0], imageArray[p][0][1], imageArray[p][0][2] ))
+			drawing.rectangle (((lengthalf, p), (length, p+1)), fill=( imageArray[p][-1][0], imageArray[p][-1][1], imageArray[p][-1][2] ))
+	drawing = ImageDraw.Draw (imageObj)
+	return imageObj
+
+def drawBgColorMixed (imageArray, length, horizontal=True):
+	# calculer la couleur moyenne de chaque coté
+	colorA =[ 0,0,0 ]
+	colorB =[ 0,0,0 ]
+	rangeBord = range (length)
+	if horizontal:
+		for i in rangeBord:
+			colorA[0] += imageArray[0][i][0]
+			colorA[1] += imageArray[0][i][1]
+			colorA[2] += imageArray[0][i][2]
+			colorB[0] += imageArray[-1][i][0]
+			colorB[1] += imageArray[-1][i][1]
+			colorB[2] += imageArray[-1][i][2]
+	else:
+		for i in rangeBord:
+			colorA[0] += imageArray[i][0][0]
+			colorA[1] += imageArray[i][0][1]
+			colorA[2] += imageArray[i][0][2]
+			colorB[0] += imageArray[i][-1][0]
+			colorB[1] += imageArray[i][-1][1]
+			colorB[2] += imageArray[i][-1][2]
 	colorA[0] = int (colorA[0] / length)
 	colorA[1] = int (colorA[1] / length)
 	colorA[2] = int (colorA[2] / length)
@@ -96,33 +134,18 @@ def squarePictureDraw (colorA, colorB, length, horizontal=True):
 	drawing = ImageDraw.Draw (imageObj)
 	return imageObj
 
-def squarePicture (nomCarre, width, height, imageOriginal):
+def squarePicture (nomCarre, width, height, imageOriginal, drawBgfonc):
 	nomCarre = nomCarre +'-carre.jpg'
-	# calculer la couleur des bords
-	colorA =[ 0,0,0 ]
-	colorB =[ 0,0,0 ]
 	imageArray = numpy.array (imageOriginal)	# imageArray is a height x width x 4 numpy array
 	# red, green, blue = imageArray.T	# Temporarily unpack the bands for readability
 	# la largeur est plus grande que la hauteur
 	if width > height:
-		# calculer les couleurs des bords
-		rangeBord = range (width)
-		for i in rangeBord:
-			colorA = squarePictureComputeColors (colorA, imageArray[0][i])
-			colorB = squarePictureComputeColors (colorB, imageArray[-1][i])
-		# dessiner la nouvelle image
-		imageObj = squarePictureDraw (colorA, colorB, width, True)
+		imageObj = drawBgfonc (imageArray, width, True)
 		wStripe = int ((width - height) /2)
 		imageObj.paste (imageOriginal, (0, wStripe))
 	# la hauteur est plus grande que la largeur
 	else:
-		# calculer les couleurs des bords
-		rangeBord = range (height)
-		for i in rangeBord:
-			colorA = squarePictureComputeColors (colorA, imageArray[i][0])
-			colorB = squarePictureComputeColors (colorB, imageArray[i][-1])
-		# dessiner la nouvelle image
-		imageObj = squarePictureDraw (colorA, colorB, height, False)
+		imageObj = drawBgfonc (imageArray, height, False)
 		wStripe = int ((height - width) /2)
 		imageObj.paste (imageOriginal, (wStripe, 0))
 	imageObj.save (nomCarre)
@@ -138,7 +161,7 @@ else:
 	elif width > height:
 		if height / width >=0.9: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
 		elif height / width <0.5: squareVideo (nomCarre, width, height, imageOriginal)
-		else: squarePicture (nomCarre, width, height, imageOriginal)
+		else: squarePicture (nomCarre, width, height, imageOriginal, drawBgStripes)
 	elif width / height >=0.9: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
 	elif width / height <0.5: squareVideo (nomCarre, width, height, imageOriginal)
-	else: squarePicture (nomCarre, width, height, imageOriginal)
+	else: squarePicture (nomCarre, width, height, imageOriginal, drawBgStripes)
