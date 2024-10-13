@@ -68,6 +68,7 @@ class Folder():
 					# fileTmp.path = fileTmp.path.replace (self.path, "")
 					self.list.append (fileTmp)
 		self.list.sort()
+		self.fromPath()
 
 	def filter (self, tagName, sens=True):
 		""" quand on a besoin de ré-exclure certains fichiers après le get.
@@ -96,11 +97,31 @@ class Folder():
 
 	def read (self):
 		rangeList = listFct.range (self.list)
+		self.toPath()
 		for i in rangeList: self[i].read()
+		self.fromPath()
 
 	def write (self):
+		self.toPath()
 		rangeList = listFct.range (self.list)
 		for i in rangeList: self[i].write()
+
+	def fromPath (self):
+		self.path = shortcut (self.path)
+		rangeList = listFct.range (self.list)
+		for i in rangeList:
+			self[i].path = shortcut (self[i].path)
+			self[i].fromPath()
+			self[i].path = self[i].path.replace (self.path, "")
+
+	def toPath (self):
+		self.path = shortcut (self.path)
+		newPath = shortcut (self[0].path)
+		if self.path in newPath: return
+		rangeList = listFct.range (self.list)
+		for i in rangeList:
+			self[i].toPath()
+			self[i].path = self.path + self[i].path
 
 	def iterate (self, function):
 		newList = Folder()
@@ -110,7 +131,11 @@ class Folder():
 		return newList
 
 	def append (self, file):
+		# file.path doit avoir été déracié
+		d= file.path.rfind ('.')
+	#	file.path = self.path +'\t'+ file.path[d:]
 		file.shortcut()
+		file.toPath()
 		self.list.append (file)
 
 	def __str__ (self):

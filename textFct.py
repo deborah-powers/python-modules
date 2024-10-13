@@ -169,11 +169,11 @@ def cleanText (text):
 	for letter in letters:
 		text = text.replace (letter +'!', letter +' !')
 		text = text.replace (letter +'?', letter +' ?')
-		text = text.replace (letter +';', letter +' ;')
+	#	text = text.replace (letter +';', letter +' ;')
 		text = text.replace ('...' + letter, '... '+ letter)
 	while '  ' in text: text = text.replace ('  ', ' ')
 	# restaurer les url
-	if 'http' in text:
+	if 'http' in text and '?' in text:
 		"""
 		textList = text.split ('http')
 		textRange = range (1, len (textList))
@@ -183,7 +183,7 @@ def cleanText (text):
 			if '\t' in textList[t][:f]: f= textList[t].find ('\t')
 			if " ?" in textList[t][:f]: print (textList[t][:f])
 		"""
-		textList = text.split ('?')
+		textList = text.split (' ?')
 		textRange = range (len (textList) -1)
 		for t in textRange:
 			if 'http' in textList[t]:

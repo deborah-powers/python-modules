@@ -421,11 +421,11 @@ class Article (File):
 		elif self.type == 'txt':
 			self.text = textFct.cleanText (self.text)
 			metadata = textFct.fromModel (self.text, templateText)
-			self.subject = metadata[0].strip()
-			self.author = metadata[1].strip()
-			self.link = metadata[2].strip()
-			self.autlink = metadata[3].strip()
-			self.text = metadata[4].strip()
+			self.text = metadata[0].strip()
+			self.subject = metadata[1].strip()
+			self.author = metadata[2].strip()
+			self.link = metadata[3].strip()
+			self.autlink = metadata[4].strip()
 
 	def write (self, independant=False):
 		self.title = self.title.lower()
@@ -441,7 +441,7 @@ class Article (File):
 					self.text = templateHtmlEreader % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 				else: self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
 			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
-		elif self.type == 'txt': self.text = templateText % (self.subject, self.author, self.link, self.autlink, self.text)
+		elif self.type == 'txt': self.text = templateText % (self.text, self.subject, self.author, self.link, self.autlink, "")
 		File.write (self, 'w')
 
 	def copy (self):

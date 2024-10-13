@@ -1,7 +1,18 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 
-templateText ="""Sujet:	%s
+
+templateText ="""%s
+
+================================================
+
+Sujet:	%s
+Auteur:	%s
+Lien:	%s
+Laut:	%s
+%s"""
+
+templateTextOld ="""Sujet:	%s
 Auteur:	%s
 Lien:	%s
 Laut:	%s
