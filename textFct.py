@@ -293,13 +293,9 @@ def fromModel (text, model):
 	modelList = modelTmp.split ('%')
 	if not modelList[-1]: trash = modelList.pop (-1)
 	if not modelList[0]: trash = modelList.pop (0)
-	results = []
-	for line in modelList:
-		d= text.find (line)
-		if d>0: results.append (text[:d])
-		d+= len (line)
-		text = text[d:]
-	if len (text) >0: results.append (text)
+	for line in modelList: text = text.replace (line, '%%', 1)
+	results = text.split ('%%')
+	if not results[-1]: trash = results.pop (-1)
 	if not results[0]: trash = results.pop (0)
 	d=0
 	rangeRes = range (len (results))

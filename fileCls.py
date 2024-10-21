@@ -4,6 +4,9 @@ import os
 import codecs
 import json
 from datetime import datetime
+from PIL import Image, ImageOps
+from io import BytesIO
+import base64
 import listFct
 import textFct
 import htmlFct
@@ -398,6 +401,25 @@ class Article (File):
 			self.text = '<h1'.join (textList)
 			self.text = sommaire + self.text
 
+	def imgToB64 (self):
+		if 'src=' in self.text:
+			textList = self.text.split ('src=')
+			textRange = range (1, len (textList))
+			for t in textRange:
+				if textList[t][1:5] == 'http': continue
+				f= textList[t].find (textList[t][0], 2)
+				if textList[t][f-4:f] not in '.bmp .png .gif .jpg': continue
+				imageName = textList[t][1:f]
+				imageOriginal = Image.open (imageName)
+				imageOriginal = imageOriginal.convert ('RGB')
+				buff = BytesIO()
+				if imageName[-3:] == 'jpg': imageOriginal.save (buff, format='jpeg')
+				else: imageOriginal.save (buff, format=imageName[-3:])
+				imgStr = base64.b64encode (buff.getvalue())
+				imgStr = 'data:image/' + imageName[-3:] + ';base64,' + str (imgStr)[2:-1]
+				textList[t] = textList[t][0] + imgStr + textList[t][f:]
+			self.text = 'src='.join (textList)
+
 	def fromPath (self):
 		File.fromPath (self)
 		if self.path[-3:] == 'txt': self.type = 'txt'
@@ -408,16 +430,18 @@ class Article (File):
 		File.read (self)
 		metadata =[]
 		if self.type in 'xhtml':
-			self.text = textFct.cleanHtml (self.text)
+			textTmp = textFct.cleanHtml (self.text)
 			templateBis =""
 			if self.type == 'html': templateBis = textFct.cleanHtml (templateHtml)
 			else: templateBis = textFct.cleanHtml (templateXhtml)
-			metadata = textFct.fromModel (self.text, templateBis)
+			metadata = textFct.fromModel (textTmp, templateBis)
 			self.subject = metadata[1].strip()
 			self.author = metadata[2].strip()
 			self.link = metadata[3].strip()
 			self.autlink = metadata[4].strip()
-			self.text = metadata[5].strip()
+			style = metadata[5].strip()
+			if '</script>' in metadata[6]: print ('la page contient du code js, qui est peut-être modifié par la mise en forme')
+			self.text = metadata[6].strip()
 		elif self.type == 'txt':
 			self.text = textFct.cleanText (self.text)
 			metadata = textFct.fromModel (self.text, templateText)
@@ -437,10 +461,11 @@ class Article (File):
 			if self.type == 'html':
 				if independant:
 					self.title = self.title +" reader"
+					self.imgToB64()
 					self.createSummary()
-					self.text = templateHtmlEreader % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
-				else: self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
-			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, self.text)
+					self.text = templateHtmlEreader % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
+				else: self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
+			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
 		elif self.type == 'txt': self.text = templateText % (self.text, self.subject, self.author, self.link, self.autlink, "")
 		File.write (self, 'w')
 

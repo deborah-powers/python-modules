@@ -20,15 +20,14 @@ Laut:	%s
 
 templateHtml = """<!DOCTYPE html><html><head>
 	<title>%s</title>
-	<base target='_blank'>
+	<base target='_blank'/>
 	<meta charset='utf-8'/>
 	<meta name='viewport' content='width=device-width, initial-scale=1'/>
 	<meta name='subject' content='%s'/>
 	<meta name='author' content='%s'/>
 	<meta name='link' content='%s'/>
 	<meta name='autlink' content='%s'/>
-	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
-	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
+%s
 </head><body>
 %s
 </body></html>"""
@@ -66,6 +65,7 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	section#sommaire { column-count: 2; }
 	section#sommaire > a { display: block; }
 	section#sommaire > a.h1 { font-weight: bold; }
+%s
 </style></head><body>
 %s
 </body></html>"""
@@ -175,6 +175,7 @@ templateXhtml ="""<?xml version='1.0' encoding='utf-8'?>
 	<meta name='author' content='%s'/>
 	<meta name='link' content='%s'/>
 	<meta name='autlink' content='%s'/>
+%s
 </head><body>
 %s
 </body></html>"""
