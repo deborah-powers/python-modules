@@ -17,12 +17,19 @@ les valeurs de tag
 	md:			transformer un fichier txt en markdown
 	comp:		comparer deux fichiers
 	art:		transformer un texte simple en article
+	inde:		transformer un fichier html local en fichier adapté pour ma liseuse
+	pdf:		mettre en forme le texte copié - collé d'un fichier pdf
 """
 nbArg = len (argv)
 if nbArg <3: print (help)
 elif argv[2] == 'help':
 	from funcHelp import printHelp
 	printHelp (argv[1])
+elif argv[2] == 'pdf':
+	page = File (argv[1])
+	page.read()
+	page.text = textFct.cleanPdf (page.text)
+	page.write()
 elif argv[2] == 'art':
 	page = File (argv[1])
 	page.read()

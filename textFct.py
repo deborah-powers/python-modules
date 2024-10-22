@@ -266,6 +266,22 @@ def shape (text, case=""):
 	if case: text = upperCase (text, case)
 	return text
 
+def cleanPdf (text):
+	# mettre en forme un texte copié - collé d'un pdf
+	text = cleanText (text)
+	text = text.replace (',\n', ', ')
+	text = text.replace (';\n', '; ')
+	text = text.replace ('.\n', '.%%')
+	text = text.replace (':\n', ':%%')
+	text = text.replace ('!\n', '!%%')
+	text = text.replace ('?\n', '?%%')
+	text = text.replace ('\n', ' ')
+	text = text.replace ('%%', '\n')
+	text = text.replace (' • ', '\n\t')
+	text = text.replace ('\n• ', '\n\t')
+	text = shape (text, 'reset upper')
+	return text
+
 def toMarkdown (text):
 	text = shape (text, 'upper')
 	text = text.replace ('============', '=')
