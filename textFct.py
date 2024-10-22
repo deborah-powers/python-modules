@@ -309,7 +309,12 @@ def fromModel (text, model):
 	modelList = modelTmp.split ('%')
 	if not modelList[-1]: trash = modelList.pop (-1)
 	if not modelList[0]: trash = modelList.pop (0)
-	for line in modelList: text = text.replace (line, '%%', 1)
+	for line in modelList:
+		d= text.rfind ('%%')
+		if d>=0:
+			textTmp = text[d:].replace (line, '%%', 1)
+			text = text[:d] + textTmp
+		else: text = text.replace (line, '%%', 1)
 	results = text.split ('%%')
 	if not results[-1]: trash = results.pop (-1)
 	if not results[0]: trash = results.pop (0)

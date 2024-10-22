@@ -32,20 +32,20 @@ def toList (text):
 						while n >-1:
 							if '<li>'+n*'\t' not in textList [l+1]: textList[l] = textList[l] + '</ul>'
 							n-=1
-		# mettre le texte au propre
-		text = '\n'.join (textList)
-		text = text.strip ('\n')
-		while '<li>\t' in text: text = text.replace ('<li>\t', '<li>')
-		while '<ul>\t' in text: text = text.replace ('<ul>\t', '<ul>')
-		# liste ordonnée
-		while '<li>#' in text:
-			d= text.find ('<li># ')
-			d= text[:d].rfind ('<ul>')
-			text = text[:d] + '<ol>' + text[d+4:]
-			f= text.find ('</ul>', d)
-			while text[d:f].count ('<ul>') != text[d:f].count ('</ul>'): f= text.find ('</ul>', f+4)
-			text = text[:f] + '</ol>' + text[f+5:]
-			text = text.replace ('<li># ', '<li>', 1)
+			# mettre le texte au propre
+			text = '\n'.join (textList)
+			text = text.strip ('\n')
+			while '<li>\t' in text: text = text.replace ('<li>\t', '<li>')
+			while '<ul>\t' in text: text = text.replace ('<ul>\t', '<ul>')
+			# liste ordonnée
+			while '<li>#' in text:
+				d= text.find ('<li># ')
+				d= text[:d].rfind ('<ul>')
+				text = text[:d] + '<ol>' + text[d+4:]
+				f= text.find ('</ul>', d)
+				while text[d:f].count ('<ul>') != text[d:f].count ('</ul>'): f= text.find ('</ul>', f+4)
+				text = text[:f] + '</ol>' + text[f+5:]
+				text = text.replace ('<li># ', '<li>', 1)
 	return text
 
 def toTable (text):
@@ -225,7 +225,6 @@ def toHtml (text):
 	# transformer la mise en page en balises
 	for html, perso in tagHtml:
 		if perso in text: text = text.replace (perso, html)
-	text = '\n'.join (textList)
 	# autres modifications
 	text = toMath (text)
 	text = toFigure (text)
