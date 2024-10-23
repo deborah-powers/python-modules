@@ -161,7 +161,7 @@ else:
 	elif width > height:
 		if height / width >=0.9: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
 		elif height / width <0.5: squareVideo (nomCarre, width, height, imageOriginal)
-		else: squarePicture (nomCarre, width, height, imageOriginal, drawBgStripes)
+		else: squarePicture (nomCarre, width, height, imageOriginal, drawBgColorMixed)
 	elif width / height >=0.9: print ("votre image est presque carrée, vous n'avez pas besoin de la transformer")
 	elif width / height <0.5: squareVideo (nomCarre, width, height, imageOriginal)
-	else: squarePicture (nomCarre, width, height, imageOriginal, drawBgStripes)
+	else: squarePicture (nomCarre, width, height, imageOriginal, drawBgColorMixed)
