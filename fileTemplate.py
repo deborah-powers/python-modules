@@ -59,9 +59,18 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	h1 {
 		font-size: 1.2em;
 		text-align: center;
+		font-weight: bold;
+		border-top: double 6px grey;
+		border-bottom: solid 2px grey;
+	}
+	h2 {
+		font-size: 1.2em;
+		text-align: center;
 		color: white;
 		background-color: grey;
 	}
+	h3 { font-weight: bold; }
+	ul { margin-left: 2em; }
 	section#sommaire { column-count: 2; }
 	section#sommaire > a { display: block; }
 	section#sommaire > a.h1 { font-weight: bold; }

@@ -421,7 +421,7 @@ class Article (File):
 		if 'script' in self.meta.keys(): text = text + (scriptTemplate % self.meta['script'])
 		return text
 
-	def createSummary (self):
+	def createSummary_vb (self):
 		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
 			sommaire = "<section id='sommaire'>"
 			numero =1
@@ -453,7 +453,7 @@ class Article (File):
 				self.text = '<h1'.join (textList)
 			self.text = sommaire + self.text
 
-	def createSummary_simple (self):
+	def createSummary (self):
 		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
 			sommaire = "<section id='sommaire'>"
 			numero =1
