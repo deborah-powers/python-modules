@@ -50,6 +50,8 @@ def toList (text):
 
 def toTable (text):
 	if '\t' in text:
+		# les cases vides sont représentées par un point. les doubles tabulations ont été rajoutées pour une meilleure lisibilité au format txt
+		while '\t\t' in text: text = text.replace ('\t\t', '\t')
 		textList = text.split ('\n')
 		len_chn = len (textList)
 		d=-1; c=-1; i=0

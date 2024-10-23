@@ -308,6 +308,7 @@ class Article (File):
 		self.link =""
 		self.autlink =""
 		self.type =""
+		self.meta ={}
 		if file: self.fromPath()
 
 	def explode (self):
@@ -323,6 +324,7 @@ class Article (File):
 			ficNew.autlink = self.autlink
 			ficNew.type = self.type
 			ficNew.path = self.path
+			ficNew.meta = self.meta
 			ficNew.text =""
 			# récupérer le séparateur selon le type de l'article
 			sep = ""
@@ -363,6 +365,7 @@ class Article (File):
 		article.link = self.link
 		article.author = self.author
 		article.autlink = self.autlink
+		article.meta = self.meta
 		return article
 
 	def toHtml (self):
@@ -375,6 +378,7 @@ class Article (File):
 		article.link = self.link
 		article.author = self.author
 		article.autlink = self.autlink
+		article.meta = self.meta
 		article.text = htmlFct.toHtml (self.text)
 		if '</' in article.text: return article
 		else: return self
@@ -384,6 +388,38 @@ class Article (File):
 		article.path = article.path.replace ('.html', '.xhtml')
 		article.type = 'xhtml'
 		return article
+
+	def metaToText (self):
+		metaTemplate = '%s:\t%s\n'
+		text =""
+		for meta in self.meta: text = text + metaTemplate % (meta, self.meta[meta])
+		return text
+
+	def metaFromText (self, text):
+		textList = text.split ('\n')
+		for line in textList:
+			d= line.find (':\t')
+			self.meta [line[:d]] = line[d+2:]
+
+	def metaFromHtml (self, text):
+		textList = text.split ("<meta name=")
+		textRange = range (1, len (textList))
+		for l in textRange:
+			n= textList[l].find (textList[l][0], 1)
+			continue
+		#	self.meta [line[:d]] = line[d+2:]
+
+
+	def metaToHtml (self):
+		metaTemplate = "<meta name='%s' content='%s'/>"
+		styleTemplate = "<link rel='stylesheet' type='text/css' href='%s'/>"
+		scriptTemplate = "<script type='text/javascript' src='%s'></script>"
+		text =""
+		for meta in self.meta:
+			if meta not in 'style script': text = text + metaTemplate % (meta, self.meta[meta])
+		if self.meta['style']: text = text + (styleTemplate % self.meta['style'])
+		if self.meta['script']: text = text + (scriptTemplate % self.meta['script'])
+		return text
 
 	def createSummary (self):
 		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
@@ -450,10 +486,13 @@ class Article (File):
 			self.author = metadata[2].strip()
 			self.link = metadata[3].strip()
 			self.autlink = metadata[4].strip()
+			meta = metadata[5].strip()
+			self.metaFromText (meta)
 
 	def write (self, independant=False):
 		self.title = self.title.lower()
 		if self.type in 'xhtml':
+			meta = self.metaToHtml()
 			# affichage des liens
 			self.replace ("<a ", " <a ")
 			while '  ' in self.text: self.replace ('  ', ' ')
@@ -463,10 +502,12 @@ class Article (File):
 					self.title = self.title +" reader"
 					self.imgToB64()
 					self.createSummary()
-					self.text = templateHtmlEreader % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
-				else: self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
-			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, "", self.text)
-		elif self.type == 'txt': self.text = templateText % (self.text, self.subject, self.author, self.link, self.autlink, "")
+					self.text = templateHtmlEreader % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
+				else: self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
+			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
+		elif self.type == 'txt':
+			meta = self.metaToText()
+			self.text = templateText % (self.text, self.subject, self.author, self.link, self.autlink, meta)
 		File.write (self, 'w')
 
 	def copy (self):
