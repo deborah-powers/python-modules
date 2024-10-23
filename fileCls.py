@@ -417,11 +417,43 @@ class Article (File):
 		text =""
 		for meta in self.meta:
 			if meta not in 'style script': text = text + metaTemplate % (meta, self.meta[meta])
-		if self.meta['style']: text = text + (styleTemplate % self.meta['style'])
-		if self.meta['script']: text = text + (scriptTemplate % self.meta['script'])
+		if 'style' in self.meta.keys(): text = text + (styleTemplate % self.meta['style'])
+		if 'script' in self.meta.keys(): text = text + (scriptTemplate % self.meta['script'])
 		return text
 
 	def createSummary (self):
+		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
+			sommaire = "<section id='sommaire'>"
+			numero =1
+			if '</h2>' in self.text:
+				numeroSub =1
+				self.text = self.text.replace ('<h1', '<hxx1')
+				self.text = self.text.replace ('<h2', '<hxx2')
+				textList = self.text.split ('<hxx')
+				textRange = range (1, len (textList))
+				for t in textRange:
+					d=1+ textList[t].find ('>')
+					f= textList[t].find ('<')
+					chapid = 'chap-' + str(t)
+					sommaire = sommaire + "<a href='%s'>%s</a>" %( '#'+ chapid, textList[t][d:f])
+					textList[t] =" id='" + chapid +"'"+ textList[t]
+				sommaire = sommaire + '</section>'
+				self.text = '<h1'.join (textList)
+
+			else:
+				textList = self.text.split ('<h1')
+				textRange = range (1, len (textList))
+				for t in textRange:
+					d=1+ textList[t].find ('>')
+					f= textList[t].find ('<')
+					chapid = 'chap-' + str(t)
+					sommaire = sommaire + "<a href='%s'>%s</a>" %( '#'+ chapid, textList[t][d:f])
+					textList[t] =" id='" + chapid +"'"+ textList[t]
+				sommaire = sommaire + '</section>'
+				self.text = '<h1'.join (textList)
+			self.text = sommaire + self.text
+
+	def createSummary_simple (self):
 		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
 			sommaire = "<section id='sommaire'>"
 			numero =1
