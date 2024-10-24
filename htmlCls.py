@@ -5,6 +5,7 @@ import urllib as ul
 from urllib import request as urlRequest
 import codecs
 import textFct
+import htmlFct
 from fileCls import File, Article
 from fileTemplate import templateHtml
 import loggerFct as log
@@ -449,7 +450,7 @@ class Html (File):
 	def toText (self):
 		if '</a>' in self.text or '<img' in self.text: return None
 		article = Article()
-		article.text = textFct.fromHtml (self.text)
+		article.text = htmlFct.fromHtml (self.text)
 		if '</' in article.text: return None
 		article.path = self.path.replace ('.html', '.txt')
 		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
@@ -460,7 +461,6 @@ class Html (File):
 		if 'author' in self.meta.keys(): article.author = self.meta['author']
 		if 'autlink' in self.meta.keys(): article.autlink = self.meta['autlink']
 		# article.write()
-		print ('article créé:\n' + article.path)
 		return article
 
 	def read (self):
@@ -495,8 +495,9 @@ class Html (File):
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body
 	#	self.meta['link'] = self.link
+		meta = self.metaToHtml()
 		self.title = cleanTitle (self.title)
-		self.text = templateHtml % (self.title, self.subject, self.author, self.link, self.autlink, self.text)
+		self.text = templateHtml % (self.title, self.subject, self.author, self.link, self.autlink, meta, self.text)
 	#	self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		self.addIndentation()
 		File.write (self, mode)

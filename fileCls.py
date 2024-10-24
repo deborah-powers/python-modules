@@ -503,11 +503,13 @@ class Article (File):
 			if self.type == 'html': templateBis = textFct.cleanHtml (templateHtml)
 			else: templateBis = textFct.cleanHtml (templateXhtml)
 			metadata = textFct.fromModel (textTmp, templateBis)
+			log.logMsg (metadata)
 			self.subject = metadata[1].strip()
 			self.author = metadata[2].strip()
 			self.link = metadata[3].strip()
 			self.autlink = metadata[4].strip()
-			style = metadata[5].strip()
+			self.metaFromHtml (metadata[5].strip())
+			style = metadata[4].strip()
 			if '</script>' in metadata[6]: print ('la page contient du code js, qui est peut-être modifié par la mise en forme')
 			self.text = metadata[6].strip()
 		elif self.type == 'txt':
@@ -525,6 +527,7 @@ class Article (File):
 		self.title = self.title.lower()
 		if self.type in 'xhtml':
 			meta = self.metaToHtml()
+			self.text = textFct.cleanHtml (self.text)
 			# affichage des liens
 			self.replace ("<a ", " <a ")
 			while '  ' in self.text: self.replace ('  ', ' ')
@@ -539,6 +542,8 @@ class Article (File):
 			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
 		elif self.type == 'txt':
 			meta = self.metaToText()
+			self.text = textFct.cleanText (self.text)
+			self.text = textFct.shape (self.text, 'reset upper')
 			self.text = templateText % (self.text, self.subject, self.author, self.link, self.autlink, meta)
 		File.write (self, 'w')
 

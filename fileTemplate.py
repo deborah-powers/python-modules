@@ -41,6 +41,7 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	<meta name='author' content='%s'/>
 	<meta name='link' content='%s'/>
 	<meta name='autlink' content='%s'/>
+	%s
 <style type='text/css'>
 	* {
 		box-sizing: border-box;
@@ -69,12 +70,15 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 		color: white;
 		background-color: grey;
 	}
-	h3 { font-weight: bold; }
+	h3 {
+		font-weight: bold;
+		text-align: center;
+	}
+	h4 { font-style: italic; }
 	ul { margin-left: 2em; }
 	section#sommaire { column-count: 2; }
 	section#sommaire > a { display: block; }
 	section#sommaire > a.h1 { font-weight: bold; }
-%s
 </style></head><body>
 %s
 </body></html>"""
