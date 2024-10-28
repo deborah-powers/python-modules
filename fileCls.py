@@ -487,6 +487,7 @@ class Article (File):
 						pathTmp = pathTmp[:d]
 						imageName = imageName[3]
 					if imageName[:2] == './': imageName = imageName[2:]
+					elif imageName[0] == '/': imageName = imageName[1:]
 					imageName = pathTmp + os.sep + imageName
 					imgStr = htmlFct.imgToB64One (imageName)
 					textList[t] = textList[t][0] + imgStr + textList[t][f:]
