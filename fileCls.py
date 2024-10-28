@@ -4,9 +4,6 @@ import os
 import codecs
 import json
 from datetime import datetime
-from PIL import Image, ImageOps
-from io import BytesIO
-import base64
 import listFct
 import textFct
 import htmlFct
@@ -471,22 +468,33 @@ class Article (File):
 
 	def imgToB64 (self):
 		if 'src=' in self.text:
-			textList = self.text.split ('src=')
-			textRange = range (1, len (textList))
-			for t in textRange:
-				if textList[t][1:5] == 'http': continue
-				f= textList[t].find (textList[t][0], 2)
-				if textList[t][f-4:f] not in '.bmp .png .gif .jpg': continue
-				imageName = textList[t][1:f]
-				imageOriginal = Image.open (imageName)
-				imageOriginal = imageOriginal.convert ('RGB')
-				buff = BytesIO()
-				if imageName[-3:] == 'jpg': imageOriginal.save (buff, format='jpeg')
-				else: imageOriginal.save (buff, format=imageName[-3:])
-				imgStr = base64.b64encode (buff.getvalue())
-				imgStr = 'data:image/' + imageName[-3:] + ';base64,' + str (imgStr)[2:-1]
-				textList[t] = textList[t][0] + imgStr + textList[t][f:]
-			self.text = 'src='.join (textList)
+			self.text = htmlFct.imgToB64 (self.text)
+			self.text = self.text.replace ("src='data", "scr='data")
+			self.text = self.text.replace ('src="data', 'scr="data')
+			self.text = self.text.replace ("src='http", "scr='http")
+			self.text = self.text.replace ('src="http', 'scr="http')
+			if 'src=' in self.text:
+				textList = self.text.split ('src=')
+				self.textRange = range (1, len (textList))
+				for t in self.textRange:
+					f= textList[t].find (textList[t][0], 2)
+					if textList[t][f-4:f] not in '.bmp .png .gif .jpg': continue
+					imageName = textList[t][1:f]
+					d= self.path.rfind (os.sep)
+					pathTmp = self.path[:d]
+					while imageName[:3] == '../':
+						d= pathTmp.rfind (os.sep)
+						pathTmp = pathTmp[:d]
+						imageName = imageName[3]
+					if imageName[:2] == './': imageName = imageName[2:]
+					imageName = pathTmp + os.sep + imageName
+					imgStr = htmlFct.imgToB64One (imageName)
+					textList[t] = textList[t][0] + imgStr + textList[t][f:]
+				self.text = 'src='.join (textList)
+			self.text = self.text.replace ("scr='data", "src='data")
+			self.text = self.text.replace ('scr="data', 'src="data')
+			self.text = self.text.replace ("scr='http", "src='http")
+			self.text = self.text.replace ('scr="http', 'src="http')
 
 	def fromPath (self):
 		File.fromPath (self)
@@ -503,19 +511,27 @@ class Article (File):
 			if self.type == 'html': templateBis = textFct.cleanHtml (templateHtml)
 			else: templateBis = textFct.cleanHtml (templateXhtml)
 			metadata = textFct.fromModel (textTmp, templateBis)
-			log.logMsg (metadata)
 			self.subject = metadata[1].strip()
 			self.author = metadata[2].strip()
 			self.link = metadata[3].strip()
 			self.autlink = metadata[4].strip()
 			self.metaFromHtml (metadata[5].strip())
 			style = metadata[4].strip()
+			"""
 			if '</script>' in metadata[6]: print ('la page contient du code js, qui est peut-être modifié par la mise en forme')
 			self.text = metadata[6].strip()
+			"""
+			f= self.text.rfind ('</body>')
+			self.text = self.text[:f]
+			f= self.text.find ('<body')
+			f=1+ self.text.find ('>',f)
+			self.text = self.text[f:]
 		elif self.type == 'txt':
 			self.text = textFct.cleanText (self.text)
+			self.text = textFct.shape (self.text)
 			metadata = textFct.fromModel (self.text, templateText)
-			self.text = metadata[0].strip()
+			d= self.text.rfind ('\n======')
+			self.text = self.text[:d]
 			self.subject = metadata[1].strip()
 			self.author = metadata[2].strip()
 			self.link = metadata[3].strip()
@@ -536,7 +552,7 @@ class Article (File):
 				if independant:
 					self.title = self.title +" reader"
 					self.imgToB64()
-					self.createSummary()
+				#	self.createSummary()
 					self.text = templateHtmlEreader % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
 				else: self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
 			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
