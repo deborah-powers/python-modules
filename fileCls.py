@@ -533,8 +533,9 @@ class Article (File):
 			self.author = metadata[2].strip()
 			self.link = metadata[3].strip()
 			self.autlink = metadata[4].strip()
-			meta = metadata[5].strip()
-			self.metaFromText (meta)
+			if len (metadata) >5:
+				meta = metadata[5].strip()
+				self.metaFromText (meta)
 
 	def write (self, independant=False):
 		self.title = self.title.lower()
