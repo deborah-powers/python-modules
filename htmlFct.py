@@ -164,8 +164,7 @@ def imgToB64 (text):
 				imgStr = imgToB64One (imageName)
 				textList[t] = textList[t][0] + imgStr + textList[t][f:]
 			text = 'src='.join (textList)
-		text = text.replace ("scr='http", "src='http")
-		text = text.replace ('scr="http', 'src="http')
+		text = text.replace ('scr=', 'src=')
 	return text
 
 def toLink (text):

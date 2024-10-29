@@ -406,14 +406,13 @@ class Article (File):
 			continue
 		#	self.meta [line[:d]] = line[d+2:]
 
-
 	def metaToHtml (self):
 		metaTemplate = "<meta name='%s' content='%s'/>"
 		styleTemplate = "<link rel='stylesheet' type='text/css' href='%s'/>"
 		scriptTemplate = "<script type='text/javascript' src='%s'></script>"
 		text =""
 		for meta in self.meta:
-			if meta not in 'style script': text = text + metaTemplate % (meta, self.meta[meta])
+			if meta not in 'style script subject author link autlink': text = text + metaTemplate % (meta, self.meta[meta])
 		if 'style' in self.meta.keys(): text = text + (styleTemplate % self.meta['style'])
 		if 'script' in self.meta.keys(): text = text + (scriptTemplate % self.meta['script'])
 		return text
@@ -492,10 +491,7 @@ class Article (File):
 					imgStr = htmlFct.imgToB64One (imageName)
 					textList[t] = textList[t][0] + imgStr + textList[t][f:]
 				self.text = 'src='.join (textList)
-			self.text = self.text.replace ("scr='data", "src='data")
-			self.text = self.text.replace ('scr="data', 'src="data')
-			self.text = self.text.replace ("scr='http", "src='http")
-			self.text = self.text.replace ('scr="http', 'src="http')
+			self.text = self.text.replace ('scr=', 'src=')
 
 	def fromPath (self):
 		File.fromPath (self)
