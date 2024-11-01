@@ -31,7 +31,7 @@ listTagsLocal =[]
 
 def cleanTitle (title):
 	title = title.lower()
-	charToErase = '-_.:;,?/\\'
+	charToErase = '-_.:;,?/\\|'
 	for char in charToErase: title = title.replace (char," ")
 	title = textFct.cleanBasic (title)
 	return title
