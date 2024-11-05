@@ -28,6 +28,8 @@ templateHtml = """<!DOCTYPE html><html><head>
 	<meta name='link' content='%s'/>
 	<meta name='autlink' content='%s'/>
 %s
+	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
+	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
 </head><body>
 %s
 </body></html>"""
@@ -42,6 +44,7 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	<meta name='link' content='%s'/>
 	<meta name='autlink' content='%s'/>
 	%s
+	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
 <style type='text/css'>
 	* {
 		box-sizing: border-box;
@@ -76,9 +79,6 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	}
 	h4 { font-style: italic; }
 	ul { margin-left: 2em; }
-	section#sommaire { column-count: 2; }
-	section#sommaire > a { display: block; }
-	section#sommaire > a.h1 { font-weight: bold; }
 </style></head><body>
 %s
 </body></html>"""

@@ -11,7 +11,9 @@ import loggerFct as log
 
 tagHtml =(
 	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n______ '), ('</h4>\n', ' ______\n'),
-	('\n<hr>', '\n\n************************************************\n\n'), ("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
+	("\n<hr class='h1'/>\n", '\n\n======\n\n'), ("\n<hr class='h2'/>\n", '\n\n******\n\n'), ("\n<hr class='h3'/>\n", '\n\n------\n\n'),
+	("\n<hr>\n", '\n\n******\n\n'), ("\n<hr/>\n", '\n\n******\n\n'),
+	("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
 	('\n<li>', '\n\t')
 )
 def toList (text):
@@ -258,7 +260,8 @@ def toCode (text):
 
 def toHtml (text):
 	text = shape (text)
-	for char in '=*-_': text = text.replace (12* char, 6* char)
+	for char in '=*-_':
+		while 7* char in text: text = text.replace (7* char, 6* char)
 	# transformer la mise en page en balises
 	for html, perso in tagHtml:
 		if perso in text: text = text.replace (perso, html)
@@ -287,6 +290,7 @@ def toHtml (text):
 	text = text.replace ('\f', '\t')
 	text = cleanHtml (text)
 	text = text.replace (' </', '</')
+	text = text.replace ('<p>.</p>', '<br/>')
 	return text
 
 def fromHtml (text):
