@@ -24,11 +24,14 @@ class Folder():
 			newPath = file.title.replace (wordOld, wordNew)
 			newPath = file.path.replace ('\t', newPath)
 			file.toPath()
-			os.rename (file.path, newPath)
+			os.rename (self.path + file.path, self.path + newPath)
 
 	def renameDate (self):
 		self.get ('202')
-		for file in self.list: file.renameDate()
+		for file in self.list:
+			file.path = self.path + file.path
+			file.renameDate()
+			file.path = file.path.replace (self.path, "")
 
 	def move (self, newPath):
 		# newPath est une string
