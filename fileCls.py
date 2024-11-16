@@ -608,9 +608,10 @@ class FileList (File):
 		self.list =[]
 		self.sep = sep
 
-	def write (self):
+	def write (self, upper=False):
 		self.toText()
-		self.text = textFct.shape (self.text, 'reset')
+		if upper: self.text = textFct.shape (self.text, 'reset upper')
+		else: self.text = textFct.shape (self.text, 'reset')
 		File.write (self)
 
 	def read (self):
