@@ -495,6 +495,7 @@ class Html (File):
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body
 	#	self.meta['link'] = self.link
+		self.toPath()
 		meta = self.metaToHtml()
 		self.title = cleanTitle (self.title)
 		self.text = templateHtml % (self.title, self.subject, self.author, self.link, self.autlink, meta, self.text)

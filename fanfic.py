@@ -158,13 +158,12 @@ class Fanfic (htmlCls.Html, Article):
 
 	def ebGratuit (self):
 		# l'auteur
-		tag = htmlCls.getByTagAndClassFirst (self.text, 'p', 'Auteur')
+		tag = htmlCls.getOneByTagClass (self.text, 'p', 'Auteur')
 		d= self.text.find ('<p class=>') +16
 		f= self.text.find ('</p>', d)
 		self.author = self.text [d:f].lower()
-		self.title = htmlCls.getTitle (self.text)
 		# le texte
-		self.clean()
+		self.text = textFct.cleanHtml (self.text)
 		f= self.text.find ('<h1>À propos de cette édition électronique</h1>')
 		self.text = self.text [:f]
 		# le sujet
@@ -208,7 +207,7 @@ class Fanfic (htmlCls.Html, Article):
 
 	def scoubidou (self):
 		# pages de lartdesscoubidous.com
-		self.title = htmlCls.getTitle (self.text)
+		self.setTitle()
 		if ' |' in self.title:
 			d= self.title.find (' |')
 			self.title = self.title[:d]
@@ -242,7 +241,7 @@ class Fanfic (htmlCls.Html, Article):
 
 	def menaceTheoriste (self):
 		self.subject = 'sciences'
-		self.clean()
+		self.text = textFct.cleanHtml (self.text)
 		self.replace ('<div>', "")
 		self.replace ('</div>', "")
 		d= self.text.find ("par<a href='https://menace-theoriste.fr/author/") +12
@@ -287,7 +286,7 @@ class Fanfic (htmlCls.Html, Article):
 			self.subject = 'feminisme'
 			self.title = 'fds '+ self.title
 		else: self.subject = 'opinion'
-		self.clean()
+		self.text = textFct.cleanHtml (self.text)
 		self.cleanLink()
 		d= self.text.find ('<h1>')
 		d= self.text.find ('<p>', d)
