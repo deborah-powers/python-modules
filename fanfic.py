@@ -19,13 +19,14 @@ l'url peut correspondre à une page ou un fichier local
 
 class Fanfic (htmlCls.Html, Article):
 	def __init__ (self, url, subject=None):
-		if url in 'aooo unisciel recette': url = 'b/' + url + '.html'
+		if url in 'aooo unisciel recette wiki': url = 'b/' + url + '.html'
 		Article.__init__ (self)
 		htmlCls.Html.__init__ (self, url)
 		if subject: self.subject = subject
 		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link or url == 'b/aooo.html': self.fromAooo()
 		elif '://uel.unisciel.fr/' in url or url == 'b/unisciel.html':				self.unisciel()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
+		elif '://en.wikisource.org/wiki/' in url:	self.wiki()
 		elif 'https://www.test-recette.fr/recette/' in url or url == 'b/recette.html':	self.testRecette()
 		elif 'scoubidou'	in url: self.scoubidou()
 		elif 'b/ffnet.html' == url:		self.ffNet()
@@ -34,9 +35,13 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'https://www.reddit.com/r/' in url:			self.reddit()
 		elif 'egb'		in url: self.ebGratuit()
-		elif 'medium'	in url: self.medium()
+		elif 'egb'		in url: self.ebGratuit()
+		elif 'wiki'	in url: self.wiki()
 		else: self.setByMain()
-		self.meta ={ 'subject': self.subject, 'author': self.author, 'link': self.link, 'autlink': self.autlink }
+		nvMeta ={}
+		if 'date' in self.meta.keys(): nvMeta['date'] = self.meta['date']
+	#	self.meta ={ 'subject': self.subject, 'author': self.author, 'link': self.link, 'autlink': self.autlink }
+		self.meta = nvMeta
 		self.delAttributes()
 		article = self.toText()
 		if article: article.divide()
@@ -54,7 +59,7 @@ class Fanfic (htmlCls.Html, Article):
 			'rocker': ('rasmus', 'ville valo', 'jyrki', 'him (band)', '30 seconds to mars'),
 			'tstm': ('30 seconds to mars', ), 'him': ('him (band)', 'ville valo'), '69eyes': ('jyrki', ),
 			'hellsing': ('integra', 'axi', 'damned caeli'),
-			'labyrinth': ('jareth'),
+			'labyrinth': ('jareth',),
 			'monstre': ('mythology', 'vampire', 'naga', 'pokemon'),
 			'sf': ('mythology', 'vampire', 'scify', 'lovecraft', 'stoker', 'conan doyle', 'naga'),
 			'tricot': ('tricot', 'point', 'crochet'),
@@ -204,6 +209,44 @@ class Fanfic (htmlCls.Html, Article):
 			f= self.text.find ('<h2>Footnotes:</h2>')
 			self.text = self.text [:f]
 	#	self.delImgLink()
+
+	def wiki (self):
+		# le titre
+		d= self.title.find (' wikisource')
+		self.title = self.title[:d]
+		# les auteurs
+		tmpText = self.getOneById ('ws-data')
+		tmpText = htmlCls.getInnerHtml (tmpText)
+		authlist = tmpText.split ('/wiki/author:')
+		d= authlist[1].find (' ') -1
+		self.autlink = authlist[1][:d]
+		d=1+ authlist[1].find ('>',d)
+		f= authlist[1].find ('<',d)
+		self.author = authlist[1][d:f]
+		rangeList = range (2, len (authlist))
+		for i in rangeList:
+			d=1+ authlist[i].find ('>')
+			f= authlist[i].find ('<',d)
+			self.author = self.author +', '+ authlist[i][d:f]
+		self.findSubject()
+		# la date
+		tmpText = self.getOneById ('header-year-text')
+		self.meta['date'] = htmlCls.getInnerHtml (tmpText)
+		# le texte
+		d=16+ self.text.find ('ikidata item</a>')
+		d= self.text.find ('<h2', d)
+		f= self.text.rfind ('<p>this work is in the')
+		f= self.text[:f].rfind ('<img')
+		f= self.text[:f].rfind ('<p')
+		self.text = self.text[d:f]
+		self.delAttributes()
+		self.text = self.text.replace ('<span>', "")
+		self.text = self.text.replace ('</span>', "")
+		self.text = self.text.replace ('<div>', "")
+		self.text = self.text.replace ('</div>', "")
+		textList = self.text.split ("[ <a href='/w/index.php ?title=the_horror_in_the_museum&action=edit&section=")
+		log.logMsg (textList)
+
 
 	def scoubidou (self):
 		# pages de lartdesscoubidous.com
