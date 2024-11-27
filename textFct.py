@@ -303,10 +303,14 @@ def toMarkdown (text):
 def fromModel (text, model):
 	# remplacer scanf
 	# préparer le modèle
-	text = cleanBasic (text)
-	text = text.lower()
-	model = cleanBasic (model)
 	model = model.lower()
+	text = text.lower()
+	if '</' in model:
+		text = cleanHtml (text)
+		model = cleanHtml (model)
+	else:
+		text = cleanText (text)
+		model = cleanText (model)
 	typeList = ['d', 'f', 's']
 	model = model.replace ('%%', '$')
 	modelTmp = model
@@ -316,8 +320,9 @@ def fromModel (text, model):
 	if not modelList[-1]: trash = modelList.pop (-1)
 	if not modelList[0]: trash = modelList.pop (0)
 	for line in modelList:
-		d= text.rfind ('%%')
-		if d>=0:
+		if text.count (line) ==1 or '%%': text = text.replace (line, '%%', 1)
+		elif '%%' in text:
+			d= text.rfind ('%%')
 			textTmp = text[d:].replace (line, '%%', 1)
 			text = text[:d] + textTmp
 		else: text = text.replace (line, '%%', 1)

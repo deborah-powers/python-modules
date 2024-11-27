@@ -439,6 +439,15 @@ class Html (File):
 				d=8+ meta.find ('content=')
 				f= meta.find (meta[d], d+1)
 				self.meta [name] = meta[d+1:f]
+		metaList = getAllByTag (self.text, 'link')
+		for meta in metaList:
+			if 'stylesheet' not in meta and 'icon' not in meta:
+				d=4+ meta.find ('rel=')
+				f= meta.find (meta[d], d+1)
+				name = meta[d+1:f]
+				d=5+ meta.find ('href=')
+				f= meta.find (meta[d], d+1)
+				self.meta [name] = meta[d+1:f]
 
 	def getMetas (self):
 		metas =""
@@ -456,11 +465,13 @@ class Html (File):
 		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
 		article.type = 'txt'
 		article.title = self.title
-		if 'link' in self.meta.keys(): article.link = self.meta['link']
-		if 'subject' in self.meta.keys(): article.subject = self.meta['subject']
-		if 'author' in self.meta.keys(): article.author = self.meta['author']
-		if 'autlink' in self.meta.keys(): article.autlink = self.meta['autlink']
-		# article.write()
+		article.subject = self.subject
+		article.author = self.author
+		article.link = self.link
+		article.autlink = self.autlink
+	#	if 'link' in self.meta.keys(): article.link = self.meta['link']
+		keys = self.meta.keys()
+		for key in keys: article.meta[key] = self.meta[key]
 		return article
 
 	def read (self):

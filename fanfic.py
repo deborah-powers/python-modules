@@ -28,20 +28,16 @@ class Fanfic (htmlCls.Html, Article):
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
 		elif '://en.wikisource.org/wiki/' in url:	self.wiki()
 		elif 'https://www.test-recette.fr/recette/' in url or url == 'b/recette.html':	self.testRecette()
-		elif 'scoubidou'	in url: self.scoubidou()
+		elif 'scoubidou' in url: self.scoubidou()
 		elif 'b/ffnet.html' == url:		self.ffNet()
 		elif 'b/fpress.html' == url:	self.fPress()
 		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
 		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
 		elif 'https://www.reddit.com/r/' in url:			self.reddit()
-		elif 'egb'		in url: self.ebGratuit()
-		elif 'egb'		in url: self.ebGratuit()
-		elif 'wiki'	in url: self.wiki()
+		elif 'egb' in url: self.ebGratuit()
+		elif 'wiki' in url: self.wiki()
 		else: self.setByMain()
-		nvMeta ={}
-		if 'date' in self.meta.keys(): nvMeta['date'] = self.meta['date']
 	#	self.meta ={ 'subject': self.subject, 'author': self.author, 'link': self.link, 'autlink': self.autlink }
-		self.meta = nvMeta
 		self.delAttributes()
 		article = self.toText()
 		if article: article.divide()
@@ -97,7 +93,6 @@ class Fanfic (htmlCls.Html, Article):
 			self.link = 'https://archiveofourown.org' + tag.replace ('bookmarks', "")
 			"""
 			tag = self.getOneByTagClass ('p', 'message')
-			log.logMsg (tag)
 			tags = htmlCls.getAllByTag (tag, 'a')
 			self.link = htmlCls.getAttribute (tags[1], 'href')
 			"""
@@ -231,6 +226,8 @@ class Fanfic (htmlCls.Html, Article):
 		self.findSubject()
 		# la date
 		tmpText = self.getOneById ('header-year-text')
+		if not self.link: self.link = self.meta['canonical']
+		self.meta ={}
 		self.meta['date'] = htmlCls.getInnerHtml (tmpText)
 		# le texte
 		d=16+ self.text.find ('ikidata item</a>')
@@ -244,9 +241,14 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = self.text.replace ('</span>', "")
 		self.text = self.text.replace ('<div>', "")
 		self.text = self.text.replace ('</div>', "")
-		textList = self.text.split ("[ <a href='/w/index.php ?title=the_horror_in_the_museum&action=edit&section=")
-		log.logMsg (textList)
-
+		textList = self.text.split ("&action=edit&section=")
+		rangeList = range (1, len (textList))
+		for i in rangeList:
+			d=1+ textList[i].find (']')
+			textList[i] = textList[i][d:]
+			d= textList[i-1].find ('[')
+			textList[i-1] = textList[i-1][:d]
+		self.text = "".join (textList)
 
 	def scoubidou (self):
 		# pages de lartdesscoubidous.com

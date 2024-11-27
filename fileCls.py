@@ -513,7 +513,6 @@ class Article (File):
 			self.link = metadata[3].strip()
 			self.autlink = metadata[4].strip()
 			self.metaFromHtml (metadata[5].strip())
-			style = metadata[4].strip()
 			"""
 			if '</script>' in metadata[6]: print ('la page contient du code js, qui est peut-être modifié par la mise en forme')
 			self.text = metadata[6].strip()
