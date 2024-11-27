@@ -229,6 +229,7 @@ class Fanfic (htmlCls.Html, Article):
 		if not self.link: self.link = self.meta['canonical']
 		self.meta ={}
 		self.meta['date'] = htmlCls.getInnerHtml (tmpText)
+		"""
 		# le texte
 		d=16+ self.text.find ('ikidata item</a>')
 		d= self.text.find ('<h2', d)
@@ -236,19 +237,21 @@ class Fanfic (htmlCls.Html, Article):
 		f= self.text[:f].rfind ('<img')
 		f= self.text[:f].rfind ('<p')
 		self.text = self.text[d:f]
+		"""
 		self.delAttributes()
 		self.text = self.text.replace ('<span>', "")
 		self.text = self.text.replace ('</span>', "")
 		self.text = self.text.replace ('<div>', "")
 		self.text = self.text.replace ('</div>', "")
-		textList = self.text.split ("&action=edit&section=")
-		rangeList = range (1, len (textList))
-		for i in rangeList:
-			d=1+ textList[i].find (']')
-			textList[i] = textList[i][d:]
-			d= textList[i-1].find ('[')
-			textList[i-1] = textList[i-1][:d]
-		self.text = "".join (textList)
+		if '&action=edit&section=' in self.text:
+			textList = self.text.split ("&action=edit&section=")
+			rangeList = range (1, len (textList))
+			for i in rangeList:
+				d=1+ textList[i].find (']')
+				textList[i] = textList[i][d:]
+				d= textList[i-1].find ('[')
+				textList[i-1] = textList[i-1][:d]
+			self.text = "".join (textList)
 
 	def scoubidou (self):
 		# pages de lartdesscoubidous.com
