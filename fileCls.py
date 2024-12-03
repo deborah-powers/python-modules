@@ -133,6 +133,11 @@ class File():
 		if text: self.text = text
 		self.fromPath()
 
+	def remove (self):
+		self.toPath()
+		log.logMsg (self.path)
+		if os.path.exists (self.path): os.remove (self.path)
+
 	def write (self, mode='w'):
 		# pas de texte
 		if not self.text:

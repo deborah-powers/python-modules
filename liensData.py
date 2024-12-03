@@ -6,7 +6,7 @@ from fileCls import File
 from fileLocal import pathLienData
 
 jsonTitleB = 'r/Downloads\\liens-data.js'
-jsonTitleC = 'b/liens-data-bis.js'
+jsonTitleC = 'b/liens-data.js'
 
 jsonFileA = File (pathLienData)
 jsonDataA = jsonFileA.readJson()
@@ -44,4 +44,6 @@ if modif:
 	jsonFileC.text = 'var linkList ={\n' + jsonFileC.text[1:]
 	jsonFileC.replace ('}]}', ' }\n]};')
 	jsonFileC.write()
+	jsonFileA.remove()
 else: print ("les fichiers sont identiques")
+jsonFileB.remove()
