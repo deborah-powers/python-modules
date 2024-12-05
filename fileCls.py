@@ -308,7 +308,6 @@ class Article (File):
 		self.author =""
 		self.subject =""
 		self.link =""
-		self.autlink =""
 		self.type =""
 		self.meta ={}
 		if file: self.fromPath()
@@ -323,7 +322,6 @@ class Article (File):
 			ficNew.subject = self.subject
 			ficNew.link = self.link
 			ficNew.author = self.author
-			ficNew.autlink = self.autlink
 			ficNew.type = self.type
 			ficNew.path = self.path
 			ficNew.meta = self.meta
@@ -366,7 +364,6 @@ class Article (File):
 		article.type = 'txt'
 		article.link = self.link
 		article.author = self.author
-		article.autlink = self.autlink
 		article.meta = self.meta
 		return article
 
@@ -379,7 +376,6 @@ class Article (File):
 		article.type = 'html'
 		article.link = self.link
 		article.author = self.author
-		article.autlink = self.autlink
 		article.meta = self.meta
 		article.text = htmlFct.toHtml (self.text)
 		if '</' in article.text: return article
@@ -417,7 +413,7 @@ class Article (File):
 		scriptTemplate = "<script type='text/javascript' src='%s'></script>"
 		text =""
 		for meta in self.meta:
-			if meta not in 'style script subject author link autlink': text = text + metaTemplate % (meta, self.meta[meta])
+			if meta not in 'style script subject author link': text = text + metaTemplate % (meta, self.meta[meta])
 		if 'style' in self.meta.keys(): text = text + (styleTemplate % self.meta['style'])
 		if 'script' in self.meta.keys(): text = text + (scriptTemplate % self.meta['script'])
 		return text
@@ -516,8 +512,7 @@ class Article (File):
 			self.subject = metadata[1].strip()
 			self.author = metadata[2].strip()
 			self.link = metadata[3].strip()
-			self.autlink = metadata[4].strip()
-			self.metaFromHtml (metadata[5].strip())
+			self.metaFromHtml (metadata[4].strip())
 			"""
 			if '</script>' in metadata[6]: print ('la page contient du code js, qui est peut-être modifié par la mise en forme')
 			self.text = metadata[6].strip()
@@ -530,16 +525,18 @@ class Article (File):
 		elif self.type == 'txt':
 			self.text = textFct.cleanText (self.text)
 			self.text = textFct.shape (self.text)
-			metadata = textFct.fromModel (self.text, templateText)
+			self.text = self.text.strip()
 			d= self.text.rfind ('\n======')
+			metaText = self.text[d:]
 			self.text = self.text[:d]
-			self.subject = metadata[1].strip()
-			self.author = metadata[2].strip()
-			self.link = metadata[3].strip()
-			self.autlink = metadata[4].strip()
-			if len (metadata) >5:
-				meta = metadata[5].strip()
-				self.metaFromText (meta)
+			metadata = textFct.fromModel (metaText, templateTextMeta)
+			self.subject = metadata[0]
+			self.author = metadata[1]
+			self.link = metadata[2]
+			metaList = metadata[3].split ('\n')
+			for meta in metaList:
+				d= meta.find (':')
+				self.meta[meta[:d]] = meta[d+2:]
 
 	def write (self, independant=False):
 		self.title = self.title.lower()
@@ -555,14 +552,14 @@ class Article (File):
 					self.title = self.title +" reader"
 					self.imgToB64()
 				#	self.createSummary()
-					self.text = templateHtmlEreader % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
-				else: self.text = templateHtml % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
-			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.author, self.subject, self.link, self.autlink, meta, self.text)
+					self.text = templateHtmlEreader % (self.title, self.subject, self.author, self.link, meta, self.text)
+				else: self.text = templateHtml % (self.title, self.subject, self.author, self.link, meta, self.text)
+			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.subject, self.author, self.link, meta, self.text)
 		elif self.type == 'txt':
 			meta = self.metaToText()
 			self.text = textFct.cleanText (self.text)
 			self.text = textFct.shape (self.text, 'reset upper')
-			self.text = templateText % (self.text, self.subject, self.author, self.link, self.autlink, meta)
+			self.text = templateText % (self.text, self.subject, self.author, self.link, meta)
 		File.write (self, 'w')
 
 	def copy (self):
@@ -572,7 +569,7 @@ class Article (File):
 		article.type = self.type
 		article.link = self.link
 		article.author = self.author
-		article.autlink = self.autlink
+		self.meta = self.meta
 		return article
 
 	def __str__ (self):
@@ -588,7 +585,6 @@ class Article (File):
 	def test (self):
 		self.author = 'moi'
 		self.subject = 'random'
-		self.autlink = 'http://www.auteur.fr/'
 		self.link = 'http://www.test.fr/'
 		self.text = """nekg,ze,fmalf,al,f
 fkz,fzkl,fam; v adbazjkbdafaef"""

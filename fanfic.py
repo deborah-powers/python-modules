@@ -37,7 +37,6 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'egb' in url: self.ebGratuit()
 		elif 'wiki' in url: self.wiki()
 		else: self.setByMain()
-	#	self.meta ={ 'subject': self.subject, 'author': self.author, 'link': self.link, 'autlink': self.autlink }
 		self.delAttributes()
 		article = self.toText()
 		if article: article.divide()
@@ -106,9 +105,9 @@ class Fanfic (htmlCls.Html, Article):
 		tag = self.getOneByTagClass ('h3', 'byline heading')
 	#	tag = htmlCls.getOneByTag (tag, 'a')	le a est automatiquement trouvé via la dé-nidification
 		self.author = htmlCls.getInnerHtml (tag)
-		self.autlink = htmlCls.getAttribute (tag, 'href')
-		f= self.autlink.find ('/pseuds/')
-		self.autlink = self.autlink[:f]
+		autlink = htmlCls.getAttribute (tag, 'href')
+		f= autlink.find ('/pseuds/')
+		self.meta['lien-auteur'] = autlink[:f]
 		# le sujet
 		tag = self.getOneByTagClass ('dl', 'tags')
 	#	tag = self.getOneByTagClass ('dd', 'fandom tags')
@@ -131,7 +130,7 @@ class Fanfic (htmlCls.Html, Article):
 	def unisciel (self):
 		self.subject = 'biologie'
 		self.author = 'unisciel'
-		self.autlink = 'https://uel.unisciel.fr/biologie/module1/module1/co/module1_1.html'
+		self.meta = { 'lien-auteur': 'https://uel.unisciel.fr/biologie/module1/module1/co/module1_1.html' }
 		if not self.link: self.link = 'https://uel.unisciel.fr/biologie/module1/module1_ch01/co/'
 		self.setByTag ('section')
 		self.delAttributes()
@@ -146,7 +145,7 @@ class Fanfic (htmlCls.Html, Article):
 		self.subject = 'programmation'
 		self.title = self.title[8:]
 		self.author = 'test-recette'
-		self.autlink = 'https://www.test-recette.fr/recette/'
+	#	self.meta = { 'lien-auteur': 'https://www.test-recette.fr/recette/' }
 		if not self.link: self.link = self.meta['og:url']
 		self.delScript()
 		self.delAttributes()
@@ -214,7 +213,7 @@ class Fanfic (htmlCls.Html, Article):
 		tmpText = htmlCls.getInnerHtml (tmpText)
 		authlist = tmpText.split ('/wiki/author:')
 		d= authlist[1].find (' ') -1
-		self.autlink = authlist[1][:d]
+		self.meta = { 'lien-auteur': authlist[1][:d] }
 		d=1+ authlist[1].find ('>',d)
 		f= authlist[1].find ('<',d)
 		self.author = authlist[1][d:f]
@@ -227,7 +226,6 @@ class Fanfic (htmlCls.Html, Article):
 		# la date
 		tmpText = self.getOneById ('header-year-text')
 		if not self.link: self.link = self.meta['canonical']
-		self.meta ={}
 		self.meta['date'] = htmlCls.getInnerHtml (tmpText)
 		"""
 		# le texte
@@ -260,7 +258,6 @@ class Fanfic (htmlCls.Html, Article):
 			d= self.title.find (' |')
 			self.title = self.title[:d]
 		self.author = 'art des scoubidous'
-		self.autlink = 'https://lartdesscoubidous.com/'
 		self.link = 'https://lartdesscoubidous.com/'
 		self.subject = 'travaux manuels'
 		self.text = htmlCls.getcontentByTag (self.text, 'section')
@@ -294,7 +291,7 @@ class Fanfic (htmlCls.Html, Article):
 		self.replace ('</div>', "")
 		d= self.text.find ("par<a href='https://menace-theoriste.fr/author/") +12
 		f= self.text.find ('>', d) -1
-		self.autlink = self.text [d:f]
+		self.meta = { 'lien-auteur': self.text [d:f] }
 		d=f+2
 		f= self.text.find ('</a>', d)
 		self.author = self.text [d:f]
@@ -315,7 +312,7 @@ class Fanfic (htmlCls.Html, Article):
 		self.author = self.text [d:f]
 		d-=15
 		f= self.text [:d].rfind ('@') +1
-		self.autlink = 'https://gen.medium.com/@' + self.text [f:d]
+		self.meta = { 'lien-auteur': 'https://gen.medium.com/@' + self.text [f:d] }
 		d= self.link.rfind ('/') +1
 		f= self.link.rfind ('-')
 		self.title = self.link [d:f].replace ('-', ' ')
@@ -339,13 +336,14 @@ class Fanfic (htmlCls.Html, Article):
 		d= self.text.find ('<h1>')
 		d= self.text.find ('<p>', d)
 		f= self.text.find ('<div>reddit Inc')
-		self.text = self.text [d:f]
+		self.text = self.text[d:f]
 		self.replace ('<div>', "")
 		self.replace ('</div>', "")
 		# auteur
 		f= self.link.find ('/', 26)
-		self.autlink = self.link [:f]
-		self.author = self.autlink [25:]
+		autlink = self.link[:f]
+		self.author = autlink[25:]
+		self.meta = { 'lien-auteur': autlink }
 		self.title = self.title.replace ('#', ' ')
 		# finir le texte
 		self.replace ('<li><p>', '<li>')
@@ -367,10 +365,11 @@ class Fanfic (htmlCls.Html, Article):
 			self.title = self.title [:f]
 		d= textFct.find (self.text, '/u/') +3
 		f= textFct.find (self.text, "'>", d)
-		self.autlink = 'https://www.fictionpress.com/u/' + self.text[d:f]
+		autlink = 'https://www.fictionpress.com/u/' + self.text[d:f]
 		self.link = 'https:' + self.metas ['canonical']
-		d= self.autlink.rfind ('/') +1
-		self.author = cleanTitle (self.autlink[d:])
+		d= autlink.rfind ('/') +1
+		self.author = cleanTitle (autlink[d:])
+		self.meta = { 'lien-auteur': autlink }
 		# le sujet
 		if '- Romance/' in self.text: self.subject = 'romance'
 		self.findSubject()
@@ -392,10 +391,11 @@ class Fanfic (htmlCls.Html, Article):
 			self.title = self.title [:f]
 		d= textFct.find (self.text, '/u/') +3
 		f= textFct.find (self.text, "'>", d)
-		self.autlink = 'https://www.fanfiction.net/u/' + self.text[d:f]
+		autlink = 'https://www.fanfiction.net/u/' + self.text[d:f]
 		self.link = 'https:' + self.metas ['canonical']
-		d= self.autlink.rfind ('/') +1
-		self.author = cleanTitle (self.autlink[d:])
+		d= autlink.rfind ('/') +1
+		self.author = cleanTitle (autlink[d:])
+		self.meta = { 'lien-auteur': autlink }
 		# le sujet
 		if '- Romance/' in self.text: self.subject = 'romance'
 		self.findSubject()

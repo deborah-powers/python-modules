@@ -36,7 +36,7 @@ for b in jsonDataB.keys():
 			jsonDataA[b] = sorted (jsonDataA[b], key=lambda d: d['name'])
 
 if modif:
-	jsonFileC = File (jsonTitleC)
+	jsonFileC = File (pathLienData)
 	jsonFileC.text = json.dumps (jsonDataA)
 	jsonFileC.replace ('}, {', ' },\n\t{ ')
 	jsonFileC.replace ('}], "', ' }\n],\n"')
@@ -44,6 +44,6 @@ if modif:
 	jsonFileC.text = 'var linkList ={\n' + jsonFileC.text[1:]
 	jsonFileC.replace ('}]}', ' }\n]};')
 	jsonFileC.write()
-	jsonFileA.remove()
+#	jsonFileA.remove()
 else: print ("les fichiers sont identiques")
 jsonFileB.remove()
