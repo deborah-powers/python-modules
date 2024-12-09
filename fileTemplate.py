@@ -3,9 +3,9 @@
 
 templateTextMeta ="""================================================
 
-Sujet:	%s
-Auteur:	%s
-Lien:	%s
+sujet:	%s
+auteur:	%s
+lien:	%s
 %s"""
 
 templateText = '%s\n\n' + templateTextMeta

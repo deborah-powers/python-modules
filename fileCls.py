@@ -527,7 +527,7 @@ class Article (File):
 			self.text = textFct.shape (self.text)
 			self.text = self.text.strip()
 			d= self.text.rfind ('\n======')
-			metaText = self.text[d:]
+			metaText = self.text[d:].lower()
 			self.text = self.text[:d]
 			metadata = textFct.fromModel (metaText, templateTextMeta)
 			self.subject = metadata[0]
