@@ -14,17 +14,22 @@ imgNameBis = imgNameBis + '-bis.bmp'
 # récupérer les métadonnées de windows
 fileFolder = 'C:\\Users\\LENOVO\\Desktop\\articles\\informatique\\test-css'
 fileName = 'img-bmp.bmp'
+
+fileFolder = 'C:\\Users\\LENOVO\\Downloads'
+fileName = '111120249301.jpg'
 sh = wclient.gencache.EnsureDispatch ('Shell.Application',0)
 ns = sh.NameSpace (fileFolder)
 item = ns.ParseName (fileName)
-metadata =[ 'Name', 'Size', 'Item type', 'Date modified', 'Date created' ]
 metadata = ['Name', 'Size', 'Item type', 'Date modified', 'Date created', 'Date accessed', 'Attributes', 'Offline status', 'Availability', 'Perceived type', 'Owner', 'Kind', 'Date taken', 'Contributing artists', 'Album', 'Year', 'Genre', 'Conductors', 'Tags', 'Rating', 'Authors', 'Title', 'Subject', 'Categories', 'Comments', 'Copyright', '#', 'Length', 'Bit rate', 'Protected', 'Camera model', 'Dimensions', 'Camera maker', 'Company', 'File description', 'Masters keywords', 'Masters keywords']
 
 file_metadata = dict()
 for ind, attribute in enumerate (metadata):
 	attr_value = ns.GetDetailsOf (item, ind)
-	print (ind, attribute, attr_value)
-	if attr_value: file_metadata[attribute] = attr_value
+	if attr_value:
+		print (ind, attribute, attr_value)
+		file_metadata[attribute] = attr_value
+
+
 """
 exifData = imageOriginal.getexif()
 exifData[36867] = '2024-06-21'

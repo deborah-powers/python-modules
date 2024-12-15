@@ -269,6 +269,25 @@ Applis:
 	Vlc	vlc
 	Eog	visionneuse d'image
 
+============ Récupérer les photos à partir de google photo ============
+
+https://developers.google.com/photos/picker/reference/rest?hl=fr
+https://developers.google.com/photos/picker/samples?hl=fr
+https://developers.google.com/photos/overview/about?hl=fr
+
+https://developers.google.com/photos/overview/configure-your-app?hl=fr (activer l'api)
+https://youtu.be/VtYqNDeTyqg?list=TLPQMTUxMjIwMjRXP1lj_XxEBg
+
+dans la console, créer le projet photos-deborah
+https://console.cloud.google.com/apis/library/photospicker.googleapis.com?hl=fr&inv=1&invt=AbkN4A&project=photos-deborah
+activer l'api photo picker
+https://console.cloud.google.com/apis/api/photospicker.googleapis.com/metrics?hl=fr&inv=1&invt=AbkN4A&project=photos-deborah
+créer mon écran de consentement. préciser les utilisateurs autorisés (adresses mail)
+ajouter des champs d'application ?? "Google Photos Picker API" et les champs "photos library api"
+https://developers.google.com/photos/picker/guides/get-started-picker?hl=fr
+
+les scopes: https://developers.google.com/identity/protocols/oauth2/scopes
+
 ============ Récupérer les éléments de mes calendriers google ============
 
 https://developers.google.com/calendar/api/quickstart/python
@@ -278,6 +297,9 @@ Activer l'api google calendar
 https://console.cloud.google.com/projectselector2/apis/enableflow?apiid=calendar-json.googleapis.com&hl=fr&pli=1&supportedpurview=project
 https://developers.google.com/identity/protocols/oauth2/service-account?authuser=2&hl=fr#creatinganaccount
 Cf quickstart.py
+projet calendrier-deborah
+https://console.cloud.google.com/apis/library?hl=fr&inv=1&invt=AbkN4A&project=calendrier-deborah
+dans la console, aller dans identifiants pour créer un nouveau ID clients OAuth 2.0
 
 ************ Erreur invalid_grant ************
 
