@@ -140,6 +140,10 @@ def toImage (text):
 			text = "".join (textList)
 	return text
 
+def imageFromBase64One (imgStr):
+	buff = BytesIO (base64.b64decode (imgStr))
+	return Image.open (buff)
+
 def imgToB64One (imageName):
 	imageOriginal = Image.open (imageName)
 	imageOriginal = imageOriginal.convert ('RGB')
