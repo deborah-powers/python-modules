@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from folderCls import Folder, FolderArticle
-import loggerFct
+from folderImg import FolderImg
+import loggerFct as log
 
 help ="""
 ce script peut être appelé dans un autre script
@@ -21,6 +22,9 @@ les valeurs de action:
 """ % __file__
 
 if len (argv) <3: print (help)
+elif argv[2] == 'nd':
+	flist = FolderImg (argv[1])
+	flist.renameDate()
 else:
 	flist = Folder (argv[1])
 	action = argv[2]

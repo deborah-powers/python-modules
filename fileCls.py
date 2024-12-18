@@ -13,7 +13,7 @@ import loggerFct as log
 
 dateFormatFull = '%Y/%m/%d %H:%M:%S'
 dateFormatDay = '%Y-%m-%d'
-dateFormatHour = dateFormatDay + '-%H'
+dateFormatHour = dateFormatDay + '-%H-%M'
 
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")
@@ -54,15 +54,42 @@ class File():
 	def getDateCreation (self):
 		# self.path est bien au bon format
 		self.toPath()
-		dateCreation = os.path.getctime (self.path)
 		strCreation =""
-		strCreation = datetime.fromtimestamp (dateCreation).strftime (dateFormatDay)
-		if strCreation < '2005':
-			dateCreation = os.path.getctime (self.path)
-			strCreation = datetime.fromtimestamp (dateCreation).strftime (dateFormatDay)
+		dateCreation = os.path.getctime (self.path)
+		dateModification = os.path.getmtime (self.path)
+		if dateModification < dateCreation: strCreation = datetime.fromtimestamp (dateModification).strftime (dateFormatDay)
+		else: strCreation = datetime.fromtimestamp (dateCreation).strftime (dateFormatDay)
 		return strCreation
 
 	def renameDate (self):
+		self.fromPath()
+		newPath = self.title.lower()
+		newPath = newPath.replace ('img_20', '20')
+		newPath = newPath.replace ('img-20', '20')
+		newPath = newPath.replace ('vid_20', '20')
+		newPath = newPath.replace ('video_20', '20')
+		alpabet = 'abcdefghijklmnopqrstuvwxyz'
+		dejaTraitee = False
+		l=0
+		while l<26:
+			if alpabet[l] in newPath:
+				dejaTraitee = True
+				l=27
+			l+=1
+		if not dejaTraitee:
+			creation = self.getDateCreation()
+			self.fromPath()
+			l=0
+			while l<26:
+				newPath = self.path.replace ('\t', creation +" "+ alpabet[l])
+				if not os.path.exists (newPath):
+					log.logLst (self.title, newPath)
+					self.toPath()
+				#	os.rename (self.path, newPath)
+					l=27
+				l+=1
+
+	def renameDate_va (self):
 		months =( '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12')
 		days =( '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31')
 		if '2024' in self.title and '2024-' not in self.title and '2024 ' not in self.title:
