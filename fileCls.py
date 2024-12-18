@@ -41,6 +41,13 @@ class File():
 		# self et fileB sont ouverts
 		title = 'b/comparer %s et %s.txt' %( self.title, fileB.title)
 		fileCommon = File (title)
+		if (self.path[:-4] == '.css' and fileB.path[:-4] == '.css') or (self.path[:-3] == '.js' and fileB.path[:-3] == '.js'):
+			self.text = self.text.replace ('{',"")
+			self.text = self.text.replace ('}',"")
+			self.text = self.text.replace (';',"")
+			fileB.text = fileB.text.replace ('{',"")
+			fileB.text = fileB.text.replace ('}',"")
+			fileB.text = fileB.text.replace (';',"")
 		fileCommon.text = comparerText (self.text, fileB.text)
 		fileCommon.write()
 

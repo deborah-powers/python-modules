@@ -24,7 +24,7 @@ weirdChars =(
 	('&mdash;', ' '), ('&nbsp;', ''), ('&oelig;', 'oe'), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&lsquo;', '"'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"), ('&laquo;', '"'), ('&raquo;', '"'), ('&#8220;', '"'), ('&#8221;', '"'), ('&#8211;', '-'),
 	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#39;', "'"), ('&#8217;', "'"), ('\n" ', '\n"')
 )
-urlWords =( ('c:', 'C:\\\\'), (': /', ':/'), ('localhost: ', 'localhost:'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js'), (': 80', ':80'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico') )
+urlWords =( ('c:', 'C:\\'), (': /', ':/'), ('localhost: ', 'localhost:'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js'), (': 80', ':80'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico') )
 
 # ________________________ ma mise en forme perso ________________________
 
@@ -245,8 +245,8 @@ def cleanTextVa (text):
 	text = text.replace (' \t', '\t')
 	# restaurer les url
 	charEndUrl = '\n\t \'",;!()[]{}'
-	for wordStart, wordEnd in urlWords[:8]: text = text.replace (wordStart, wordEnd)
-	for wordStart, wordEnd in urlWords[8:]:
+	for wordStart, wordEnd in urlWords[:9]: text = text.replace (wordStart, wordEnd)
+	for wordStart, wordEnd in urlWords[9:]:
 		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
 	liste = text.split (' ?')
 	rliste = range (1, len (liste))

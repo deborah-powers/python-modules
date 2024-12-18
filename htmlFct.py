@@ -173,6 +173,36 @@ def imgToB64 (text):
 		text = text.replace ('scr=', 'src=')
 	return text
 
+def toLinkProtocol (text, protocol):
+	endingChars = '<;, !\t\n'
+	textList = text.split (protocol)
+	paragraphRange = range (1, len (textList))
+	for p in paragraphRange:
+		paragraphTmp = textList[p]
+		e=-1; f=-1; d=-1
+		for char in endingChars:
+			if char in paragraphTmp:
+				f= paragraphTmp.find (char)
+				paragraphTmp = paragraphTmp [:f]
+		paragraphTmp = paragraphTmp.strip ('/')
+		d= paragraphTmp.rfind ('/') +1
+		e= len (paragraphTmp)
+		if '.' in paragraphTmp[d:]: e= paragraphTmp.rfind ('.')
+		title =""
+		if textList[p][f:f+2] == ' (':
+			e= textList[p].find (')')
+			title = textList[p][f+2:e]
+			textList[p] = textList[p][e+1:]
+		else:
+			textList[p] = textList[p][f:]
+			title = paragraphTmp [d:e].replace ('-',' ')
+			title = title.replace ('_',' ')
+			title = title.replace ('.'," ")
+		textList[p] = paragraphTmp +"'>"+ title +'</a> '+ textList[p]
+	text = (" <a href='" + protocol).join (textList)
+	text = text.replace ('> <a ', '><a ')
+	return text
+
 def toLink (text):
 	endingChars = '<;, !\t\n'
 	textList = text.split ('http')
