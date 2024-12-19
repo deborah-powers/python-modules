@@ -26,11 +26,18 @@ class Folder():
 			file.toPath()
 			os.rename (self.path + file.path, self.path + newPath)
 
-	def renameDate (self):
+	def renameDateWindow (self, addHour=False):
+		""" renommer les fichiers d'un dossier en prenant en compte la date
+		la fonction utilise les métadonnées de window
+		"""
+		import win32com.client as wclient
+		pathWindow = self.path[:-1]
+		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application', 0)
+		nameSpace = shellApp.NameSpace (pathWindow)
 		self.get ('202')
 		for file in self.list:
 			file.path = self.path + file.path
-			file.renameDate()
+			file.renameDateWindow (nameSpace, addHour)
 			file.path = file.path.replace (self.path, "")
 
 	def move (self, newPath):

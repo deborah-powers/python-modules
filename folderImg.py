@@ -32,38 +32,15 @@ class FolderImg (Folder):
 		Folder.__init__(self, path)
 	#	self.date = '2012-12-12'
 
-	def renameDate (self, addHour=False):
+	def renameDateWindow (self, addHour=False):
 		pathWindow = self.path[:-1]
 		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application',0)
 		nameSpace = shellApp.NameSpace (pathWindow)
 		self.get()
 		for file in self.list:
-			# repérer les fichiers traitables par cette méthode
-			if imageAtraiter (file.path.replace ('\t', file.title)):
-				fileData = nameSpace.ParseName (file.title + file.path[-4:])
-				# repérer la date de création
-				dateCreation = nameSpace.GetDetailsOf (fileData, 12).replace (" ","")
-				if dateCreation:
-					dateCreation = dateCreation.replace ('‎', "")
-					dateCreation = dateCreation.replace ('‏', '/')
-				else: dateCreation = nameSpace.GetDetailsOf (fileData, 4).replace (" ",'/')
-				# mettre en forme la date de création
-				dateCreation = dateCreation.replace (':', '-')
-				dateList = dateCreation.split ('/')
-				dateCreation = dateList[2] +'-'+ dateList[1] +'-'+ dateList[0]
-				if addHour: dateCreation = dateCreation +'-'+ dateList[3]
-				# renommer le fichier
-				file.path = self.path + file.path
-				file.fromPath()
-				l=0
-				while l<26:
-					newPath = file.path.replace ('\t', dateCreation +" "+ alpabet[l])
-					if not os.path.exists (newPath):
-						file.toPath()
-						os.rename (file.path, newPath)
-						l=27
-					l+=1
-				file.path = file.path.replace (self.path, "")
+			file.path = self.path + file.path
+			file.renameDateWindow (nameSpace, addHour)
+			file.path = file.path.replace (self.path, "")
 
 	def get (self, tagName=None, sens=True):
 		for dirpath, SousListDossiers, subList in os.walk (self.path):
