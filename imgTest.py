@@ -68,15 +68,15 @@ def getMetadataWindow():
 	fileFolder = 'C:\\Users\\LENOVO\\Pictures'
 	fileName = '11132024143654.jpg'
 
-	sh = wclient.gencache.EnsureDispatch ('Shell.Application',0)
-	ns = sh.NameSpace (fileFolder)
-	item = ns.ParseName (fileName)
+	shellApp = wclient.gencache.EnsureDispatch ('Shell.Application',0)
+	nameSpace = shellApp.NameSpace (fileFolder)
+	item = nameSpace.ParseName (fileName)
 
 	metadata = ['Name', 'Size', 'Item type', 'Date modified', 'Date created', 'Date accessed', 'Attributes', 'Offline status', 'Availability', 'Perceived type', 'Owner', 'Kind', 'Date taken', 'Contributing artists', 'Album', 'Year', 'Genre', 'Conductors', 'Tags', 'Rating', 'Authors', 'Title', 'Subject', 'Categories', 'Comments', 'Copyright', '#', 'Length', 'Bit rate', 'Protected', 'Camera model', 'Dimensions', 'Camera maker', 'Company', 'File description', 'Masters keywords']
 
 	file_metadata = dict()
 	for ind, attribute in enumerate (metadata):
-		attr_value = ns.GetDetailsOf (item, ind)
+		attr_value = nameSpace.GetDetailsOf (item, ind)
 		if attr_value:
 			print (ind, attribute, ':', attr_value)
 			file_metadata[attribute] = attr_value

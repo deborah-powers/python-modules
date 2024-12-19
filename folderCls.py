@@ -26,6 +26,13 @@ class Folder():
 			file.toPath()
 			os.rename (self.path + file.path, self.path + newPath)
 
+	def renameDate (self):
+		self.get ('202')
+		for file in self.list:
+			file.path = self.path + file.path
+			file.renameDate()
+			file.path = file.path.replace (self.path, "")
+
 	def move (self, newPath):
 		# newPath est une string
 		if newPath[-1] != os.sep: newPath = newPath + os.sep

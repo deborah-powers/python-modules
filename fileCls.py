@@ -51,41 +51,44 @@ class File():
 		fileCommon.text = comparerText (self.text, fileB.text)
 		fileCommon.write()
 
-	def getDateCreation (self):
+	def getDateCreation (self, addHour=False):
 		# self.path est bien au bon format
 		self.toPath()
-		strCreation =""
 		dateCreation = os.path.getctime (self.path)
 		dateModification = os.path.getmtime (self.path)
-		if dateModification < dateCreation: strCreation = datetime.fromtimestamp (dateModification).strftime (dateFormatDay)
+		dateA = os.path.getatime (self.path)
+		strCreation = datetime.fromtimestamp (dateCreation).strftime (dateFormatDay)
+		strM = datetime.fromtimestamp (dateModification).strftime (dateFormatDay)
+		strA = datetime.fromtimestamp (dateA).strftime (dateFormatDay)
+		log.logLst (self.title, strCreation, strM, strA)
+		if dateModification < dateCreation:
+			if addHour: strCreation = datetime.fromtimestamp (dateModification).strftime (dateFormatHour)
+			else: strCreation = datetime.fromtimestamp (dateModification).strftime (dateFormatDay)
+		elif addHour: strCreation = datetime.fromtimestamp (dateCreation).strftime (dateFormatHour)
 		else: strCreation = datetime.fromtimestamp (dateCreation).strftime (dateFormatDay)
 		return strCreation
 
-	def renameDate (self):
+	def renameDate (self, addHour=False):
+		alpabet = 'abcdefghijklmnopqrstuvwxyz'
+		aTraiter = True
 		self.fromPath()
 		newPath = self.title.lower()
-		newPath = newPath.replace ('img_20', '20')
-		newPath = newPath.replace ('img-20', '20')
-		newPath = newPath.replace ('vid_20', '20')
-		newPath = newPath.replace ('video_20', '20')
-		alpabet = 'abcdefghijklmnopqrstuvwxyz'
-		dejaTraitee = False
-		l=0
-		while l<26:
-			if alpabet[l] in newPath:
-				dejaTraitee = True
-				l=27
-			l+=1
-		if not dejaTraitee:
-			creation = self.getDateCreation()
+		if newPath[:4] not in 'img_ img- vid_' and newPath[:6] != 'video_':
+			l=0
+			while l<26:
+				if alpabet[l] in newPath:
+					aTraiter = False
+					l=27
+				l+=1
+		if aTraiter:
+			creation = self.getDateCreation (addHour)
 			self.fromPath()
 			l=0
 			while l<26:
 				newPath = self.path.replace ('\t', creation +" "+ alpabet[l])
 				if not os.path.exists (newPath):
-					log.logLst (self.title, newPath)
 					self.toPath()
-				#	os.rename (self.path, newPath)
+					os.rename (self.path, newPath)
 					l=27
 				l+=1
 
