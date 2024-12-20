@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from sys import argv
 from folderCls import Folder, FolderArticle
-from folderImg import FolderImg
+from imageCls import ImageFolder
 import loggerFct as log
 
 help ="""
@@ -11,6 +11,8 @@ python %s folderName action oldArg (newArg)
 les valeurs de action:
 	n	renommer les fichiers en remplacant un motif par un autre
 	nd	renommer les fichiers modifiant la date
+	nh	renommer les fichiers modifiant la date avec l'heure
+	heic	traiter les fichiers heic
 	c	remplacer un motif par un autre dans le contenu du fichier
 	m	déplacer les fichiers
 	l	lister les fichiers
@@ -22,9 +24,11 @@ les valeurs de action:
 """ % __file__
 
 if len (argv) <3: print (help)
-elif argv[2] == 'nd':
-	flist = FolderImg (argv[1])
-	flist.renameDate()
+elif argv[2] in ('heic', 'nd', 'nh'):
+	flist = ImageFolder (argv[1])
+	if argv[2] == 'nd': flist.renameDate()
+	elif argv[2] == 'nh': flist.renameDate (True)
+	elif argv[2] == 'heic': flist.heicToPng()
 else:
 	flist = Folder (argv[1])
 	action = argv[2]
@@ -34,6 +38,7 @@ else:
 		if action == 'd': flist.doublons()
 		elif action == 'l': print (flist)
 	elif action == 'nd': flist.renameDate()
+	elif action == 'nh': flist.renameDate (True)
 	elif len (argv) <4: print (help)
 	elif action == 'v': flist.compareGit (argv[3])
 	elif action == 's':

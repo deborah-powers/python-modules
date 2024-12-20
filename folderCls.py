@@ -34,7 +34,7 @@ class Folder():
 		pathWindow = self.path[:-1]
 		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application', 0)
 		nameSpace = shellApp.NameSpace (pathWindow)
-		self.get ('202')
+		self.get ('_')
 		for file in self.list:
 			file.path = self.path + file.path
 			file.renameDateWindow (nameSpace, addHour)

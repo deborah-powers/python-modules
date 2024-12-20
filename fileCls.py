@@ -3,7 +3,6 @@
 import os
 import codecs
 import json
-from datetime import datetime
 import listFct
 import textFct
 import htmlFct
@@ -51,7 +50,7 @@ class File():
 		fileCommon.text = comparerText (self.text, fileB.text)
 		fileCommon.write()
 
-	def renameDateWindow (self, nameSpace, addHour=False):
+	def renameDate (self, nameSpace, addHour=False):
 		""" renommer un fichier en prenant en compte la date
 		la fonction utilise les métadonnées de window
 		elle est utilisée dans folderCls.Folder.renameDateWindow
@@ -109,6 +108,10 @@ class File():
 			self.path = self.path.replace ('\t', self.title)
 			self.path = shortcut (self.path)
 
+	def remove (self):
+		self.toPath()
+		if os.path.exists (self.path): os.remove (self.path)
+
 	def read (self):
 		self.toPath()
 		if not os.path.exists (self.path): return
@@ -123,11 +126,6 @@ class File():
 		textBrut.close()
 		if text: self.text = text
 		self.fromPath()
-
-	def remove (self):
-		self.toPath()
-		log.logMsg (self.path)
-		if os.path.exists (self.path): os.remove (self.path)
 
 	def write (self, mode='w'):
 		# pas de texte

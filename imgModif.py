@@ -1,12 +1,16 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+import os
 from sys import argv
 import numpy
 numpy.seterr (all='warn')
 from PIL import Image, ImageOps
 import colorsys
+from pillow_heif import register_heif_opener
 import fileLocal
 import loggerFct as log
+
+register_heif_opener()
 
 help ="""modifier des images
 utilisation
@@ -30,6 +34,41 @@ def openImage (imageName):
 	d= imageName.rfind ('.')
 	newName = imageName[:d]
 	return newName, imageOriginal
+
+def heicToPng (imageName, nameSpace):
+	""" calculer le nouveau nom à partir de la date de création
+	nameSpace est l'espace de nom créé par windows
+	"""
+	d=1+ imageName.rfind (os.sep)
+	fileData = nameSpace.ParseName (imageName[d:])
+	# repérer la date de création. Date taken ou Date created
+	dateCreation = nameSpace.GetDetailsOf (fileData, 12).replace (" ","")
+	if dateCreation:
+		dateCreation = dateCreation.replace ('‎', "")
+		dateCreation = dateCreation.replace ('‏', '/')
+	else: dateCreation = nameSpace.GetDetailsOf (fileData, 4).replace (" ",'/')
+	# mettre en forme la date de création
+	dateCreation = dateCreation.replace (':', '-')
+	dateList = dateCreation.split ('/')
+	dateCreation = dateList[2] +'-'+ dateList[1] +'-'+ dateList[0] +'-'+ dateList[3]
+	# vérifier si le nom existe déjà
+	alpabet = 'abcdefghijklmnopqrstuvwxyz'
+	newName =""
+	l=0
+	while l<26:
+		newName = imageName[:d] + dateCreation +" "+ alpabet[l] + '.png'
+		if not os.path.exists (newName): l=27
+		l+=1
+	# convertir l'image heic en png. elle fera 1000 pixels de haut
+	if l==27:
+		heightHeic =1000
+		imageNameBis, imageOriginal = openImage (imageName)
+		percentHeic = float (heightHeic / float (imageOriginal.size[1]))
+		widthHeic = int (imageOriginal.size[0] * percentHeic)
+		imageNew = imageOriginal.resize ((widthHeic, heightHeic), Image.Resampling.LANCZOS)
+		imageNew.save (newName)
+		os.remove (imageName)
+	else: print ("je n'ai pas réussi à renommer l'image:", imageName)
 
 """ ________________________________________________ modifier les couleurs ________________________________________________ """
 
@@ -138,3 +177,4 @@ elif argv[2] == 'color': reverseColors (argv[1])
 elif argv[2] == 'lumin': reverseLumins (argv[1])
 elif argv[2] == 'reverse': reverseImage (argv[1])
 elif argv[2] == 'del' and len (argv) >3: eraseColors (argv[1], argv[3])
+
