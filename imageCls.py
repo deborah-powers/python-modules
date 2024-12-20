@@ -27,6 +27,35 @@ rgb_to_hsv = numpy.vectorize (colorsys.rgb_to_hsv)
 hsv_to_rgb = numpy.vectorize (colorsys.hsv_to_rgb)
 register_heif_opener()
 
+
+def getDateCreation (nameImg, nameSpace, addHour=False):
+	fileData = nameSpace.ParseName (nameImg)
+	# repérer la date de création. Date taken ou Date created
+	dateCreation = nameSpace.GetDetailsOf (fileData, 12).replace (" ","")
+	if dateCreation and '202' in dateCreation:
+		dateCreation = dateCreation.replace ('‎', "")
+		dateCreation = dateCreation.replace ('‏', '/')
+	else: dateCreation = nameSpace.GetDetailsOf (fileData, 4).replace (" ",'/')
+	# mettre en forme la date de création
+	dateCreation = dateCreation.replace (':', '-')
+	dateList = dateCreation.split ('/')
+	dateCreation = dateList[2] +'-'+ dateList[1] +'-'+ dateList[0]
+	if addHour: dateCreation = dateCreation +'-'+ dateList[3]
+	return dateCreation
+
+def createDatedName (pathImg, extImg, dateCreation):
+	newName =""
+	l=0
+	while l<26:
+		newName = pathImg + dateCreation +" "+ alpabet[l] +'.'+ extImg
+		if not os.path.exists (newName): l=27
+		l+=1
+	if l<27:
+		newName =""
+		print ("je n'ai pas réussi à renommer l'image:", self.path)
+	return newName
+
+
 class ImageFile():
 	def __init__ (self, image=None):
 		self.path =""
@@ -38,27 +67,24 @@ class ImageFile():
 			self.path = image
 			self.fromPath()
 
-	def heicToPng (imageName, nameSpace, addHour=False):
-		""" calculer le nouveau nom à partir de la date de création
-		nameSpace est l'espace de nom créé par windows
-		l'image fera 1000 pixel de haut
-		"""
-		self.extension = 'png'
-		newName = self.getDatedName (nameSpace, addHour)
-		if newName:
-			self.extension = 'heic'
-			self.read()
-			heightHeic =1000
-			percentHeic = float (heightHeic / float (self.image.size[1]))
-			widthHeic = int (self.image.size[0] * percentHeic)
-			imageNew = self.image.resize ((widthHeic, heightHeic), Image.Resampling.LANCZOS)
-			imageNew.save (newName)
-			os.remove (imageName)
+	def heicToPng (self, nameSpace, addHour=False):
+		# l'image fera 1000 pixel de haut
+		dateCreation = getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
+		self.read()
+		heightHeic =1000
+		percentHeic = float (heightHeic / float (self.image.size[1]))
+		widthHeic = int (self.image.size[0] * percentHeic)
+		imageNew = self.image.resize ((widthHeic, heightHeic), Image.Resampling.LANCZOS)
+		self.fromPath()
+		nameCreation = createDatedName (self.path, 'png', dateCreation)
+		if nameCreation:
+			imageNew.save (nameCreation)
+			self.toPath()
+			os.remove (self.path)
 
 	def renameDate (self, nameSpace, addHour=False):
 		""" renommer un fichier en prenant en compte la date
 		la fonction utilise les métadonnées de window
-		elle est utilisée dans folderCls.Folder.renameDateWindow
 		"""
 		aTraiter = True
 		newName = self.title.lower()
@@ -70,37 +96,14 @@ class ImageFile():
 					l=27
 				l+=1
 		if aTraiter:
-			newName = self.getDatedName (nameSpace, addHour)
 			self.toPath()
-			if newName: os.rename (self.path, newName)
-
-	def getDatedName (self, nameSpace, addHour=False):
-		""" renommer un fichier en prenant en compte la date
-		la fonction utilise les métadonnées de window
-		"""
-		fileData = nameSpace.ParseName (self.title +'.'+ self.extension)
-		# repérer la date de création. Date taken ou Date created
-		dateCreation = nameSpace.GetDetailsOf (fileData, 12).replace (" ","")
-		if dateCreation:
-			dateCreation = dateCreation.replace ('‎', "")
-			dateCreation = dateCreation.replace ('‏', '/')
-		else: dateCreation = nameSpace.GetDetailsOf (fileData, 4).replace (" ",'/')
-		# mettre en forme la date de création
-		dateCreation = dateCreation.replace (':', '-')
-		dateList = dateCreation.split ('/')
-		dateCreation = dateList[2] +'-'+ dateList[1] +'-'+ dateList[0]
-		if addHour: dateCreation = dateCreation +'-'+ dateList[3]
-		# créer le nom
-		self.fromPath()
-		l=0
-		while l<26:
-			newName = self.path + dateCreation +" "+ alpabet[l] +'.'+ self.extension
-			if not os.path.exists (newName): l=27
-			l+=1
-		if l<27:
-			newName =""
-			print ("je n'ai pas réussi à renommer l'image:", self.path)
-		return newName
+			dateCreation = getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
+			self.fromPath()
+			nameCreation = createDatedName (self.path, self.extension, dateCreation)
+			if nameCreation:
+				self.toPath()
+				log.logLst (self.path, nameCreation)
+				os.rename (self.path, nameCreation)
 
 	def eraseColors (self, referImg):
 		# éffacer certaines couleurs d'une image à partir d'une image de référence qui les contient
@@ -169,7 +172,6 @@ class ImageFile():
 
 	def fromPath (self):
 		if '.'+ self.extension not in self.path: return
-		self.path = shortcut (self.path)
 		if os.sep not in self.path or '.' not in self.path:
 			print ('fichier malformé:\n' + self.path)
 			return
@@ -181,12 +183,11 @@ class ImageFile():
 		self.title = self.path [posS:posE]
 		self.extension = self.path[posE+1:]
 		self.path = self.path [:posS]
-	#	self.path = self.path.replace (self.title, '\t')
 
 	def toPath (self):
 		if '.'+ self.extension not in self.path:
-			self.path = self.path + self.title +'.'+ self.title
-			self.path = shortcut (self.path)
+			self.path = self.path + self.title +'.'+ self.extension
+			self.path = fileLocal.shortcut (self.path)
 
 	def remove (self):
 		self.toPath()
@@ -213,21 +214,25 @@ class ImageFile():
 			self.toPath()
 			self.image.save (self.path)
 
-	def shortcut (self):
-		self.path = shortcut (self.path)
+	def __lt__ (self, newFile):
+		""" nécessaire pour trier les listes """
+		self.toPath()
+		newFile.toPath()
+		return self.path < newFile.path
 
 class ImageFolder (Folder):
 	def __init__ (self, path='i/'):
 		Folder.__init__(self, path)
 
-	def heicToPng (self):
+	def heicToPng (self, addHour=False):
 		pathWindow = self.path[:-1]
 		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application',0)
 		nameSpace = shellApp.NameSpace (pathWindow)
 		self.get (True)
 		for image in self.list:
-			image.path = self.path + image.path
-			heicToPng (self.path + image.path, nameSpace)
+			if os.sep not in image.path:
+				image.path = self.path + image.path
+				image.heicToPng (nameSpace, addHour)
 
 	def renameDate (self, addHour=False):
 		pathWindow = self.path[:-1]
@@ -235,9 +240,10 @@ class ImageFolder (Folder):
 		nameSpace = shellApp.NameSpace (pathWindow)
 		self.get()
 		for image in self.list:
-			image.path = self.path + image.path
-			image.renameDateWindow (nameSpace, addHour)
-			image.path = image.path.replace (self.path, "")
+			if os.sep not in image.path:
+				image.path = self.path + image.path
+				image.renameDate (nameSpace, addHour)
+				image.path = image.path.replace (self.path, "")
 
 	def get (self, heic=False):
 		for dirpath, SousListDossiers, subList in os.walk (self.path):
