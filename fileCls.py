@@ -50,44 +50,6 @@ class File():
 		fileCommon.text = comparerText (self.text, fileB.text)
 		fileCommon.write()
 
-	def renameDate (self, nameSpace, addHour=False):
-		""" renommer un fichier en prenant en compte la date
-		la fonction utilise les métadonnées de window
-		elle est utilisée dans folderCls.Folder.renameDateWindow
-		"""
-		alpabet = 'abcdefghijklmnopqrstuvwxyz'
-		aTraiter = True
-		newPath = self.title.lower()
-		if newPath[:4] not in 'img_ img- vid_' and newPath[:6] != 'video_':
-			l=0
-			while l<26:
-				if alpabet[l] in newPath:
-					aTraiter = False
-					l=27
-				l+=1
-		if aTraiter:
-			fileData = nameSpace.ParseName (self.title + self.path[-4:])
-			# repérer la date de création. Date taken ou Date created
-			dateCreation = nameSpace.GetDetailsOf (fileData, 12).replace (" ","")
-			if dateCreation:
-				dateCreation = dateCreation.replace ('‎', "")
-				dateCreation = dateCreation.replace ('‏', '/')
-			else: dateCreation = nameSpace.GetDetailsOf (fileData, 4).replace (" ",'/')
-			# mettre en forme la date de création
-			dateCreation = dateCreation.replace (':', '-')
-			dateList = dateCreation.split ('/')
-			dateCreation = dateList[2] +'-'+ dateList[1] +'-'+ dateList[0]
-			if addHour: dateCreation = dateCreation +'-'+ dateList[3]
-			self.fromPath()
-			l=0
-			while l<26:
-				newPath = self.path.replace ('\t', dateCreation +" "+ alpabet[l])
-				if not os.path.exists (newPath):
-					self.toPath()
-					os.rename (self.path, newPath)
-					l=27
-				l+=1
-
 	def fromPath (self):
 		if '\t' in self.path: return
 		self.path = shortcut (self.path)

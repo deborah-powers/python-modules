@@ -52,7 +52,7 @@ def createDatedName (pathImg, extImg, dateCreation):
 		l+=1
 	if l<27:
 		newName =""
-		print ("je n'ai pas réussi à renommer l'image:", self.path)
+		print ("je n'ai pas réussi à renommer l'image:", pathImg)
 	return newName
 
 
@@ -70,11 +70,8 @@ class ImageFile():
 	def heicToPng (self, nameSpace, addHour=False):
 		# l'image fera 1000 pixel de haut
 		dateCreation = getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
-		self.read()
-		heightHeic =1000
-		percentHeic = float (heightHeic / float (self.image.size[1]))
-		widthHeic = int (self.image.size[0] * percentHeic)
-		imageNew = self.image.resize ((widthHeic, heightHeic), Image.Resampling.LANCZOS)
+		self.open()
+		self.resizeHeight1000()
 		self.fromPath()
 		nameCreation = createDatedName (self.path, 'png', dateCreation)
 		if nameCreation:
@@ -101,9 +98,17 @@ class ImageFile():
 			self.fromPath()
 			nameCreation = createDatedName (self.path, self.extension, dateCreation)
 			if nameCreation:
-				self.toPath()
-				log.logLst (self.path, nameCreation)
+				self.open()
+				self.resizeHeight1000()
+				self.draw()
 				os.rename (self.path, nameCreation)
+
+	def resizeHeight1000 (self):
+		heightNew =1000
+		if self.image.size[1] > heightNew:
+			percentScale = float (heightNew / float (self.image.size[1]))
+			widthNew = int (self.image.size[0] * percentScale)
+			self.image = self.image.resize ((widthNew, heightNew), Image.Resampling.LANCZOS)
 
 	def eraseColors (self, referImg):
 		# éffacer certaines couleurs d'une image à partir d'une image de référence qui les contient
@@ -193,7 +198,7 @@ class ImageFile():
 		self.toPath()
 		if os.path.exists (self.path): os.remove (self.path)
 
-	def read (self):
+	def open (self):
 		self.toPath()
 		if not os.path.exists (self.path): return
 		self.image = Image.open (self.path)
