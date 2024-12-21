@@ -22,7 +22,6 @@ les valeurs de action:
 	i f	créer un index
 	i a	créer un index pour les articles
 """ % __file__
-
 if len (argv) <3: print (help)
 elif argv[2] in ('heic', 'nd', 'nh'):
 	flist = ImageFolder (argv[1])
@@ -37,8 +36,6 @@ else:
 		else: flist.get()
 		if action == 'd': flist.doublons()
 		elif action == 'l': print (flist)
-	elif action == 'nd': flist.renameDate()
-	elif action == 'nh': flist.renameDate (True)
 	elif len (argv) <4: print (help)
 	elif action == 'v': flist.compareGit (argv[3])
 	elif action == 's':
