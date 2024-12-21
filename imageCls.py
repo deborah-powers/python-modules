@@ -75,7 +75,7 @@ class ImageFile():
 		self.fromPath()
 		nameCreation = createDatedName (self.path, 'png', dateCreation)
 		if nameCreation:
-			imageNew.save (nameCreation)
+			self.image.save (nameCreation)
 			self.toPath()
 			os.remove (self.path)
 
