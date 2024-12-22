@@ -27,7 +27,6 @@ rgb_to_hsv = numpy.vectorize (colorsys.rgb_to_hsv)
 hsv_to_rgb = numpy.vectorize (colorsys.hsv_to_rgb)
 register_heif_opener()
 
-
 def getDateCreation (nameImg, nameSpace, addHour=False):
 	fileData = nameSpace.ParseName (nameImg)
 	# repérer la date de création. Date taken ou Date created
@@ -55,24 +54,22 @@ def createDatedName (pathImg, extImg, dateCreation):
 		print ("je n'ai pas réussi à renommer l'image:", pathImg)
 	return newName
 
-
 class ImageFile():
 	def __init__ (self, image=None):
 		self.path =""
 		self.title =""
 		self.extension =""
+		self.pathRoot =""
 		self.image = None
 		self.array =[]
-		if image:
-			self.path = image
-			self.fromPath()
+		if image: self.fromPath (image)
 
 	def heicToPng (self, nameSpace, addHour=False):
 		# l'image fera 1000 pixel de haut
 		dateCreation = getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
 		self.open()
 		self.resizeHeight1000()
-		self.fromPath()
+		self.correctContrast()
 		nameCreation = createDatedName (self.path, 'png', dateCreation)
 		if nameCreation:
 			self.image.save (nameCreation)
@@ -95,11 +92,11 @@ class ImageFile():
 		if aTraiter:
 			self.toPath()
 			dateCreation = getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
-			self.fromPath()
 			nameCreation = createDatedName (self.path, self.extension, dateCreation)
 			if nameCreation:
 				self.open()
 				self.resizeHeight1000()
+				self.correctContrast()
 				self.draw()
 				os.rename (self.path, nameCreation)
 
@@ -134,19 +131,50 @@ class ImageFile():
 	def reverseLumins (self):
 		self.title = self.title + '-rev'
 		hue, saturation, value = self.toHsv()
-		value = 255 - value
+		value = 255.0 - value
 		self.fromHsv (hue, saturation, value)
 
 	def reverseImage (self):
-		self.title = self.title + '-rev'
+		self.reverseLumins()
 		self.image = ImageOps.invert (self.image)
-		hue, saturation, value = imGtoHsv (imageNouvelle)
-		value = 255 - value
-		self.fromHsv (hue, saturation, value)
 
 	def tobw (self):
 		self.title = self.title + '-nb'
 		self.image = ImageOps.grayscale (self.image)
+
+	def correctContrast (self):
+		# calculer le contraste des couleurs. une valeur pas canal rvb
+		colors = self.getColors()
+		colMin =[ colors[0][0], colors[0][1], colors[0][2] ]
+		colMax =[ colors[0][0], colors[0][1], colors[0][2] ]
+		for color in colors:
+			if color[0] < colMin[0]: colMin[0] = color[0]
+			elif color[0] > colMax[0]: colMax[0] = color[0]
+			if color[1] < colMin[1]: colMin[1] = color[1]
+			elif color[1] > colMax[1]: colMax[1] = color[1]
+			if color[2] < colMin[2]: colMin[2] = color[2]
+			elif color[2] > colMax[2]: colMax[2] = color[2]
+		colSpan =[ colMax[0] - colMin[0], colMax[1] - colMin[1], colMax[2] - colMin[2] ]
+		self.array = numpy.array (self.image).astype ('float')
+		rangeY = range (len (self.array))
+		rangeX = range (len (self.array[0]))
+		if colSpan[0] <200:
+			factorA = 255.0 / colSpan[0]
+			factorB = colMin[0] * factorA
+			for y in rangeY:
+				for x in rangeX: self.array[y][x][0] = factorA * self.array[y][x][0] - factorB
+		if colSpan[1] <200:
+			factorA = 255.0 / colSpan[1]
+			factorB = colMin[1] * factorA
+			for y in rangeY:
+				for x in rangeX: self.array[y][x][1] = factorA * self.array[y][x][1] - factorB
+		if colSpan[2] <200:
+			factorA = 255.0 / colSpan[2]
+			factorB = colMin[2] * factorA
+			for y in rangeY:
+				for x in rangeX: self.array[y][x][2] = factorA * self.array[y][x][2] - factorB
+		self.array = self.array.astype ('uint8')
+		self.image = Image.fromarray (self.array)
 
 	def getColors (self):
 		colorsOriginal = self.image.getcolors (self.image.size[0] * self.image.size[1])
@@ -174,9 +202,11 @@ class ImageFile():
 		blue = blue.T
 		self.array = numpy.dstack ((red, green, blue))
 		self.array = self.array.astype ('uint8')
+		self.image = Image.fromarray (self.array)
 
-	def fromPath (self):
-		if '.'+ self.extension not in self.path: return
+	def fromPath (self, path):
+		if self.pathRoot: return
+		self.path = fileLocal.shortcut (path)
 		if os.sep not in self.path or '.' not in self.path:
 			print ('fichier malformé:\n' + self.path)
 			return
@@ -187,12 +217,10 @@ class ImageFile():
 		posE = self.path.rfind ('.')
 		self.title = self.path [posS:posE]
 		self.extension = self.path[posE+1:]
-		self.path = self.path [:posS]
+		self.pathRoot = self.path [:posS]
 
 	def toPath (self):
-		if '.'+ self.extension not in self.path:
-			self.path = self.path + self.title +'.'+ self.extension
-			self.path = fileLocal.shortcut (self.path)
+		self.path = self.pathRoot + self.title +'.'+ self.extension
 
 	def remove (self):
 		self.toPath()
@@ -205,6 +233,7 @@ class ImageFile():
 		self.image = self.image.convert ('RGB')
 
 	def draw (self):
+		self.toPath()
 		if self.extension == 'heic':
 			print ('attention, vous avez faillit enregistrer une image heic')
 			return
