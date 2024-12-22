@@ -17,9 +17,9 @@ utilisation
 	le script est appelable dans un fichier
 	python3 %s fichier tag (référence)
 les valeurs de tag
-	col: inverser les couleurs
+	rev: inverser les couleurs
 	lum: inverser la luminosité
-	all: inverser la luminosité et les couleurs
+	col: inverser la luminosité et les couleurs
 	del: éffacer les couleurs contenues dans l'image de référence
 	nb: passer l'image en nuance de gris
 
@@ -138,17 +138,19 @@ def reverseLumins (imageName):
 	newName, imageOriginal = openImage (imageName)
 	newName = newName +'-reverse.bmp'
 	hue, saturation, value = imGtoHsv (imageOriginal)
-	value = 255 - value
-	imageNouvelle = hsVtoImg (hue, saturation, value)
+	value = 255.0 - value
+	imageArray = hsVtoImg (hue, saturation, value)
+	imageNouvelle = Image.fromarray (imageArray)
 	imageNouvelle.save (newName)
 
 def reverseImage (imageName):
 	newName, imageOriginal = openImage (imageName)
 	newName = newName +'-reverse.bmp'
-	imageNouvelle = ImageOps.invert (imageOriginal)
-	hue, saturation, value = imGtoHsv (imageNouvelle)
-	value = 255 - value
-	imageNouvelle = hsVtoImg (hue, saturation, value)
+	hue, saturation, value = imGtoHsv (imageOriginal)
+	value = 255.0 - value
+	imageArray = hsVtoImg (hue, saturation, value)
+	imageNouvelle = Image.fromarray (imageArray)
+	imageNouvelle = ImageOps.invert (imageNouvelle)
 	imageNouvelle.save (newName)
 
 def tobw (imageName):
@@ -173,8 +175,8 @@ def simplifyImage (imageName):
 if __name__ != '__main__': pass
 elif len (argv) <3: print (help)
 elif argv[2] == 'nb': tobw (argv[1])
-elif argv[2] == 'color': reverseColors (argv[1])
-elif argv[2] == 'lumin': reverseLumins (argv[1])
-elif argv[2] == 'reverse': reverseImage (argv[1])
+elif argv[2] == 'col': reverseColors (argv[1])
+elif argv[2] == 'lum': reverseLumins (argv[1])
+elif argv[2] == 'rev': reverseImage (argv[1])
 elif argv[2] == 'del' and len (argv) >3: eraseColors (argv[1], argv[3])
 
