@@ -164,7 +164,7 @@ def getFromPos (text, pos):
 		return singleChild (text[pos:f])
 	# cas inconnu, erreurs
 	else:
-		log.logLst ('erreur pour:', tagName, pos, f)
+		print ('erreur pour:', tagName, pos, f)
 		return text
 
 def getOneByTag (text, tagName):
@@ -468,7 +468,7 @@ class Html (File):
 		article.subject = self.subject
 		article.author = self.author
 		article.link = self.link
-		article.autlink = self.autlink
+	#	article.autlink = self.autlink
 	#	if 'link' in self.meta.keys(): article.link = self.meta['link']
 		keys = self.meta.keys()
 		for key in keys: article.meta[key] = self.meta[key]
@@ -509,7 +509,7 @@ class Html (File):
 		self.toPath()
 		meta = self.metaToHtml()
 		self.title = cleanTitle (self.title)
-		self.text = templateHtml % (self.title, self.subject, self.author, self.link, self.autlink, meta, self.text)
+		self.text = templateHtml % (self.title, self.subject, self.author, self.link, meta, self.text)
 	#	self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		self.addIndentation()
 		File.write (self, mode)

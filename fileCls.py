@@ -94,8 +94,8 @@ class File():
 		if not self.text:
 			print ('rien a ecrire pour:', self.title)
 			return
-		chars = '/\\\t\n'; c=0
-		while chars != 'error' and c<4:
+		chars = '/\\\t\n><'; c=0
+		while chars != 'error' and c<6:
 			if chars[c] in self.title:
 				print ('le fichier est mal formé:', self.title [:100])
 				print (c, chars[c])
@@ -497,11 +497,13 @@ class Article (File):
 			# affichage des liens
 			self.replace ("<a ", " <a ")
 			while '  ' in self.text: self.replace ('  ', ' ')
-			self.replace ("> <a ", "><a ")
+			self.replace ("> <", "><")
 			if self.type == 'html':
 				if independant:
-					self.title = self.title +" reader"
+					if os.path.exists (pathCard): self.path = pathCard + self.title + '.html'
+					else: self.path = pathDesktop + self.title +" reader.html"
 					self.imgToB64()
+					self.text = htmlFct.cleanHtmlForWritting (self.text)
 				#	self.createSummary()
 					self.text = templateHtmlEreader % (self.title, self.subject, self.author, self.link, meta, self.text)
 				else: self.text = templateHtml % (self.title, self.subject, self.author, self.link, meta, self.text)

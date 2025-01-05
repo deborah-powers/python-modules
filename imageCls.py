@@ -27,6 +27,17 @@ rgb_to_hsv = numpy.vectorize (colorsys.rgb_to_hsv)
 hsv_to_rgb = numpy.vectorize (colorsys.hsv_to_rgb)
 register_heif_opener()
 
+def imageAtraiter (imgTitle):
+	imgTitle = imgTitle.lower()
+	if imgTitle[:4] in ('img_', 'img-', 'vid_') or imgTitle[:6] == 'video_': return True
+	else:
+		l=0
+		while l<26:
+			if alpabet[l] in imgTitle: l=27
+			l+=1
+		if l==28: return False
+		else: return True
+
 def getDateCreation (nameImg, nameSpace, addHour=False):
 	fileData = nameSpace.ParseName (nameImg)
 	# repérer la date de création. Date taken ou Date created
@@ -62,7 +73,9 @@ class ImageFile():
 		self.pathRoot =""
 		self.image = None
 		self.array =[]
-		if image: self.fromPath (image)
+		if image:
+			self.path = image
+			self.fromPath()
 
 	def heicToPng (self, nameSpace, addHour=False):
 		# l'image fera 1000 pixel de haut
@@ -70,7 +83,7 @@ class ImageFile():
 		self.open()
 		self.resizeHeight1000()
 		self.correctContrast()
-		nameCreation = createDatedName (self.path, 'png', dateCreation)
+		nameCreation = createDatedName (self.pathRoot, 'png', dateCreation)
 		if nameCreation:
 			self.image.save (nameCreation)
 			self.toPath()
@@ -80,19 +93,10 @@ class ImageFile():
 		""" renommer un fichier en prenant en compte la date
 		la fonction utilise les métadonnées de window
 		"""
-		aTraiter = True
-		newName = self.title.lower()
-		if newName[:4] not in 'img_ img- vid_' and newName[:6] != 'video_':
-			l=0
-			while l<26:
-				if alpabet[l] in newName:
-					aTraiter = False
-					l=27
-				l+=1
-		if aTraiter:
+		if imageAtraiter (self.title):
 			self.toPath()
 			dateCreation = getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
-			nameCreation = createDatedName (self.path, self.extension, dateCreation)
+			nameCreation = createDatedName (self.pathRoot, self.extension, dateCreation)
 			if nameCreation:
 				self.open()
 				self.resizeHeight1000()
@@ -204,9 +208,9 @@ class ImageFile():
 		self.array = self.array.astype ('uint8')
 		self.image = Image.fromarray (self.array)
 
-	def fromPath (self, path):
+	def fromPath (self):
 		if self.pathRoot: return
-		self.path = fileLocal.shortcut (path)
+		self.path = fileLocal.shortcut (self.path)
 		if os.sep not in self.path or '.' not in self.path:
 			print ('fichier malformé:\n' + self.path)
 			return
@@ -254,6 +258,10 @@ class ImageFile():
 		newFile.toPath()
 		return self.path < newFile.path
 
+	def __str__ (self):
+		self.toPath()
+		return self.path
+
 class ImageFolder (Folder):
 	def __init__ (self, path='i/'):
 		Folder.__init__(self, path)
@@ -262,7 +270,7 @@ class ImageFolder (Folder):
 		pathWindow = self.path[:-1]
 		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application',0)
 		nameSpace = shellApp.NameSpace (pathWindow)
-		self.get (True)
+		self.get ('heic')
 		for image in self.list:
 			if os.sep not in image.path:
 				image.path = self.path + image.path
@@ -272,14 +280,35 @@ class ImageFolder (Folder):
 		pathWindow = self.path[:-1]
 		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application',0)
 		nameSpace = shellApp.NameSpace (pathWindow)
-		self.get()
+		self.get ('new')
 		for image in self.list:
 			if os.sep not in image.path:
 				image.path = self.path + image.path
 				image.renameDate (nameSpace, addHour)
 				image.path = image.path.replace (self.path, "")
 
-	def get (self, heic=False):
+	def get (self, detail=""):
+		for dirpath, SousListDossiers, subList in os.walk (self.path):
+			if not subList: continue
+			range_tag = range (len (subList) -1, -1, -1)
+			if detail == 'heic':
+				for i in range_tag:
+					if subList[i][-5:] != '.heic': trash = subList.pop(i)
+			else:
+				for i in range_tag:
+					if subList[i][-3:] not in imgExtensions or subList[i][-4] !='.': trash = subList.pop(i)
+				if detail == 'new':
+					range_tag = range (len (subList) -1, -1, -1)
+					for i in range_tag:
+						if not imageAtraiter (subList[i][:-4]): trash = subList.pop(i)
+			if subList:
+				for image in subList:
+					fileTmp = ImageFile (os.path.join (dirpath, image))
+					self.list.append (fileTmp)
+		self.list.sort()
+		self.fromPath()
+
+	def get_a (self, heic=False):
 		for dirpath, SousListDossiers, subList in os.walk (self.path):
 			if not subList: continue
 			range_tag = range (len (subList) -1, -1, -1)
@@ -295,3 +324,10 @@ class ImageFolder (Folder):
 					self.list.append (fileTmp)
 		self.list.sort()
 		self.fromPath()
+
+	def __str__ (self):
+		strText = 'liste à %d éléments dans le dossier %s' %( len (self.list), self.path)
+		self.fromPath()
+		for image in self.list[:6]: strText = strText + '\n\t' + str (image).replace (self.path, "")
+		return strText
+

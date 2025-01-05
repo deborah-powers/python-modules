@@ -22,6 +22,7 @@ les valeurs de action:
 	i f	créer un index
 	i a	créer un index pour les articles
 """ % __file__
+
 if len (argv) <3: print (help)
 elif argv[2] in ('heic', 'nd', 'nh'):
 	flist = ImageFolder (argv[1])

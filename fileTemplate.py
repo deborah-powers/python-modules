@@ -75,6 +75,7 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	}
 	h4 { font-style: italic; }
 	ul { margin-left: 2em; }
+/*	body > img { max-height: 3cm; } */
 </style></head><body>
 %s
 </body></html>"""
