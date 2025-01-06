@@ -10,7 +10,7 @@ from fileCls import File, Article
 from fileTemplate import templateHtml
 import loggerFct as log
 
-listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body' )
+listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body', 'header', 'footer', 'main' )
 listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'a')
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta', 'link', 'base' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
@@ -395,10 +395,13 @@ class Html (File):
 				d= self.text.find ('<'+ tag +'>', d)
 				d=d+1
 
-
 	def findTagsLocals (self):
 		text = self.text.strip()
 		for tag in listTags:
+			text = text.replace ('</'+ tag +'>', '$')
+			text = text.replace ('<'+ tag +'>', '$')
+			text = text.replace ('<'+ tag +" ", '$ ')
+		for tag in listTagsSelfClosing:
 			text = text.replace ('</'+ tag +'>', '$')
 			text = text.replace ('<'+ tag +'>', '$')
 			text = text.replace ('<'+ tag +" ", '$ ')
@@ -573,11 +576,6 @@ class Html (File):
 						e= textList[t].find (textList[t][d], d+1)
 						attribute = " href='" + textList[t][d+1:e] +"'"
 						textList[t] = attribute + textList[t][f:]
-					elif tagName =='img' and 'src=' in textList[t][:f]:
-						d=4+ textList[t].find ('src=')
-						e= textList[t].find (textList[t][d], d+1)
-						attribute = " src='" + textList[t][d+1:e] +"'"
-						textList[t] = attribute + textList[t][f:]
 					elif tagName =='button' and 'click=' in textList[t][:f]:
 						d=6+ textList[t].find ('click=')
 						e= textList[t].find (textList[t][d], d+1)
@@ -599,8 +597,25 @@ class Html (File):
 							e= textList[t].find (textList[t][d], d+1)
 							attribute = attribute +" colspan='" + textList[t][d+1:e] +"'"
 						textList[t] = attribute + textList[t][f:]
-					elif tagName =='input':
+					else: textList[t] = textList[t][f:]
+				textJoin = '<'+ tagName
+				self.text = textJoin.join (textList)
+		for tagName in listTagsSelfClosing:
+			if '<'+ tagName +" " in self.text:
+				textList = self.text.split ('<'+ tagName +" ")
+				textRange = range (1, len (textList))
+				if tagName =='img':
+					for t in textRange:
+						f= textList[t].find ('>')
+						if 'src=' in textList[t][:f]:
+							d=4+ textList[t].find ('src=')
+							e= textList[t].find (textList[t][d], d+1)
+							attribute = " src='" + textList[t][d+1:e] +"'"
+							textList[t] = attribute +'/'+ textList[t][f:]
+				elif tagName =='input':
+					for t in textRange:
 						attribute =""
+						f= textList[t].find ('>')
 						if 'type=' in textList[t][:f]:
 							d=5+ textList[t].find ('type=')
 							e= textList[t].find (textList[t][d], d+1)
@@ -617,8 +632,7 @@ class Html (File):
 							d=12+ textList[t].find ('placeholder=')
 							e= textList[t].find (textList[t][d], d+1)
 							attribute = attribute +" placeholder='" + textList[t][d+1:e] +"'"
-						textList[t] = attribute + textList[t][f:]
-					else: textList[t] = textList[t][f:]
+						textList[t] = attribute +'/'+ textList[t][f:]
 				textJoin = '<'+ tagName
 				self.text = textJoin.join (textList)
 		for tagName in listTagsLocal:
