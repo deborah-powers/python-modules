@@ -7,6 +7,7 @@ import numpy
 from PIL import Image, ImageOps
 from pillow_heif import register_heif_opener
 import colorsys
+from urllib import request as urlRequest
 import fileLocal
 from folderCls import Folder
 import loggerFct as log
@@ -64,6 +65,13 @@ def createDatedName (pathImg, extImg, dateCreation):
 		newName =""
 		print ("je n'ai pas réussi à renommer l'image:", pathImg)
 	return newName
+
+def imgFromWeb (imgUrl, imgFile):
+	try: urlRequest.urlretrieve (imgUrl, imgFile)
+	except Exception as e:
+		print (e)
+		return False
+	else: return True
 
 class ImageFile():
 	def __init__ (self, image=None):
