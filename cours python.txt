@@ -17,6 +17,12 @@ Variable contre littéral: Un littéral est une donnée (le nombre 3) utilisée 
 26/5 = 5.2
 26%5 = 1
 
+
+*** string template utilisant des paramètres nommés ***
+
+urlRef = 'https://www.euronews.com/%(year)d/%(month)02d/%(day)02d'
+urlFull = urlRef % { 'year': 2025, 'month': 1, 'day': 6, 'page': 2 }
+
 *** erreur 403 quand je fais du web scrapping ***
 
 https://stackoverflow.com/questions/16627227/how-do-i-avoid-http-error-403-when-web-scraping-with-python
