@@ -559,7 +559,8 @@ class Html (File):
 			if not res: res = self.fromUrlVb()
 		self.path = pathTmp
 		if res: self.cleanBody()
-		else: print ('la récupération à échoué, impossible de récupérer les données')
+		else:
+			print ('la récupération à échoué, impossible de récupérer les données pour\n' + self.link)
 
 	""" ________________________ nettoyer le texte ________________________ """
 
