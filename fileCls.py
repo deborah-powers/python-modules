@@ -481,13 +481,15 @@ class Article (File):
 			metaText = self.text[d:].lower()
 			self.text = self.text[:d]
 			metadata = textFct.fromModel (metaText, templateTextMeta)
+			log.logMsg (metadata)
 			self.subject = metadata[0]
 			self.author = metadata[1]
 			self.link = metadata[2]
-			metaList = metadata[3].split ('\n')
-			for meta in metaList:
-				d= meta.find (':')
-				self.meta[meta[:d]] = meta[d+2:]
+			if len (metadata) >3:
+				metaList = metadata[3].split ('\n')
+				for meta in metaList:
+					d= meta.find (':')
+					self.meta[meta[:d]] = meta[d+2:]
 
 	def write (self, independant=False):
 		self.title = self.title.lower()
