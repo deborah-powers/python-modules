@@ -13,39 +13,44 @@ cour de biologie végétale chez unisciel
 cours d'évolution
 https://uel.unisciel.fr/biologie/module1/module1/co/module1_1.html
 """
-refUrl = 'https://uel.unisciel.fr/biologie/module1/module1_ch%02d/'	# num-module
-refUrlCours = refUrl + 'co/apprendre_ch%s.html'	# num-module et portion de page
-refUrlImage = refUrl + 'res/%s'	# num-module et titre de l'image
-refPageCours = 'a/unisciel\\bv-%s-%s-%s.html'	# livre, chapître et numéro de page
-# refPageCours = 'b/unisciel\\bv-%s-%s-%s.html'
-refPageImage = 'a/unisciel\\%s\\%s'	# livre et titre de l'image
-# refPageImage = 'b/unisciel\\%s\\%s'	# livre et titre de l'image
-refPageImage = shortcut (refPageImage)
+class UniscielBook():
+	def __init__ (self, number, trigram):
+		self.number = number
+		self.trigram = trigram
+		self.urlCours = 'https://uel.unisciel.fr/biologie/module1/module1_ch0%2d/co/apprendre_ch%s.html' % (number, '%s')
+		self.imgUrl = 'https://uel.unisciel.fr/biologie/module1/module1_ch0%2d/res/' % number
+		self.pageCours = 'a/unisciel\\bv-%s-%s.html' % (trigram, '%s') # trigramme, chapître
+	#	self.pageCours = 'a/unisciel\\bv-%s-%s-%s.html' % (trigram, '%s', '%02d') # trigramme, chapître, numéro de page
+		self.imgFolder = 'a/unisciel\\%s\\' % trigram
+		self.imgFolder = shortcut (self.imgFolder)
 
-def imgFromWeb (book, bookNum, imgTitle):
-	imgFile = refPageImage % (book, imgTitle)
-	imgUrl = refUrlImage % (bookNum, imgTitle)
-	try: urlRequest.urlretrieve (imgUrl, imgFile)
+	def __str__ (self):
+		return str (self.number) +" "+ self.trigram
+
+UniscielBook.evolution = UniscielBook (1, 'evo')
+UniscielBook.nutrition = UniscielBook (2, 'nut')
+UniscielBook.cellule = UniscielBook (3, 'cel')
+UniscielBook.developpement = UniscielBook (4, 'dev')
+
+def imgFromWeb (imgFolder, imgUrl, imgTitle):
+	try: urlRequest.urlretrieve (imgUrl + imgTitle, imgFolder + imgTitle)
 	except Exception as e:
 		print (e)
 		return False
 	else: return True
 
-class Unisciel (htmlCls.Html, Article):
-	def __init__ (self, book, bookNum, localUrl, urlPart, localPage, localNb):
+class UniscielPage (htmlCls.Html, Article):
+	def __init__ (self, url, imgTrigram, imgFolder, imgUrl):
+		htmlCls.Html.__init__ (self, url)
 		Article.__init__ (self)
-		htmlCls.Html.__init__ (self, localUrl % urlPart)
 		self.meta ={}
 		self.subject = 'cours, biologie'
 		self.author = 'unisciel'
-		self.path = localPage % localNb
-		self.fromPath()
 		self.setByTag ('section')
 		self.delAttributes()
 		self.cleanFigure()
 		self.cleanText()
-		self.getImg (book, bookNum)
-		self.write()
+		self.getImg (imgTrigram, fileImage)
 
 	def cleanText (self):
 		self.text = self.text.replace ('<div>', "")
@@ -53,14 +58,14 @@ class Unisciel (htmlCls.Html, Article):
 		self.text = self.text.replace ('><span>', '>')
 		self.text = self.text.replace ('</span><', '<')
 
-	def getImg (self, book, bookNum):
+	def getImg (imgTrigram, imgFolder, imgUrl):
 		if "<img src='../res/" in self.text:
 			imgList = self.text.split ("<img src='../res/")
 			imgRange = range (1, len (imgList))
 			for i in imgRange:
 				f= imgList[i].find ("'")
-				res = imgFromWeb (book, bookNum, imgList[i][:f])
-			self.text = ("<img src='" + book + "/").join (imgList)
+				res = imgFromWeb (imgFolder, imgUrl, imgList[i][:f])
+			self.text = ("<img src='" + imgTrigram + "/").join (imgList)
 
 	def cleanFigure (self):
 		if '</figure>' in self.text and '</figcaption>' not in self.text:
@@ -75,36 +80,72 @@ class Unisciel (htmlCls.Html, Article):
 				else: imgList[i] = imgList[i][d:]
 			self.text = "".join (imgList)
 
+class UniscielChapter_va():
+	def __init__ (self, book, number, fileTitle, title, start, end):
+		self.book = book
+		self.number = number
+		self.title = title
+		self.urlIntro = '0%d_%d_1' % (book.number, number)
+		self.urlIntro = book.urlCours % self.pageIntro
+		self.pagesNumbers = range (start, end +1)
+		self.urlCours = str (book.number) + '_%02d'
+		self.urlCours = book.urlCours % self.urlCours
+
+class UniscielChapter (htmlCls.Html, Article):
+	def __init__ (self, book, number, fileTitle, title, start, end):
+		Article.__init__ (self)
+		htmlCls.Html.__init__ (self)
+		self.meta ={}
+		self.subject = 'cours, biologie'
+		self.author = 'unisciel'
+		self.book = book
+		self.number = number
+		self.title = title
+		self.link = '0%d_%d_1' % (book.number, number)
+		self.link = book.urlCours % self.link
+		self.path = book.pageCours % self.fileTitle
+		self.pagesNumbers = range (start, end +1)
+		self.urlCours = str (book.number) + '_%02d'
+		self.urlCours = book.urlCours % self.urlCours
+		# récupérer les pages
+		pageTmp = UniscielPage (self.link, book.trigram, book.imgFolder, book.imgUrl)
+		self.text = pageTmp.text
+		for n in self.pagesNumbers:
+			pageTmp = UniscielPage (self.urlCours % n, book.trigram, book.imgFolder, book.imgUrl)
+			self.text = self.text + pageTmp.text
+
 def readUniChapter (bookNum, book, chapter, fragmentsUrl):
 	localUrl = refUrlCours % (bookNum, '%s')
 	localPage = refPageCours % (book, chapter, '%02d')
 	fragRange = range (len (fragmentsUrl))
 	for pageNum in fragRange: article = Unisciel (book, bookNum, localUrl, fragmentsUrl[pageNum], localPage, pageNum +1)
 
-readUniChapter (1, 'evo', 'cycle-biologique', ( '01_1_1', '1_01', '1_02', '1_03', '1_04', '1_05', '1_06' ))
-readUniChapter (1, 'evo', 'phycophytes', ( '01_2_1', '1_07', '1_08', '1_09', '1_11', '1_12', '1_13', '1_14', '1_15' ))
-readUniChapter (1, 'evo', 'mycophytes', ( '01_3_1', '1_16', '1_17', '1_18', '1_19', '1_20', '1_21' ))
-readUniChapter (1, 'evo', 'bryophytes', ( '01_5_1', '1_25', '1_26', '1_27', '1_28', '1_29' ))
-readUniChapter (1, 'evo', 'pteridophytes', ( '01_6_1', '1_30', '1_31', '1_32', '1_33', ))
-readUniChapter (1, 'evo', 'spermaphytes', ( '01_7_1', '1_37', '1_38', '1_39', '1_40', '1_41', '1_42', '1_43', '1_44', '1_45' ))
-readUniChapter (1, 'evo', 'prespermaphytes', ( '01_7_1', '1_34', '1_35', '1_36' ))
-readUniChapter (1, 'evo', 'plantes-terrestres', ( '01_4_1', '1_22', '1_23', '1_24' ))
-readUniChapter (2, 'nut', 'métabolisme', ( '02_1_1', '2_01', '2_02', '2_03', '2_04' ))
-readUniChapter (2, 'nut', 'glycolyse', ( '02_2_1', '2_05', '2_06', '2_07', '2_08', '2_09', '2_10', '2_11' ))
-readUniChapter (2, 'nut', 'photochimie', ( '02_3_1', '2_12', '2_13', '2_14', '2_15', '2_16' ))
-readUniChapter (2, 'nut', 'biochimie', ( '02_4_1', '2_17', '2_18', '2_19', '2_20' ))
-readUniChapter (2, 'nut', 'cellule', ( '02_5_1', '2_20', '2_21', '2_22' ))
-readUniChapter (2, 'nut', 'organisme', ( '02_6_1', '2_23', '2_24', '2_25' ))
-readUniChapter (3, 'cel', 'generalites', ( '03_1_1', '3_01', '3_02', '3_03' ))
-readUniChapter (3, 'cel', 'plastes', ( '03_2_1', '3_04', '3_05', '3_06', '3_07', '3_08' ))
-readUniChapter (3, 'cel', 'vaccuoles', ( '03_3_1', '3_09', '3_10', '3_11' ))
-readUniChapter (3, 'cel', 'paroi', ( '03_4_1', '3_12', '3_13', '3_14', '3_15', '3_16', '3_17', '3_18' ))
-readUniChapter (4, 'dev', 'processus', ( '04_1_1', '4_01', '4_02', '4_03' ))
-readUniChapter (4, 'dev', 'meristemes', ( '04_2_1', '4_04', '4_05', '4_06', '4_07' ))
-readUniChapter (4, 'dev', 'embryogenese', ( '04_3_1', '4_08', '4_09', '4_10' ))
-readUniChapter (4, 'dev', 'graine', ( '04_4_1', '4_11', '4_12', '4_13', '4_14', '4_15' ))
-readUniChapter (4, 'dev', 'avg1', ( '04_5_1', '4_16', '4_17' ))
-readUniChapter (4, 'dev', 'avg2', ( '04_6_1', '4_18', '4_19' ))
-readUniChapter (4, 'dev', 'avg3', ( '04_7_1', '4_19', '4_20', '4_21', '4_22' ))
-readUniChapter (4, 'dev', 'reproduction', ( '04_8_1', '4_23' ))
-readUniChapter (4, 'dev', 'mouvement', ( '04_9_1', '4_24', '4_25', '4_26' ))
+chap = UniscielChapter (book.evolution, 1, 'cycle-biologique', 'les cycles biologiques', 1, 6)
+chap = UniscielChapter (book.evolution, 2, 'phycophytes', 'les phycophytes', 7, 15)
+chap = UniscielChapter (book.evolution, 3, 'mycophytes', 'les mycophytes', 16, 21)
+chap = UniscielChapter (book.evolution, 4, 'plantes-terrestres', 'les plantes terrestres', 22, 24)
+chap = UniscielChapter (book.evolution, 5, 'bryophytes', 'les bryophytes', 25, 29)
+chap = UniscielChapter (book.evolution, 6, 'pteridophytes', 'les ptéridophytes', 30, 33)
+chap = UniscielChapter (book.evolution, 7, 'prespermaphytes', 'les pré-spermaphytes', 34, 36)
+chap = UniscielChapter (book.evolution, 8, 'spermaphytes', 'les spermaphytes', 37, 45)
+chap = UniscielChapter (book.nutrition, 1, 'metabolisme', 'le métabolisme', 1, 4)
+chap = UniscielChapter (book.nutrition, 2, 'glycolyse', 'la glycolyse', 5, 11)
+chap = UniscielChapter (book.nutrition, 3, 'photochimie', 'la photochimie', 12, 16)
+chap = UniscielChapter (book.nutrition, 4, 'biochimie', 'la biochimie', 17, 20)
+chap = UniscielChapter (book.nutrition, 5, 'cellule', 'la cellule', 21, 22)
+chap = UniscielChapter (book.nutrition, 6, 'organisme', "l'organisme", 23, 25)
+chap = UniscielChapter (book.cellule, 1, 'generalites', 'generalités', 1, 3)
+chap = UniscielChapter (book.cellule, 2, 'plastes', 'les plastes', 4, 8)
+chap = UniscielChapter (book.cellule, 3, 'vaccuole', 'les vaccuoles', 9, 11)
+chap = UniscielChapter (book.cellule, 4, 'paroi', 'la paroi', 12, 18)
+chap = UniscielChapter (book.developpement, 1, 'processus', 'les processus', 1, 3)
+chap = UniscielChapter (book.developpement, 2, 'meristeme', 'les meristemes', 4, 7)
+chap = UniscielChapter (book.developpement, 3, 'embryogenese', "l'embryogenese", 8, 10)
+chap = UniscielChapter (book.developpement, 4, 'graine', 'la graine', 11, 15)
+chap = UniscielChapter (book.developpement, 5, 'avg1', 'la phytomérisation', 16, 17)
+chap = UniscielChapter (book.developpement, 6, 'avg2', 'la tige feuillée', 18, 19)
+chap = UniscielChapter (book.developpement, 7, 'avg3', 'la racine', 20, 22)
+chap = UniscielChapter (book.developpement, 8, 'reproduction', 'la reproduction', 23)
+chap = UniscielChapter (book.developpement, 9, 'mouvement', 'le mouvement', 24, 26)
+
+print (UniscielBook.nutrition)
