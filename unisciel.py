@@ -17,10 +17,11 @@ class UniscielBook():
 	def __init__ (self, number, trigram):
 		self.number = number
 		self.trigram = trigram
-		self.urlCours = 'https://uel.unisciel.fr/biologie/module1/module1_ch0%2d/co/apprendre_ch%s.html' % (number, '%s')
-		self.imgUrl = 'https://uel.unisciel.fr/biologie/module1/module1_ch0%2d/res/' % number
+		self.urlCours = 'https://uel.unisciel.fr/biologie/module1/module1_ch0%d/co/apprendre_ch%s.html' % (number, '%s')
+		self.imgUrl = 'https://uel.unisciel.fr/biologie/module1/module1_ch0%d/res/' % number
 		self.pageCours = 'a/unisciel\\bv-%s-%s.html' % (trigram, '%s') # trigramme, chapître
 	#	self.pageCours = 'a/unisciel\\bv-%s-%s-%s.html' % (trigram, '%s', '%02d') # trigramme, chapître, numéro de page
+		self.pageCours = shortcut (self.pageCours)
 		self.imgFolder = 'a/unisciel\\%s\\' % trigram
 		self.imgFolder = shortcut (self.imgFolder)
 
@@ -43,6 +44,8 @@ class UniscielPage (htmlCls.Html, Article):
 	def __init__ (self, url, imgTrigram, imgFolder, imgUrl):
 		htmlCls.Html.__init__ (self, url)
 		Article.__init__ (self)
+		self.link = url
+		self.fromUrl()
 		self.meta ={}
 		self.subject = 'cours, biologie'
 		self.author = 'unisciel'
@@ -50,15 +53,53 @@ class UniscielPage (htmlCls.Html, Article):
 		self.delAttributes()
 		self.cleanFigure()
 		self.cleanText()
-		self.getImg (imgTrigram, fileImage)
+		self.cleanList()
+		self.cleanTable()
+		self.getImg (imgTrigram, imgFolder, imgUrl)
 
 	def cleanText (self):
 		self.text = self.text.replace ('<div>', "")
 		self.text = self.text.replace ('</div>', "")
 		self.text = self.text.replace ('><span>', '>')
 		self.text = self.text.replace ('</span><', '<')
+		self.text = self.text.replace ('/(co_{2}/)', 'CO<sub>2</sub>')
+		self.text = self.text.replace ('/(co_{2}', 'CO<sub>2</sub>')
+		self.text = self.text.replace ('/(o_{2}/)', 'O<sub>2</sub>')
+		self.text = self.text.replace ('/(o_{2}', 'O<sub>2</sub>')
+		self.text = self.text.replace ('h_{2}o', 'H<sub>2</sub>O')
 
-	def getImg (imgTrigram, imgFolder, imgUrl):
+	def cleanList (self):
+		self.text = self.text.replace ('<li><p>', '<li>')
+		self.text = self.text.replace ('</p></li>', '</li>')
+		self.text = self.text.replace ('<li><p>', '<li>')
+		self.text = self.text.replace ('</li></ul><ul><li>', '</li><li>')
+		self.text = self.text.replace ('</li></ol><ol><li>', '</li><li>')
+		tabList = self.text.split ('li>')
+		tabRange = range (1, len (tabList), 2)
+		for t in tabRange: tabList[t] = tabList[t].replace ('</p><p>', '<br/>')
+		self.text = 'li>'.join (tabList)
+
+	def cleanTable (self):
+		self.text = self.text.replace ('<td><p>', '<td>')
+		self.text = self.text.replace ('</p></td>', '</td>')
+		self.text = self.text.replace ('<th><p>', '<th>')
+		self.text = self.text.replace ('</p></th>', '</th>')
+		tabList = self.text.split ('table>')
+		tabRange = range (1, len (tabList), 2)
+		for t in tabRange:
+			tabList[t] = tabList[t].replace ('</p><p>', '<br/>')
+			if '<td><strong>' in tabList[t] and '</strong></td>' in tabList[t]:
+				tabList[t] = tabList[t].replace ('<td><strong>', '<th>')
+				tabList[t] = tabList[t].replace ('</strong></td>', '</th>')
+			elif '<strong>' in tabList[t]:
+				tabList[t] = tabList[t].replace ('<strong>', "")
+				tabList[t] = tabList[t].replace ('</strong>', "")
+		self.text = 'table>'.join (tabList)
+		self.text = self.text.replace ('<col>', "")
+		self.text = self.text.replace ('<colgroup>', "")
+		self.text = self.text.replace ('</colgroup>', "")
+
+	def getImg (self, imgTrigram, imgFolder, imgUrl):
 		if "<img src='../res/" in self.text:
 			imgList = self.text.split ("<img src='../res/")
 			imgRange = range (1, len (imgList))
@@ -103,49 +144,47 @@ class UniscielChapter (htmlCls.Html, Article):
 		self.title = title
 		self.link = '0%d_%d_1' % (book.number, number)
 		self.link = book.urlCours % self.link
-		self.path = book.pageCours % self.fileTitle
+		self.path = book.pageCours % fileTitle
 		self.pagesNumbers = range (start, end +1)
 		self.urlCours = str (book.number) + '_%02d'
 		self.urlCours = book.urlCours % self.urlCours
 		# récupérer les pages
 		pageTmp = UniscielPage (self.link, book.trigram, book.imgFolder, book.imgUrl)
-		self.text = pageTmp.text
+		self.text = '<h1>' + self.title + '</h1>' + pageTmp.text
 		for n in self.pagesNumbers:
 			pageTmp = UniscielPage (self.urlCours % n, book.trigram, book.imgFolder, book.imgUrl)
 			self.text = self.text + pageTmp.text
+		htmlCls.Html.write (self)
 
-def readUniChapter (bookNum, book, chapter, fragmentsUrl):
-	localUrl = refUrlCours % (bookNum, '%s')
-	localPage = refPageCours % (book, chapter, '%02d')
-	fragRange = range (len (fragmentsUrl))
-	for pageNum in fragRange: article = Unisciel (book, bookNum, localUrl, fragmentsUrl[pageNum], localPage, pageNum +1)
-
-chap = UniscielChapter (book.evolution, 1, 'cycle-biologique', 'les cycles biologiques', 1, 6)
-chap = UniscielChapter (book.evolution, 2, 'phycophytes', 'les phycophytes', 7, 15)
-chap = UniscielChapter (book.evolution, 3, 'mycophytes', 'les mycophytes', 16, 21)
-chap = UniscielChapter (book.evolution, 4, 'plantes-terrestres', 'les plantes terrestres', 22, 24)
-chap = UniscielChapter (book.evolution, 5, 'bryophytes', 'les bryophytes', 25, 29)
-chap = UniscielChapter (book.evolution, 6, 'pteridophytes', 'les ptéridophytes', 30, 33)
-chap = UniscielChapter (book.evolution, 7, 'prespermaphytes', 'les pré-spermaphytes', 34, 36)
-chap = UniscielChapter (book.evolution, 8, 'spermaphytes', 'les spermaphytes', 37, 45)
-chap = UniscielChapter (book.nutrition, 1, 'metabolisme', 'le métabolisme', 1, 4)
-chap = UniscielChapter (book.nutrition, 2, 'glycolyse', 'la glycolyse', 5, 11)
-chap = UniscielChapter (book.nutrition, 3, 'photochimie', 'la photochimie', 12, 16)
-chap = UniscielChapter (book.nutrition, 4, 'biochimie', 'la biochimie', 17, 20)
-chap = UniscielChapter (book.nutrition, 5, 'cellule', 'la cellule', 21, 22)
-chap = UniscielChapter (book.nutrition, 6, 'organisme', "l'organisme", 23, 25)
-chap = UniscielChapter (book.cellule, 1, 'generalites', 'generalités', 1, 3)
-chap = UniscielChapter (book.cellule, 2, 'plastes', 'les plastes', 4, 8)
-chap = UniscielChapter (book.cellule, 3, 'vaccuole', 'les vaccuoles', 9, 11)
-chap = UniscielChapter (book.cellule, 4, 'paroi', 'la paroi', 12, 18)
-chap = UniscielChapter (book.developpement, 1, 'processus', 'les processus', 1, 3)
-chap = UniscielChapter (book.developpement, 2, 'meristeme', 'les meristemes', 4, 7)
-chap = UniscielChapter (book.developpement, 3, 'embryogenese', "l'embryogenese", 8, 10)
-chap = UniscielChapter (book.developpement, 4, 'graine', 'la graine', 11, 15)
-chap = UniscielChapter (book.developpement, 5, 'avg1', 'la phytomérisation', 16, 17)
-chap = UniscielChapter (book.developpement, 6, 'avg2', 'la tige feuillée', 18, 19)
-chap = UniscielChapter (book.developpement, 7, 'avg3', 'la racine', 20, 22)
-chap = UniscielChapter (book.developpement, 8, 'reproduction', 'la reproduction', 23)
-chap = UniscielChapter (book.developpement, 9, 'mouvement', 'le mouvement', 24, 26)
-
+chap = UniscielChapter (UniscielBook.evolution, 1, 'cycle-biologique', 'les cycles biologiques', 1, 6)
+chap = UniscielChapter (UniscielBook.nutrition, 2, 'glycolyse', 'la glycolyse', 5, 11)
+"""
+chap = UniscielChapter (UniscielBook.evolution, 1, 'cycle-biologique', 'les cycles biologiques', 1, 6)
+chap = UniscielChapter (UniscielBook.evolution, 2, 'phycophytes', 'les phycophytes', 7, 15)
+chap = UniscielChapter (UniscielBook.evolution, 3, 'mycophytes', 'les mycophytes', 16, 21)
+chap = UniscielChapter (UniscielBook.evolution, 4, 'plantes-terrestres', 'les plantes terrestres', 22, 24)
+chap = UniscielChapter (UniscielBook.evolution, 5, 'bryophytes', 'les bryophytes', 25, 29)
+chap = UniscielChapter (UniscielBook.evolution, 6, 'pteridophytes', 'les ptéridophytes', 30, 33)
+chap = UniscielChapter (UniscielBook.evolution, 7, 'prespermaphytes', 'les pré-spermaphytes', 34, 36)
+chap = UniscielChapter (UniscielBook.evolution, 8, 'spermaphytes', 'les spermaphytes', 37, 45)
+chap = UniscielChapter (UniscielBook.nutrition, 1, 'metabolisme', 'le métabolisme', 1, 4)
+chap = UniscielChapter (UniscielBook.nutrition, 2, 'glycolyse', 'la glycolyse', 5, 11)
+chap = UniscielChapter (UniscielBook.nutrition, 3, 'photochimie', 'la photochimie', 12, 16)
+chap = UniscielChapter (UniscielBook.nutrition, 4, 'biochimie', 'la biochimie', 17, 20)
+chap = UniscielChapter (UniscielBook.nutrition, 5, 'cellule', 'la cellule', 21, 22)
+chap = UniscielChapter (UniscielBook.nutrition, 6, 'organisme', "l'organisme", 23, 25)
+chap = UniscielChapter (UniscielBook.cellule, 1, 'generalites', 'generalités', 1, 3)
+chap = UniscielChapter (UniscielBook.cellule, 2, 'plastes', 'les plastes', 4, 8)
+chap = UniscielChapter (UniscielBook.cellule, 3, 'vaccuole', 'les vaccuoles', 9, 11)
+chap = UniscielChapter (UniscielBook.cellule, 4, 'paroi', 'la paroi', 12, 18)
+chap = UniscielChapter (UniscielBook.developpement, 1, 'processus', 'les processus', 1, 3)
+chap = UniscielChapter (UniscielBook.developpement, 2, 'meristeme', 'les meristemes', 4, 7)
+chap = UniscielChapter (UniscielBook.developpement, 3, 'embryogenese', "l'embryogenese", 8, 10)
+chap = UniscielChapter (UniscielBook.developpement, 4, 'graine', 'la graine', 11, 15)
+chap = UniscielChapter (UniscielBook.developpement, 5, 'avg1', 'la phytomérisation', 16, 17)
+chap = UniscielChapter (UniscielBook.developpement, 6, 'avg2', 'la tige feuillée', 18, 19)
+chap = UniscielChapter (UniscielBook.developpement, 7, 'avg3', 'la racine', 20, 22)
+chap = UniscielChapter (UniscielBook.developpement, 8, 'reproduction', 'la reproduction', 23)
+chap = UniscielChapter (UniscielBook.developpement, 9, 'mouvement', 'le mouvement', 24, 26)
+"""
 print (UniscielBook.nutrition)

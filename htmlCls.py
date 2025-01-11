@@ -505,6 +505,13 @@ class Html (File):
 		self.replace ('><img', '>\n<img')
 		self.replace ('><meta', '>\n<meta')
 		self.replace ('><base', '>\n<base')
+		self.replace ('\n<td>', '<td>')
+		self.replace ('</td>\n', '</td>')
+		self.replace ('\n<th>', '<th>')
+		self.replace ('</th>\n', '</th>')
+		self.replace ('</tr>\n<tr>', '\n</tr><tr>\n')
+		self.replace ('\n<tr>', '<tr>\n')
+		self.replace ('</tr>\n', '\n</tr>')
 
 	def write (self, mode='w'):
 		# self.text ne contient plus que le corps du body
