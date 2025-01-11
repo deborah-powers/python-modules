@@ -122,7 +122,6 @@ class ImageFile():
 	def eraseColors (self, referImg):
 		# éffacer certaines couleurs d'une image à partir d'une image de référence qui les contient
 		colors = referImg.getColors()
-		self.title = self.title + '-del'
 		self.array = numpy.array (self.image)
 		red, green, blue = self.array.T
 		"""
@@ -135,24 +134,25 @@ class ImageFile():
 			self.array[colorArea.T] = (255, 255, 255)
 		# dessiner la nouvelle image
 		self.image = Image.fromarray (self.array)
+	#	self.title = self.title + ' dl'
 
 	def reverseColors (self):
-		self.title = self.title + '-rev'
 		self.image = ImageOps.invert (self.image)
+		self.title = self.title + ' rv'
 
 	def reverseLumins (self):
-		self.title = self.title + '-rev'
 		hue, saturation, value = self.toHsv()
 		value = 255.0 - value
 		self.fromHsv (hue, saturation, value)
+		self.title = self.title + ' rv'
 
 	def reverseImage (self):
 		self.reverseLumins()
 		self.image = ImageOps.invert (self.image)
 
 	def tobw (self):
-		self.title = self.title + '-nb'
 		self.image = ImageOps.grayscale (self.image)
+		self.title = self.title + ' nb'
 
 	def correctContrast (self):
 		# calculer le contraste des couleurs. une valeur pas canal rvb
@@ -187,6 +187,7 @@ class ImageFile():
 				for x in rangeX: self.array[y][x][2] = factorA * self.array[y][x][2] - factorB
 		self.array = self.array.astype ('uint8')
 		self.image = Image.fromarray (self.array)
+		self.title = self.title + ' ct'
 
 	def getColors (self):
 		colorsOriginal = self.image.getcolors (self.image.size[0] * self.image.size[1])
@@ -339,3 +340,7 @@ class ImageFolder (Folder):
 		for image in self.list[:6]: strText = strText + '\n\t' + str (image).replace (self.path, "")
 		return strText
 
+""" sources
+https://www.geeksforgeeks.org/python-pil-image-point-method/
+https://pillow.readthedocs.io/en/stable/reference/ImageOps.html
+"""
