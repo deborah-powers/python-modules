@@ -55,7 +55,7 @@ class UniscielPage (htmlCls.Html, Article):
 		self.cleanText()
 		self.cleanList()
 		self.cleanTable()
-		self.getImg (imgTrigram, imgFolder, imgUrl)
+	#	self.getImg (imgTrigram, imgFolder, imgUrl)
 
 	def cleanText (self):
 		self.text = self.text.replace ('<div>', "")
@@ -67,37 +67,7 @@ class UniscielPage (htmlCls.Html, Article):
 		self.text = self.text.replace ('/(o_{2}/)', 'O<sub>2</sub>')
 		self.text = self.text.replace ('/(o_{2}', 'O<sub>2</sub>')
 		self.text = self.text.replace ('h_{2}o', 'H<sub>2</sub>O')
-
-	def cleanList (self):
-		self.text = self.text.replace ('<li><p>', '<li>')
-		self.text = self.text.replace ('</p></li>', '</li>')
-		self.text = self.text.replace ('<li><p>', '<li>')
-		self.text = self.text.replace ('</li></ul><ul><li>', '</li><li>')
-		self.text = self.text.replace ('</li></ol><ol><li>', '</li><li>')
-		tabList = self.text.split ('li>')
-		tabRange = range (1, len (tabList), 2)
-		for t in tabRange: tabList[t] = tabList[t].replace ('</p><p>', '<br/>')
-		self.text = 'li>'.join (tabList)
-
-	def cleanTable (self):
-		self.text = self.text.replace ('<td><p>', '<td>')
-		self.text = self.text.replace ('</p></td>', '</td>')
-		self.text = self.text.replace ('<th><p>', '<th>')
-		self.text = self.text.replace ('</p></th>', '</th>')
-		tabList = self.text.split ('table>')
-		tabRange = range (1, len (tabList), 2)
-		for t in tabRange:
-			tabList[t] = tabList[t].replace ('</p><p>', '<br/>')
-			if '<td><strong>' in tabList[t] and '</strong></td>' in tabList[t]:
-				tabList[t] = tabList[t].replace ('<td><strong>', '<th>')
-				tabList[t] = tabList[t].replace ('</strong></td>', '</th>')
-			elif '<strong>' in tabList[t]:
-				tabList[t] = tabList[t].replace ('<strong>', "")
-				tabList[t] = tabList[t].replace ('</strong>', "")
-		self.text = 'table>'.join (tabList)
-		self.text = self.text.replace ('<col>', "")
-		self.text = self.text.replace ('<colgroup>', "")
-		self.text = self.text.replace ('</colgroup>', "")
+		self.text = self.text.replace ('o_{2}/)', 'O<sub>2</sub>')
 
 	def getImg (self, imgTrigram, imgFolder, imgUrl):
 		if "<img src='../res/" in self.text:
@@ -107,19 +77,6 @@ class UniscielPage (htmlCls.Html, Article):
 				f= imgList[i].find ("'")
 				res = imgFromWeb (imgFolder, imgUrl, imgList[i][:f])
 			self.text = ("<img src='" + imgTrigram + "/").join (imgList)
-
-	def cleanFigure (self):
-		if '</figure>' in self.text and '</figcaption>' not in self.text:
-			self.text = self.text.replace ('<figure>', "")
-			self.text = self.text.replace ('</figure>', "")
-		elif '</figure>' in self.text:
-			imgList = self.text.split ('</figure>')
-			imgRange = range (len (imgList) -1)
-			for i in imgRange:
-				d=8+ imgList[i].find ('<figure>')
-				if '</figcaption>' in imgList[i][d:]: imgList[i] = imgList[i] + '</figure>'
-				else: imgList[i] = imgList[i][d:]
-			self.text = "".join (imgList)
 
 class UniscielChapter_va():
 	def __init__ (self, book, number, fileTitle, title, start, end):

@@ -498,7 +498,7 @@ class Article (File):
 			self.text = textFct.cleanHtml (self.text)
 			# affichage des liens
 			self.replace ("<a ", " <a ")
-			while '  ' in self.text: self.replace ('  ', ' ')
+			self.text = textFct.simpleSpace (self.text)
 			self.replace ("> <", "><")
 			if self.type == 'html':
 				if independant:

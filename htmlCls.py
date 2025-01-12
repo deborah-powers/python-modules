@@ -484,33 +484,34 @@ class Html (File):
 	def addIndentation (self):
 		self.replace ('\n'," ")
 		self.replace ('\t'," ")
-		while "  " in self.text: self.replace ("  "," ")
+		self.text = textFct.simpleSpace (self.text)
 		self.replace ("> ",'>')
 		self.replace (" <",'<')
 		# rajouter les espaces autour des balises internes
-		self.replace ("<a ", " <a ")
-		self.replace ("> <a ", "><a ")
-		for tag in listTagsIntern[:-1]:
-			self.replace ('<'+ tag, ' <'+ tag)
-			self.replace ('> <'+ tag, '><'+ tag)
+		for tag in listTagsIntern:
+			self.text = self.text.replace ('<'+ tag +'>', ' <'+ tag +'>')
+			self.text = self.text.replace ('</'+ tag +'>', '</'+ tag +'> ')
+		self.text = self.text.replace ("<a ", " <a ")
 		tagPoint = '<.:;'
 		for tag in listTagsIntern:
 			self.replace ('</'+ tag +'>', '</'+ tag +'> ')
 			for point in tagPoint: self.replace ('</'+ tag +'> '+ point, '</'+ tag +'>'+ point)
+			for tig in listTagsIntern: self.text = self.text.replace ('</'+ tag + '><'+ tig +'>', '</'+ tag + '> <'+ tig +'>')
+		self.text = textFct.simpleSpace (self.text)
 		# rajouter les sauts de ligne
 		self.replace ('><', '>\n<')
 		for tag in listTagsIntern:
 			self.replace ('\n<' + tag, '<'+ tag)
 			self.replace ('</' + tag + '>\n', '</' + tag +'>')
-		self.replace ('><img', '>\n<img')
-		self.replace ('><meta', '>\n<meta')
-		self.replace ('><base', '>\n<base')
+		self.replace ('><img', '>\n\t<img')
+		self.replace ('><meta', '>\n\t<meta')
+		self.replace ('><base', '>\n\t<base')
 		self.replace ('\n<td>', '<td>')
 		self.replace ('</td>\n', '</td>')
 		self.replace ('\n<th>', '<th>')
 		self.replace ('</th>\n', '</th>')
-		self.replace ('</tr>\n<tr>', '\n</tr><tr>\n')
-		self.replace ('\n<tr>', '<tr>\n')
+		self.replace ('</tr>\n<tr>', '\n</tr><tr>\n\t')
+		self.replace ('\n<tr>', '<tr>\n\t')
 		self.replace ('</tr>\n', '\n</tr>')
 
 	def write (self, mode='w'):
@@ -570,6 +571,67 @@ class Html (File):
 			print ('la récupération à échoué, impossible de récupérer les données pour\n' + self.link)
 
 	""" ________________________ nettoyer le texte ________________________ """
+
+	def cleanRead (self):
+		self.text = textFct.cleanBasic (self.text)
+		self.text = self.text.replace ('\n', ' ')
+		self.text = self.text.replace ('\t', ' ')
+		for i, j in textFct.weirdChars: self.text = self.text.replace (i, j)
+		self.text = self.text.strip()
+		self.text = textFct.simpleSpace (self.text)
+		self.text = self.text.replace ('> ', '>')
+		self.text = self.text.replace (' <', '<')
+		self.text = self.text.replace (' >', '>')
+		self.text = self.text.replace (' />', '/>')
+		self.text = textFct.simpleSpace (self.text)
+		self.text = self.text.replace ('> <', '><')
+		points = '.,)'
+		for p in points: self.text = self.text.replace (" "+p, p)
+		self.text = self.text.replace ("( ", '(')
+
+	def cleanList (self):
+		self.text = self.text.replace ('<li><p>', '<li>')
+		self.text = self.text.replace ('</p></li>', '</li>')
+		self.text = self.text.replace ('<li><p>', '<li>')
+		self.text = self.text.replace ('</li></ul><ul><li>', '</li><li>')
+		self.text = self.text.replace ('</li></ol><ol><li>', '</li><li>')
+		tabList = self.text.split ('li>')
+		tabRange = range (1, len (tabList), 2)
+		for t in tabRange: tabList[t] = tabList[t].replace ('</p><p>', '<br/>')
+		self.text = 'li>'.join (tabList)
+
+	def cleanTable (self):
+		self.text = self.text.replace ('<td><p>', '<td>')
+		self.text = self.text.replace ('</p></td>', '</td>')
+		self.text = self.text.replace ('<th><p>', '<th>')
+		self.text = self.text.replace ('</p></th>', '</th>')
+		tabList = self.text.split ('table>')
+		tabRange = range (1, len (tabList), 2)
+		for t in tabRange:
+			tabList[t] = tabList[t].replace ('</p><p>', '<br/>')
+			if '<td><strong>' in tabList[t] and '</strong></td>' in tabList[t]:
+				tabList[t] = tabList[t].replace ('<td><strong>', '<th>')
+				tabList[t] = tabList[t].replace ('</strong></td>', '</th>')
+			elif '<strong>' in tabList[t]:
+				tabList[t] = tabList[t].replace ('<strong>', "")
+				tabList[t] = tabList[t].replace ('</strong>', "")
+		self.text = 'table>'.join (tabList)
+		self.text = self.text.replace ('<col>', "")
+		self.text = self.text.replace ('<colgroup>', "")
+		self.text = self.text.replace ('</colgroup>', "")
+
+	def cleanFigure (self):
+		if '</figure>' in self.text and '</figcaption>' not in self.text:
+			self.text = self.text.replace ('<figure>', "")
+			self.text = self.text.replace ('</figure>', "")
+		elif '</figure>' in self.text:
+			imgList = self.text.split ('</figure>')
+			imgRange = range (len (imgList) -1)
+			for i in imgRange:
+				d=8+ imgList[i].find ('<figure>')
+				if '</figcaption>' in imgList[i][d:]: imgList[i] = imgList[i] + '</figure>'
+				else: imgList[i] = imgList[i][d:]
+			self.text = "".join (imgList)
 
 	def delAttributes (self):
 		for tagName in listTags:
@@ -708,7 +770,7 @@ class Html (File):
 
 	def cleanBody (self):
 		self.text = self.text.lower()
-		self.text = textFct.cleanHtml (self.text)
+		self.cleanRead()
 		self.setByHtml()
 		self.setTitle()
 		self.delScript()
