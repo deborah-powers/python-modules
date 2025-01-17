@@ -119,6 +119,20 @@ class ImageFile():
 			widthNew = int (self.image.size[0] * percentScale)
 			self.image = self.image.resize ((widthNew, heightNew), Image.Resampling.LANCZOS)
 
+	def eraseColorsDark (self, mode='dark'):
+		# éffacer les couleurs sombres d'une image
+		self.array = numpy.array (self.image)
+		red, green, blue = self.array.T
+		# éffacer les couleurs
+		if mode == 'dark':
+			colorArea = (red >128) & (green >128) & (blue >128)
+			self.array[colorArea.T] = (255, 255, 255)
+		else:
+			colorArea = (red <127) & (green <127) & (blue <127)
+			self.array[colorArea.T] = (0, 0, 0)
+		# dessiner la nouvelle image
+		self.image = Image.fromarray (self.array)
+
 	def eraseColors (self, referImg):
 		# éffacer certaines couleurs d'une image à partir d'une image de référence qui les contient
 		colors = referImg.getColors()
@@ -154,18 +168,128 @@ class ImageFile():
 		self.image = ImageOps.grayscale (self.image)
 	#	self.title = self.title + ' nb'
 
-	def correctContrast (self):
+	def correctContrastDark (self):
+		# éffacer les couleurs claires
+		self.array = numpy.array (self.image).astype ('float')
+		red, green, blue = self.array.T
+		colorArea = (red >=127) & (green >=127) & (blue >=127)
+		self.array[colorArea.T] = (255, 255, 255)
+		colorArea = (red >=127) & (green >=127)
+		self.array[colorArea.T] = (255, 255, 255)
+		colorArea = (red >=127) & (blue >=127)
+		self.array[colorArea.T] = (255, 255, 255)
+		colorArea = (green >=127) & (blue >=127)
+		self.array[colorArea.T] = (255, 255, 255)
+		self.array = self.array.astype ('uint8')
+		self.image = Image.fromarray (self.array)
+		# récupérer les couleurs
+		colors = self.getColors()
+		trash = colors.pop (-1)
+		colMin =[ colors[0][0], colors[0][1], colors[0][2] ]
+		colMax =[ 0, 0, 0 ]
+		for color in colors:
+			if color[0] < colMin[0]: colMin[0] = color[0]
+			elif color[0] > colMax[0] and color[0] <128: colMax[0] = color[0]
+			if color[1] < colMin[1]: colMin[1] = color[1]
+			elif color[1] > colMax[1] and color[1] <128: colMax[1] = color[1]
+			if color[2] < colMin[2]: colMin[2] = color[2]
+			elif color[2] > colMax[2] and color[2] <128: colMax[2] = color[2]
+		colSpan =[ colMax[0] - colMin[0], colMax[1] - colMin[1], colMax[2] - colMin[2] ]
+		# préparer la modification des pixels
+		colSpan =[ colMax[0] - colMin[0], colMax[1] - colMin[1], colMax[2] - colMin[2] ]
+		colMax[0] = 255.0 / colSpan[0]
+		colMax[1] = 255.0 / colSpan[1]
+		colMax[2] = 255.0 / colSpan[2]
+		colMin[0] *= colMax[0]
+		colMin[1] *= colMax[1]
+		colMin[2] *= colMax[2]
+		colNew =[ 0,0,0 ]
+		for color in colors:
+			colorArea = (red == color[0]) & (green == color[1]) & (blue == color[2])
+			if color[0] <127: colNew[0] = colMax[0] * color[0] - colMin[0]
+			else: colNew[0] = color[0]
+			if color[1] <127: colNew[1] = colMax[1] * color[1] - colMin[1]
+			else: colNew[1] = color[1]
+			if color[2] <127: colNew[2] = colMax[2] * color[2] - colMin[2]
+			else: colNew[2] = color[2]
+			self.array[colorArea.T] = (colNew[0], colNew[1], colNew[2])
+		"""
+		rangeY = range (len (self.array))
+		rangeX = range (len (self.array[0]))
+		factorA = 255.0 / colSpan[0]
+		factorB = colMin[0] * factorA
+		for y in rangeY:
+			for x in rangeX:
+				if self.array[y][x][0] <127: self.array[y][x][0] = factorA * self.array[y][x][0] - factorB
+		factorA = 255.0 / colSpan[1]
+		factorB = colMin[1] * factorA
+		for y in rangeY:
+			for x in rangeX:
+				if self.array[y][x][1] <127: self.array[y][x][1] = factorA * self.array[y][x][1] - factorB
+		factorA = 255.0 / colSpan[2]
+		factorB = colMin[2] * factorA
+		for y in rangeY:
+			for x in rangeX:
+				if self.array[y][x][2] <127: self.array[y][x][2] = factorA * self.array[y][x][2] - factorB
+		"""
+		self.array = self.array.astype ('uint8')
+		self.image = Image.fromarray (self.array)
+
+	def correctContrastLight (self):
+		colors = self.getColors()
+		colMin =[ 255, 255, 255 ]
+		colMax =[ colors[0][0], colors[0][1], colors[0][2] ]
+		for color in colors:
+			if color[0] < colMin[0] and color[0] >127: colMin[0] = color[0]
+			elif color[0] > colMax[0]: colMax[0] = color[0]
+			if color[1] < colMin[1] and color[1] >127: colMin[1] = color[1]
+			elif color[1] > colMax[1]: colMax[1] = color[1]
+			if color[2] < colMin[2] and color[2] >127: colMin[2] = color[2]
+			elif color[2] > colMax[2]: colMax[2] = color[2]
+		colSpan =[ colMax[0] - colMin[0], colMax[1] - colMin[1], colMax[2] - colMin[2] ]
+		self.array = numpy.array (self.image).astype ('float')
+		rangeY = range (len (self.array))
+		rangeX = range (len (self.array[0]))
+		factorA = 255.0 / colSpan[0]
+		factorB = colMin[0] * factorA
+		for y in rangeY:
+			for x in rangeX:
+				if self.array[y][x][0] >128: self.array[y][x][0] = factorA * self.array[y][x][0] - factorB
+		factorA = 255.0 / colSpan[1]
+		factorB = colMin[1] * factorA
+		for y in rangeY:
+			for x in rangeX:
+				if self.array[y][x][1] >128: self.array[y][x][1] = factorA * self.array[y][x][1] - factorB
+		factorA = 255.0 / colSpan[2]
+		factorB = colMin[2] * factorA
+		for y in rangeY:
+			for x in rangeX:
+				if self.array[y][x][2] >128: self.array[y][x][2] = factorA * self.array[y][x][2] - factorB
+		self.array = self.array.astype ('uint8')
+		self.image = Image.fromarray (self.array)
+
+	def correctContrast (self, mode=""):
 		# calculer le contraste des couleurs. une valeur pas canal rvb
 		colors = self.getColors()
 		colMin =[ colors[0][0], colors[0][1], colors[0][2] ]
 		colMax =[ colors[0][0], colors[0][1], colors[0][2] ]
-		for color in colors:
-			if color[0] < colMin[0]: colMin[0] = color[0]
-			elif color[0] > colMax[0]: colMax[0] = color[0]
-			if color[1] < colMin[1]: colMin[1] = color[1]
-			elif color[1] > colMax[1]: colMax[1] = color[1]
-			if color[2] < colMin[2]: colMin[2] = color[2]
-			elif color[2] > colMax[2]: colMax[2] = color[2]
+		if mode == 'clair':
+			colMin =[ 255, 255, 255 ]
+			for color in colors:
+				if color[0] < colMin[0] and color[0] >128: colMin[0] = color[0]
+				elif color[0] > colMax[0]: colMax[0] = color[0]
+				if color[1] < colMin[1] and color[1] >128: colMin[1] = color[1]
+				elif color[1] > colMax[1]: colMax[1] = color[1]
+				if color[2] < colMin[2] and color[2] >128: colMin[2] = color[2]
+				elif color[2] > colMax[2]: colMax[2] = color[2]
+		else:
+			for color in colors:
+				if color[0] < colMin[0]: colMin[0] = color[0]
+				elif color[0] > colMax[0]: colMax[0] = color[0]
+				if color[1] < colMin[1]: colMin[1] = color[1]
+				elif color[1] > colMax[1]: colMax[1] = color[1]
+				if color[2] < colMin[2]: colMin[2] = color[2]
+				elif color[2] > colMax[2]: colMax[2] = color[2]
 		colSpan =[ colMax[0] - colMin[0], colMax[1] - colMin[1], colMax[2] - colMin[2] ]
 		self.array = numpy.array (self.image).astype ('float')
 		rangeY = range (len (self.array))
