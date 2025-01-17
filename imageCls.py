@@ -14,7 +14,7 @@ import loggerFct as log
 
 dateFormatDay = '%Y-%m-%d'
 dateFormatHour = dateFormatDay + '-%H-%M'
-imgExtensions =[ 'jpg', 'bmp', 'gif', 'png', 'mp4', 'heic' ]
+imgExtensions =[ 'jpg', 'bmp', 'gif', 'png', 'mp4', 'heic', 'heif' ]
 metadataWindow =[
 	'Name', 'Size', 'Item type', 'Date modified', 'Date created', 'Date accessed', 'Attributes', 'Offline status', 'Availability', 'Perceived type',
 	'Owner', 'Kind', 'Date taken', 'Contributing artists', 'Album', 'Year', 'Genre', 'Conductors', 'Tags', 'Rating',
@@ -85,7 +85,7 @@ class ImageFile():
 			self.path = image
 			self.fromPath()
 
-	def heicToPng (self, nameSpace, addHour=False):
+	def heifToPng (self, nameSpace, addHour=False):
 		# l'image fera 1000 pixel de haut
 		dateCreation = getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
 		self.open()
@@ -138,13 +138,13 @@ class ImageFile():
 
 	def reverseColors (self):
 		self.image = ImageOps.invert (self.image)
-		self.title = self.title + ' rv'
+	#	self.title = self.title + ' rv'
 
 	def reverseLumins (self):
 		hue, saturation, value = self.toHsv()
 		value = 255.0 - value
 		self.fromHsv (hue, saturation, value)
-		self.title = self.title + ' rv'
+	#	self.title = self.title + ' rv'
 
 	def reverseImage (self):
 		self.reverseLumins()
@@ -152,7 +152,7 @@ class ImageFile():
 
 	def tobw (self):
 		self.image = ImageOps.grayscale (self.image)
-		self.title = self.title + ' nb'
+	#	self.title = self.title + ' nb'
 
 	def correctContrast (self):
 		# calculer le contraste des couleurs. une valeur pas canal rvb
@@ -187,7 +187,7 @@ class ImageFile():
 				for x in rangeX: self.array[y][x][2] = factorA * self.array[y][x][2] - factorB
 		self.array = self.array.astype ('uint8')
 		self.image = Image.fromarray (self.array)
-		self.title = self.title + ' ct'
+	#	self.title = self.title + ' ct'
 
 	def getColors (self):
 		colorsOriginal = self.image.getcolors (self.image.size[0] * self.image.size[1])
@@ -283,7 +283,17 @@ class ImageFolder (Folder):
 		for image in self.list:
 			if os.sep not in image.path:
 				image.path = self.path + image.path
-				image.heicToPng (nameSpace, addHour)
+				image.heifToPng (nameSpace, addHour)
+
+	def heifToPng (self, addHour=False):
+		pathWindow = self.path[:-1]
+		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application',0)
+		nameSpace = shellApp.NameSpace (pathWindow)
+		self.get ('heif')
+		for image in self.list:
+			if os.sep not in image.path:
+				image.path = self.path + image.path
+				image.heifToPng (nameSpace, addHour)
 
 	def renameDate (self, addHour=False):
 		pathWindow = self.path[:-1]
@@ -303,6 +313,9 @@ class ImageFolder (Folder):
 			if detail == 'heic':
 				for i in range_tag:
 					if subList[i][-5:] != '.heic': trash = subList.pop(i)
+			elif detail == 'heif':
+				for i in range_tag:
+					if subList[i][-5:] != '.heif': trash = subList.pop(i)
 			else:
 				for i in range_tag:
 					if subList[i][-3:] not in imgExtensions or subList[i][-4] !='.': trash = subList.pop(i)

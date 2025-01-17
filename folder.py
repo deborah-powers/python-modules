@@ -13,6 +13,7 @@ les valeurs de action:
 	nd	renommer les fichiers modifiant la date
 	nh	renommer les fichiers modifiant la date avec l'heure
 	heic	traiter les fichiers heic
+	heif	traiter les fichiers heif
 	c	remplacer un motif par un autre dans le contenu du fichier
 	m	déplacer les fichiers
 	l	lister les fichiers
@@ -24,11 +25,12 @@ les valeurs de action:
 """ % __file__
 
 if len (argv) <3: print (help)
-elif argv[2] in ('heic', 'nd', 'nh'):
+elif argv[2] in ('heic', 'heif', 'nd', 'nh'):
 	flist = ImageFolder (argv[1])
 	if argv[2] == 'nd': flist.renameDate()
 	elif argv[2] == 'nh': flist.renameDate (True)
 	elif argv[2] == 'heic': flist.heicToPng()
+	elif argv[2] == 'heif': flist.heifToPng()
 else:
 	flist = Folder (argv[1])
 	action = argv[2]
