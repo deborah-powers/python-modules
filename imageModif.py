@@ -12,7 +12,6 @@ utilisation
 les valeurs de tag
 	nb: passer l'image en nuance de gris
 	ct: augmenter le contraste
-	cd: augmenter le contraste des couleurs sombres
 	rv: inverser les couleurs
 	dl: éffacer les couleurs contenues dans l'image de référence
 """ % __file__
@@ -23,11 +22,15 @@ else:
 	image.open()
 	if argv[2] == 'nb': image.tobw()
 	elif argv[2] == 'ct': image.correctContrast()
-	elif argv[2] == 'cd': image.correctContrastDark()
 	elif argv[2] == 'rv': image.reverseImage()
+	elif argv[2] == 'tt': image.test()
 	elif argv[2] == 'dl' and len (argv) >3:
 		imageRef = ImageFile (argv[3])
 		imageRef.open()
 		image.eraseColors (imageRef)
+	image.image.show()
+	image.image.close()
+	"""
 	image.title = image.title +" "+ argv[2]
 	image.draw()
+	"""

@@ -28,6 +28,26 @@ rgb_to_hsv = numpy.vectorize (colorsys.rgb_to_hsv)
 hsv_to_rgb = numpy.vectorize (colorsys.hsv_to_rgb)
 register_heif_opener()
 
+def blurrOne (table, y,x):
+	# calculer la valeur moyenne
+	neighbours =[]
+	if y>0: neighbours.append (table[y-1][x])
+	if y< (len (table) -1): neighbours.append (table[y+1][x])
+	if x>0: neighbours.append (table[y][x-1])
+	if x< (len (table[0]) -1): neighbours.append (table[y][x+1])
+	n=0
+	lenbours = len (neighbours)
+	while n< lenbours and neighbours.count (neighbours[n]) <2: n+=1
+	if n== lenbours: return neighbours[1]
+	else: return neighbours[n]
+
+def blurr (table, nbLim):
+	rangeX = range (len (table[0]))
+	rangeY = range (len (table))
+	for y in rangeY:
+		for x in rangeX: table[y][x] = blurrOne (table, y,x)
+	return table
+
 def imageAtraiter (imgTitle):
 	imgTitle = imgTitle.lower()
 	if imgTitle[:4] in ('img_', 'img-', 'vid_') or imgTitle[:6] == 'video_': return True
@@ -81,9 +101,19 @@ class ImageFile():
 		self.pathRoot =""
 		self.image = None
 		self.array =[]
+		self.width =0
+		self.height =0
+		self.rangeWidth =[]
+		self.rangeHeight =[]
 		if image:
 			self.path = image
 			self.fromPath()
+
+	def test (self):
+		hue, saturation, brightness = self.toHsv()
+		saturation = blurr (saturation, 100.0)
+		brightness = blurr (brightness, 100.0)
+		self.fromHsv (hue, saturation, brightness)
 
 	def heifToPng (self, nameSpace, addHour=False):
 		# l'image fera 1000 pixel de haut
@@ -119,20 +149,6 @@ class ImageFile():
 			widthNew = int (self.image.size[0] * percentScale)
 			self.image = self.image.resize ((widthNew, heightNew), Image.Resampling.LANCZOS)
 
-	def eraseColorsDark (self, mode='dark'):
-		# éffacer les couleurs sombres d'une image
-		self.array = numpy.array (self.image)
-		red, green, blue = self.array.T
-		# éffacer les couleurs
-		if mode == 'dark':
-			colorArea = (red >128) & (green >128) & (blue >128)
-			self.array[colorArea.T] = (255, 255, 255)
-		else:
-			colorArea = (red <127) & (green <127) & (blue <127)
-			self.array[colorArea.T] = (0, 0, 0)
-		# dessiner la nouvelle image
-		self.image = Image.fromarray (self.array)
-
 	def eraseColors (self, referImg):
 		# éffacer certaines couleurs d'une image à partir d'une image de référence qui les contient
 		colors = referImg.getColors()
@@ -148,17 +164,14 @@ class ImageFile():
 			self.array[colorArea.T] = (255, 255, 255)
 		# dessiner la nouvelle image
 		self.image = Image.fromarray (self.array)
-	#	self.title = self.title + ' dl'
 
 	def reverseColors (self):
 		self.image = ImageOps.invert (self.image)
-	#	self.title = self.title + ' rv'
 
 	def reverseLumins (self):
-		hue, saturation, value = self.toHsv()
-		value = 255.0 - value
-		self.fromHsv (hue, saturation, value)
-	#	self.title = self.title + ' rv'
+		hue, saturation, brightness = self.toHsv()
+		brightness = 100.0 - brightness
+		self.fromHsv (hue, saturation, brightness)
 
 	def reverseImage (self):
 		self.reverseLumins()
@@ -166,130 +179,19 @@ class ImageFile():
 
 	def tobw (self):
 		self.image = ImageOps.grayscale (self.image)
-	#	self.title = self.title + ' nb'
 
-	def correctContrastDark (self):
-		# éffacer les couleurs claires
-		self.array = numpy.array (self.image).astype ('float')
-		red, green, blue = self.array.T
-		colorArea = (red >=127) & (green >=127) & (blue >=127)
-		self.array[colorArea.T] = (255, 255, 255)
-		colorArea = (red >=127) & (green >=127)
-		self.array[colorArea.T] = (255, 255, 255)
-		colorArea = (red >=127) & (blue >=127)
-		self.array[colorArea.T] = (255, 255, 255)
-		colorArea = (green >=127) & (blue >=127)
-		self.array[colorArea.T] = (255, 255, 255)
-		self.array = self.array.astype ('uint8')
-		self.image = Image.fromarray (self.array)
-		# récupérer les couleurs
-		colors = self.getColors()
-		trash = colors.pop (-1)
-		colMin =[ colors[0][0], colors[0][1], colors[0][2] ]
-		colMax =[ 0, 0, 0 ]
-		for color in colors:
-			if color[0] < colMin[0]: colMin[0] = color[0]
-			elif color[0] > colMax[0] and color[0] <128: colMax[0] = color[0]
-			if color[1] < colMin[1]: colMin[1] = color[1]
-			elif color[1] > colMax[1] and color[1] <128: colMax[1] = color[1]
-			if color[2] < colMin[2]: colMin[2] = color[2]
-			elif color[2] > colMax[2] and color[2] <128: colMax[2] = color[2]
-		colSpan =[ colMax[0] - colMin[0], colMax[1] - colMin[1], colMax[2] - colMin[2] ]
-		# préparer la modification des pixels
-		colSpan =[ colMax[0] - colMin[0], colMax[1] - colMin[1], colMax[2] - colMin[2] ]
-		colMax[0] = 255.0 / colSpan[0]
-		colMax[1] = 255.0 / colSpan[1]
-		colMax[2] = 255.0 / colSpan[2]
-		colMin[0] *= colMax[0]
-		colMin[1] *= colMax[1]
-		colMin[2] *= colMax[2]
-		colNew =[ 0,0,0 ]
-		for color in colors:
-			colorArea = (red == color[0]) & (green == color[1]) & (blue == color[2])
-			if color[0] <127: colNew[0] = colMax[0] * color[0] - colMin[0]
-			else: colNew[0] = color[0]
-			if color[1] <127: colNew[1] = colMax[1] * color[1] - colMin[1]
-			else: colNew[1] = color[1]
-			if color[2] <127: colNew[2] = colMax[2] * color[2] - colMin[2]
-			else: colNew[2] = color[2]
-			self.array[colorArea.T] = (colNew[0], colNew[1], colNew[2])
-		"""
-		rangeY = range (len (self.array))
-		rangeX = range (len (self.array[0]))
-		factorA = 255.0 / colSpan[0]
-		factorB = colMin[0] * factorA
-		for y in rangeY:
-			for x in rangeX:
-				if self.array[y][x][0] <127: self.array[y][x][0] = factorA * self.array[y][x][0] - factorB
-		factorA = 255.0 / colSpan[1]
-		factorB = colMin[1] * factorA
-		for y in rangeY:
-			for x in rangeX:
-				if self.array[y][x][1] <127: self.array[y][x][1] = factorA * self.array[y][x][1] - factorB
-		factorA = 255.0 / colSpan[2]
-		factorB = colMin[2] * factorA
-		for y in rangeY:
-			for x in rangeX:
-				if self.array[y][x][2] <127: self.array[y][x][2] = factorA * self.array[y][x][2] - factorB
-		"""
-		self.array = self.array.astype ('uint8')
-		self.image = Image.fromarray (self.array)
-
-	def correctContrastLight (self):
-		colors = self.getColors()
-		colMin =[ 255, 255, 255 ]
-		colMax =[ colors[0][0], colors[0][1], colors[0][2] ]
-		for color in colors:
-			if color[0] < colMin[0] and color[0] >127: colMin[0] = color[0]
-			elif color[0] > colMax[0]: colMax[0] = color[0]
-			if color[1] < colMin[1] and color[1] >127: colMin[1] = color[1]
-			elif color[1] > colMax[1]: colMax[1] = color[1]
-			if color[2] < colMin[2] and color[2] >127: colMin[2] = color[2]
-			elif color[2] > colMax[2]: colMax[2] = color[2]
-		colSpan =[ colMax[0] - colMin[0], colMax[1] - colMin[1], colMax[2] - colMin[2] ]
-		self.array = numpy.array (self.image).astype ('float')
-		rangeY = range (len (self.array))
-		rangeX = range (len (self.array[0]))
-		factorA = 255.0 / colSpan[0]
-		factorB = colMin[0] * factorA
-		for y in rangeY:
-			for x in rangeX:
-				if self.array[y][x][0] >128: self.array[y][x][0] = factorA * self.array[y][x][0] - factorB
-		factorA = 255.0 / colSpan[1]
-		factorB = colMin[1] * factorA
-		for y in rangeY:
-			for x in rangeX:
-				if self.array[y][x][1] >128: self.array[y][x][1] = factorA * self.array[y][x][1] - factorB
-		factorA = 255.0 / colSpan[2]
-		factorB = colMin[2] * factorA
-		for y in rangeY:
-			for x in rangeX:
-				if self.array[y][x][2] >128: self.array[y][x][2] = factorA * self.array[y][x][2] - factorB
-		self.array = self.array.astype ('uint8')
-		self.image = Image.fromarray (self.array)
-
-	def correctContrast (self, mode=""):
+	def correctContrast (self):
 		# calculer le contraste des couleurs. une valeur pas canal rvb
 		colors = self.getColors()
 		colMin =[ colors[0][0], colors[0][1], colors[0][2] ]
 		colMax =[ colors[0][0], colors[0][1], colors[0][2] ]
-		if mode == 'clair':
-			colMin =[ 255, 255, 255 ]
-			for color in colors:
-				if color[0] < colMin[0] and color[0] >128: colMin[0] = color[0]
-				elif color[0] > colMax[0]: colMax[0] = color[0]
-				if color[1] < colMin[1] and color[1] >128: colMin[1] = color[1]
-				elif color[1] > colMax[1]: colMax[1] = color[1]
-				if color[2] < colMin[2] and color[2] >128: colMin[2] = color[2]
-				elif color[2] > colMax[2]: colMax[2] = color[2]
-		else:
-			for color in colors:
-				if color[0] < colMin[0]: colMin[0] = color[0]
-				elif color[0] > colMax[0]: colMax[0] = color[0]
-				if color[1] < colMin[1]: colMin[1] = color[1]
-				elif color[1] > colMax[1]: colMax[1] = color[1]
-				if color[2] < colMin[2]: colMin[2] = color[2]
-				elif color[2] > colMax[2]: colMax[2] = color[2]
+		for color in colors:
+			if color[0] < colMin[0]: colMin[0] = color[0]
+			elif color[0] > colMax[0]: colMax[0] = color[0]
+			if color[1] < colMin[1]: colMin[1] = color[1]
+			elif color[1] > colMax[1]: colMax[1] = color[1]
+			if color[2] < colMin[2]: colMin[2] = color[2]
+			elif color[2] > colMax[2]: colMax[2] = color[2]
 		colSpan =[ colMax[0] - colMin[0], colMax[1] - colMin[1], colMax[2] - colMin[2] ]
 		self.array = numpy.array (self.image).astype ('float')
 		rangeY = range (len (self.array))
@@ -311,7 +213,6 @@ class ImageFile():
 				for x in rangeX: self.array[y][x][2] = factorA * self.array[y][x][2] - factorB
 		self.array = self.array.astype ('uint8')
 		self.image = Image.fromarray (self.array)
-	#	self.title = self.title + ' ct'
 
 	def getColors (self):
 		colorsOriginal = self.image.getcolors (self.image.size[0] * self.image.size[1])
@@ -325,15 +226,23 @@ class ImageFile():
 		"""
 		hue is a height x width x (0.0 ... 1) numpy array
 		saturation is a height x width x (0.0 ... 1) numpy array
-		value is a height x width x (0.0 ... 256) numpy array
+		brightness is a height x width x (0.0 ... 256) numpy array
+		je les normalise à 100
 		"""
 		self.array = numpy.array (self.image).astype ('float')
 		red, green, blue = self.array.T
-		hue, saturation, value = rgb_to_hsv (red, green, blue)
-		return hue, saturation, value
+		hue, saturation, brightness = rgb_to_hsv (red, green, blue)
+		hue *= 100.0
+		saturation *= 100.0
+		brightness *= 100.0
+		brightness /= 255.0
+		return hue, saturation, brightness
 
-	def fromHsv (self, hue, saturation, value):
-		red, green, blue = hsv_to_rgb (hue, saturation, value)
+	def fromHsv (self, hue, saturation, brightness):
+		hue /= 100.0
+		saturation /= 100.0
+		brightness *= 2.55
+		red, green, blue = hsv_to_rgb (hue, saturation, brightness)
 		red = red.T
 		green = green.T
 		blue = blue.T
@@ -368,6 +277,10 @@ class ImageFile():
 		if not os.path.exists (self.path): return
 		self.image = Image.open (self.path)
 		self.image = self.image.convert ('RGB')
+		self.width = self.image.size[0]
+		self.height = self.image.size[1]
+		self.rangeWidth = range (self.width)
+		self.rangeHeight = range (self.height)
 
 	def draw (self):
 		self.toPath()
