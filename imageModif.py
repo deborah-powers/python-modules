@@ -13,7 +13,9 @@ les valeurs de tag
 	nb: passer l'image en nuance de gris
 	ct: augmenter le contraste
 	rv: inverser les couleurs
-	dl: éffacer les couleurs contenues dans l'image de référence
+	dl ref: éffacer les couleurs contenues dans l'image de référence
+	sc colOld colNew: remplacer une couleur par une autre
+	colOld = "30 78 23"
 """ % __file__
 
 if len (argv) <3: print (help)
@@ -28,9 +30,11 @@ else:
 		imageRef = ImageFile (argv[3])
 		imageRef.open()
 		image.eraseColors (imageRef)
+	elif argv[2] == 'sc' and len (argv) >4:
+		image.swapColors (argv[3], argv[4])
+#	image.title = image.title +" "+ argv[2]
+	image.draw()
+"""
 	image.image.show()
 	image.image.close()
-	"""
-	image.title = image.title +" "+ argv[2]
-	image.draw()
-	"""
+"""

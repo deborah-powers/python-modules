@@ -180,6 +180,22 @@ class ImageFile():
 	def tobw (self):
 		self.image = ImageOps.grayscale (self.image)
 
+	def swapColors (self, colOldStr, colNewStr):
+		# colXStr = "30 67 23"
+		colOld = colOldStr.split (" ")
+		colOld[0] = int (colOld[0])
+		colOld[1] = int (colOld[1])
+		colOld[2] = int (colOld[2])
+		colNew = colNewStr.split (" ")
+		colNew[0] = int (colNew[0])
+		colNew[1] = int (colNew[1])
+		colNew[2] = int (colNew[2])
+		self.array = numpy.array (self.image)
+		red, green, blue = self.array.T
+		colorArea = (red == colOld[0]) & (green == colOld[1]) & (blue == colOld[2])
+		self.array[colorArea.T] = colNew
+		self.image = Image.fromarray (self.array)
+
 	def correctContrast (self):
 		# calculer le contraste des couleurs. une valeur pas canal rvb
 		colors = self.getColors()
