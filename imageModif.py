@@ -32,7 +32,7 @@ else:
 		image.eraseColors (imageRef)
 	elif argv[2] == 'sc' and len (argv) >4:
 		image.swapColors (argv[3], argv[4])
-#	image.title = image.title +" "+ argv[2]
+	image.title = image.title +" "+ argv[2]
 	image.draw()
 """
 	image.image.show()
