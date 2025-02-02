@@ -6,6 +6,22 @@ if argv[2] == 'cd': image.correctContrastDark()
 elif argv[2] == 'cl': image.correctContrastLight()
 
 class ImageFileBis (ImageFile):
+
+	def toPanoramaTemplate (self):
+		imgNew = Image.new ('RGB', (self.width *2, self.height *2), (80, 40, 120))
+		Image.Image.paste (imgNew, self.image, (0,0))
+		Image.Image.paste (imgNew, ImageOps.mirror (self.image), (self.width, 0))
+		Image.Image.paste (imgNew, ImageOps.flip (self.image), (0, self.height))
+		Image.Image.paste (imgNew, self.image.rotate (180), (self.width, self.height))
+		self.image = Image.new ('RGB', (self.width *8, self.height *2), (80, 40, 120))
+		Image.Image.paste (self.image, imgNew, (0,0))
+		Image.Image.paste (self.image, imgNew, (self.width *2, 0))
+		Image.Image.paste (self.image, imgNew, (self.width *4, 0))
+		Image.Image.paste (self.image, imgNew, (self.width *6, 0))
+		self.width *=8
+		self.height *=2
+		self.extension = 'png'
+
 	def eraseColorsDark (self, mode='dark'):
 		# éffacer les couleurs sombres d'une image
 		self.array = numpy.array (self.image)

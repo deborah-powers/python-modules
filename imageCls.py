@@ -10,6 +10,7 @@ import colorsys
 from urllib import request as urlRequest
 import fileLocal
 from folderCls import Folder
+from kmeans import KmeansTablesNb
 import loggerFct as log
 
 dateFormatDay = '%Y-%m-%d'
@@ -28,6 +29,10 @@ rgb_to_hsv = numpy.vectorize (colorsys.rgb_to_hsv)
 hsv_to_rgb = numpy.vectorize (colorsys.hsv_to_rgb)
 register_heif_opener()
 
+class KmeansTablesCanal (KmeansTablesNb):
+	def __init__ (self, table):
+		KmeansTablesNb.__init__ (self, 1.0, table)
+
 def blurrOne (table, y,x):
 	# calculer la valeur moyenne
 	neighbours =[]
@@ -41,7 +46,7 @@ def blurrOne (table, y,x):
 	if n== lenbours: return neighbours[1]
 	else: return neighbours[n]
 
-def blurr (table, nbLim):
+def blurr (table):
 	rangeX = range (len (table[0]))
 	rangeY = range (len (table))
 	for y in rangeY:
@@ -93,6 +98,79 @@ def imgFromWeb (imgUrl, imgFile):
 		return False
 	else: return True
 
+# ------------------------ instagram ------------------------
+
+def drawBgStripes (imageArray, width, height, horizontal=True):
+	# dessiner la nouvelle image de fond
+	imageObj = Image.new (mode='RGB', size=(width, height), color=(0,0,0))
+	drawing = ImageDraw.Draw (imageObj)
+	# la largeur est plus grande que la hauteur
+	if horizontal:
+		rangeBord = range (width)
+		lengthalf = int (height /2)
+		for p in rangeBord:
+			drawing.rectangle (((p, 0), (p+1, lengthalf)), fill=( imageArray[0][p][0], imageArray[0][p][1], imageArray[0][p][2] ))
+			drawing.rectangle (((p, lengthalf), (p+1, height)), fill=( imageArray[-1][p][0], imageArray[-1][p][1], imageArray[-1][p][2] ))
+	# la hauteur est plus grande que la largeur
+	else:
+		rangeBord = range (height)
+		lengthalf = int (width /2)
+		for p in rangeBord:
+			drawing.rectangle (((0, p), (lengthalf, p+1)), fill=( imageArray[p][0][0], imageArray[p][0][1], imageArray[p][0][2] ))
+			drawing.rectangle (((lengthalf, p), (width, p+1)), fill=( imageArray[p][-1][0], imageArray[p][-1][1], imageArray[p][-1][2] ))
+	drawing = ImageDraw.Draw (imageObj)
+	return imageObj
+
+def drawBgMix (imageArray, width, height, horizontal=True):
+	# calculer la couleur moyenne de chaque coté
+	colorA =[ 0,0,0 ]
+	colorB =[ 0,0,0 ]
+	if horizontal:
+		rangeBord = range (width)
+		for i in rangeBord:
+			colorA[0] += imageArray[0][i][0]
+			colorA[1] += imageArray[0][i][1]
+			colorA[2] += imageArray[0][i][2]
+			colorB[0] += imageArray[-1][i][0]
+			colorB[1] += imageArray[-1][i][1]
+			colorB[2] += imageArray[-1][i][2]
+		colorA[0] = int (colorA[0] / width)
+		colorA[1] = int (colorA[1] / width)
+		colorA[2] = int (colorA[2] / width)
+		colorB[0] = int (colorB[0] / width)
+		colorB[1] = int (colorB[1] / width)
+		colorB[2] = int (colorB[2] / width)
+	else:
+		rangeBord = range (height)
+		for i in rangeBord:
+			colorA[0] += imageArray[i][0][0]
+			colorA[1] += imageArray[i][0][1]
+			colorA[2] += imageArray[i][0][2]
+			colorB[0] += imageArray[i][-1][0]
+			colorB[1] += imageArray[i][-1][1]
+			colorB[2] += imageArray[i][-1][2]
+		colorA[0] = int (colorA[0] / height)
+		colorA[1] = int (colorA[1] / height)
+		colorA[2] = int (colorA[2] / height)
+		colorB[0] = int (colorB[0] / height)
+		colorB[1] = int (colorB[1] / height)
+		colorB[2] = int (colorB[2] / height)
+	# dessiner la nouvelle image
+	imageObj = Image.new (mode='RGB', size=(width, height), color=(colorB[0], colorB[1], colorB[2]))
+	drawing = ImageDraw.Draw (imageObj)
+	# la largeur est plus grande que la hauteur
+	if horizontal:
+		lengthalf = int (height /2)
+		drawing.rectangle (((0,0), (width, lengthalf)), fill=( colorA[0], colorA[1], colorA[2] ))
+	# la hauteur est plus grande que la largeur
+	else:
+		lengthalf = int (width /2)
+		drawing.rectangle (((0,0), (lengthalf, height)), fill=( colorA[0], colorA[1], colorA[2] ))
+	drawing = ImageDraw.Draw (imageObj)
+	return imageObj
+
+# ------------------------ o ------------------------
+
 class ImageFile():
 	def __init__ (self, image=None):
 		self.path =""
@@ -111,8 +189,21 @@ class ImageFile():
 
 	def test (self):
 		hue, saturation, brightness = self.toHsv()
-		saturation = blurr (saturation, 100.0)
-		brightness = blurr (brightness, 100.0)
+		"""
+		hue = 80
+		saturation = 60
+		brightness = 50
+		"""
+		hue = blurr (hue)
+		saturation = 60
+		brightness = 50
+		hueKmeans = KmeansTablesCanal (hue)
+		hueT = hue.T
+		for group in hueKmeans.groups:
+			for color in group[1:]:
+				colorArea = (hueT == color)
+			hue[hueT.T] = group[0]
+		print (hue)
 		self.fromHsv (hue, saturation, brightness)
 
 	def heifToPng (self, nameSpace, addHour=False):
@@ -229,6 +320,84 @@ class ImageFile():
 				for x in rangeX: self.array[y][x][2] = factorA * self.array[y][x][2] - factorB
 		self.array = self.array.astype ('uint8')
 		self.image = Image.fromarray (self.array)
+
+	# ------------------------ instagram ------------------------
+
+	def insta (self, drawBgfonc, ratio=1, ratioB=1):
+		if ratio < ratioB: ratio = ratio / ratioB
+		else: ratio = ratioB / ratio
+		if self.width > self.height:
+			ratioB = self.height / self.width
+			if ratioB == ratio: print ("votre image est déjà au bon ratio, vous n'avez pas besoin de la transformer")
+			elif ratioB >= 0.9 * ratio: print ("votre image est presque au bon ratio, vous n'avez pas besoin de la transformer")
+			elif ratioB <0.3: self.squareVideo()
+			else: self.squarePicture (ratio, drawBgfonc)
+		else:
+			ratioB = self.width / self.height
+			if ratioB == ratio: print ("votre image est déjà au bon ratio, vous n'avez pas besoin de la transformer")
+			elif ratioB >= 0.9 * ratio: print ("votre image est presque au bon ratio, vous n'avez pas besoin de la transformer")
+			elif ratioB <0.3: self.squareVideo()
+			else: self.squarePicture (ratio, drawBgfonc)
+
+	def squarePicture (self, ratio, drawBgfonc):
+		self.title = self.title +' rect'
+		self.array = numpy.array (self.image)
+		# la largeur est plus grande que la hauteur
+		if self.width > self.height:
+			heightTmp = ratio * self.width
+			heightNew = int (heightTmp)
+			imageObj = drawBgfonc (self.array, self.width, heightNew, True)
+			wStripe = int ((heightNew - self.height) /2)
+			imageObj.paste (self.image, (0, wStripe))
+			self.height = heightNew
+		# la hauteur est plus grande que la largeur
+		else:
+			widthTmp = ratio * self.height
+			widthNew = int (widthTmp)
+			imageObj = drawBgfonc (self.array, widthNew, self.height, False)
+			wStripe = int ((widthNew - self.width) /2)
+			imageObj.paste (self.image, (wStripe, 0))
+			self.width = widthNew
+		self.image = imageObj
+
+	def squareVideo (self):
+		videoTitle = self.path + self.title +' anim.mp4'
+		images =[]
+		imagesReverse =[]
+		# la largeur est plus grande que la hauteur
+		if self.width > self.height:
+			difference = self.width - self.height
+			diffrange = range (0, difference, 5)
+			for x in diffrange:
+				fragment = self.image.crop ((x,0, x+ self.height, self.height))
+				imageTmp = Image.new ('RGB', (self.height, self.height))
+				imageTmp.paste (fragment)
+				images.append (imageTmp)
+				imagesReverse.append (imageTmp)
+		# la hauteur est plus grande que la largeur
+		else:
+			difference = self.height - self.width
+			diffrange = range (0, difference, 5)
+			imagesReverse =[]
+			for y in diffrange:
+				fragment = self.image.crop ((0,y, self.width, y+ self.width))
+				imageTmp = Image.new ('RGB', (self.width, self.width))
+				imageTmp.paste (fragment)
+				images.append (imageTmp)
+				imagesReverse.append (imageTmp)
+		# préparer les images
+		imagesReverse.reverse()
+		imagesReverse.pop (0)
+		images.extend (imagesReverse)
+		# enregistrer la video
+		fourcc = cv2.VideoWriter_fourcc (*'avc1')
+		video = None
+		if self.width < self.height: video = cv2.VideoWriter (videoTitle, fourcc, 30, (self.width, self.width))
+		else: video = cv2.VideoWriter (videoTitle, fourcc, 30, (self.height, self.height))
+		for img in images: video.write (cv2.cvtColor (numpy.array (img), cv2.COLOR_RGB2BGR))
+		video.release()
+
+	# ------------------------ o ------------------------
 
 	def getColors (self):
 		colorsOriginal = self.image.getcolors (self.image.size[0] * self.image.size[1])
