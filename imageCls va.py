@@ -2,17 +2,28 @@
 # -*- coding: utf-8 -*-
 import os
 from sys import argv
+import win32com.client as wclient
 import numpy
 from PIL import Image, ImageOps
 from pillow_heif import register_heif_opener
 import cv2
 import colorsys
-from mediaCls import MediaFile, MediaFolder
-import mediaCls as media
+from urllib import request as urlRequest
+import fileLocal
+from folderCls import Folder
 from kmeans import KmeansTablesNb
 import loggerFct as log
 
+dateFormatDay = '%Y-%m-%d'
+dateFormatHour = dateFormatDay + '-%H-%M'
 imgExtensions =[ 'jpg', 'bmp', 'gif', 'png', 'mp4', 'avi', 'heic', 'heif' ]
+metadataWindow =[
+	'Name', 'Size', 'Item type', 'Date modified', 'Date created', 'Date accessed', 'Attributes', 'Offline status', 'Availability', 'Perceived type',
+	'Owner', 'Kind', 'Date taken', 'Contributing artists', 'Album', 'Year', 'Genre', 'Conductors', 'Tags', 'Rating',
+	'Authors', 'Title', 'Subject', 'Categories', 'Comments', 'Copyright', '#', 'Length', 'Bit rate', 'Protected',
+	'Camera model', 'Dimensions', 'Camera maker', 'Company', 'File description', 'Masters keywords'
+]
+alpabet = 'abcdefghijklmnopqrstuvwxyz'
 
 numpy.seterr (all='warn')
 rgb_to_hsv = numpy.vectorize (colorsys.rgb_to_hsv)
@@ -42,6 +53,51 @@ def blurr (table):
 	for y in rangeY:
 		for x in rangeX: table[y][x] = blurrOne (table, y,x)
 	return table
+
+def imageAtraiter (imgTitle):
+	imgTitle = imgTitle.lower()
+	if imgTitle[:4] in ('img_', 'img-', 'vid_') or imgTitle[:6] == 'video_': return True
+	else:
+		l=0
+		while l<26:
+			if alpabet[l] in imgTitle: l=27
+			l+=1
+		if l==28: return False
+		else: return True
+
+def getDateCreation (nameImg, nameSpace, addHour=False):
+	fileData = nameSpace.ParseName (nameImg)
+	# repérer la date de création. Date taken ou Date created
+	dateCreation = nameSpace.GetDetailsOf (fileData, 12).replace (" ","")
+	if dateCreation and '202' in dateCreation:
+		dateCreation = dateCreation.replace ('‎', "")
+		dateCreation = dateCreation.replace ('‏', '/')
+	else: dateCreation = nameSpace.GetDetailsOf (fileData, 4).replace (" ",'/')
+	# mettre en forme la date de création
+	dateCreation = dateCreation.replace (':', '-')
+	dateList = dateCreation.split ('/')
+	dateCreation = dateList[2] +'-'+ dateList[1] +'-'+ dateList[0]
+	if addHour: dateCreation = dateCreation +'-'+ dateList[3]
+	return dateCreation
+
+def createDatedName (pathImg, extImg, dateCreation):
+	newName =""
+	l=0
+	while l<26:
+		newName = pathImg + dateCreation +" "+ alpabet[l] +'.'+ extImg
+		if not os.path.exists (newName): l=27
+		l+=1
+	if l<27:
+		newName =""
+		print ("je n'ai pas réussi à renommer l'image:", pathImg)
+	return newName
+
+def imgFromWeb (imgUrl, imgFile):
+	try: urlRequest.urlretrieve (imgUrl, imgFile)
+	except Exception as e:
+		print (e)
+		return False
+	else: return True
 
 # ------------------------ instagram ------------------------
 
@@ -118,7 +174,10 @@ def drawBgMix (imageArray, width, height, horizontal=True):
 
 class ImageFile():
 	def __init__ (self, image=None):
-		MediaFile.__init__ (self)
+		self.path =""
+		self.title =""
+		self.extension =""
+		self.pathRoot =""
 		self.image = None
 		self.array =[]
 		self.width =0
@@ -148,13 +207,15 @@ class ImageFile():
 		print (hue)
 		self.fromHsv (hue, saturation, brightness)
 
+	def mp4ToAvi (self):
+
 	def heifToPng (self, nameSpace, addHour=False):
 		# l'image fera 1000 pixel de haut
-		dateCreation = media.getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
+		dateCreation = getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
 		self.open()
 		self.resizeHeight1000()
 		self.correctContrast()
-		nameCreation = media.createDatedName (self.pathRoot, 'png', dateCreation)
+		nameCreation = createDatedName (self.pathRoot, 'png', dateCreation)
 		if nameCreation:
 			self.image.save (nameCreation)
 			self.toPath()
@@ -164,12 +225,16 @@ class ImageFile():
 		""" renommer un fichier en prenant en compte la date
 		la fonction utilise les métadonnées de window
 		"""
-		aTraiter = self.renameDateEtape1 (nameSpace, addHour);
-		if aTraiter:
-			self.resizeHeight1000()
-			self.correctContrast()
-			self.draw()
-			os.rename (self.path, nameCreation)
+		if imageAtraiter (self.title):
+			self.toPath()
+			dateCreation = getDateCreation (self.title +'.'+ self.extension, nameSpace, addHour)
+			nameCreation = createDatedName (self.pathRoot, self.extension, dateCreation)
+			if nameCreation:
+				self.open()
+				self.resizeHeight1000()
+				self.correctContrast()
+				self.draw()
+				os.rename (self.path, nameCreation)
 
 	def resizeHeight1000 (self):
 		heightNew =1000
@@ -373,6 +438,28 @@ class ImageFile():
 		self.array = self.array.astype ('uint8')
 		self.image = Image.fromarray (self.array)
 
+	def fromPath (self):
+		if self.pathRoot: return
+		self.path = fileLocal.shortcut (self.path)
+		if os.sep not in self.path or '.' not in self.path:
+			print ('fichier malformé:\n' + self.path)
+			return
+		elif self.path.rfind (os.sep) > self.path.rfind ('.'):
+			# print ('fichier malformé:\n' + self.path)
+			return
+		posS = self.path.rfind (os.sep) +1
+		posE = self.path.rfind ('.')
+		self.title = self.path [posS:posE]
+		self.extension = self.path[posE+1:]
+		self.pathRoot = self.path [:posS]
+
+	def toPath (self):
+		self.path = self.pathRoot + self.title +'.'+ self.extension
+
+	def remove (self):
+		self.toPath()
+		if os.path.exists (self.path): os.remove (self.path)
+
 	def open (self):
 		self.toPath()
 		if not os.path.exists (self.path): return
@@ -384,15 +471,39 @@ class ImageFile():
 		self.rangeHeight = range (self.height)
 
 	def draw (self):
-		isDrawable = MediaFile.draw (self)
-		if isDrawable:
-			if self.extension == 'heic' or self.extension == 'heif':
-				print ('attention, vous avez faillit enregistrer une image heic')
-			else: self.image.save (self.path)
+		self.toPath()
+		if self.extension == 'heic':
+			print ('attention, vous avez faillit enregistrer une image heic')
+			return
+		chars = '/\\\t\n'; c=0
+		while chars != 'error' and c<4:
+			if chars[c] in self.title:
+				print ('le fichier est mal formé:', self.title [:100])
+				print (c, chars[c])
+				chars = 'error'
+			c+=1
+		if chars != 'error':
+			self.toPath()
+			self.image.save (self.path)
 
-class ImageFolder (MediaFolder):
+	def __lt__ (self, newFile):
+		""" nécessaire pour trier les listes """
+		self.toPath()
+		newFile.toPath()
+		return self.path < newFile.path
+
+	def __str__ (self):
+		self.toPath()
+		return self.path
+
+class ImageFolder (Folder):
+	def __init__ (self, path='i/'):
+		Folder.__init__(self, path)
+
 	def heicToPng (self, addHour=False):
-		nameSpace = media.getNameSpace (self.path[:-1])
+		pathWindow = self.path[:-1]
+		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application',0)
+		nameSpace = shellApp.NameSpace (pathWindow)
 		self.get ('heic')
 		for image in self.list:
 			if os.sep not in image.path:
@@ -400,37 +511,47 @@ class ImageFolder (MediaFolder):
 				image.heifToPng (nameSpace, addHour)
 
 	def heifToPng (self, addHour=False):
-		nameSpace = media.getNameSpace (self.path[:-1])
+		pathWindow = self.path[:-1]
+		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application',0)
+		nameSpace = shellApp.NameSpace (pathWindow)
 		self.get ('heif')
 		for image in self.list:
 			if os.sep not in image.path:
 				image.path = self.path + image.path
 				image.heifToPng (nameSpace, addHour)
 
+	def renameDate (self, addHour=False):
+		pathWindow = self.path[:-1]
+		shellApp = wclient.gencache.EnsureDispatch ('Shell.Application',0)
+		nameSpace = shellApp.NameSpace (pathWindow)
+		self.get ('new')
+		for image in self.list:
+			if os.sep not in image.path:
+				image.path = self.path + image.path
+				image.renameDate (nameSpace, addHour)
+				image.path = image.path.replace (self.path, "")
+
 	def get (self, detail=""):
-		if detail == 'new' or detail =="":
-			MediaFolder.get (detail)
-			return
-		elif detail == 'heic':
-			for dirpath, SousListDossiers, subList in os.walk (self.path):
-				if not subList: continue
-				range_tag = range (len (subList) -1, -1, -1)
+		for dirpath, SousListDossiers, subList in os.walk (self.path):
+			if not subList: continue
+			range_tag = range (len (subList) -1, -1, -1)
+			if detail == 'heic':
 				for i in range_tag:
 					if subList[i][-5:] != '.heic': trash = subList.pop(i)
-				if subList:
-					for image in subList:
-						fileTmp = ImageFile (os.path.join (dirpath, image))
-						self.list.append (fileTmp)
-		elif detail == 'heif':
-			for dirpath, SousListDossiers, subList in os.walk (self.path):
-				if not subList: continue
-				range_tag = range (len (subList) -1, -1, -1)
+			elif detail == 'heif':
 				for i in range_tag:
 					if subList[i][-5:] != '.heif': trash = subList.pop(i)
-				if subList:
-					for image in subList:
-						fileTmp = ImageFile (os.path.join (dirpath, image))
-						self.list.append (fileTmp)
+			else:
+				for i in range_tag:
+					if subList[i][-3:] not in imgExtensions or subList[i][-4] !='.': trash = subList.pop(i)
+				if detail == 'new':
+					range_tag = range (len (subList) -1, -1, -1)
+					for i in range_tag:
+						if not imageAtraiter (subList[i][:-4]): trash = subList.pop(i)
+			if subList:
+				for image in subList:
+					fileTmp = ImageFile (os.path.join (dirpath, image))
+					self.list.append (fileTmp)
 		self.list.sort()
 		self.fromPath()
 
@@ -450,6 +571,12 @@ class ImageFolder (MediaFolder):
 					self.list.append (fileTmp)
 		self.list.sort()
 		self.fromPath()
+
+	def __str__ (self):
+		strText = 'liste à %d éléments dans le dossier %s' %( len (self.list), self.path)
+		self.fromPath()
+		for image in self.list[:6]: strText = strText + '\n\t' + str (image).replace (self.path, "")
+		return strText
 
 """ sources
 https://www.geeksforgeeks.org/python-pil-image-point-method/

@@ -18,6 +18,7 @@ Variable contre littéral: Un littéral est une donnée (le nombre 3) utilisée 
 26%5 = 1
 
 
+
 *** string template utilisant des paramètres nommés ***
 
 urlRef = 'https://www.euronews.com/%(year)d/%(month)02d/%(day)02d'
@@ -35,6 +36,9 @@ myRequest = Request(
 )
 myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
 
+=== installation ====
+
+pip install opencv-python
 
 
 ============ Espaces de nom ============
