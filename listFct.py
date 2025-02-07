@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from random import choice
 
-def range (liste, start=0, end=0, step=1):
+def rangeList (liste, start=0, end=0, step=1):
 	# end peut valoir -1
 	lenList = len (liste)
 	if lenList ==0: return []
@@ -15,9 +15,9 @@ def range (liste, start=0, end=0, step=1):
 	return newList
 
 def iterate (liste, function):
-	rangeList = range (liste)
+	rangeLst = rangeList (liste)
 	newList =[]
-	for i in rangeList: newList.append (function (liste[i]))
+	for i in rangeLst: newList.append (function (liste[i]))
 	return newList
 
 def sortFunc (liste, funcSort):
@@ -40,7 +40,7 @@ def comparer (listA, listB):
 	listCommon =[]
 	listA.sort()
 	listB.sort()
-	rangeA = range (listA)
+	rangeA = rangeList (listA)
 	bd =0
 	for a in rangeA:
 		if listA[a] in listB[bd:]:
@@ -51,7 +51,7 @@ def comparer (listA, listB):
 			# listCommon.append ((listA[a], 'c'))
 			bd +=1
 		else: listCommon.append ((listA[a], 'a'))
-	rangeB = range (listB, bd)
+	rangeB = rangeList (listB, bd)
 	for b in rangeB: listCommon.append ((listB[b], 'b'))
 	return listCommon
 
