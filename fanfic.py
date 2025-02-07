@@ -23,7 +23,9 @@ class Fanfic (htmlCls.Html, Article):
 		Article.__init__ (self)
 		htmlCls.Html.__init__ (self, url)
 		if subject: self.subject = subject
-		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link or url == 'b/aooo.html': self.fromAooo()
+		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link or url == 'b/aooo.html':
+			self.fromAooo()
+			self.fromAoooSpe()
 		elif '://uel.unisciel.fr/' in url or url == 'b/unisciel.html':				self.unisciel()
 		elif '://www.gutenberg.org/' in url:	self.gutemberg()
 		elif '://en.wikisource.org/wiki/' in url:	self.wiki()
@@ -41,6 +43,11 @@ class Fanfic (htmlCls.Html, Article):
 		article = self.toText()
 		if article: article.divide()
 		else: self.divide()
+
+	def fromAoooSpe (self):
+		self.text = self.text.replace ("<br/>---<br/>i do not permit my work to be used by third-party websites, apps or ai-based/ai-assisted works. do not use ai to do anything with my works or create anything inspired by my works.", "")
+		self.text = self.text.replace ('<h3>summary:</h3><blockquote>', "")
+		self.text = self.text.replace ('</blockquote><h3>work text:</h3>', '<hr/>')
 
 	def findSubject (self):
 		if self.subject:
