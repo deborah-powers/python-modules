@@ -565,14 +565,13 @@ class FileList (File):
 		self.length =0
 
 	def write (self, upper=False):
-		self.toText()
+		self.text = self.sep.join (self.list)
 		if upper: self.text = textFct.shape (self.text, 'reset upper')
 		else: self.text = textFct.shape (self.text, 'reset')
 		File.write (self)
 
 	def read (self):
 		File.read (self)
-	#	self.text = textFct.cleanBasic (self.text)
 		self.fromText()
 
 	def toText (self):
@@ -645,14 +644,14 @@ class FileList (File):
 
 	def pop (self, pos):
 		length = len (self.list)
-		if pos <0: pos += length
-		elif pos >= length: pos -= length
+		if pos <0: pos += self.len
+		elif pos >= self.len: pos -= self.len
 		trash = self.list.pop (pos)
 		self.length -=1
 
 	def replace (self, wordOld, wordNew):
 		rfile = self.range()
-		for l in rfile:
+		for l in self.range:
 			if wordOld in self[l]: self[l] = self[l].replace (wordOld, wordNew)
 
 class FileTable (FileList):
@@ -718,5 +717,4 @@ class FileTable (FileList):
 		rangeList = range (self.length)
 		for l in rangeList: self.list[l] = self.list[l].split (self.sepCol)
 		self.lenCol = len (self.list[0])
-
 
