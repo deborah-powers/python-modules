@@ -39,8 +39,8 @@ else:
 		ratioB =1
 		if len (argv) >3: ratio = int (argv[3])
 		if len (argv) >4: ratioB = int (argv[4])
-		image.insta (drawBgStripes, ratio, ratioB)
+		image.insta (drawBgReflet, ratio, ratioB)
 	image.title = image.title +" "+ argv[2]
-#	image.draw()
-	image.image.show()
+	image.draw()
+#	image.image.show()
 	image.image.close()

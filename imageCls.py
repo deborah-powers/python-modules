@@ -3,7 +3,7 @@
 import os
 from sys import argv
 import numpy
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw
 from pillow_heif import register_heif_opener
 import cv2
 import colorsys
@@ -44,6 +44,34 @@ def blurr (table):
 	return table
 
 # ------------------------ instagram ------------------------
+
+def drawBgReflet (imageOriginale, width, height, horizontal=True):
+	# dessiner la nouvelle image de fond
+	imageObj = Image.new (mode='RGB', size=(width, height), color=(0,0,0))
+	# la largeur est plus grande que la hauteur
+	if horizontal:
+		lenghtTmp = imageOriginale.size[0] - imageOriginale.size[1]
+		lenghtTmp /=2
+		lenghtBand = int (lenghtTmp)
+		imageReflet = imageOriginale.crop ((0, 0, width, lenghtBand))
+		imageReflet = ImageOps.flip (imageReflet)
+		imageObj.paste (imageReflet, (0, 0))
+		imageReflet = imageOriginale.crop ((0, imageOriginale.size[1] - lenghtBand, width, imageOriginale.size[1]))
+		imageReflet = ImageOps.flip (imageReflet)
+		imageObj.paste (imageReflet, (0, height - lenghtBand))
+	# la hauteur est plus grande que la largeur
+	else:
+		lenghtTmp = imageOriginale.size[1] - imageOriginale.size[0]
+		lenghtTmp /=2
+		lenghtBand = int (lenghtTmp)
+		imageReflet = imageOriginale.crop ((0, 0, lenghtBand, height))
+		imageReflet = ImageOps.mirror (imageReflet)
+		imageObj.paste (imageReflet, (0, 0))
+		imageReflet = imageOriginale.crop ((imageOriginale.size[0] - lenghtBand, 0, imageOriginale.size[0], height))
+		imageReflet = ImageOps.mirror (imageReflet)
+		imageObj.paste (imageReflet, (width - lenghtBand, 0))
+	drawing = ImageDraw.Draw (imageObj)
+	return imageObj
 
 def drawBgStripes (imageArray, width, height, horizontal=True):
 	# dessiner la nouvelle image de fond
@@ -116,7 +144,7 @@ def drawBgMix (imageArray, width, height, horizontal=True):
 
 # ------------------------ o ------------------------
 
-class ImageFile():
+class ImageFile (MediaFile):
 	def __init__ (self, image=None):
 		MediaFile.__init__ (self)
 		self.image = None
@@ -241,6 +269,7 @@ class ImageFile():
 		self.array = numpy.array (self.image).astype ('float')
 		rangeY = range (len (self.array))
 		rangeX = range (len (self.array[0]))
+		log.logMsg (colSpan)
 		if colSpan[0] <200:
 			factorA = 255.0 / colSpan[0]
 			factorB = colMin[0] * factorA
@@ -284,7 +313,9 @@ class ImageFile():
 		if self.width > self.height:
 			heightTmp = ratio * self.width
 			heightNew = int (heightTmp)
-			imageObj = drawBgfonc (self.array, self.width, heightNew, True)
+			imageObj = None
+			if drawBgfonc == drawBgReflet: imageObj = drawBgReflet (self.image, self.width, heightNew, True)
+			else: imageObj = drawBgfonc (self.array, self.width, heightNew, True)
 			wStripe = int ((heightNew - self.height) /2)
 			imageObj.paste (self.image, (0, wStripe))
 			self.height = heightNew
@@ -292,7 +323,8 @@ class ImageFile():
 		else:
 			widthTmp = ratio * self.height
 			widthNew = int (widthTmp)
-			imageObj = drawBgfonc (self.array, widthNew, self.height, False)
+			if drawBgfonc == drawBgReflet: imageObj = drawBgReflet (self.image, widthNew, self.height, False)
+			else: imageObj = drawBgfonc (self.array, widthNew, self.height, False)
 			wStripe = int ((widthNew - self.width) /2)
 			imageObj.paste (self.image, (wStripe, 0))
 			self.width = widthNew
