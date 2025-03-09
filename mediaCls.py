@@ -5,6 +5,7 @@ import win32com.client as wclient
 from urllib import request as urlRequest
 import fileLocal
 from folderCls import Folder
+import loggerFct as log
 
 """ classe et fonctions communes pour les médias, imageCls et videoCls """
 
@@ -72,11 +73,14 @@ def fromWeb (imgUrl, imgFile):
 	else: return True
 
 class MediaFile():
-	def __init__ (self):
+	def __init__ (self, filePath=""):
 		self.path =""
 		self.title =""
 		self.extension =""
 		self.pathRoot =""
+		if filePath:
+			self.path = filePath
+			self.fromPath()
 
 	def renameDate (self, nameSpace, addHour=False):
 		aTraiter = self.renameDateEtape1 (nameSpace, addHour);
@@ -118,7 +122,7 @@ class MediaFile():
 		if self.pathRoot: return
 		self.path = fileLocal.shortcut (self.path)
 		if os.sep not in self.path or '.' not in self.path:
-			print ('fichier malformé:\n' + self.path)
+		#	print ('fichier malformé:\n' + self.path)
 			return
 		elif self.path.rfind (os.sep) > self.path.rfind ('.'):
 			# print ('fichier malformé:\n' + self.path)
@@ -168,7 +172,7 @@ class MediaFolder (Folder):
 					if not mediaAtraiter (subList[i][:-4]): trash = subList.pop(i)
 			if subList:
 				for image in subList:
-					fileTmp = ImageFile (os.path.join (dirpath, image))
+					fileTmp = MediaFile (os.path.join (dirpath, image))
 					self.list.append (fileTmp)
 		self.list.sort()
 		self.fromPath()

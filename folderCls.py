@@ -104,7 +104,7 @@ class Folder():
 
 	def fromPath (self):
 		self.path = shortcut (self.path)
-		rangeList = listFct.range (self.list)
+		rangeList = listFct.rangeList (self.list)
 		for i in rangeList:
 			self[i].path = shortcut (self[i].path)
 			self[i].fromPath()

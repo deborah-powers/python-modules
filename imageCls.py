@@ -405,6 +405,13 @@ class ImageFile (MediaFile):
 		self.array = self.array.astype ('uint8')
 		self.image = Image.fromarray (self.array)
 
+	def fromMedia (self, mediaFile):
+		self.path = mediaFile.path
+		self.title = mediaFile.title
+		self.extension = mediaFile.extension
+		self.pathRoot = mediaFile.pathRoot
+		self.open()
+
 	def open (self):
 		self.toPath()
 		if not os.path.exists (self.path): return
@@ -423,6 +430,16 @@ class ImageFile (MediaFile):
 			else: self.image.save (self.path)
 
 class ImageFolder (MediaFolder):
+	def ratio (self):
+		ratio = self.list[0].width / self.list[0].height
+		ratioMin = ratio
+		ratioMax = ratio
+		for image in self.list:
+			ratio = image.width / image.height
+			if ratio < ratioMin: ratioMin = ratio
+			elif ratio > ratioMax: ratioMax = ratio
+		log.logLst (ratioMin, ratioMax)
+
 	def heicToPng (self, addHour=False):
 		nameSpace = media.getNameSpace (self.path[:-1])
 		self.get ('heic')
@@ -439,9 +456,17 @@ class ImageFolder (MediaFolder):
 				image.path = self.path + image.path
 				image.heifToPng (nameSpace, addHour)
 
+	def open (self):
+		rangeList = range (len (self.list))
+		for i in rangeList: self.list[i].open()
+
 	def get (self, detail=""):
 		if detail == 'new' or detail =="":
-			MediaFolder.get (detail)
+			MediaFolder.get (self, detail)
+			rangeList = range (len (self.list))
+			for i in rangeList:
+				newImage = ImageFile (self.path + self.list[i].path)
+				self.list[i] = newImage
 			return
 		elif detail == 'heic':
 			for dirpath, SousListDossiers, subList in os.walk (self.path):
