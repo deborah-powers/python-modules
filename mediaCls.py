@@ -160,6 +160,7 @@ class MediaFolder (Folder):
 				image.path = image.path.replace (self.path, "")
 
 	def get (self, detail=""):
+		self.fromPath()
 		for dirpath, SousListDossiers, subList in os.walk (self.path):
 			if not subList: continue
 			range_tag = range (len (subList) -1, -1, -1)
@@ -169,12 +170,15 @@ class MediaFolder (Folder):
 				range_tag = range (len (subList) -1, -1, -1)
 				for i in range_tag:
 					if not mediaAtraiter (subList[i][:-4]): trash = subList.pop(i)
+			elif detail:
+				range_tag = range (len (subList) -1, -1, -1)
+				for i in range_tag:
+					if detail not in subList[i]: trash = subList.pop(i)
 			if subList:
 				for image in subList:
-					fileTmp = MediaFile (os.path.join (dirpath, image))
-					self.list.append (fileTmp)
+				#	fileTmp = MediaFile (os.path.join (dirpath, image))
+					self.list.append (os.path.join (dirpath, image))
 		self.list.sort()
-		self.fromPath()
 
 	def __str__ (self):
 		strText = 'liste à %d éléments dans le dossier %s' %( len (self.list), self.path)

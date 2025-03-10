@@ -6,7 +6,7 @@ import textFct
 from fileLocal import *
 from fileCls import File, Article
 from htmlCls import Html
-import loggerFct
+import loggerFct as log
 
 class Folder():
 	def __init__ (self, path='b/'):

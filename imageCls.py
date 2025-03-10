@@ -206,7 +206,7 @@ class ImageFile (MediaFile):
 			posH = int ((heightNew - self.height) /2.0)
 		else:
 			print ("votre image est déjà au bon ratio, vous n'avez pas besoin de la transformer")
-			return
+			return False
 	#	self.title = self.title +' insta'
 		imageObj = None
 		if drawBgfonc == 'stripes': imageObj = self.drawBgStripes (widthNew, heightNew)
@@ -216,6 +216,7 @@ class ImageFile (MediaFile):
 		imageObj.paste (self.image, (posW, posH))
 		drawing = ImageDraw.Draw (imageObj)
 		self.setImage (imageObj)
+		return True
 
 	def drawBgStripes (self, width, height):
 		imageObj = Image.new (mode='RGB', size=(width, height), color=(0,0,0))
@@ -415,7 +416,13 @@ class ImageFile (MediaFile):
 			else: self.image.save (self.path)
 
 class ImageFolder (MediaFolder):
-	def ratio (self):
+	def test (self):
+		self.path = 'b/cgi'
+		self.get ('deborah')
+		self.insta()
+
+	def insta (self):
+		self.open()
 		ratio = self.list[0].width / self.list[0].height
 		ratioMin = ratio
 		ratioMax = ratio
@@ -424,6 +431,25 @@ class ImageFolder (MediaFolder):
 			if ratio < ratioMin: ratioMin = ratio
 			elif ratio > ratioMax: ratioMax = ratio
 		log.logLst (ratioMin, ratioMax)
+		imageRange = range (len (self.list))
+		if ratioMax <0:
+			for i in imageRange:
+				regrowMade = self.list[i].insta (ratioMax)
+				if regrowMade:
+					self.list[i].title = self.list[i].title +' insta'
+					self.list[i].draw()
+		elif ratioMin >0:
+			for i in imageRange:
+				regrowMade = self.list[i].insta (ratioMin)
+				if regrowMade:
+					self.list[i].title = self.list[i].title +' insta'
+					self.list[i].draw()
+		else:
+			for i in imageRange:
+				regrowMade = self.list[i].insta (1.0)
+				if regrowMade:
+					self.list[i].title = self.list[i].title +' insta'
+					self.list[i].draw()
 
 	def heicToPng (self, addHour=False):
 		nameSpace = media.getNameSpace (self.path[:-1])
@@ -442,18 +468,11 @@ class ImageFolder (MediaFolder):
 				image.heifToPng (nameSpace, addHour)
 
 	def open (self):
-		rangeList = range (len (self.list))
-		for i in rangeList: self.list[i].open()
+		imageRange = range (len (self.list))
+		for i in imageRange: self.list[i].open()
 
 	def get (self, detail=""):
-		if detail == 'new' or detail =="":
-			MediaFolder.get (self, detail)
-			rangeList = range (len (self.list))
-			for i in rangeList:
-				imageNew = ImageFile (self.path + self.list[i].path)
-				self.list[i] = imageNew
-			return
-		elif detail == 'heic':
+		if detail == 'heic':
 			for dirpath, SousListDossiers, subList in os.walk (self.path):
 				if not subList: continue
 				range_tag = range (len (subList) -1, -1, -1)
@@ -473,25 +492,13 @@ class ImageFolder (MediaFolder):
 					for image in subList:
 						fileTmp = ImageFile (os.path.join (dirpath, image))
 						self.list.append (fileTmp)
+		else:
+			MediaFolder.get (self, detail)
+			imageRange = range (len (self.list))
+			for i in imageRange:
+				imageNew = ImageFile (self.list[i])
+				self.list[i] = imageNew
 		self.list.sort()
-		self.fromPath()
-
-	def get_a (self, heic=False):
-		for dirpath, SousListDossiers, subList in os.walk (self.path):
-			if not subList: continue
-			range_tag = range (len (subList) -1, -1, -1)
-			if heic:
-				for i in range_tag:
-					if subList[i][-5:] != '.heic': trash = subList.pop(i)
-			else:
-				for i in range_tag:
-					if subList[i][-3:] not in imgExtensions or subList[i][-4] !='.': trash = subList.pop(i)
-			if subList:
-				for image in subList:
-					fileTmp = ImageFile (os.path.join (dirpath, image))
-					self.list.append (fileTmp)
-		self.list.sort()
-		self.fromPath()
 
 """ sources
 https://www.geeksforgeeks.org/python-pil-image-point-method/
