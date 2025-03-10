@@ -421,7 +421,7 @@ class ImageFolder (MediaFolder):
 		self.get ('deborah')
 		self.insta()
 
-	def insta (self):
+	def insta (self, drawBgfonc='average'):
 		self.open()
 		ratio = self.list[0].width / self.list[0].height
 		ratioMin = ratio
@@ -432,21 +432,24 @@ class ImageFolder (MediaFolder):
 			elif ratio > ratioMax: ratioMax = ratio
 		log.logLst (ratioMin, ratioMax)
 		imageRange = range (len (self.list))
-		if ratioMax <0:
+		if ratioMax <0.0:
+			log.coucou()
 			for i in imageRange:
-				regrowMade = self.list[i].insta (ratioMax)
+				regrowMade = self.list[i].insta (drawBgfonc, ratioMax)
 				if regrowMade:
 					self.list[i].title = self.list[i].title +' insta'
 					self.list[i].draw()
-		elif ratioMin >0:
+		elif ratioMin >1.0:
+			log.coucou()
 			for i in imageRange:
-				regrowMade = self.list[i].insta (ratioMin)
+				regrowMade = self.list[i].insta (drawBgfonc, ratioMin)
 				if regrowMade:
 					self.list[i].title = self.list[i].title +' insta'
 					self.list[i].draw()
 		else:
+			log.coucou()
 			for i in imageRange:
-				regrowMade = self.list[i].insta (1.0)
+				regrowMade = self.list[i].insta (drawBgfonc, 1.0)
 				if regrowMade:
 					self.list[i].title = self.list[i].title +' insta'
 					self.list[i].draw()

@@ -34,7 +34,7 @@ elif argv[2] in ('heic', 'heif', 'nd', 'nh', 'insta'):
 	elif argv[2] == 'heif': flist.heifToPng()
 	elif argv[2] == 'insta':
 		flist.get ()
-		flist.insta()
+		flist.insta ('reflet')
 else:
 	flist = Folder (argv[1])
 	action = argv[2]
