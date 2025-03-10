@@ -20,7 +20,6 @@ metadataWindow =[
 alpabet = 'abcdefghijklmnopqrstuvwxyz'
 extensions =[ 'jpg', 'bmp', 'gif', 'png', 'mp4', 'avi', 'mov', 'heic', 'heif' ]
 
-
 def mediaAtraiter (imgTitle):
 	imgTitle = imgTitle.lower()
 	if imgTitle[:4] in ('img_', 'img-', 'vid_') or imgTitle[:6] == 'video_': return True

@@ -43,105 +43,6 @@ def blurr (table):
 		for x in rangeX: table[y][x] = blurrOne (table, y,x)
 	return table
 
-# ------------------------ instagram ------------------------
-
-def drawBgReflet (imageOriginale, width, height, horizontal=True):
-	# dessiner la nouvelle image de fond
-	imageObj = Image.new (mode='RGB', size=(width, height), color=(0,0,0))
-	# la largeur est plus grande que la hauteur
-	if horizontal:
-		lenghtTmp = imageOriginale.size[0] - imageOriginale.size[1]
-		lenghtTmp /=2
-		lenghtBand = int (lenghtTmp)
-		imageReflet = imageOriginale.crop ((0, 0, width, lenghtBand))
-		imageReflet = ImageOps.flip (imageReflet)
-		imageObj.paste (imageReflet, (0, 0))
-		imageReflet = imageOriginale.crop ((0, imageOriginale.size[1] - lenghtBand, width, imageOriginale.size[1]))
-		imageReflet = ImageOps.flip (imageReflet)
-		imageObj.paste (imageReflet, (0, height - lenghtBand))
-	# la hauteur est plus grande que la largeur
-	else:
-		lenghtTmp = imageOriginale.size[1] - imageOriginale.size[0]
-		lenghtTmp /=2
-		lenghtBand = int (lenghtTmp)
-		imageReflet = imageOriginale.crop ((0, 0, lenghtBand, height))
-		imageReflet = ImageOps.mirror (imageReflet)
-		imageObj.paste (imageReflet, (0, 0))
-		imageReflet = imageOriginale.crop ((imageOriginale.size[0] - lenghtBand, 0, imageOriginale.size[0], height))
-		imageReflet = ImageOps.mirror (imageReflet)
-		imageObj.paste (imageReflet, (width - lenghtBand, 0))
-	drawing = ImageDraw.Draw (imageObj)
-	return imageObj
-
-def drawBgStripes (imageArray, width, height, horizontal=True):
-	# dessiner la nouvelle image de fond
-	imageObj = Image.new (mode='RGB', size=(width, height), color=(0,0,0))
-	drawing = ImageDraw.Draw (imageObj)
-	# la largeur est plus grande que la hauteur
-	if horizontal:
-		rangeBord = range (width)
-		lengthalf = int (height /2)
-		for p in rangeBord:
-			drawing.rectangle (((p, 0), (p+1, lengthalf)), fill=( imageArray[0][p][0], imageArray[0][p][1], imageArray[0][p][2] ))
-			drawing.rectangle (((p, lengthalf), (p+1, height)), fill=( imageArray[-1][p][0], imageArray[-1][p][1], imageArray[-1][p][2] ))
-	# la hauteur est plus grande que la largeur
-	else:
-		rangeBord = range (height)
-		lengthalf = int (width /2)
-		for p in rangeBord:
-			drawing.rectangle (((0, p), (lengthalf, p+1)), fill=( imageArray[p][0][0], imageArray[p][0][1], imageArray[p][0][2] ))
-			drawing.rectangle (((lengthalf, p), (width, p+1)), fill=( imageArray[p][-1][0], imageArray[p][-1][1], imageArray[p][-1][2] ))
-	drawing = ImageDraw.Draw (imageObj)
-	return imageObj
-
-def drawBgMix (imageArray, width, height, horizontal=True):
-	# calculer la couleur moyenne de chaque coté
-	colorA =[ 0,0,0 ]
-	colorB =[ 0,0,0 ]
-	if horizontal:
-		rangeBord = range (width)
-		for i in rangeBord:
-			colorA[0] += imageArray[0][i][0]
-			colorA[1] += imageArray[0][i][1]
-			colorA[2] += imageArray[0][i][2]
-			colorB[0] += imageArray[-1][i][0]
-			colorB[1] += imageArray[-1][i][1]
-			colorB[2] += imageArray[-1][i][2]
-		colorA[0] = int (colorA[0] / width)
-		colorA[1] = int (colorA[1] / width)
-		colorA[2] = int (colorA[2] / width)
-		colorB[0] = int (colorB[0] / width)
-		colorB[1] = int (colorB[1] / width)
-		colorB[2] = int (colorB[2] / width)
-	else:
-		rangeBord = range (height)
-		for i in rangeBord:
-			colorA[0] += imageArray[i][0][0]
-			colorA[1] += imageArray[i][0][1]
-			colorA[2] += imageArray[i][0][2]
-			colorB[0] += imageArray[i][-1][0]
-			colorB[1] += imageArray[i][-1][1]
-			colorB[2] += imageArray[i][-1][2]
-		colorA[0] = int (colorA[0] / height)
-		colorA[1] = int (colorA[1] / height)
-		colorA[2] = int (colorA[2] / height)
-		colorB[0] = int (colorB[0] / height)
-		colorB[1] = int (colorB[1] / height)
-		colorB[2] = int (colorB[2] / height)
-	# dessiner la nouvelle image
-	imageObj = Image.new (mode='RGB', size=(width, height), color=(colorB[0], colorB[1], colorB[2]))
-	drawing = ImageDraw.Draw (imageObj)
-	# la largeur est plus grande que la hauteur
-	if horizontal:
-		lengthalf = int (height /2)
-		drawing.rectangle (((0,0), (width, lengthalf)), fill=( colorA[0], colorA[1], colorA[2] ))
-	# la hauteur est plus grande que la largeur
-	else:
-		lengthalf = int (width /2)
-		drawing.rectangle (((0,0), (lengthalf, height)), fill=( colorA[0], colorA[1], colorA[2] ))
-	drawing = ImageDraw.Draw (imageObj)
-	return imageObj
-
 # ------------------------ o ------------------------
 
 class ImageFile (MediaFile):
@@ -151,8 +52,6 @@ class ImageFile (MediaFile):
 		self.array =[]
 		self.width =0
 		self.height =0
-		self.rangeWidth =[]
-		self.rangeHeight =[]
 		if image:
 			self.path = image
 			self.fromPath()
@@ -290,45 +189,131 @@ class ImageFile (MediaFile):
 
 	# ------------------------ instagram ------------------------
 
-	def insta (self, drawBgfonc, ratio=1, ratioB=1):
-		if ratio < ratioB: ratio = ratio / ratioB
-		else: ratio = ratioB / ratio
-		if self.width > self.height:
-			ratioB = self.height / self.width
-			if ratioB == ratio: print ("votre image est déjà au bon ratio, vous n'avez pas besoin de la transformer")
-			elif ratioB >= 0.9 * ratio: print ("votre image est presque au bon ratio, vous n'avez pas besoin de la transformer")
-			elif ratioB <0.3: self.squareVideo()
-			else: self.squarePicture (ratio, drawBgfonc)
+	def insta (self, drawBgfonc, ratio=1.0):
+		""" ratio = largeur / hauteur """
+		ratioImg = self.width / self.height
+		posW =0
+		posH =0
+		widthNew = self.width
+		heightNew = self.height
+		if ratioImg < ratio:
+			# rajouter bandes latérales
+			widthNew = int (self.width * ratio / ratioImg)
+			posW = int ((widthNew - self.width) /2.0)
+		elif ratioImg > ratio:
+			# rajouter bandes haut et bas
+			heightNew = int (self.height * ratioImg / ratio)
+			posH = int ((heightNew - self.height) /2.0)
 		else:
-			ratioB = self.width / self.height
-			if ratioB == ratio: print ("votre image est déjà au bon ratio, vous n'avez pas besoin de la transformer")
-			elif ratioB >= 0.9 * ratio: print ("votre image est presque au bon ratio, vous n'avez pas besoin de la transformer")
-			elif ratioB <0.3: self.squareVideo()
-			else: self.squarePicture (ratio, drawBgfonc)
+			print ("votre image est déjà au bon ratio, vous n'avez pas besoin de la transformer")
+			return
+	#	self.title = self.title +' insta'
+		imageObj = None
+		if drawBgfonc == 'stripes': imageObj = self.drawBgStripes (widthNew, heightNew)
+		elif drawBgfonc == 'average': imageObj = self.drawBgAverage (widthNew, heightNew)
+		elif drawBgfonc == 'reflet': imageObj = self.drawBgReflet (widthNew, heightNew)
+		else: imageObj = self.drawBgAverage (widthNew, heightNew)
+		imageObj.paste (self.image, (posW, posH))
+		drawing = ImageDraw.Draw (imageObj)
+		self.setImage (imageObj)
 
-	def squarePicture (self, ratio, drawBgfonc):
-		self.title = self.title +' rect'
-		self.array = numpy.array (self.image)
-		# la largeur est plus grande que la hauteur
-		if self.width > self.height:
-			heightTmp = ratio * self.width
-			heightNew = int (heightTmp)
-			imageObj = None
-			if drawBgfonc == drawBgReflet: imageObj = drawBgReflet (self.image, self.width, heightNew, True)
-			else: imageObj = drawBgfonc (self.array, self.width, heightNew, True)
-			wStripe = int ((heightNew - self.height) /2)
-			imageObj.paste (self.image, (0, wStripe))
-			self.height = heightNew
-		# la hauteur est plus grande que la largeur
+	def drawBgStripes (self, width, height):
+		imageObj = Image.new (mode='RGB', size=(width, height), color=(0,0,0))
+		drawing = ImageDraw.Draw (imageObj)
+		if self.width == width:
+			# la largeur est plus grande que la hauteur. rajouter des bandes en haut et en bas
+			height = int (height /2.0)
+			bord = self.image.crop ((0,0, self.width, 1))
+			bord = bord.resize ((bord.size[0], height), Image.Resampling.LANCZOS)
+			imageObj.paste (bord, (0,0))
+			bord = self.image.crop ((0, self.height -1, self.width, self.height))
+			bord = bord.resize ((bord.size[0], height), Image.Resampling.LANCZOS)
+			imageObj.paste (bord, (0,height))
 		else:
-			widthTmp = ratio * self.height
-			widthNew = int (widthTmp)
-			if drawBgfonc == drawBgReflet: imageObj = drawBgReflet (self.image, widthNew, self.height, False)
-			else: imageObj = drawBgfonc (self.array, widthNew, self.height, False)
-			wStripe = int ((widthNew - self.width) /2)
-			imageObj.paste (self.image, (wStripe, 0))
-			self.width = widthNew
-		self.image = imageObj
+			# la largeur est plus petite que la hauteur. rajouter des bandes de chaque coté
+			width = int (width /2.0)
+			bord = self.image.crop ((0,0,1, self.height))
+			bord = bord.resize ((width, bord.size[1]), Image.Resampling.LANCZOS)
+			imageObj.paste (bord, (0,0))
+			bord = self.image.crop ((self.width -1,0, self.width, self.height))
+			bord = bord.resize ((width, bord.size[1]), Image.Resampling.LANCZOS)
+			imageObj.paste (bord, (width,0))
+		return imageObj
+
+	def drawBgReflet (self, width, height):
+		imageObj = Image.new (mode='RGB', size=(width, height), color=(0,0,0))
+		drawing = ImageDraw.Draw (imageObj)
+		if self.width == width:
+			# la largeur est plus grande que la hauteur. rajouter des bandes en haut et en bas
+			bandSize = int ((height - self.height) /2.0)
+			height = int (height /2.0)
+			bord = self.image.crop ((0,0, self.width, bandSize))
+			bord = ImageOps.flip (bord)
+			imageObj.paste (bord, (0,0))
+			bord = self.image.crop ((0, self.height - bandSize, self.width, self.height))
+			bord = ImageOps.flip (bord)
+			imageObj.paste (bord, (0, imageObj.size[1] - bandSize))
+		else:
+			# la largeur est plus petite que la hauteur. rajouter des bandes de chaque coté
+			bandSize = int ((width - self.width) /2.0)
+			width = int (width /2.0)
+			bord = self.image.crop ((0,0, bandSize, self.height))
+			bord = ImageOps.mirror (bord)
+			imageObj.paste (bord, (0,0))
+			bord = self.image.crop ((self.width - bandSize, 0, self.width, self.height))
+			bord = ImageOps.mirror (bord)
+			imageObj.paste (bord, (imageObj.size[0] - bandSize, 0))
+		return imageObj
+
+	def drawBgAverage (self, width, height):
+		imageObj = Image.new (mode='RGB', size=(width, height), color=(0,0,0))
+		drawing = ImageDraw.Draw (imageObj)
+		self.array = numpy.array (self.image)
+		colorA =[ 0,0,0 ]
+		colorB =[ 0,0,0 ]
+		if self.width == width:
+			# la largeur est plus grande que la hauteur. rajouter des bandes en haut et en bas
+			height = int (height /2.0)
+			rangeBord = range (width)
+			for i in rangeBord:
+				colorA[0] += self.array[0][i][0]
+				colorA[1] += self.array[0][i][1]
+				colorA[2] += self.array[0][i][2]
+				colorB[0] += self.array[-1][i][0]
+				colorB[1] += self.array[-1][i][1]
+				colorB[2] += self.array[-1][i][2]
+			colorA[0] = int (colorA[0] / width)
+			colorA[1] = int (colorA[1] / width)
+			colorA[2] = int (colorA[2] / width)
+			colorB[0] = int (colorB[0] / width)
+			colorB[1] = int (colorB[1] / width)
+			colorB[2] = int (colorB[2] / width)
+			bord = Image.new (mode='RGB', size=(width, height), color=tuple (colorA))
+			imageObj.paste (bord, (0,0))
+			bord = Image.new (mode='RGB', size=(width, height), color=tuple (colorB))
+			imageObj.paste (bord, (0,height))
+		else:
+			# la largeur est plus petite que la hauteur. rajouter des bandes de chaque coté
+			width = int (width /2.0)
+			rangeBord = range (height)
+			for i in rangeBord:
+				colorA[0] += self.array[i][0][0]
+				colorA[1] += self.array[i][0][1]
+				colorA[2] += self.array[i][0][2]
+				colorB[0] += self.array[i][-1][0]
+				colorB[1] += self.array[i][-1][1]
+				colorB[2] += self.array[i][-1][2]
+			colorA[0] = int (colorA[0] / height)
+			colorA[1] = int (colorA[1] / height)
+			colorA[2] = int (colorA[2] / height)
+			colorB[0] = int (colorB[0] / height)
+			colorB[1] = int (colorB[1] / height)
+			colorB[2] = int (colorB[2] / height)
+			bord = Image.new (mode='RGB', size=(width, height), color=tuple (colorA))
+			imageObj.paste (bord, (0,0))
+			bord = Image.new (mode='RGB', size=(width, height), color=tuple (colorB))
+			imageObj.paste (bord, (width,0))
+		return imageObj
 
 	def squareVideo (self):
 		videoTitle = self.path + self.title +' anim.mp4'
@@ -412,15 +397,15 @@ class ImageFile (MediaFile):
 		self.pathRoot = mediaFile.pathRoot
 		self.open()
 
+	def setImage (self, imageNew):
+		self.image = imageNew.convert ('RGB')
+		self.width = self.image.size[0]
+		self.height = self.image.size[1]
+
 	def open (self):
 		self.toPath()
 		if not os.path.exists (self.path): return
-		self.image = Image.open (self.path)
-		self.image = self.image.convert ('RGB')
-		self.width = self.image.size[0]
-		self.height = self.image.size[1]
-		self.rangeWidth = range (self.width)
-		self.rangeHeight = range (self.height)
+		self.setImage (Image.open (self.path))
 
 	def draw (self):
 		isDrawable = MediaFile.draw (self)
@@ -465,8 +450,8 @@ class ImageFolder (MediaFolder):
 			MediaFolder.get (self, detail)
 			rangeList = range (len (self.list))
 			for i in rangeList:
-				newImage = ImageFile (self.path + self.list[i].path)
-				self.list[i] = newImage
+				imageNew = ImageFile (self.path + self.list[i].path)
+				self.list[i] = imageNew
 			return
 		elif detail == 'heic':
 			for dirpath, SousListDossiers, subList in os.walk (self.path):

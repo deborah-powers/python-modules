@@ -16,8 +16,8 @@ les valeurs de tag
 	dl ref: éffacer les couleurs contenues dans l'image de référence
 	sc colOld colNew: remplacer une couleur par une autre
 	colOld = "30 78 23"
-	insta ratio ratioB: recadrer une image pour instagram
-	insta 3 1
+	insta ratio: recadrer une image pour instagram
+	insta 0.75 ou 1.33
 """ % __file__
 
 if len (argv) <3: print (help)
@@ -35,12 +35,9 @@ else:
 	elif argv[2] == 'sc' and len (argv) >4:
 		image.swapColors (argv[3], argv[4])
 	elif argv[2] == 'insta':
-		ratio =1
-		ratioB =1
-		if len (argv) >3: ratio = int (argv[3])
-		if len (argv) >4: ratioB = int (argv[4])
-		image.insta (drawBgReflet, ratio, ratioB)
+		ratio =1.0
+		if len (argv) >3: ratio = float (argv[3])
+		image.insta ('reflet', ratio)
 	image.title = image.title +" "+ argv[2]
 	image.draw()
-#	image.image.show()
 	image.image.close()
