@@ -91,8 +91,8 @@ class ImageFile (MediaFile):
 		""" renommer un fichier en prenant en compte la date
 		la fonction utilise les métadonnées de window
 		"""
-		aTraiter = self.renameDateEtape1 (nameSpace, addHour);
-		if aTraiter:
+		nameCreation = self.renameDateEtape1 (nameSpace, addHour);
+		if nameCreation:
 			self.resizeHeight1000()
 			self.correctContrast()
 			self.draw()
@@ -168,7 +168,6 @@ class ImageFile (MediaFile):
 		self.array = numpy.array (self.image).astype ('float')
 		rangeY = range (len (self.array))
 		rangeX = range (len (self.array[0]))
-		log.logMsg (colSpan)
 		if colSpan[0] <200:
 			factorA = 255.0 / colSpan[0]
 			factorB = colMin[0] * factorA
@@ -430,24 +429,20 @@ class ImageFolder (MediaFolder):
 			ratio = image.width / image.height
 			if ratio < ratioMin: ratioMin = ratio
 			elif ratio > ratioMax: ratioMax = ratio
-		log.logLst (ratioMin, ratioMax)
 		imageRange = range (len (self.list))
 		if ratioMax <0.0:
-			log.coucou()
 			for i in imageRange:
 				regrowMade = self.list[i].insta (drawBgfonc, ratioMax)
 				if regrowMade:
 					self.list[i].title = self.list[i].title +' insta'
 					self.list[i].draw()
 		elif ratioMin >1.0:
-			log.coucou()
 			for i in imageRange:
 				regrowMade = self.list[i].insta (drawBgfonc, ratioMin)
 				if regrowMade:
 					self.list[i].title = self.list[i].title +' insta'
 					self.list[i].draw()
 		else:
-			log.coucou()
 			for i in imageRange:
 				regrowMade = self.list[i].insta (drawBgfonc, 1.0)
 				if regrowMade:
@@ -460,7 +455,7 @@ class ImageFolder (MediaFolder):
 		for image in self.list:
 			if os.sep not in image.path:
 				image.path = self.path + image.path
-				image.heifToPng (nameSpace, addHour)
+			image.heifToPng (nameSpace, addHour)
 
 	def heifToPng (self, addHour=False):
 		nameSpace = media.getNameSpace (self.path[:-1])

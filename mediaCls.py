@@ -82,8 +82,8 @@ class MediaFile():
 			self.fromPath()
 
 	def renameDate (self, nameSpace, addHour=False):
-		aTraiter = self.renameDateEtape1 (nameSpace, addHour);
-		if aTraiter: os.rename (self.path, nameCreation)
+		nameCreation = self.renameDateEtape1 (nameSpace, addHour);
+		if nameCreation: os.rename (self.path, nameCreation)
 
 	def renameDateEtape1 (self, nameSpace, addHour=False):
 		""" renommer un fichier en prenant en compte la date
@@ -95,9 +95,9 @@ class MediaFile():
 			nameCreation = createDatedName (self.pathRoot, self.extension, dateCreation)
 			if nameCreation:
 				self.open()
-				return True
-			else: return False
-		else: return False
+				return nameCreation
+			else: return None
+		else: return None
 
 	def draw (self):
 		self.toPath()
@@ -154,10 +154,9 @@ class MediaFolder (Folder):
 		nameSpace = getNameSpace (self.path[:-1])
 		self.get ('new')
 		for image in self.list:
-			if os.sep not in image.path:
-				image.path = self.path + image.path
-				image.renameDate (nameSpace, addHour)
-				image.path = image.path.replace (self.path, "")
+			if os.sep not in image.path: image.path = self.path + image.path
+			image.renameDate (nameSpace, addHour)
+		#	image.path = image.path.replace (self.path, "")
 
 	def get (self, detail=""):
 		self.fromPath()
