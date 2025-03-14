@@ -91,53 +91,28 @@ def endFromPos (text, pos, tagName=""):
 
 def singleChild (text):
 	# vérifier si le texte transformé par getFromPos ne contient qu'un seul enfant
-	if text[:3] == 'svg' or '>' not in text: return text
+	if '>' not in text or 'svg' == text[:3]: return text
+	d= text.find ('>')
+	if " " in text[:d]: d= text.find (" ")
+	if text[:d] in listTagsSelfClosing: return text
 	d=1+ text.find ('>')
-	textBis = text[d:]
-	if '>' not in textBis: return text
-	elif textBis[0] =='<' and textBis[-1] =='>':
-		d= textBis.find ('>')
-		if " " in textBis[:d]: d= textBis.find (" ")
-		# nom du premier tag enfant
-		tagName = textBis[1:d]
-		lenTag =3+ len (tagName)
-		tagStart = '<'+ tagName
-		tagEnd = '</'+ tagName +'>'
-		# compter les emboîtement
-		lenText = len (textBis) - lenTag
-		if textBis[lenText:] == tagEnd:
-			if textBis.count (tagEnd) ==1:
-				d= text.find (tagStart, 1)
-				innerTag = getFromPos (text, d)
-				# gérer les liens
-				if text[:2] == 'a ':
-					d=1+ text.find ('>')
-					# tag contenant du innerHtml
-					if '>' in innerTag: innerTag = getInnerHtml (innerTag)
-					return text[:d] + getInnerHtml (innerTag)
-				else: return innerTag
-			else:
-				f= textBis.find (tagEnd)
-				nbEnd =1
-				nbStart = textBis[:f].count (tagStart)
-				while nbEnd < nbStart and tagEnd in textBis[f:]:
-					f= textBis.find (tagEnd, f+1)
-					nbStart = textBis[:f].count (tagStart)
-					nbEnd = nbEnd +1
-				# emboîtement
-				if f== lenText:
-					d= text.find (tagStart, 1)
-					innerTag = getFromPos (text, d)
-					# gérer les liens
-					if text[:2] == 'a ':
-						d=1+ text.find ('>')
-						# tag contenant du innerHtml
-						if '>' in innerTag: innerTag = getInnerHtml (innerTag)
-						return text[:d] + getInnerHtml (innerTag)
-					else: return innerTag
-				else: return text
-		else: return text
-	else: return text
+	if text[d] != '<': return text
+	elif len (text) > endFromPos (text, d): return text
+	tagStart = text[:d]
+	d=1+ text.find ('>', d)
+	f= text.rfind ('<')
+	if d>f:
+		# tag auto-fermant à l'intérieur
+		if 'a' == tagStart[0] and tagStart[1] in "> ": return text
+		else:
+			d=2+ text.find ('><')
+			text = text[d:-1]
+			if '/' == text[-1]: text = text[:-1]
+			return text
+	else:
+		text = tagStart + text[d:f]
+		text = singleChild (text)
+		return text
 
 def getFromPos (text, pos):
 	""" pos est la postion de <tag ...
@@ -200,12 +175,17 @@ def getOneByTagClass (text, tagName, className):
 	index =-1
 	d=0
 	while d< lenText and '<'+ tagName +" " in text[d:] and 'class=' in text[d:] and className in text[d:]:
-		d=6+ text.find ('class=', d)
-		f= text.find (text[d], d+1)
-		if className in text[d:f]:
+		d=7+ text.find ('class=', d)
+		f= text.find (text[d-1], d)
+		# if className in text[d:f]:
+		if className == text[d:f] or " "+ className +" " in text[d:f]:
 			index = text[:d].rfind ('<')
-			if tagName == text [index +1:d-7]:
-				d=1+ lenText
+			if tagName == text [index +1:d-8]: d=1+ lenText
+		elif className in text[d:f]:
+			classLen =1+ len (className)
+			if text[d:d+ classLen] == className +" " or text[f- classLen:f] == " "+ className:
+				index = text[:d].rfind ('<')
+				if tagName == text[index +1:d-8]: d=1+ lenText
 	if index ==-1: return ""
 	else: return getFromPos (text, index)
 
@@ -297,9 +277,24 @@ def getAllByAttribute (text, attrName, attrValue):
 		textBis = textBis.replace ('$<', '<', 1)
 	return tagList
 
-class Html (File):
+def simplifyNesting (text):
+	if '<' not in text or '>' not in text: return text
+	d=0
+	alphabet = 'abcdefghijklmnopqrstuvwxyz'
+	while '<' in text[d:]:
+		d= text.find ('<', d)
+		f= text.find ('>', d)
+		if text[d+1] in alphabet and text[f-1] != '/':
+			f= endFromPos (text, d)
+			f= text[:f].rfind ('<')
+			textBis = getFromPos (text, d)
+			text = text[:d] +'<'+ textBis + text[f:]
+		d+=1
+	return text
+
+class Html (Article):
 	def __init__ (self, file =None):
-		File.__init__ (self)
+		Article.__init__ (self)
 		self.meta ={}
 		self.link =""
 
@@ -388,12 +383,8 @@ class Html (File):
 		d=1+ self.title.find ('>')
 		self.title = self.title[d:]
 
-	def singleChild (self):
-		d=0
-		for tag in listTags:
-			while '<'+ tag +'>' in self.text[d:]:
-				d= self.text.find ('<'+ tag +'>', d)
-				d=d+1
+	def simplifyNesting (self):
+		self.text = simplifyNesting (self.text)
 
 	def findTagsLocals (self):
 		text = self.text.strip()
@@ -428,14 +419,19 @@ class Html (File):
 		metaList = getAllByTag (self.text, 'meta')
 		self.meta ={}
 		for meta in metaList:
-			if 'content' in meta and 'name' in meta and 'csrf-' not in meta:
+			if 'csrf-' in meta or 'content=' not in meta: continue
+			elif 'og:url' in meta:
+				d=8+ meta.find ('content=')
+				f= meta.find (meta[d], d+1)
+				self.link = meta[d+1:f]
+			elif 'name' in meta:
 				d=5+ meta.find ('name=')
 				f= meta.find (meta[d], d+1)
 				name = meta[d+1:f]
 				d=8+ meta.find ('content=')
 				f= meta.find (meta[d], d+1)
 				self.meta [name] = meta[d+1:f]
-			elif 'content' in meta and 'property' in meta and 'csrf-' not in meta:
+			elif 'property' in meta:
 				d=9+ meta.find ('property=')
 				f= meta.find (meta[d], d+1)
 				name = meta[d+1:f]
@@ -444,7 +440,11 @@ class Html (File):
 				self.meta [name] = meta[d+1:f]
 		metaList = getAllByTag (self.text, 'link')
 		for meta in metaList:
-			if 'stylesheet' not in meta and 'icon' not in meta:
+			if 'rel="canonical"' in meta or "rel='canonical" in meta:
+				d=5+ meta.find ('href=')
+				f= meta.find (meta[d], d+1)
+				self.link = meta[d+1:f]
+			elif 'stylesheet' not in meta and 'icon' not in meta:
 				d=4+ meta.find ('rel=')
 				f= meta.find (meta[d], d+1)
 				name = meta[d+1:f]
@@ -567,24 +567,12 @@ class Html (File):
 			if not res: res = self.fromUrlVb()
 		self.path = pathTmp
 		if res: self.cleanBody()
-		else:
-			print ('la récupération à échoué, impossible de récupérer les données pour\n' + self.link)
+		else: print ('la récupération à échoué, impossible de récupérer les données pour\n' + self.link)
 
 	""" ________________________ nettoyer le texte ________________________ """
 
 	def cleanRead (self):
-		self.text = textFct.cleanBasic (self.text)
-		self.text = self.text.replace ('\n', ' ')
-		self.text = self.text.replace ('\t', ' ')
-		for i, j in textFct.weirdChars: self.text = self.text.replace (i, j)
-		self.text = self.text.strip()
-		self.text = textFct.simpleSpace (self.text)
-		self.text = self.text.replace ('> ', '>')
-		self.text = self.text.replace (' <', '<')
-		self.text = self.text.replace (' >', '>')
-		self.text = self.text.replace (' />', '/>')
-		self.text = textFct.simpleSpace (self.text)
-		self.text = self.text.replace ('> <', '><')
+		self.text = textFct.cleanHtml (self.text)
 		points = '.,)'
 		for p in points: self.text = self.text.replace (" "+p, p)
 		self.text = self.text.replace ("( ", '(')

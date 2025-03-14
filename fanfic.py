@@ -26,18 +26,19 @@ class Fanfic (htmlCls.Html, Article):
 		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link or url == 'b/aooo.html':
 			self.fromAooo()
 			self.fromAoooSpe()
-		elif '://uel.unisciel.fr/' in url or url == 'b/unisciel.html':				self.unisciel()
-		elif '://www.gutenberg.org/' in url:	self.gutemberg()
-		elif '://en.wikisource.org/wiki/' in url:	self.wiki()
-		elif 'https://www.test-recette.fr/recette/' in url or url == 'b/recette.html':	self.testRecette()
+		elif '://uel.unisciel.fr/' in url or url == 'b/unisciel.html': self.unisciel()
+		elif '://www.gutenberg.org/' in url: self.gutemberg()
+		elif '://en.wikisource.org/wiki/' in url: self.wiki()
+		elif 'https://www.test-recette.fr/recette/' in url or url == 'b/recette.html': self.testRecette()
 		elif 'scoubidou' in url: self.scoubidou()
-		elif 'b/ffnet.html' == url:		self.ffNet()
-		elif 'b/fpress.html' == url:	self.fPress()
-		elif 'https://www.ebooksgratuits.com/html/' in url:	self.ebGratuit()
-		elif 'https://menace-theoriste.fr/' in url:			self.menaceTheoriste()
-		elif 'https://www.reddit.com/r/' in url:			self.reddit()
+		elif 'b/ffnet.html' == url: self.ffNet()
+		elif 'b/fpress.html' == url: self.fPress()
+		elif 'https://www.ebooksgratuits.com/html/' in url: self.ebGratuit()
+		elif 'https://menace-theoriste.fr/' in url: self.menaceTheoriste()
+		elif 'https://www.reddit.com/r/' in url: self.reddit()
 		elif 'egb' in url: self.ebGratuit()
 		elif 'wiki' in url: self.wiki()
+		elif 'osmose' in url: self.fromOsmose()
 		else: self.setByMain()
 		self.delAttributes()
 		article = self.toText()
@@ -87,6 +88,27 @@ class Fanfic (htmlCls.Html, Article):
 		self.replace ('e/c', 'grey')
 		self.replace ('h/c', 'dark blond')
 		self.replace ('l/n', 'Powers')
+
+	def fromOsmose (self):
+		self.meta ={}
+		self.subject = 'travail'
+		self.author = 'synergie'
+		self.setByMain()
+		tag = self.getOneByTag ('h1')
+		title = '<h1>' + htmlCls.getInnerHtml (tag) +'</h1>'
+		tag = self.getOneByTagClass ('div', 'wysiwyg')
+		self.text = htmlCls.getInnerHtml (tag)
+		self.delAttributes()
+		self.simplifyNesting()
+		self.text = title + self.text
+		for tag in htmlCls.listTagsIntern[:-1]:
+			self.replace ('<'+ tag +'>')
+			self.replace ('</'+ tag +'>')
+		self.title = self.title.replace (' anct synergie infogérance osmose', "")
+		d=3+ self.text.find ('src=')
+		log.logMsg (self.text[d:])
+		self.replace ("src='upload/", "src='https://osmose.numerique.gouv.fr/upload/")
+		self.replace ("href='jcms/", "href='https://osmose.numerique.gouv.fr/jcms/")
 
 	def fromAooo (self):
 		# fanfic enregistrée via le bouton télécharger en html
@@ -152,7 +174,7 @@ class Fanfic (htmlCls.Html, Article):
 		self.subject = 'programmation'
 		self.title = self.title[8:]
 		self.author = 'test-recette'
-	#	self.meta = { 'lien-auteur': 'https://www.test-recette.fr/recette/' }
+		self.meta = { 'lien-auteur': 'https://www.test-recette.fr/recette/' }
 		if not self.link: self.link = self.meta['og:url']
 		self.delScript()
 		self.delAttributes()
