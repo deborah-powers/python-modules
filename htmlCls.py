@@ -513,8 +513,11 @@ class Html (Article):
 		self.replace ('</tr>\n<tr>', '\n</tr><tr>\n\t')
 		self.replace ('\n<tr>', '<tr>\n\t')
 		self.replace ('</tr>\n', '\n</tr>')
+		self.replace ('> ', '>')
+		self.replace (' <', '<')
 
 	def write (self, mode='w'):
+		log.coucou()
 		# self.text ne contient plus que le corps du body
 	#	self.meta['link'] = self.link
 		self.toPath()

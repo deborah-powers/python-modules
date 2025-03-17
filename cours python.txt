@@ -213,6 +213,8 @@ Créer /site-packages/my-paths.pth
 C:/users/deborah.powers/desktop/python
 Sudo cp /home/ent6904919/bureau/my-path.pth /usr/lib/python3.9/site-packages/
 
+C:\Users\deborah.powers\AppData\Local\anaconda3\Lib\site-packages
+
 ============ Créer un package ============
 
 Monpackage/
