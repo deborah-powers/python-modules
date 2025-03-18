@@ -517,7 +517,6 @@ class Html (Article):
 		self.replace (' <', '<')
 
 	def write (self, mode='w'):
-		log.coucou()
 		# self.text ne contient plus que le corps du body
 	#	self.meta['link'] = self.link
 		self.toPath()

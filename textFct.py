@@ -95,13 +95,13 @@ def findEndUrl (text, pos=0):
 	return posEnd
 
 def simpleSpace (text):
-	while '  ' in text: text = text.replace ('  ', ' ')
+	while "  " in text: text = text.replace ("  ", " ")
 	return text
 
 def cleanBasic (text):
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip()
-	text = simpleSpace (text)
+	while "  " in text: text = text.replace ("  ", " ")
 	text = text.replace ('\n ', '\n')
 	text = text.replace (' \n', '\n')
 	text = text.replace ('\t ', '\t')
@@ -116,7 +116,7 @@ def cleanHtml (text):
 	text = text.replace ('\t', ' ')
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip()
-	text = simpleSpace (text)
+	while "  " in text: text = text.replace ("  ", " ")
 	text = text.replace ('> ', '>')
 	text = text.replace (' <', '<')
 	text = text.replace (' >', '>')
@@ -137,7 +137,7 @@ def cleanCss (text):
 	text = text.replace ('\t', ' ')
 	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip()
-	text = simpleSpace (text)
+	while "  " in text: text = text.replace ("  ", " ")
 	tagCleanSpaces =( '{', '}', '/*', '*/', ':', ';' )
 	for tag in tagCleanSpaces:
 		text = text.replace (' '+ tag +' ', tag)
@@ -185,7 +185,7 @@ def cleanText (text):
 		text = text.replace (letter +'?', letter +' ?')
 	#	text = text.replace (letter +';', letter +' ;')
 		text = text.replace ('...' + letter, '... '+ letter)
-	text = simpleSpace (text)
+	while "  " in text: text = text.replace ("  ", " ")
 	# restaurer les url
 	if 'http' in text and '?' in text:
 		"""
@@ -212,7 +212,7 @@ def cleanText (text):
 		if len (textList[t]) >1 and len (textList[t+1]) >1 and textList[t][-2] in '012345' and textList[t][-1] in '0123456789' and textList[t+1][0] in '012345' and textList[t+1][1] in '0123456789': continue
 		else: textList[t+1] =" "+ textList[t+1]
 	text = ':'.join (textList)
-	text = simpleSpace (text)
+	while "  " in text: text = text.replace ("  ", " ")
 	charEndUrl = '\n\t \'",;!()[]{}'
 	for wordStart, wordEnd in urlWords[:9]: text = text.replace (wordStart, wordEnd)
 	for wordStart, wordEnd in urlWords[9:]:
@@ -235,7 +235,7 @@ def cleanTextVa (text):
 		text = text.replace (letter +';', letter +' ;')
 		text = text.replace ('...' + letter, '... '+ letter)
 	text = text.replace (':', ': ')
-	text = simpleSpace (text)
+	while "  " in text: text = text.replace ("  ", " ")
 	# restaurer les heures
 	liste = text.split (': ')
 	rliste = range (1, len (liste))

@@ -46,11 +46,7 @@ class Fanfic (htmlCls.Html, Article):
 		if article: article.divide()
 		else: self.divide()
 		"""
-
-	def fromAoooSpe (self):
-		self.text = self.text.replace ("<br/>---<br/>i do not permit my work to be used by third-party websites, apps or ai-based/ai-assisted works. do not use ai to do anything with my works or create anything inspired by my works.", "")
-		self.text = self.text.replace ('<h3>summary:</h3><blockquote>', "")
-		self.text = self.text.replace ('</blockquote><h3>work text:</h3>', '<hr/>')
+		self.divide()
 
 	def findSubject (self):
 		if self.subject:
@@ -104,11 +100,13 @@ class Fanfic (htmlCls.Html, Article):
 		self.simplifyNesting()
 		self.text = title + self.text
 		for tag in htmlCls.listTagsIntern[:-1]:
-			self.replace ('<'+ tag +'>')
-			self.replace ('</'+ tag +'>')
+			self.replace ('<'+ tag +'>', " ")
+			self.replace ('</'+ tag +'>', " ")
 		self.title = self.title.replace (' anct synergie infogérance osmose', "")
+		self.title = self.title.replace (' mtect', "")
 		# éffacer les images
 		self.replace ('<picture class="wysiwyg-lightbox-wrapper"><img draggable="false" class="emoji wysiwyg-lightbox" alt="♦" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2666.png" data-lg-size="17-17"></picture>', ' - ')
+		"""
 		textList = self.text.split ('<picture')
 		textRange = range (1, len (textList))
 		for t in textRange:
@@ -121,20 +119,25 @@ class Fanfic (htmlCls.Html, Article):
 			d=1+ textList[t].find ('>')
 			textList[t] = textList[t][d:]
 		self.text = "".join (textList)
+		"""
 		self.replace ("<a href='jcms/290967961_dbwikipage/fr/glossaire-liste-des-abreviations'>📄</a>")
 		self.replace ("<a href='jcms/290967961_dbwikipage/fr/glossaire-liste-des-abreviations'>[m'ouvrir dans une nouvelle page]</a>")
+		self.replace ('<div><tr>', '<table><tr>')
+		self.replace ('</tr></div>', '</tr></table>')
+		self.replace ('div>', 'p>')
 		self.replace ('</a>', '</a></p>')
 		self.replace ('<a ', '<p><a ')
 		self.replace ('<p><p>', '<p>')
 		self.replace ('</p></p>', '</p>')
 		self.replace ('</p>-</p>', '</p>')
 		self.replace ('jcms/', 'https://osmose.numerique.gouv.fr/jcms/')
+		"""
 		if '<h3>' in self.text and not '<h2>' in self.text:
 			self.replace ('h3>', 'h2>')
 			self.replace ('h4>', 'h3>')
 			self.replace ('h5>', 'h4>')
 			self.replace ('h6>', 'h5>')
-
+		"""
 		textList = self.text.split ('a compléter plus tard[begin]')
 		textRange = range (len (textList) -1)
 		for t in textRange:
@@ -144,6 +147,11 @@ class Fanfic (htmlCls.Html, Article):
 			d= textList[t+1].find ('</p>', d)
 			textList[t+1] = textList[t+1][d:]
 		self.text = 'TODO: A compléter'.join (textList)
+
+	def fromAoooSpe (self):
+		self.text = self.text.replace ("<br/>---<br/>i do not permit my work to be used by third-party websites, apps or ai-based/ai-assisted works. do not use ai to do anything with my works or create anything inspired by my works.", "")
+		self.text = self.text.replace ('<h3>summary:</h3><blockquote>', "")
+		self.text = self.text.replace ('</blockquote><h3>work text:</h3>', '<hr/>')
 
 	def fromAooo (self):
 		# fanfic enregistrée via le bouton télécharger en html
