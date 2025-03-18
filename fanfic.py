@@ -96,14 +96,8 @@ class Fanfic (htmlCls.Html, Article):
 		title = '<h1>' + htmlCls.getInnerHtml (tag) +'</h1>'
 		tag = self.getOneByTagClass ('div', 'wysiwyg')
 		self.text = htmlCls.getInnerHtml (tag)
-		self.delAttributes()
-		self.simplifyNesting()
 		self.text = title + self.text
-		for tag in htmlCls.listTagsIntern[:-1]:
-			self.replace ('<'+ tag +'>', " ")
-			self.replace ('</'+ tag +'>', " ")
-		self.title = self.title.replace (' anct synergie infogérance osmose', "")
-		self.title = self.title.replace (' mtect', "")
+		self.title = 'osmose nettoye'
 		# éffacer les images
 		self.replace ('<picture class="wysiwyg-lightbox-wrapper"><img draggable="false" class="emoji wysiwyg-lightbox" alt="♦" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2666.png" data-lg-size="17-17"></picture>', ' - ')
 		"""
@@ -122,22 +116,23 @@ class Fanfic (htmlCls.Html, Article):
 		"""
 		self.replace ("<a href='jcms/290967961_dbwikipage/fr/glossaire-liste-des-abreviations'>📄</a>")
 		self.replace ("<a href='jcms/290967961_dbwikipage/fr/glossaire-liste-des-abreviations'>[m'ouvrir dans une nouvelle page]</a>")
-		self.replace ('<div><tr>', '<table><tr>')
-		self.replace ('</tr></div>', '</tr></table>')
+		self.replace ('jcms/', 'https://osmose.numerique.gouv.fr/jcms/')
+		self.delAttributes()
+		self.replace ('<tbody>')
+		self.replace ('</tbody>')
 		self.replace ('div>', 'p>')
+		self.replace ('<p><tr>', '<table><tr>')
+		self.replace ('</tr></p>', '</tr></table>')
 		self.replace ('</a>', '</a></p>')
 		self.replace ('<a ', '<p><a ')
 		self.replace ('<p><p>', '<p>')
 		self.replace ('</p></p>', '</p>')
 		self.replace ('</p>-</p>', '</p>')
-		self.replace ('jcms/', 'https://osmose.numerique.gouv.fr/jcms/')
-		"""
-		if '<h3>' in self.text and not '<h2>' in self.text:
-			self.replace ('h3>', 'h2>')
-			self.replace ('h4>', 'h3>')
-			self.replace ('h5>', 'h4>')
-			self.replace ('h6>', 'h5>')
-		"""
+		self.cleanRead()
+		for tag in htmlCls.listTagsIntern:
+			self.replace ('<'+ tag +'>', " ")
+			self.replace ('</'+ tag +'>', " ")
+		self.simplifyNesting()
 		textList = self.text.split ('a compléter plus tard[begin]')
 		textRange = range (len (textList) -1)
 		for t in textRange:

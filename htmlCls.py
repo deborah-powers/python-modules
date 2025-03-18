@@ -11,7 +11,7 @@ from fileTemplate import templateHtml
 import loggerFct as log
 
 listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body', 'header', 'footer', 'main' )
-listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'a')
+listTagsIntern =( 'i', 'b', 'em', 'span', 'strong' )
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta', 'link', 'base' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
 templateHtmlBis = """<!DOCTYPE html><html><head>
@@ -79,18 +79,21 @@ def endFromPos (text, pos, tagName=""):
 	else:
 		tagStart = '<'+ tagName
 		tagEnd = '</'+ tagName +'>'
+		# if text.count (tagStart) != text.count (tagEnd): log.logLst ('pas assez de tag', tagName)
 		f= text.find (tagEnd, pos)
 		nbEnd =1
 		nbStart = text[pos:f].count (tagStart)
 		lenText = len (text) -3
-		while nbEnd < nbStart:
+		while nbEnd < nbStart and tagEnd in text[f+3:]:
 			f= text.find (tagEnd, f+3)
 			nbStart = text[pos:f].count (tagStart)
 			nbEnd = nbEnd +1
 		return f+3+ len (tagName)
 
 def singleChild (text):
-	# vérifier si le texte transformé par getFromPos ne contient qu'un seul enfant
+	""" vérifier si le texte transformé par getFromPos ne contient qu'un seul enfant
+	que faire avec les tables encapsulées, celles contenant thead et tbody ?
+	"""
 	if '>' not in text or 'svg' == text[:3]: return text
 	d= text.find ('>')
 	if " " in text[:d]: d= text.find (" ")
@@ -110,6 +113,11 @@ def singleChild (text):
 			if '/' == text[-1]: text = text[:-1]
 			return text
 	else:
+		if '<table' in text or '<tr' in text or '<th' in text or '<td' in text:
+			c= 1+ len (tagStart)
+			if text[c:c+2] in ('tr', 'th', 'td') or text[c:c+5] == 'table':
+				f= text.rfind ('<')
+				tagStart = text[c:d]
 		text = tagStart + text[d:f]
 		text = singleChild (text)
 		return text
@@ -285,10 +293,16 @@ def simplifyNesting (text):
 		d= text.find ('<', d)
 		f= text.find ('>', d)
 		if text[d+1] in alphabet and text[f-1] != '/':
-			f= endFromPos (text, d)
-			f= text[:f].rfind ('<')
-			textBis = getFromPos (text, d)
-			text = text[:d] +'<'+ textBis + text[f:]
+			if text[d+1:f] not in listTagsSelfClosing:
+				f= endFromPos (text, d)
+				f= text[:f].rfind ('<')
+				textBis = getFromPos (text, d)
+				c= textBis.find ('>')
+				# gérer les tableaux imbriqués. je doute de la nécessité et de la qualité de ce bloc. est-ce que je peux nettoyer ma page en amont ?
+				if textBis[0] != text[f+2]:
+					textBis = textBis +'</'+ textBis[:c] +'>'
+					f=1+ text.find ('>', f+1)
+				text = text[:d] +'<'+ textBis + text[f:]
 		d+=1
 	return text
 
@@ -578,6 +592,9 @@ class Html (Article):
 		points = '.,)'
 		for p in points: self.text = self.text.replace (" "+p, p)
 		self.text = self.text.replace ("( ", '(')
+		self.cleanList()
+		self.cleanTable()
+		self.cleanFigure()
 
 	def cleanList (self):
 		self.text = self.text.replace ('<li><p>', '<li>')
@@ -595,17 +612,25 @@ class Html (Article):
 		self.text = self.text.replace ('</p></td>', '</td>')
 		self.text = self.text.replace ('<th><p>', '<th>')
 		self.text = self.text.replace ('</p></th>', '</th>')
-		tabList = self.text.split ('table>')
-		tabRange = range (1, len (tabList), 2)
-		for t in tabRange:
-			tabList[t] = tabList[t].replace ('</p><p>', '<br/>')
-			if '<td><strong>' in tabList[t] and '</strong></td>' in tabList[t]:
-				tabList[t] = tabList[t].replace ('<td><strong>', '<th>')
-				tabList[t] = tabList[t].replace ('</strong></td>', '</th>')
-			elif '<strong>' in tabList[t]:
-				tabList[t] = tabList[t].replace ('<strong>', "")
-				tabList[t] = tabList[t].replace ('</strong>', "")
-		self.text = 'table>'.join (tabList)
+		self.replace ('<tbody>')
+		self.replace ('</tbody>')
+		self.replace ('<thead>')
+		self.replace ('</thead>')
+
+		tabList = self.text.split ('</table>')
+		textRange = range (len (tabList) -1)
+		for t in textRange:
+			d= tabList[t].rfind ('<table')
+			textTmp = tabList[t][d:]
+			if '</p><p>' in textTmp: textTmp = textTmp.replace ('</p><p>', '<br/>')
+			if '<td><strong>' in textTmp and '</strong></td>' in textTmp:
+				textTmp = textTmp.replace ('<td><strong>', '<th>')
+				textTmp = textTmp.replace ('</strong></td>', '</th>')
+			for tag in listTagsIntern:
+				textTmp = textTmp.replace ('<'+ tag +'>', ' <'+ tag +'>')
+				textTmp = textTmp.replace ('</'+ tag +'>', '</'+ tag +'> ')
+			tabList[t] = tabList[t][:d] + textTmp
+		self.text = '</table>'.join (tabList)
 		self.text = self.text.replace ('<col>', "")
 		self.text = self.text.replace ('<colgroup>', "")
 		self.text = self.text.replace ('</colgroup>', "")
