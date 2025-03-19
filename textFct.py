@@ -31,7 +31,7 @@ urlWords =( ('c:', 'C:\\'), (': /', ':/'), ('localhost: ', 'localhost:'), ('www.
 
 def upperCaseIntern (text):
 	text ='\n'+ text
-	points =( '\n', '. ', '! ', '? ', ': ', ':\t', '\n_ ', '\n* ', '\n- ', '\n--> ', '\n\t', '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
+	points =( '\n', '. ', '! ', '? ', ': ', ':\t', '\n_ ', '\n* ', '\n- ', '\n--> ', '\n\t', '++++++ ' '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
 	for i, j in uppercaseLetters:
 		for p in points: text = text.replace (p+i, p+j)
 	punctuation = '({[?!;.,:]})"\' \n\t'

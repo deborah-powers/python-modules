@@ -128,6 +128,7 @@ class Fanfic (htmlCls.Html, Article):
 		self.replace ('<p><p>', '<p>')
 		self.replace ('</p></p>', '</p>')
 		self.replace ('</p>-</p>', '</p>')
+		self.replace ('upload/docs/image/png/', 'osmose/')
 		self.cleanRead()
 		for tag in htmlCls.listTagsIntern:
 			self.replace ('<'+ tag +'>', " ")

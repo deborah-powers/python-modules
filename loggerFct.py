@@ -56,7 +56,7 @@ def logInfo (showDate=False):
 	if showDate: trace = computeTrace() + trace
 	print (trace)
 
-def logMsg (message, showDate=False):
+def message (message, showDate=False):
 	trace = traceLine()
 	if showDate: trace = computeTrace() + trace
 	res = objToStr (message)
@@ -66,10 +66,9 @@ def logMsg (message, showDate=False):
 def coucou (showDate=False):
 	logMsg ('coucou', showDate)
 
-def logLst (*messages, showDate=False):
+def log (*messages, showDate=False):
 	trace = traceLine()
 	if showDate: trace = computeTrace() + trace
-	# trace = traceDate() +' '+ trace
 	for message in messages:
 		res = objToStr (message)
 		if '\n' in res: trace = trace +'\n'+ res

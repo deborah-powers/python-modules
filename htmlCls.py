@@ -11,7 +11,7 @@ from fileTemplate import templateHtml
 import loggerFct as log
 
 listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body', 'header', 'footer', 'main' )
-listTagsIntern =( 'i', 'b', 'em', 'span', 'strong' )
+listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'thead', 'tbody' )
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta', 'link', 'base' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
 templateHtmlBis = """<!DOCTYPE html><html><head>
@@ -99,7 +99,7 @@ def singleChild (text):
 	if " " in text[:d]: d= text.find (" ")
 	if text[:d] in listTagsSelfClosing: return text
 	d=1+ text.find ('>')
-	if text[d] != '<': return text
+	if len (text) ==d or text[d] != '<': return text
 	elif len (text) > endFromPos (text, d): return text
 	tagStart = text[:d]
 	d=1+ text.find ('>', d)
@@ -107,20 +107,20 @@ def singleChild (text):
 	if d>f:
 		# tag auto-fermant à l'intérieur
 		if 'a' == tagStart[0] and tagStart[1] in "> ": return text
+		elif tagStart[:2] in ('td', 'th', 'li') and tagStart[2] in "> ": return text
 		else:
 			d=2+ text.find ('><')
 			text = text[d:-1]
 			if '/' == text[-1]: text = text[:-1]
 			return text
-	else:
+	elif tagStart[:5] != 'table' and tagStart[:2] not in ('tr', 'ul', 'ol', 'dl'):
 		if '<table' in text or '<tr' in text or '<th' in text or '<td' in text:
 			c= 1+ len (tagStart)
-			if text[c:c+2] in ('tr', 'th', 'td') or text[c:c+5] == 'table':
-				f= text.rfind ('<')
-				tagStart = text[c:d]
+			if text[c:c+2] in ('tr', 'th', 'td') or text[c:c+5] == 'table': tagStart = text[c:d]
 		text = tagStart + text[d:f]
 		text = singleChild (text)
 		return text
+	else: return text
 
 def getFromPos (text, pos):
 	""" pos est la postion de <tag ...
@@ -149,6 +149,27 @@ def getFromPos (text, pos):
 	else:
 		print ('erreur pour:', tagName, pos, f)
 		return text
+
+def simplifyNesting (text):
+	if '<' not in text or '>' not in text: return text
+	d=0
+	alphabet = 'abcdefghijklmnopqrstuvwxyz'
+	while '<' in text[d:]:
+		d= text.find ('<', d)
+		f= text.find ('>', d)
+		if text[d+1] in alphabet and text[f-1] != '/':
+			if text[d+1:f] not in listTagsSelfClosing:
+				f= endFromPos (text, d)
+				f= text[:f].rfind ('<')
+				textBis = getFromPos (text, d)
+				# gérer les tableaux imbriqués dans un conteneur
+				if textBis[0] != text[f+2]:
+					c=1+ textBis.find ('>')
+					textBis = textBis +'</'+ textBis[:c]
+					f=1+ text.find ('>', f+1)
+				text = text[:d] +'<'+ textBis + text[f:]
+		d+=1
+	return text
 
 def getOneByTag (text, tagName):
 	if '<'+ tagName not in text: return ""
@@ -284,27 +305,6 @@ def getAllByAttribute (text, attrName, attrValue):
 		tagList.append (getFromPos (text, d))
 		textBis = textBis.replace ('$<', '<', 1)
 	return tagList
-
-def simplifyNesting (text):
-	if '<' not in text or '>' not in text: return text
-	d=0
-	alphabet = 'abcdefghijklmnopqrstuvwxyz'
-	while '<' in text[d:]:
-		d= text.find ('<', d)
-		f= text.find ('>', d)
-		if text[d+1] in alphabet and text[f-1] != '/':
-			if text[d+1:f] not in listTagsSelfClosing:
-				f= endFromPos (text, d)
-				f= text[:f].rfind ('<')
-				textBis = getFromPos (text, d)
-				c= textBis.find ('>')
-				# gérer les tableaux imbriqués. je doute de la nécessité et de la qualité de ce bloc. est-ce que je peux nettoyer ma page en amont ?
-				if textBis[0] != text[f+2]:
-					textBis = textBis +'</'+ textBis[:c] +'>'
-					f=1+ text.find ('>', f+1)
-				text = text[:d] +'<'+ textBis + text[f:]
-		d+=1
-	return text
 
 class Html (Article):
 	def __init__ (self, file =None):
@@ -527,6 +527,7 @@ class Html (Article):
 		self.replace ('</tr>\n<tr>', '\n</tr><tr>\n\t')
 		self.replace ('\n<tr>', '<tr>\n\t')
 		self.replace ('</tr>\n', '\n</tr>')
+		self.replace ('<li>', '\t<li>')
 		self.replace ('> ', '>')
 		self.replace (' <', '<')
 

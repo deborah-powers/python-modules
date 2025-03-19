@@ -481,7 +481,6 @@ class Article (File):
 			metaText = self.text[d:].lower()
 			self.text = self.text[:d]
 			metadata = textFct.fromModel (metaText, templateTextMeta)
-			log.logMsg (metadata)
 			self.subject = metadata[0]
 			self.author = metadata[1]
 			self.link = metadata[2]
