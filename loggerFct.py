@@ -64,7 +64,7 @@ def message (message, showDate=False):
 	print (trace)
 
 def coucou (showDate=False):
-	logMsg ('coucou', showDate)
+	message ('coucou', showDate)
 
 def log (*messages, showDate=False):
 	trace = traceLine()
@@ -76,8 +76,8 @@ def log (*messages, showDate=False):
 	print (trace)
 
 def exists (obj):
-	if (obj): log (obj)
-	else: log ('objet null')
+	if (obj): message (obj)
+	else: message ('objet null')
 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 letterPos =0

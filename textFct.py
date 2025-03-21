@@ -114,21 +114,26 @@ def cleanHtml (text):
 	text = cleanBasic (text)
 	text = text.replace ('\n', ' ')
 	text = text.replace ('\t', ' ')
-	for i, j in weirdChars: text = text.replace (i, j)
 	text = text.strip()
 	while "  " in text: text = text.replace ("  ", " ")
 	text = text.replace ('> ', '>')
 	text = text.replace (' <', '<')
 	text = text.replace (' >', '>')
 	text = text.replace (' />', '/>')
-	"""
-	text = text.replace ('><', '>\n<')
-	innerTagclosing =( 'a', 'p', 'span', 'i', 'strong', 'option', 'button', 'li', 'td', 'th', 'h1', 'h2', 'h3', 'h4')
-	for tag in innerTagclosing:
-		text = text.replace ('\n</'+ tag +'>', '</'+ tag +'>')
-		text = text.replace ('<'+ tag +'>\n', '<'+ tag +'>')
-	text = text.replace ('</tr>\n<tr', '</tr><tr')
-	"""
+	# supprimer les br en trop
+	while '<br/><br/>' in text: text = text.replace ('<br/><br/>', '<br/>')
+	text = text.replace ('<br/><', '<')
+	text = text.replace ('><br/>', '>')
+	if '</table>' not in text and '</li>' not in text: text = text.replace ('<br/>', '</p><p>')
+	# supprimer les icones
+	icons = '🔸🔹➡️ℹ🌐📦🔒⚠️🚧👆📂📄📨✅'
+	for icon in icons[:2]: text = text.replace (icon, ", ")
+	for icon in icons[2:]: text = text.replace (icon, " ")
+	while "  " in text: text = text.replace ("  "," ")
+	# nettoyage plus avancé
+	points = '.,)'
+	for p in points: text = text.replace (" "+p, p)
+	text = text.replace ("( ", '(')
 	return text
 
 def cleanCss (text):
@@ -304,6 +309,39 @@ def toMarkdown (text):
 	return text
 
 	# ________________________ fonctions de bases ________________________
+
+def fromModel_vb (text, model):
+	# remplacer scanf
+	# préparer le modèle
+	model = model.lower()
+	text = text.lower()
+	if '</' in model:
+		text = cleanHtml (text)
+		model = cleanHtml (model)
+	else:
+		text = cleanText (text)
+		model = cleanText (model)
+	text = text.replace ('\n', "")
+	text = text.replace ('\t', "")
+	while "  " in text: text = text.replace ("  ", " ")
+	model = model.replace ('\n', "")
+	model = model.replace ('\t', "")
+	while "  " in model: model = model.replace ("  ", " ")
+
+	typeList = ['d', 'f', 's']
+	model = model.replace ('%%', '$')
+	modelList = model.split ('%')
+	if not modelList[-1]: trash = modelList.pop (-1)
+	if not modelList[0]: trash = modelList.pop (0)
+	modelList[0] = 's'+ modelList[0]
+	results =[]
+	for bloc in modelList:
+		d= text.find (bloc[1:])
+		if d>0: results.append (text[:d])
+		d= d+ len (bloc) -1
+		text = text[d:]
+	print (results)
+	return []
 
 def fromModel (text, model):
 	# remplacer scanf

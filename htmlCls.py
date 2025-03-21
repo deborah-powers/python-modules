@@ -72,7 +72,7 @@ def endFromPos (text, pos, tagName=""):
 	# tag auto-fermant
 	if tagName in listTagsSelfClosing: return 1+ text.find ('>', pos)
 	# erreur, pas de tag fermant
-	elif '</'+ tagName +'>' not in text: return -1
+	elif '</'+ tagName +'>' not in text[pos:]: return -1
 	# une seule occurence du tag
 	elif text.count ('</'+ tagName +'>') ==1: return 3+ len (tagName) + text.find ('</'+ tagName +'>')
 	# plusieurs tags similaires. retrouver la balise fermante associé au mien
@@ -88,7 +88,8 @@ def endFromPos (text, pos, tagName=""):
 			f= text.find (tagEnd, f+3)
 			nbStart = text[pos:f].count (tagStart)
 			nbEnd = nbEnd +1
-		return f+3+ len (tagName)
+		if f<0: return -1
+		else: return f+3+ len (tagName)
 
 def singleChild (text):
 	""" vérifier si le texte transformé par getFromPos ne contient qu'un seul enfant
@@ -162,8 +163,9 @@ def simplifyNesting (text):
 				f= endFromPos (text, d)
 				f= text[:f].rfind ('<')
 				textBis = getFromPos (text, d)
+				if ""== textBis: f=1+ text.find ('<',d+1)
 				# gérer les tableaux imbriqués dans un conteneur
-				if textBis[0] != text[f+2]:
+				elif textBis[0] != text[f+2]:
 					c=1+ textBis.find ('>')
 					textBis = textBis +'</'+ textBis[:c]
 					f=1+ text.find ('>', f+1)
@@ -400,6 +402,35 @@ class Html (Article):
 	def simplifyNesting (self):
 		self.text = simplifyNesting (self.text)
 
+	def delIcons (self):
+		# les balises ont encore leurs attributs et leurs classes
+		iconWords =( 'icon', 'icone', 'logo', 'emoji' )
+		endingLetters = '/ "\''
+		# les images
+		textList = self.text.split ('<img ')
+		textRange = range (1, len (textList))
+		for i in textRange:
+			f= textList[i].find ('>')
+			isIcon = False
+			for word in iconWords:
+				for letter in endingLetters:
+					if word + letter in textList[i][:f]: isIcon = True
+			if isIcon: textList[i] = textList[i][f+1:]
+			else: textList[i] = '<img '+ textList[i]
+		self.text = "".join (textList)
+		# les span
+		textList = self.text.split ('<span ')
+		textRange = range (1, len (textList))
+		for i in textRange:
+			f= textList[i].find ('</span>')
+			isIcon = False
+			for word in iconWords:
+				for letter in endingLetters:
+					if word + letter in textList[i][:f]: isIcon = True
+			if isIcon: textList[i] = textList[i][f+7:]
+			else: textList[i] = '<span '+ textList[i]
+		self.text = "".join (textList)
+
 	def findTagsLocals (self):
 		text = self.text.strip()
 		for tag in listTags:
@@ -503,14 +534,14 @@ class Html (Article):
 		self.replace (" <",'<')
 		# rajouter les espaces autour des balises internes
 		for tag in listTagsIntern:
-			self.text = self.text.replace ('<'+ tag +'>', ' <'+ tag +'>')
-			self.text = self.text.replace ('</'+ tag +'>', '</'+ tag +'> ')
-		self.text = self.text.replace ("<a ", " <a ")
+			self.replace ('<'+ tag +'>', ' <'+ tag +'>')
+			self.replace ('</'+ tag +'>', '</'+ tag +'> ')
+		self.replace ("<a ", " <a ")
 		tagPoint = '<.:;'
 		for tag in listTagsIntern:
 			self.replace ('</'+ tag +'>', '</'+ tag +'> ')
 			for point in tagPoint: self.replace ('</'+ tag +'> '+ point, '</'+ tag +'>'+ point)
-			for tig in listTagsIntern: self.text = self.text.replace ('</'+ tag + '><'+ tig +'>', '</'+ tag + '> <'+ tig +'>')
+			for tig in listTagsIntern: self.replace ('</'+ tag + '><'+ tig +'>', '</'+ tag + '> <'+ tig +'>')
 		self.text = textFct.simpleSpace (self.text)
 		# rajouter les sauts de ligne
 		self.replace ('><', '>\n<')
@@ -590,29 +621,26 @@ class Html (Article):
 
 	def cleanRead (self):
 		self.text = textFct.cleanHtml (self.text)
-		points = '.,)'
-		for p in points: self.text = self.text.replace (" "+p, p)
-		self.text = self.text.replace ("( ", '(')
 		self.cleanList()
 		self.cleanTable()
 		self.cleanFigure()
 
 	def cleanList (self):
-		self.text = self.text.replace ('<li><p>', '<li>')
-		self.text = self.text.replace ('</p></li>', '</li>')
-		self.text = self.text.replace ('<li><p>', '<li>')
-		self.text = self.text.replace ('</li></ul><ul><li>', '</li><li>')
-		self.text = self.text.replace ('</li></ol><ol><li>', '</li><li>')
+		self.replace ('<li><p>', '<li>')
+		self.replace ('</p></li>', '</li>')
+		self.replace ('<li><p>', '<li>')
+		self.replace ('</li></ul><ul><li>', '</li><li>')
+		self.replace ('</li></ol><ol><li>', '</li><li>')
 		tabList = self.text.split ('li>')
 		tabRange = range (1, len (tabList), 2)
 		for t in tabRange: tabList[t] = tabList[t].replace ('</p><p>', '<br/>')
 		self.text = 'li>'.join (tabList)
 
 	def cleanTable (self):
-		self.text = self.text.replace ('<td><p>', '<td>')
-		self.text = self.text.replace ('</p></td>', '</td>')
-		self.text = self.text.replace ('<th><p>', '<th>')
-		self.text = self.text.replace ('</p></th>', '</th>')
+		self.replace ('<td><p>', '<td>')
+		self.replace ('</p></td>', '</td>')
+		self.replace ('<th><p>', '<th>')
+		self.replace ('</p></th>', '</th>')
 		self.replace ('<tbody>')
 		self.replace ('</tbody>')
 		self.replace ('<thead>')
@@ -632,14 +660,14 @@ class Html (Article):
 				textTmp = textTmp.replace ('</'+ tag +'>', '</'+ tag +'> ')
 			tabList[t] = tabList[t][:d] + textTmp
 		self.text = '</table>'.join (tabList)
-		self.text = self.text.replace ('<col>', "")
-		self.text = self.text.replace ('<colgroup>', "")
-		self.text = self.text.replace ('</colgroup>', "")
+		self.replace ('<col>', "")
+		self.replace ('<colgroup>', "")
+		self.replace ('</colgroup>', "")
 
 	def cleanFigure (self):
 		if '</figure>' in self.text and '</figcaption>' not in self.text:
-			self.text = self.text.replace ('<figure>', "")
-			self.text = self.text.replace ('</figure>', "")
+			self.replace ('<figure>', "")
+			self.replace ('</figure>', "")
 		elif '</figure>' in self.text:
 			imgList = self.text.split ('</figure>')
 			imgRange = range (len (imgList) -1)
@@ -755,8 +783,8 @@ class Html (Article):
 			self.text = "".join (textList)
 
 	def delEmptyTags (self):
-		for tag in listTags: self.text = self.text.replace ('<'+ tag + '></' + tag +'>', "")
-		for tag in listTagsLocal: self.text = self.text.replace ('<'+ tag + '></' + tag +'>', "")
+		for tag in listTags: self.replace ('<'+ tag + '></' + tag +'>', "")
+		for tag in listTagsLocal: self.replace ('<'+ tag + '></' + tag +'>', "")
 		for tag in listTags:
 			if '></' + tag +'>' in self.text:
 				lenTag = len (tag)
@@ -782,7 +810,7 @@ class Html (Article):
 			d= self.text.find ('></', d+1)
 			c=1+ self.text[:d].rfind ('<')
 			e= self.text.find ('>', d+1)
-			if self.text[c:d] == self.text[d+3:e]: self.text = self.text.replace (self.text[c-1:e+1], "")
+			if self.text[c:d] == self.text[d+3:e]: self.replace (self.text[c-1:e+1], "")
 
 	def cleanBody (self):
 		self.text = self.text.lower()

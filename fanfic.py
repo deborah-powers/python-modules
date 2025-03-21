@@ -40,6 +40,7 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'wiki' in url: self.wiki()
 		elif 'osmose' in url: self.fromOsmose()
 		else: self.setByMain()
+		self.delIcons()
 		self.delAttributes()
 		"""
 		article = self.toText()
@@ -99,6 +100,7 @@ class Fanfic (htmlCls.Html, Article):
 		self.text = title + self.text
 		self.title = 'osmose nettoye'
 		# éffacer les images
+		self.delIcons()
 		self.replace ('<picture class="wysiwyg-lightbox-wrapper"><img draggable="false" class="emoji wysiwyg-lightbox" alt="♦" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2666.png" data-lg-size="17-17"></picture>', ' - ')
 		"""
 		textList = self.text.split ('<picture')
