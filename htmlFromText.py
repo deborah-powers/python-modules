@@ -166,54 +166,11 @@ def toImage (text):
 					title = textList[i+1][2:e]
 					textList[i+1] = textList[i+1][e+1:]
 					title = title.replace ('-'," ")
-				else:
-					if '/' in title:
-						d=1+ title.rfind ('/')
-						title = title[d:]
-					if '\\' in title:
-						d=1+ title.rfind ('\\')
-						title = title[d:]
-					if '.' in title:
-						d=1+ title.rfind ('.')
-						title = title[d:]
-					title = cleanText (title)
+				else: title = getTitleFromLink (title)
 				title = title.replace ('_'," ")
 				title = title.replace ('.'," ")
 				textList[i] = textList[i][:f] + "<img src='" + textList[i][f:].replace ('http', 'ht/tp') +"."+ ext +"' alt='" + title +"'/>"
 			text = "".join (textList)
-	return text
-
-def imageFromBase64One (imgStr):
-	buff = BytesIO (base64.b64decode (imgStr))
-	return Image.open (buff)
-
-def imgToB64One (imageName):
-	imageOriginal = Image.open (imageName)
-	imageOriginal = imageOriginal.convert ('RGB')
-	buff = BytesIO()
-	if imageName[-3:] == 'jpg': imageOriginal.save (buff, format='jpeg')
-	else: imageOriginal.save (buff, format=imageName[-3:])
-	imgStr = base64.b64encode (buff.getvalue())
-	imgStr = 'data:image/' + imageName[-3:] + ';base64,' + str (imgStr)[2:-1]
-	return imgStr
-
-def imgToB64 (text):
-	if 'src=' in text:
-		text = text.replace ("src='http", "scr='http")
-		text = text.replace ('src="http', 'scr="http')
-		if 'src=' in text:
-			textList = text.split ('src=')
-			textRange = range (1, len (textList))
-			for t in textRange:
-			#	if textList[t][1:5] == 'http': continue
-				f= textList[t].find (textList[t][0], 2)
-				if textList[t][f-4:f] not in '.bmp .png .gif .jpg': continue
-				imageName = textList[t][1:f].replace ('/', sep)
-				if pathRoot not in imageName: continue
-				imgStr = imgToB64One (imageName)
-				textList[t] = textList[t][0] + imgStr + textList[t][f:]
-			text = 'src='.join (textList)
-		text = text.replace ('scr=', 'src=')
 	return text
 
 def toLinkProtocol (text, protocol):
@@ -247,34 +204,11 @@ def toLinkProtocol (text, protocol):
 	return text
 
 def toLink (text):
-	endingChars = '<;, !\t\n'
-	textList = text.split ('http')
-	paragraphRange = range (1, len (textList))
-	for p in paragraphRange:
-		paragraphTmp = textList[p]
-		e=-1; f=-1; d=-1
-		for char in endingChars:
-			if char in paragraphTmp:
-				f= paragraphTmp.find (char)
-				paragraphTmp = paragraphTmp [:f]
-		paragraphTmp = paragraphTmp.strip ('/')
-		d= paragraphTmp.rfind ('/') +1
-		e= len (paragraphTmp)
-		if '.' in paragraphTmp[d:]: e= paragraphTmp.rfind ('.')
-		title =""
-		if textList[p][f:f+2] == ' (':
-			e= textList[p].find (')')
-			title = textList[p][f+2:e]
-			textList[p] = textList[p][e+1:]
-		else:
-			textList[p] = textList[p][f:]
-			title = paragraphTmp [d:e].replace ('-',' ')
-			title = title.replace ('_',' ')
-			title = title.replace ('.'," ")
-		textList[p] = paragraphTmp +"'>"+ title +'</a> '+ textList[p]
-	text = " <a href='http".join (textList)
-	text = text.replace ('> <a ', '><a ')
-	return text
+	text = text.replace ('c:/', 'file:///c:/')
+	text = text.replace ('file:///file:///', 'file:///')
+	protocols =( 'https://', 'http://', 'file:///' )
+	for protocol in protocols:
+		toLinkProtocol (text, protocol)
 
 def toEmphasis (text):
 	if '\n* ' in text:

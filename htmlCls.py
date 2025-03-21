@@ -8,7 +8,7 @@ import textFct
 import htmlFct
 from fileCls import File, Article
 from fileTemplate import templateHtml
-# from htmlToText import toText
+from htmlToText import fromHtml
 import loggerFct as log
 
 listTags = htmlFct.listTagsIntern + ( 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th', 'tr', 'caption', 'label', 'button', 'textarea', 'figcaption' ) + htmlFct.listTagsContainer
@@ -508,11 +508,9 @@ class Html (Article):
 	def toText (self):
 		# if '</a>' in self.text or '<img' in self.text: return None
 		article = Article()
-		article.text = htmlFct.fromHtml (self.text)
+		article.text = fromHtml (self.text)
 		if '</' in article.text:
-			log.message (article.text.count ('</'))
 			d= article.text.find ('</')
-			log.message (article.text[d-10:d+10])
 			return None
 		article.path = self.path.replace ('.html', '.txt')
 		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
