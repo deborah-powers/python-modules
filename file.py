@@ -3,6 +3,7 @@
 from sys import argv
 import textFct
 from fileCls import File, Article
+from htmlCls import Html
 import loggerFct as log
 
 help ="""traiter des fichiers
@@ -46,14 +47,19 @@ elif argv[1][-5:] == '.html' and argv[2] == 'inde':
 	page.read()
 	page.write (True)
 elif argv[2] == 'convert':
-	page = Article (argv[1])
-	page.read()
-	if argv[1][-5:] == '.html': page = page.toText()
-	elif argv[1][-6:] == '.xhtml': page = page.toText()
-	elif argv[1][-4:] == '.txt': page = page.toHtml()
-	independant = False
-	if nbArg >3 and argv[3]: independant = True
-	page.write (independant)
+	page = None
+	if argv[1][-4:] == '.txt':
+		page = Article (argv[1])
+		page.read()
+		page = page.toHtml()
+	if argv[1][-4:] == 'html':
+		page = Html (argv[1])
+		page.read()
+		page = page.toText()
+	if page:
+		independant = False
+		if nbArg >3 and argv[3]: independant = True
+		page.write (independant)
 elif nbArg >2 and argv[2] == 'comp':
 	fileA = File (argv[1])
 	fileA.read()

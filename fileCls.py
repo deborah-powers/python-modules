@@ -307,7 +307,7 @@ class Article (File):
 		if self.type == 'txt': return self
 		article = Article()
 		article.text = htmlFct.fromHtml (self.text)
-		if '</' in article.text: return self
+		if '</' in article.text: return None
 		article.path = self.path.replace ('.html', '.txt')
 		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
 		article.title = self.title
