@@ -39,7 +39,9 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'egb' in url: self.ebGratuit()
 		elif 'wiki' in url: self.wiki()
 		elif 'osmose' in url: self.fromOsmose()
-		else: self.setByMain()
+		else:
+			self.meta ={}
+			self.cleanBody()
 		self.delIcons()
 		self.delAttributes()
 		"""

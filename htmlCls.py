@@ -394,9 +394,11 @@ class Html (Article):
 		return getAttribute (self.text, attributeName)
 
 	def setTitle (self):
+		log.message (self.title)
 		if '</title>' in self.text: self.title = cleanTitle (self.getOneByTag ('title'))
 		elif '</h1>' in self.text: self.title = cleanTitle (self.getOneByTag ('h1'))
 		d=1+ self.title.find ('>')
+		log.message (self.title)
 		self.title = self.title[d:]
 
 	def simplifyNesting (self):
@@ -577,6 +579,7 @@ class Html (Article):
 
 	def fromUrlVa (self, params=None):
 		# récupérer le texte. les params servent à remplir les formulaires
+		log.coucou()
 		myRequest = None
 		response = None
 		paramsUrl = None
@@ -594,6 +597,7 @@ class Html (Article):
 		except Exception as e: return False
 
 	def fromUrlVb (self):
+		log.coucou()
 		self.title = 'tmp'
 		self.toPath()
 		try: urlRequest.urlretrieve (self.link, self.path)
@@ -606,6 +610,7 @@ class Html (Article):
 			return True
 
 	def fromUrl (self, params=None):
+		log.coucou()
 		pathTmp = self.path
 		self.toPath()
 		res = False
