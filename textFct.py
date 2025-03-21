@@ -276,7 +276,7 @@ def shape (text, case=""):
 	"""
 	text = cleanText (text)
 	text = '\n'+ text +'\n'
-	for char in '*#=~-_':
+	for char in '*#=~-_+':
 		while 4* char in text: text = text.replace (4* char, 3* char)
 		text = text.replace (' '+ 3* char +'\n', ' '+ 12* char +'\n\n')
 		text = text.replace ('\n'+ 3* char +' ', '\n\n'+ 12* char +' ')
@@ -321,11 +321,11 @@ def fromModel (text, model):
 	else:
 		text = cleanText (text)
 		model = cleanText (model)
-	text = text.replace ('\n', "")
-	text = text.replace ('\t', "")
+	text = text.replace ('\n', " ")
+	text = text.replace ('\t', " ")
 	while "  " in text: text = text.replace ("  ", " ")
-	model = model.replace ('\n', "")
-	model = model.replace ('\t', "")
+	model = model.replace ('\n', " ")
+	model = model.replace ('\t', " ")
 	while "  " in model: model = model.replace ("  ", " ")
 	model = model.replace ('%%', '$')
 	# récupérer les éléments

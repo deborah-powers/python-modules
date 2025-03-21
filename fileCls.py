@@ -8,6 +8,7 @@ import textFct
 import htmlFct
 from fileLocal import *
 from fileTemplate import *
+from htmlFromText import toHtml
 import loggerFct as log
 
 dateFormatFull = '%Y/%m/%d %H:%M:%S'
@@ -328,7 +329,7 @@ class Article (File):
 		article.link = self.link
 		article.author = self.author
 		article.meta = self.meta
-		article.text = htmlFct.toHtml (self.text)
+		article.text = toHtml (self.text)
 		if '</' in article.text: return article
 		else: return self
 
@@ -481,6 +482,7 @@ class Article (File):
 			d= self.text.rfind ('\n======')
 			metaText = self.text[d:].lower()
 			metaText = metaText.replace (': ',':\t')
+			metaText = metaText +'\n'
 			self.text = self.text[:d]
 			metadata = textFct.fromModel (metaText, templateTextMeta)
 			self.subject = metadata[0]

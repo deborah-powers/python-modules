@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 # attention, l'ordre des sous-fonctions est important
 from os import sep
-from PIL import Image, ImageOps
+from PIL import Image
 from io import BytesIO
 import base64
 from textFct import *
+from htmlFct import *
 from fileLocal import pathRoot
 import loggerFct as log
 
-listTagsContainer = ( 'ul', 'ol', 'dl', 'table', 'nav', 'div', 'fieldset', 'form', 'figure', 'math', 'section', 'article', 'body', 'header', 'footer', 'main' )
-listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'thead', 'tbody' )
 tagHtml =(
 	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n______ '), ('</h4>\n', ' ______\n'), ('\n<h5>', '\n###### '), ('</h5>\n', ' ######\n'), ('\n<h6>', '\n++++++ '), ('</h6>\n', ' ++++++\n'),
 	("\n<hr class='h1'/>\n", '\n\n======\n\n'), ("\n<hr class='h2'/>\n", '\n\n******\n\n'), ("\n<hr class='h3'/>\n", '\n\n------\n\n'),
@@ -99,10 +98,11 @@ def toTable (text):
 					# bordure des cases
 					textList [j] = '<tr><td>' + textList [j] +'</td></tr>'
 				# les limites de la table
-				textList [d] = '<table>\n' + textList [d]
-				textList [i-1] = textList [i-1] +'\n</table>'
+				textList [d] = '<table>' + textList [d]
+				textList [i-1] = textList [i-1] +'</table>'
 			i+=1
 		text = '\n'.join (textList)
+		text = text.replace ('\n<tr>', '<tr>')
 		# les titres de colonnes ou de lignes
 		if ':</td></tr>' in text:
 			textList = text.split (':</td></tr>')
@@ -120,6 +120,30 @@ def toTable (text):
 			text = '</th>'.join (textList)
 	text = text.replace ('\t', "")
 	text = text.replace ('<td>.</td>', '<td></td>')
+	return text
+
+def toDefList (text):
+	if '<tr>' not in text: return text
+	textList = text.split ('<tr>')
+	textRange = range (1, len (textList))
+	for t in textRange:
+		f= textList[t].find ('</tr>')
+		line = textList[t][:f]
+		if line.count ('</t') ==2:
+			d=1+ line.find ('>')
+			e= line.rfind ('</')
+			line = line[d:e]
+			line = line.replace ('<td>', ':</dt><dd>')
+			line = line.replace ('</td>', "")
+			line = line.replace ('</th>', "")
+			line = '<dt>'+ line +'</dd>'
+			f+=5
+		else: line = '<tr>'+ line
+		textList[t] = line + textList[t][f:]
+	text ="".join (textList)
+	d= text.find ('<dt>')
+	text = text.replace ('<table><dt>', '<dl><dt>')
+	text = text.replace ('</dd></table>', '</dd></dl>')
 	return text
 
 def toImage (text):
@@ -324,6 +348,7 @@ def toHtml (text):
 	text = toCode (text)
 	text = toList (text)
 	text = toTable (text)
+	text = toDefList (text)
 	text = cleanText (text)
 	text = toEmphasis (text)
 	# rajouter les <p/>
@@ -345,108 +370,3 @@ def toHtml (text):
 	text = text.replace (' </', '</')
 	text = text.replace ('<p>.</p>', '<br/>')
 	return text
-
-def fromHtml (text):
-	# les conteneurs
-	tagsBlank =( ('<hr/>', '\n************\n'), ('<hr>', '\n************\n'), ('<br>', '\n'), ('<br/>', '\n'))
-	tagsClosing =( 'li', 'dd', 'tr', 'th', 'td')
-	for tag in listTagsContainer:
-		text = text.replace ('</'+ tag +'>', "")
-		text = text.replace ('<'+ tag +'>', "")
-	# les tableaux
-	text = text.replace ('</td>', "")
-	text = text.replace ('</th>', ':')
-	text = text.replace ('</tr>', "")
-	text = text.replace ('<tr><td>', '\n')
-	text = text.replace ('<tr><th>', '\n')
-	text = text.replace ('<td>', '\t')
-	text = text.replace ('<th>', '\t')
-	# les images
-	textList = text.split ('<img ')
-	textRange = range (1, len (textList))
-	for i in textRange:
-		src =""
-		alt =""
-		f= textList[i].find ('>')
-		if 'src=' in textList[i][:f]:
-			d=5+ textList[i].find ('src=')
-			e= textList[i].find (textList[i][d-1], d)
-			src = textList[i][d:e]
-		if 'alt=' in textList[i][:f]:
-			d=5+ textList[i].find ('alt=')
-			e= textList[i].find (textList[i][d-1], d)
-			alt = textList[i][d:e]
-		else:
-			e= src.rfind ('.')
-			d= src.rfind ('/')
-			if '\\' in src: d= src.rfind ('\\')
-			alt = src[d+1:f]
-		textList[i] = alt +' ('+ src +') '+ textList[i][f+1:] +'\n'
-	text = '\nimg\t'.join (textList)
-	# les liens
-	textList = text.split ('</a>')
-	textRange = range (len (textList) -1)
-	for i in textRange:
-		linkText =""
-		link =""
-		f= textList[i].rfind ('>')
-		if f>=0: linkText = textList[i][f+1:]
-		if 'href=' in textList[i][:f]:
-			textList[i] = textList[i][:f-1]
-			d=6+ textList[i].rfind ('href=')
-			f= textList[i].find (textList[i][d-1], d)
-			link = textList[i][d:f]
-		if not linkText:
-			d= link.rfind ('/')
-			if '\\' in src: d= link.rfind ('\\')
-			linkText = link[d+1:]
-			if '.' in linkText:
-				f= linkText.rfind ('.')
-				linkText = linkText[:f]
-		f= textList[i].rfind ('<a')
-		textList[i] = textList[i][:f] +" "+ linkText +' ('+ link +') '
-	text = "".join (textList)
-	# les tags
-	for html, perso in tagHtml: text = text.replace (html.strip(), perso)
-	for html, perso in tagsBlank: text = text.replace (html, perso)
-	for tag in tagsClosing: text = text.replace ('</'+ tag +'>', "")
-	# les lignes
-	text = text.replace ('</p><p>', '\n')
-	lines =( 'p', 'caption', 'figcaption' )
-	for tag in lines:
-		text = text.replace ('</'+ tag +'>', '\n')
-		text = text.replace ('<'+ tag +'>', '\n')
-	# les phrases
-	for tag in listTagsIntern:
-		text = text.replace ('</'+ tag +'>', ' ')
-		text = text.replace ('<'+ tag +'>', ' ')
-	text = text.replace (' \n', '\n')
-	text = text.replace ('\n ', '\n')
-	# les liens
-	ltext = text.split ('</a>')
-	rtext = range (len (ltext) -1)
-	for t in rtext:
-		d= ltext [t].find ('href') +6
-		f= ltext [t].find ("'", d)
-		link = ltext [t][d:f]
-		f= ltext [t].find ('>', f) +1
-		title = ltext [t][f:]
-		d= ltext [t].find ('<a ')
-		ltext [t] = ltext [t][:d] +' '+ title +': '+ link
-	text = ' '.join (ltext)
-	text = shape (text)
-	return text
-
-def test():
-	text = """nfznvvz
-zef,z "ofk" v,sknvdzkl.fnz fk" g
-à 50:30:60
-adresse: http://www.fr
-"""
-	model = """fznvvz
-%ssknvdzkl.fnz %s
-"""
-	text = toHtml (text)
-	print ('toHtml\t', text)
-	text = fromHtml (text)
-	print ('fromHtml\t', text)
