@@ -355,8 +355,9 @@ class Article (File):
 		textRange = range (1, len (textList))
 		for l in textRange:
 			n= textList[l].find (textList[l][0], 1)
-			continue
-		#	self.meta [line[:d]] = line[d+2:]
+			d=9+ textList[l].find ('content=')
+			f= textList[l].find (textList[l][d-1], d)
+			self.meta [textList[l][1:n]] = textList[l][d:f]
 
 	def metaToHtml (self):
 		metaTemplate = "<meta name='%s' content='%s'/>"

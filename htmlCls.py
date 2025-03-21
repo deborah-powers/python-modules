@@ -10,8 +10,7 @@ from fileCls import File, Article
 from fileTemplate import templateHtml
 import loggerFct as log
 
-listTags =( 'i', 'b', 'em', 'span', 'strong', 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'caption', 'table', 'nav', 'div', 'label', 'button', 'textarea', 'fieldset', 'form', 'figcaption', 'figure', 'section', 'article', 'body', 'header', 'footer', 'main' )
-listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'thead', 'tbody' )
+listTags = htmlFct.listTagsIntern + ( 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th', 'tr', 'caption', 'label', 'button', 'textarea', 'figcaption' ) + htmlFct.listTagsContainer
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta', 'link', 'base' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
 templateHtmlBis = """<!DOCTYPE html><html><head>
@@ -394,11 +393,9 @@ class Html (Article):
 		return getAttribute (self.text, attributeName)
 
 	def setTitle (self):
-		log.message (self.title)
 		if '</title>' in self.text: self.title = cleanTitle (self.getOneByTag ('title'))
 		elif '</h1>' in self.text: self.title = cleanTitle (self.getOneByTag ('h1'))
 		d=1+ self.title.find ('>')
-		log.message (self.title)
 		self.title = self.title[d:]
 
 	def simplifyNesting (self):
@@ -463,6 +460,7 @@ class Html (Article):
 					text = text.replace ('<'+ line[:f] +" ", '$ ')
 
 	def setMetas (self):
+		if '<meta ' not in self.text: return
 		metaList = getAllByTag (self.text, 'meta')
 		self.meta ={}
 		for meta in metaList:
@@ -507,7 +505,7 @@ class Html (Article):
 	# ________________________ lire et écrire dans un fichier html ________________________
 
 	def toText (self):
-		if '</a>' in self.text or '<img' in self.text: return None
+		# if '</a>' in self.text or '<img' in self.text: return None
 		article = Article()
 		article.text = htmlFct.fromHtml (self.text)
 		if '</' in article.text: return None
@@ -525,7 +523,7 @@ class Html (Article):
 		return article
 
 	def read (self):
-		File.read (self)
+		Article.read (self)
 		self.cleanBody()
 
 	def addIndentation (self):
@@ -535,19 +533,19 @@ class Html (Article):
 		self.replace ("> ",'>')
 		self.replace (" <",'<')
 		# rajouter les espaces autour des balises internes
-		for tag in listTagsIntern:
+		for tag in htmlFct.listTagsIntern:
 			self.replace ('<'+ tag +'>', ' <'+ tag +'>')
 			self.replace ('</'+ tag +'>', '</'+ tag +'> ')
 		self.replace ("<a ", " <a ")
 		tagPoint = '<.:;'
-		for tag in listTagsIntern:
+		for tag in htmlFct.listTagsIntern:
 			self.replace ('</'+ tag +'>', '</'+ tag +'> ')
 			for point in tagPoint: self.replace ('</'+ tag +'> '+ point, '</'+ tag +'>'+ point)
-			for tig in listTagsIntern: self.replace ('</'+ tag + '><'+ tig +'>', '</'+ tag + '> <'+ tig +'>')
+			for tig in htmlFct.listTagsIntern: self.replace ('</'+ tag + '><'+ tig +'>', '</'+ tag + '> <'+ tig +'>')
 		self.text = textFct.simpleSpace (self.text)
 		# rajouter les sauts de ligne
 		self.replace ('><', '>\n<')
-		for tag in listTagsIntern:
+		for tag in htmlFct.listTagsIntern:
 			self.replace ('\n<' + tag, '<'+ tag)
 			self.replace ('</' + tag + '>\n', '</' + tag +'>')
 		self.replace ('><img', '>\n\t<img')
@@ -579,7 +577,6 @@ class Html (Article):
 
 	def fromUrlVa (self, params=None):
 		# récupérer le texte. les params servent à remplir les formulaires
-		log.coucou()
 		myRequest = None
 		response = None
 		paramsUrl = None
@@ -597,7 +594,6 @@ class Html (Article):
 		except Exception as e: return False
 
 	def fromUrlVb (self):
-		log.coucou()
 		self.title = 'tmp'
 		self.toPath()
 		try: urlRequest.urlretrieve (self.link, self.path)
@@ -610,7 +606,6 @@ class Html (Article):
 			return True
 
 	def fromUrl (self, params=None):
-		log.coucou()
 		pathTmp = self.path
 		self.toPath()
 		res = False
@@ -625,6 +620,7 @@ class Html (Article):
 	""" ________________________ nettoyer le texte ________________________ """
 
 	def cleanRead (self):
+		self.delIcons()
 		self.text = textFct.cleanHtml (self.text)
 		self.cleanList()
 		self.cleanTable()
@@ -660,7 +656,7 @@ class Html (Article):
 			if '<td><strong>' in textTmp and '</strong></td>' in textTmp:
 				textTmp = textTmp.replace ('<td><strong>', '<th>')
 				textTmp = textTmp.replace ('</strong></td>', '</th>')
-			for tag in listTagsIntern:
+			for tag in htmlFct.listTagsIntern:
 				textTmp = textTmp.replace ('<'+ tag +'>', ' <'+ tag +'>')
 				textTmp = textTmp.replace ('</'+ tag +'>', '</'+ tag +'> ')
 			tabList[t] = tabList[t][:d] + textTmp
@@ -821,9 +817,9 @@ class Html (Article):
 		self.text = self.text.lower()
 		self.cleanRead()
 		self.setByHtml()
+		self.setMetas()
 		self.setTitle()
 		self.delScript()
-		self.setMetas()
 		self.setByBody()
 		self.findTagsLocals()
 		self.delEmptyTags()

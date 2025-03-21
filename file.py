@@ -54,7 +54,6 @@ elif argv[2] == 'convert':
 		page = page.toHtml()
 	if argv[1][-4:] == 'html':
 		page = Html (argv[1])
-		page.read()
 		page = page.toText()
 	if page:
 		independant = False

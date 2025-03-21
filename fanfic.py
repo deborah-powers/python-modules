@@ -41,8 +41,7 @@ class Fanfic (htmlCls.Html, Article):
 		elif 'osmose' in url: self.fromOsmose()
 		else:
 			self.meta ={}
-			self.cleanBody()
-		self.delIcons()
+			self.setByMain()
 		self.delAttributes()
 		"""
 		article = self.toText()

@@ -9,6 +9,8 @@ from textFct import *
 from fileLocal import pathRoot
 import loggerFct as log
 
+listTagsContainer = ( 'ul', 'ol', 'table', 'nav', 'div', 'fieldset', 'form', 'figure', 'math', 'section', 'article', 'body', 'header', 'footer', 'main' )
+listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'thead', 'tbody' )
 tagHtml =(
 	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n______ '), ('</h4>\n', ' ______\n'), ('\n<h5>', '\n###### '), ('</h5>\n', ' ######\n'), ('\n<h6>', '\n++++++ '), ('</h6>\n', ' ++++++\n'),
 	("\n<hr class='h1'/>\n", '\n\n======\n\n'), ("\n<hr class='h2'/>\n", '\n\n******\n\n'), ("\n<hr class='h3'/>\n", '\n\n------\n\n'),
@@ -345,10 +347,9 @@ def toHtml (text):
 
 def fromHtml (text):
 	# les conteneurs
-	container = [ 'div', 'section', 'ol', 'ul', 'table', 'figure', 'math' ]
 	tagsBlank =( ('<hr/>', '\n************\n'), ('<hr>', '\n************\n'), ('<br>', '\n'), ('<br/>', '\n'))
 	tagsClosing =( 'li', 'tr', 'th', 'td')
-	for tag in container:
+	for tag in listTagsContainer:
 		text = text.replace ('</'+ tag +'>', "")
 		text = text.replace ('<'+ tag +'>', "")
 	# les tableaux
@@ -359,6 +360,51 @@ def fromHtml (text):
 	text = text.replace ('<tr><th>', '\n')
 	text = text.replace ('<td>', '\t')
 	text = text.replace ('<th>', '\t')
+	# les images
+	textList = text.split ('<img ')
+	textRange = range (1, len (textList))
+	for i in textRange:
+		src =""
+		alt =""
+		f= textList[i].find ('>')
+		if 'src=' in textList[i][:f]:
+			d=5+ textList[i].find ('src=')
+			e= textList[i].find (textList[i][d-1], d)
+			src = textList[i][d:e]
+		if 'alt=' in textList[i][:f]:
+			d=5+ textList[i].find ('alt=')
+			e= textList[i].find (textList[i][d-1], d)
+			alt = textList[i][d:e]
+		else:
+			e= src.rfind ('.')
+			d= src.rfind ('/')
+			if '\\' in src: d= src.rfind ('\\')
+			alt = src[d+1:f]
+		textList[i] = alt +' ('+ src +') '+ textList[i][f+1:] +'\n'
+	text = '\nimg\t'.join (textList)
+	# les liens
+	textList = text.split ('</a>')
+	textRange = range (len (textList) -1)
+	for i in textRange:
+		linkText =""
+		link =""
+		f= textList[i].rfind ('>')
+		if f>=0: linkText = textList[i][f+1:]
+		if 'href=' in textList[i][:f]:
+			textList[i] = textList[i][:f-1]
+			d=6+ textList[i].rfind ('href=')
+			f= textList[i].find (textList[i][d-1], d)
+			link = textList[i][d:f]
+		if not linkText:
+			d= link.rfind ('/')
+			if '\\' in src: d= link.rfind ('\\')
+			linkText = link[d+1:]
+			if '.' in linkText:
+				f= linkText.rfind ('.')
+				linkText = linkText[:f]
+		f= textList[i].rfind ('<a')
+		textList[i] = textList[i][:f] +" "+ linkText +' ('+ link +') '
+	text = "".join (textList)
 	# les tags
 	for html, perso in tagHtml: text = text.replace (html.strip(), perso)
 	for html, perso in tagsBlank: text = text.replace (html, perso)
@@ -370,8 +416,7 @@ def fromHtml (text):
 		text = text.replace ('</'+ tag +'>', '\n')
 		text = text.replace ('<'+ tag +'>', '\n')
 	# les phrases
-	inner =( 'span', 'em', 'strong' )
-	for tag in inner:
+	for tag in listTagsIntern:
 		text = text.replace ('</'+ tag +'>', ' ')
 		text = text.replace ('<'+ tag +'>', ' ')
 	text = text.replace (' \n', '\n')

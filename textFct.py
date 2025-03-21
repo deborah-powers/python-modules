@@ -310,7 +310,7 @@ def toMarkdown (text):
 
 	# ________________________ fonctions de bases ________________________
 
-def fromModel_vb (text, model):
+def fromModel (text, model):
 	# remplacer scanf
 	# préparer le modèle
 	model = model.lower()
@@ -327,9 +327,8 @@ def fromModel_vb (text, model):
 	model = model.replace ('\n', "")
 	model = model.replace ('\t', "")
 	while "  " in model: model = model.replace ("  ", " ")
-
-	typeList = ['d', 'f', 's']
 	model = model.replace ('%%', '$')
+	# récupérer les éléments
 	modelList = model.split ('%')
 	if not modelList[-1]: trash = modelList.pop (-1)
 	if not modelList[0]: trash = modelList.pop (0)
@@ -337,13 +336,16 @@ def fromModel_vb (text, model):
 	results =[]
 	for bloc in modelList:
 		d= text.find (bloc[1:])
-		if d>0: results.append (text[:d])
+		if d>0:
+			results.append (text[:d])
+			# convertir les éléments récupérés en chiffre
+			if bloc[0] =='d': results[-1] = int (results[-1])
+			elif bloc[0] =='f': results[-1] = float (results[-1])
 		d= d+ len (bloc) -1
 		text = text[d:]
-	print (results)
-	return []
+	return results
 
-def fromModel (text, model):
+def fromModel_va (text, model):
 	# remplacer scanf
 	# préparer le modèle
 	model = model.lower()
