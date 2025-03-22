@@ -133,7 +133,7 @@ def toDefList (text):
 			d=1+ line.find ('>')
 			e= line.rfind ('</')
 			line = line[d:e]
-			line = line.replace ('<td>', ':</dt><dd>')
+			line = line.replace ('<td>', '</dt><dd>')
 			line = line.replace ('</td>', "")
 			line = line.replace ('</th>', "")
 			line = '<dt>'+ line +'</dd>'
@@ -207,8 +207,8 @@ def toLink (text):
 	text = text.replace ('c:/', 'file:///c:/')
 	text = text.replace ('file:///file:///', 'file:///')
 	protocols =( 'https://', 'http://', 'file:///' )
-	for protocol in protocols:
-		toLinkProtocol (text, protocol)
+	for protocol in protocols: text = toLinkProtocol (text, protocol)
+	return text
 
 def toEmphasis (text):
 	if '\n* ' in text:

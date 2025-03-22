@@ -321,16 +321,20 @@ def fromModel (text, model):
 	else:
 		text = cleanText (text)
 		model = cleanText (model)
+	"""
 	text = text.replace ('\n', " ")
 	text = text.replace ('\t', " ")
+	text = text +" "
 	while "  " in text: text = text.replace ("  ", " ")
 	model = model.replace ('\n', " ")
 	model = model.replace ('\t', " ")
+	model = model +" "
 	while "  " in model: model = model.replace ("  ", " ")
+	"""
 	model = model.replace ('%%', '$')
 	# récupérer les éléments
 	modelList = model.split ('%')
-	if not modelList[-1]: trash = modelList.pop (-1)
+	if not modelList[-1] or 1== len (modelList[-1]): trash = modelList.pop (-1)
 	if not modelList[0]: trash = modelList.pop (0)
 	modelList[0] = 's'+ modelList[0]
 	results =[]
@@ -343,6 +347,7 @@ def fromModel (text, model):
 			elif bloc[0] =='f': results[-1] = float (results[-1])
 		d= d+ len (bloc) -1
 		text = text[d:]
+	if text: results.append (text)
 	return results
 
 def fromModel_va (text, model):
