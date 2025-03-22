@@ -17,23 +17,6 @@ tagHtml =(
 	("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
 	('\n<li>', '\n\t')
 )
-def cleanHtmlForWritting (text):
-	text = cleanHtml (text)
-	innerTags =( 'i', 'b', 'em', 'span', 'strong', 'a')
-	for tag in listTagsIntern:
-		text = text.replace ('<'+ tag +'>', ' <'+ tag +'>')
-		text = text.replace ('</'+ tag +'>', '</'+ tag +'> ')
-	text = text.replace ('</a>', '</a> ')
-	text = text.replace ("<a ", " <a ")
-	while "  " in text: text = text.replace ("  ", " ")
-	text = text.replace ('> <', '><')
-	points = '.,)'
-	for p in points: text = text.replace (" "+p, p)
-	text = text.replace ("( ", '(')
-	for tag in innerTags:
-		for tig in innerTags: text = text.replace ('</'+ tag + '><'+ tig +'>', '</'+ tag + '> <'+ tig +'>')
-	return text
-
 def toList (text):
 	if '<li>' in text:
 		text = '\n'+ text +'\n'
