@@ -322,7 +322,7 @@ class Html (Article):
 		elif file:
 			self.path = file
 			self.fromPath()
-			self.read()
+		#	self.read()
 
 	# ________________________ récupérer les noeuds d'intérêt ________________________
 
