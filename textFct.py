@@ -340,6 +340,7 @@ def fromModel (text, model):
 	results =[]
 	for bloc in modelList:
 		d= text.find (bloc[1:])
+		if d==0 and text.count (bloc[1:]) >1: d= text.find (bloc[1:], 1)
 		if d>0:
 			results.append (text[:d])
 			# convertir les éléments récupérés en chiffre

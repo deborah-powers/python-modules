@@ -158,6 +158,7 @@ class Fanfic (htmlCls.Html, Article):
 		# le lien de la fanfic
 		if not self.link:
 			tag = self.getOneByTagClass ('dd', 'bookmarks')
+			print (tag)
 		#	tag = htmlCls.getOneByTag (tag, 'a')	le a est automatiquement trouvé via la dé-nidification
 			tag = htmlCls.getAttribute (tag, 'href')
 			self.link = 'https://archiveofourown.org' + tag.replace ('bookmarks', "")

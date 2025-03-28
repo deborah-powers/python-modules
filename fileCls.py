@@ -304,41 +304,6 @@ class Article (File):
 				self.title = self.title +' '+ str (idFile)
 				self.write()
 
-	def toText (self):
-		if self.type == 'txt': return self
-		article = Article()
-		article.text = htmlFct.fromHtml (self.text)
-		if '</' in article.text: return None
-		article.path = self.path.replace ('.html', '.txt')
-		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
-		article.title = self.title
-		article.subject = self.subject
-		article.type = 'txt'
-		article.link = self.link
-		article.author = self.author
-		article.meta = self.meta
-		return article
-
-	def toHtml (self):
-		if self.type in 'xhtml': return self
-		article = Article()
-		article.path = self.path.replace ('.txt', '.html')
-		article.title = self.title
-		article.subject = self.subject
-		article.type = 'html'
-		article.link = self.link
-		article.author = self.author
-		article.meta = self.meta
-		article.text = toHtml (self.text)
-		if '</' in article.text: return article
-		else: return self
-
-	def toXhtml (self):
-		article = self.toHtml()
-		article.path = article.path.replace ('.html', '.xhtml')
-		article.type = 'xhtml'
-		return article
-
 	def metaToText (self):
 		metaTemplate = '%s:\t%s\n'
 		text =""
@@ -351,102 +316,6 @@ class Article (File):
 			d= line.find (':\t')
 			self.meta [line[:d]] = line[d+2:]
 
-	def metaFromHtml (self, text):
-		textList = text.split ("<meta name=")
-		textRange = range (1, len (textList))
-		for l in textRange:
-			n= textList[l].find (textList[l][0], 1)
-			d=9+ textList[l].find ('content=')
-			f= textList[l].find (textList[l][d-1], d)
-			self.meta [textList[l][1:n]] = textList[l][d:f]
-
-	def metaToHtml (self):
-		metaTemplate = "<meta name='%s' content='%s'/>"
-		styleTemplate = "<link rel='stylesheet' type='text/css' href='%s'/>"
-		scriptTemplate = "<script type='text/javascript' src='%s'></script>"
-		text =""
-		for meta in self.meta:
-			if meta not in 'style script subject author link': text = text + metaTemplate % (meta, self.meta[meta])
-		if 'style' in self.meta.keys(): text = text + (styleTemplate % self.meta['style'])
-		if 'script' in self.meta.keys(): text = text + (scriptTemplate % self.meta['script'])
-		return text
-
-	def createSummary_vb (self):
-		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
-			sommaire = "<section id='sommaire'>"
-			numero =1
-			if '</h2>' in self.text:
-				numeroSub =1
-				self.text = self.text.replace ('<h1', '<hxx1')
-				self.text = self.text.replace ('<h2', '<hxx2')
-				textList = self.text.split ('<hxx')
-				textRange = range (1, len (textList))
-				for t in textRange:
-					d=1+ textList[t].find ('>')
-					f= textList[t].find ('<')
-					chapid = 'chap-' + str(t)
-					sommaire = sommaire + "<a href='%s'>%s</a>" %( '#'+ chapid, textList[t][d:f])
-					textList[t] =" id='" + chapid +"'"+ textList[t]
-				sommaire = sommaire + '</section>'
-				self.text = '<h1'.join (textList)
-
-			else:
-				textList = self.text.split ('<h1')
-				textRange = range (1, len (textList))
-				for t in textRange:
-					d=1+ textList[t].find ('>')
-					f= textList[t].find ('<')
-					chapid = 'chap-' + str(t)
-					sommaire = sommaire + "<a href='%s'>%s</a>" %( '#'+ chapid, textList[t][d:f])
-					textList[t] =" id='" + chapid +"'"+ textList[t]
-				sommaire = sommaire + '</section>'
-				self.text = '<h1'.join (textList)
-			self.text = sommaire + self.text
-
-	def createSummary (self):
-		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
-			sommaire = "<section id='sommaire'>"
-			numero =1
-			textList = self.text.split ('<h1')
-			textRange = range (1, len (textList))
-			for t in textRange:
-				d=1+ textList[t].find ('>')
-				f= textList[t].find ('<')
-				chapid = 'chap-' + str(t)
-				sommaire = sommaire + "<a href='%s'>%s</a>" %( '#'+ chapid, textList[t][d:f])
-				textList[t] =" id='" + chapid +"'"+ textList[t]
-			sommaire = sommaire + '</section>'
-			self.text = '<h1'.join (textList)
-			self.text = sommaire + self.text
-
-	def imgToB64 (self):
-		if 'src=' in self.text:
-			self.text = htmlFct.imgToB64 (self.text)
-			self.text = self.text.replace ("src='data", "scr='data")
-			self.text = self.text.replace ('src="data', 'scr="data')
-			self.text = self.text.replace ("src='http", "scr='http")
-			self.text = self.text.replace ('src="http', 'scr="http')
-			if 'src=' in self.text:
-				textList = self.text.split ('src=')
-				self.textRange = range (1, len (textList))
-				for t in self.textRange:
-					f= textList[t].find (textList[t][0], 2)
-					if textList[t][f-4:f] not in '.bmp .png .gif .jpg': continue
-					imageName = textList[t][1:f]
-					d= self.path.rfind (os.sep)
-					pathTmp = self.path[:d]
-					while imageName[:3] == '../':
-						d= pathTmp.rfind (os.sep)
-						pathTmp = pathTmp[:d]
-						imageName = imageName[3]
-					if imageName[:2] == './': imageName = imageName[2:]
-					elif imageName[0] == '/': imageName = imageName[1:]
-					imageName = pathTmp + os.sep + imageName
-					imgStr = htmlFct.imgToB64One (imageName)
-					textList[t] = textList[t][0] + imgStr + textList[t][f:]
-				self.text = 'src='.join (textList)
-			self.text = self.text.replace ('scr=', 'src=')
-
 	def fromPath (self):
 		File.fromPath (self)
 		if self.path[-3:] == 'txt': self.type = 'txt'
@@ -456,68 +325,30 @@ class Article (File):
 	def read (self):
 		File.read (self)
 		metadata =[]
-		if self.type in 'xhtml':
-			textTmp = textFct.cleanHtml (self.text)
-			templateBis =""
-			if self.type == 'html': templateBis = textFct.cleanHtml (templateHtml)
-			else: templateBis = textFct.cleanHtml (templateXhtml)
-			metadata = textFct.fromModel (textTmp, templateBis)
-			self.subject = metadata[1].strip()
-			self.author = metadata[2].strip()
-			self.link = metadata[3].strip()
-			self.metaFromHtml (metadata[4].strip())
-			"""
-			if '</script>' in metadata[6]: print ('la page contient du code js, qui est peut-être modifié par la mise en forme')
-			self.text = metadata[6].strip()
-			"""
-			f= self.text.rfind ('</body>')
-			self.text = self.text[:f]
-			f= self.text.find ('<body')
-			f=1+ self.text.find ('>',f)
-			self.text = self.text[f:]
-		elif self.type == 'txt':
-			self.text = textFct.cleanText (self.text)
-			self.text = textFct.shape (self.text)
-			self.text = self.text.strip()
-			d= self.text.rfind ('\n======')
-			metaText = self.text[d:].lower()
-			metaText = metaText.replace (': ',':\t')
-			metaText = metaText +'\n'
-			self.text = self.text[:d]
-			metadata = textFct.fromModel (metaText, templateTextMeta)
-			self.subject = metadata[0]
-			self.author = metadata[1]
-			self.link = metadata[2]
-			if len (metadata) >3:
-				metaList = metadata[3].split ('\n')
-				for meta in metaList:
-					d= meta.find (':')
-					self.meta[meta[:d]] = meta[d+2:]
+		self.text = textFct.cleanText (self.text)
+		self.text = textFct.shape (self.text)
+		self.text = self.text.strip()
+		d= self.text.rfind ('\n======')
+		metaText = self.text[d:].lower()
+		metaText = metaText.replace (': ',':\t')
+		metaText = metaText +'\n'
+		self.text = self.text[:d]
+		metadata = textFct.fromModel (metaText, templateTextMeta)
+		self.subject = metadata[0]
+		self.author = metadata[1]
+		self.link = metadata[2]
+		if len (metadata) >3:
+			metaList = metadata[3].split ('\n')
+			for meta in metaList:
+				d= meta.find (':')
+				self.meta[meta[:d]] = meta[d+2:]
 
-	def write (self, independant=False):
+	def write (self):
 		self.title = self.title.lower()
-		if self.type in 'xhtml':
-			meta = self.metaToHtml()
-			self.text = textFct.cleanHtml (self.text)
-			# affichage des liens
-			self.replace ("<a ", " <a ")
-			self.text = textFct.simpleSpace (self.text)
-			self.replace ("> <", "><")
-			if self.type == 'html':
-				if independant:
-					if os.path.exists (pathCard): self.path = pathCard + self.title + '.html'
-					else: self.path = pathDesktop + self.title +" reader.html"
-					self.imgToB64()
-					self.text = htmlFct.cleanHtmlForWritting (self.text)
-				#	self.createSummary()
-					self.text = templateHtmlEreader % (self.title, self.subject, self.author, self.link, meta, self.text)
-				else: self.text = templateHtml % (self.title, self.subject, self.author, self.link, meta, self.text)
-			elif self.type == 'xhtml': self.text = templateXhtml % (self.title, self.subject, self.author, self.link, meta, self.text)
-		elif self.type == 'txt':
-			meta = self.metaToText()
-			self.text = textFct.cleanText (self.text)
-			self.text = textFct.shape (self.text, 'reset upper')
-			self.text = templateText % (self.text, self.subject, self.author, self.link, meta)
+		meta = self.metaToText()
+		self.text = textFct.cleanText (self.text)
+		self.text = textFct.shape (self.text, 'reset upper')
+		self.text = templateText % (self.text, self.subject, self.author, self.link, meta)
 		File.write (self, 'w')
 
 	def copy (self):

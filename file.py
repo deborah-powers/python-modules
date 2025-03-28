@@ -43,22 +43,22 @@ elif argv[2] == 'md':
 	page.toMarkdown()
 	page.write()
 elif argv[1][-5:] == '.html' and argv[2] == 'inde':
-	page = Article (argv[1])
+	page = Html (argv[1])
 	page.read()
+	page.toEreader()
 	page.write (True)
 elif argv[2] == 'conv':
 	page = None
 	if argv[1][-4:] == '.txt':
 		page = Article (argv[1])
 		page.read()
-		page = page.toHtml()
+		pageHtml = Html()
+		pageHtml.fromText (page)
+		pageHtml.write()
 	if argv[1][-4:] == 'html':
 		page = Html (argv[1])
 		page = page.toText()
-	if page:
-		independant = False
-		if nbArg >3 and argv[3]: independant = True
-		page.write (independant)
+		if page: page.write()
 elif nbArg >2 and argv[2] == 'comp':
 	fileA = File (argv[1])
 	fileA.read()
@@ -66,6 +66,7 @@ elif nbArg >2 and argv[2] == 'comp':
 	fileB.read()
 	fileA.comparer (fileB)
 elif nbArg >2:
+	# TODO: à refaire
 	filePerso = File (argv[1])
 	filePerso.read()
 	if 'clean' in argv:

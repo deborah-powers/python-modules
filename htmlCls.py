@@ -4,11 +4,13 @@ from os import remove
 import urllib as ul
 from urllib import request as urlRequest
 import codecs
+from fileLocal import pathDesktop, pathCard
 import textFct
 import htmlFct
 from fileCls import File, Article
 from fileTemplate import templateHtml
 from htmlToText import fromHtml
+from htmlFromText import toHtml
 import loggerFct as log
 
 listTags = htmlFct.listTagsIntern + ( 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th', 'tr', 'caption', 'label', 'button', 'textarea', 'figcaption' ) + htmlFct.listTagsContainer
@@ -114,10 +116,9 @@ def singleChild (text):
 			text = text[d:-1]
 			if '/' == text[-1]: text = text[:-1]
 			return text
-	elif tagStart[:5] != 'table' and tagStart[:2] not in ('tr', 'ul', 'ol', 'dl'):
-		if '<table' in text or '<tr' in text or '<th' in text or '<td' in text:
-			c= 1+ len (tagStart)
-			if text[c:c+2] in ('tr', 'th', 'td') or text[c:c+5] == 'table': tagStart = text[c:d]
+	elif tagStart[:5] != 'table' and tagStart[:2] not in ('a ', 'tr', 'ul', 'ol', 'dl'):
+		c= 1+ len (tagStart)
+		if text[c:c+2] in ('a ', 'tr', 'th', 'td') or text[c:c+5] == 'table': tagStart = text[c:d]
 		text = tagStart + text[d:f]
 		text = singleChild (text)
 		return text
@@ -461,7 +462,7 @@ class Html (Article):
 					text = text.replace ('<'+ line[:f] +" ", '$ ')
 
 	def setMetas (self):
-		if '<meta ' not in self.text: return
+		if '<meta ' not in self.text and '<link ' not in self.text: return
 		metaList = getAllByTag (self.text, 'meta')
 		self.meta ={}
 		for meta in metaList:
@@ -499,9 +500,16 @@ class Html (Article):
 				self.meta [name] = meta[d+1:f]
 
 	def getMetas (self):
-		metas =""
-		for meta in self.meta.keys(): metas = metas + "<meta name='%s' content='%s'/>" % (meta, self.meta[meta])
-		return metas
+		metaTemplate = "<meta name='%s' content='%s'/>"
+		styleTemplate = "<link rel='stylesheet' type='text/css' href='%s'/>"
+		scriptTemplate = "<script type='text/javascript' src='%s'></script>"
+		text =""
+		metaKeys = self.meta.keys()
+		for meta in metaKeys:
+			if meta not in 'style script subject author link': text = text + metaTemplate % (meta, self.meta[meta])
+		if 'style' in metaKeys: text = text + (styleTemplate % self.meta['style'])
+		if 'script' in metaKeys: text = text + (scriptTemplate % self.meta['script'])
+		return text
 
 	# ________________________ lire et écrire dans un fichier html ________________________
 
@@ -509,9 +517,7 @@ class Html (Article):
 		# if '</a>' in self.text or '<img' in self.text: return None
 		article = Article()
 		article.text = fromHtml (self.text)
-		if '</' in article.text:
-			d= article.text.find ('</')
-			return None
+		if '</' in article.text: return None
 		article.path = self.path.replace ('.html', '.txt')
 		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
 		article.type = 'txt'
@@ -519,14 +525,40 @@ class Html (Article):
 		article.subject = self.subject
 		article.author = self.author
 		article.link = self.link
-	#	article.autlink = self.autlink
 	#	if 'link' in self.meta.keys(): article.link = self.meta['link']
 		keys = self.meta.keys()
 		for key in keys: article.meta[key] = self.meta[key]
 		return article
 
+	def fromText (self, article):
+		self.text = toHtml (article.text)
+		self.title = article.title
+		self.path = article.path.replace ('.txt', '.html')
+		self.author = article.author
+		self.link = article.link
+		keys = self.meta.keys()
+		for key in keys: self.meta[key] = article.meta[key]
+
 	def read (self):
-		Article.read (self)
+		File.read (self)
+		self.cleanBody()
+
+	def read_va (self):
+		File.read (self)
+		metadata = textFct.fromModel (textTmp, templateHtml)
+		self.subject = metadata[1].strip()
+		self.author = metadata[2].strip()
+		self.link = metadata[3].strip()
+		self.metaFromHtml (metadata[4].strip())
+		"""
+		if '</script>' in metadata[6]: print ('la page contient du code js, qui est peut-être modifié par la mise en forme')
+		self.text = metadata[6].strip()
+		"""
+		f= self.text.rfind ('</body>')
+		self.text = self.text[:f]
+		f= self.text.find ('<body')
+		f=1+ self.text.find ('>',f)
+		self.text = self.text[f:]
 		self.cleanBody()
 
 	def addIndentation (self):
@@ -565,16 +597,103 @@ class Html (Article):
 		self.replace ('> ', '>')
 		self.replace (' <', '<')
 
-	def write (self, mode='w'):
+	def write (self, independant=False):
 		# self.text ne contient plus que le corps du body
-	#	self.meta['link'] = self.link
 		self.toPath()
-		meta = self.metaToHtml()
+		meta = self.getMetas()
 		self.title = cleanTitle (self.title)
+		self.text = htmlFct.cleanHtmlForWritting (self.text)
 		self.text = templateHtml % (self.title, self.subject, self.author, self.link, meta, self.text)
-	#	self.text = templateHtml % (self.title, self.getMetas(), self.text)
 		self.addIndentation()
-		File.write (self, mode)
+		File.write (self, 'w')
+
+	def toEreader (self):
+		if os.path.exists (pathCard): self.path = pathCard + self.title + '.html'
+		else:
+			self.title = self.title +" reader"
+			self.path = pathDesktop + self.title +" reader.html"
+		self.imgToB64()
+		self.text = htmlFct.cleanHtmlForWritting (self.text)
+	#	self.createSummary()
+		self.text = templateHtmlEreader % (self.title, self.subject, self.author, self.link, meta, self.text)
+		self.text = templateHtml % (self.title, self.subject, self.author, self.link, meta, self.text)
+		File.write (self, 'w')
+
+	def createSummary (self):
+		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
+			sommaire = "<section id='sommaire'>"
+			numero =1
+			textList = self.text.split ('<h1')
+			textRange = range (1, len (textList))
+			for t in textRange:
+				d=1+ textList[t].find ('>')
+				f= textList[t].find ('<')
+				chapid = 'chap-' + str(t)
+				sommaire = sommaire + "<a href='%s'>%s</a>" %( '#'+ chapid, textList[t][d:f])
+				textList[t] =" id='" + chapid +"'"+ textList[t]
+			sommaire = sommaire + '</section>'
+			self.text = '<h1'.join (textList)
+			self.text = sommaire + self.text
+
+	def createSummary_vb (self):
+		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
+			sommaire = "<section id='sommaire'>"
+			numero =1
+			if '</h2>' in self.text:
+				numeroSub =1
+				self.text = self.text.replace ('<h1', '<hxx1')
+				self.text = self.text.replace ('<h2', '<hxx2')
+				textList = self.text.split ('<hxx')
+				textRange = range (1, len (textList))
+				for t in textRange:
+					d=1+ textList[t].find ('>')
+					f= textList[t].find ('<')
+					chapid = 'chap-' + str(t)
+					sommaire = sommaire + "<a href='%s'>%s</a>" %( '#'+ chapid, textList[t][d:f])
+					textList[t] =" id='" + chapid +"'"+ textList[t]
+				sommaire = sommaire + '</section>'
+				self.text = '<h1'.join (textList)
+
+			else:
+				textList = self.text.split ('<h1')
+				textRange = range (1, len (textList))
+				for t in textRange:
+					d=1+ textList[t].find ('>')
+					f= textList[t].find ('<')
+					chapid = 'chap-' + str(t)
+					sommaire = sommaire + "<a href='%s'>%s</a>" %( '#'+ chapid, textList[t][d:f])
+					textList[t] =" id='" + chapid +"'"+ textList[t]
+				sommaire = sommaire + '</section>'
+				self.text = '<h1'.join (textList)
+			self.text = sommaire + self.text
+
+	def imgToB64 (self):
+		if 'src=' in self.text:
+			self.text = htmlFct.imgToB64 (self.text)
+			self.text = self.text.replace ("src='data", "scr='data")
+			self.text = self.text.replace ('src="data', 'scr="data')
+			self.text = self.text.replace ("src='http", "scr='http")
+			self.text = self.text.replace ('src="http', 'scr="http')
+			if 'src=' in self.text:
+				textList = self.text.split ('src=')
+				self.textRange = range (1, len (textList))
+				for t in self.textRange:
+					f= textList[t].find (textList[t][0], 2)
+					if textList[t][f-4:f] not in '.bmp .png .gif .jpg': continue
+					imageName = textList[t][1:f]
+					d= self.path.rfind (os.sep)
+					pathTmp = self.path[:d]
+					while imageName[:3] == '../':
+						d= pathTmp.rfind (os.sep)
+						pathTmp = pathTmp[:d]
+						imageName = imageName[3]
+					if imageName[:2] == './': imageName = imageName[2:]
+					elif imageName[0] == '/': imageName = imageName[1:]
+					imageName = pathTmp + os.sep + imageName
+					imgStr = htmlFct.imgToB64One (imageName)
+					textList[t] = textList[t][0] + imgStr + textList[t][f:]
+				self.text = 'src='.join (textList)
+			self.text = self.text.replace ('scr=', 'src=')
 
 	# ________________________ texte du web ________________________
 
@@ -822,7 +941,7 @@ class Html (Article):
 		self.setByHtml()
 		self.setMetas()
 		self.setTitle()
-		self.delScript()
 		self.setByBody()
+		self.delScript()
 		self.findTagsLocals()
 		self.delEmptyTags()
