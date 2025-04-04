@@ -16,17 +16,6 @@ import loggerFct as log
 listTags = htmlFct.listTagsIntern + ( 'a', 'p', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th', 'tr', 'caption', 'label', 'button', 'textarea', 'figcaption' ) + htmlFct.listTagsContainer
 listTagsSelfClosing =( 'img', 'input', 'hr', 'br', 'meta', 'link', 'base' )
 listAttributes =( 'href', 'src', 'alt', 'colspan', 'rowspan', 'value', 'type', 'name', 'id', 'class', 'method', 'content', 'onclick', 'ondbclick' )
-templateHtmlBis = """<!DOCTYPE html><html><head>
-	<title>%s</title>
-	<base target='_blank'>
-	<meta charset='utf-8'/>
-	<meta name='viewport' content='width=device-width, initial-scale=1'/>
-	%s
-	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
-	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
-</head><body>
-%s
-</body></html>"""
 listTagsLocal =[]
 
 # ________________________ auxilières ________________________
@@ -466,7 +455,7 @@ class Html (Article):
 		metaList = getAllByTag (self.text, 'meta')
 		self.meta ={}
 		for meta in metaList:
-			if 'csrf-' in meta or 'content=' not in meta: continue
+			if 'csrf-' in meta or 'content=' not in meta or 'viewport' in meta: continue
 			elif 'og:url' in meta:
 				d=8+ meta.find ('content=')
 				f= meta.find (meta[d], d+1)
@@ -498,17 +487,25 @@ class Html (Article):
 				d=5+ meta.find ('href=')
 				f= meta.find (meta[d], d+1)
 				self.meta [name] = meta[d+1:f]
+		if self.meta['link']: self.link = self.meta.pop ('link')
+		elif self.meta['lien']: self.link = self.meta.pop ('lien')
+		if self.meta['subject']: self.subject = self.meta.pop ('subject')
+		elif self.meta['sujet']: self.subject = self.meta.pop ('sujet')
+		if self.meta['author']: self.author = self.meta.pop ('author')
+		elif self.meta['auteur']: self.author = self.meta.pop ('auteur')
 
 	def getMetas (self):
 		metaTemplate = "<meta name='%s' content='%s'/>"
-		styleTemplate = "<link rel='stylesheet' type='text/css' href='%s'/>"
+		cssTemplate = "<link rel='stylesheet' type='text/css' href='%s'/>"
 		scriptTemplate = "<script type='text/javascript' src='%s'></script>"
+		styleTemplate = "<style type='text/css'>%s</style>"
 		text =""
 		metaKeys = self.meta.keys()
 		for meta in metaKeys:
 			if meta not in 'style script subject author link': text = text + metaTemplate % (meta, self.meta[meta])
-		if 'style' in metaKeys: text = text + (styleTemplate % self.meta['style'])
-		if 'script' in metaKeys: text = text + (scriptTemplate % self.meta['script'])
+		if 'style' in metaKeys:
+			text = text + (styleTemplate % self.meta.pop ('style'))
+		if 'script' in metaKeys: text = text + (scriptTemplate % self.meta.pop ('script'))
 		return text
 
 	# ________________________ lire et écrire dans un fichier html ________________________
@@ -516,6 +513,8 @@ class Html (Article):
 	def toText (self):
 		# if '</a>' in self.text or '<img' in self.text: return None
 		article = Article()
+		self.replace (" class='arrow'>", '>--> ')
+		self.delAttributes()
 		article.text = fromHtml (self.text)
 		if '</' in article.text: return None
 		article.path = self.path.replace ('.html', '.txt')
@@ -536,7 +535,7 @@ class Html (Article):
 		self.path = article.path.replace ('.txt', '.html')
 		self.author = article.author
 		self.link = article.link
-		keys = self.meta.keys()
+		keys = article.meta.keys()
 		for key in keys: self.meta[key] = article.meta[key]
 
 	def read (self):

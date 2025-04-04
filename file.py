@@ -57,6 +57,7 @@ elif argv[2] == 'conv':
 		pageHtml.write()
 	if argv[1][-4:] == 'html':
 		page = Html (argv[1])
+		page.read()
 		page = page.toText()
 		if page: page.write()
 elif nbArg >2 and argv[2] == 'comp':

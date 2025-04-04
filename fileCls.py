@@ -311,6 +311,23 @@ class Article (File):
 		return text
 
 	def metaFromText (self, text):
+		if 'style:\n' in text:
+			text = text +'\n'
+			d= text.find ('style:\n')
+			f=1+ text.rfind ('}\n')
+			if 'script:\n' in text[:f]:
+				f= text.rfind ('script:\n')
+				f=1+ text[:f].rfind ('}\n')
+			self.meta['style'] = text[d+7:f]
+			text = text[:d] + text[f:].strip()
+		if 'script:\n' in text:
+			text = text +'\n'
+			d= text.find ('script:\n')
+			e=1+ text.rfind ('}\n')
+			f=1+ text.rfind (';\n')
+			if e>f: f=e
+			self.meta['script'] = text[d+8:f]
+			text = text[:d] + text[f:].strip()
 		textList = text.split ('\n')
 		for line in textList:
 			d= line.find (':\t')
@@ -338,10 +355,13 @@ class Article (File):
 		self.author = metadata[1]
 		self.link = metadata[2]
 		if len (metadata) >3:
+			self.metaFromText (metadata[3])
+			"""
 			metaList = metadata[3].split ('\n')
 			for meta in metaList:
 				d= meta.find (':')
 				self.meta[meta[:d]] = meta[d+2:]
+			"""
 
 	def write (self):
 		self.title = self.title.lower()
