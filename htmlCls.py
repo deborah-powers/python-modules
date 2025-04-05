@@ -497,14 +497,16 @@ class Html (Article):
 	def getMetas (self):
 		metaTemplate = "<meta name='%s' content='%s'/>"
 		cssTemplate = "<link rel='stylesheet' type='text/css' href='%s'/>"
-		scriptTemplate = "<script type='text/javascript' src='%s'></script>"
+		jsTemplate = "<script type='text/javascript' src='%s'></script>"
 		styleTemplate = "<style type='text/css'>%s</style>"
+		scriptTemplate = "<script type='text/javascript'>%s</script>"
 		text =""
 		metaKeys = self.meta.keys()
 		for meta in metaKeys:
-			if meta not in 'style script subject author link': text = text + metaTemplate % (meta, self.meta[meta])
-		if 'style' in metaKeys:
-			text = text + (styleTemplate % self.meta.pop ('style'))
+			if meta not in 'css js style script subject author link': text = text + metaTemplate % (meta, self.meta[meta])
+		if 'css' in metaKeys: text = text + (cssTemplate % self.meta.pop ('css'))
+		if 'js' in metaKeys: text = text + (jsTemplate % self.meta.pop ('js'))
+		if 'style' in metaKeys: text = text + (styleTemplate % self.meta.pop ('style'))
 		if 'script' in metaKeys: text = text + (scriptTemplate % self.meta.pop ('script'))
 		return text
 
