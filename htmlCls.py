@@ -487,12 +487,12 @@ class Html (Article):
 				d=5+ meta.find ('href=')
 				f= meta.find (meta[d], d+1)
 				self.meta [name] = meta[d+1:f]
-		if self.meta['link']: self.link = self.meta.pop ('link')
-		elif self.meta['lien']: self.link = self.meta.pop ('lien')
-		if self.meta['subject']: self.subject = self.meta.pop ('subject')
-		elif self.meta['sujet']: self.subject = self.meta.pop ('sujet')
-		if self.meta['author']: self.author = self.meta.pop ('author')
-		elif self.meta['auteur']: self.author = self.meta.pop ('auteur')
+		if 'link' in self.meta: self.link = self.meta.pop ('link')
+		elif 'lien' in self.meta: self.link = self.meta.pop ('lien')
+		if 'subject' in self.meta: self.subject = self.meta.pop ('subject')
+		elif 'sujet' in self.meta: self.subject = self.meta.pop ('sujet')
+		if 'author' in self.meta: self.author = self.meta.pop ('author')
+		elif 'auteur' in self.meta: self.author = self.meta.pop ('auteur')
 
 	def getMetas (self):
 		metaTemplate = "<meta name='%s' content='%s'/>"
