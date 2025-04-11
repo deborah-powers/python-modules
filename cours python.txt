@@ -146,6 +146,9 @@ Funcnbargvariable (*num_collection)
 Add_two = lambda nb: Nb + 2
 Check_if_a_grade = lambda grade: 'got an a !' if grade >= 90 else 'did not get an a.'
 
+from math import *
+hypothenuse = lambda deg: sqrt (cos (radians (deg)) * cos (radians (deg)) + sin (radians (deg)) * sin (radians (deg)))
+
 ============ les fonctions d'ordre suppérieur ============
 
 les fonctions sont en fait des objets. ont peut les stoquer dans des listes, dans des variables, etc.
