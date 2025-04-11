@@ -23,6 +23,7 @@ class Fanfic (htmlCls.Html, Article):
 		Article.__init__ (self)
 		htmlCls.Html.__init__ (self, url)
 		if subject: self.subject = subject
+		if self.path[:4] != 'http': self.read()
 		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link or url == 'b/aooo.html':
 			self.fromAooo()
 			self.fromAoooSpe()
