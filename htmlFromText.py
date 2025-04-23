@@ -117,7 +117,6 @@ def toDefList (text):
 		else: line = '<tr>'+ line
 		textList[t] = line + textList[t][f:]
 	text ="".join (textList)
-	d= text.find ('<dt>')
 	text = text.replace ('<table><dt>', '<dl><dt>')
 	text = text.replace ('</dd></table>', '</dd></dl>')
 	return text
