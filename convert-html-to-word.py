@@ -1,10 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from imageCls import ImageFolder
-import loggerFct as log
+import pypandoc
 
-imgFolderName = 'i/merge mansion'
-imgFolder = ImageFolder (imgFolderName)
-imgFolder.get()
-imgFolder.open()
-imgFolder.ratio()
+fileWord = 'C:\\Users\\deborah.powers\\Desktop\\Portail Outils de gestion de projet avec ANCT.odt'
+fileHtml = 'C:\\Users\\deborah.powers\\Desktop\\gestion de projet.html'
+output = pypandoc.convert_file (fileWord, 'html', outputfile=fileHtml)
