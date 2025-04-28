@@ -278,4 +278,5 @@ def toHtml (text):
 	text = cleanHtml (text)
 	text = text.replace (' </', '</')
 	text = text.replace ('<p>.</p>', '<br/>')
+	text = text.replace ('<p>-->', "<p class='arrow'>")
 	return text
