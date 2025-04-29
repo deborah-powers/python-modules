@@ -46,7 +46,6 @@ elif argv[1][-5:] == '.html' and argv[2] == 'inde':
 	page = Html (argv[1])
 	page.read()
 	page.toEreader()
-	page.write (True)
 elif argv[2] == 'conv':
 	page = None
 	if argv[1][-4:] == '.txt':

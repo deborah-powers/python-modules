@@ -1,6 +1,6 @@
 #!/usr/bin/python3.11
 # -*- coding: utf-8 -*-
-from os import remove
+import os
 import urllib as ul
 from urllib import request as urlRequest
 import codecs
@@ -8,7 +8,7 @@ from fileLocal import pathDesktop, pathCard
 import textFct
 import htmlFct
 from fileCls import File, Article
-from fileTemplate import templateHtml
+from fileTemplate import templateHtml, templateHtmlEreader
 from htmlToText import fromHtml
 from htmlFromText import toHtml
 import loggerFct as log
@@ -535,6 +535,7 @@ class Html (Article):
 		self.text = toHtml (article.text)
 		self.title = article.title
 		self.path = article.path.replace ('.txt', '.html')
+		self.subject = article.subject
 		self.author = article.author
 		self.link = article.link
 		keys = article.meta.keys()
@@ -616,8 +617,8 @@ class Html (Article):
 		self.imgToB64()
 		self.text = htmlFct.cleanHtmlForWritting (self.text)
 	#	self.createSummary()
+		meta = self.getMetas()
 		self.text = templateHtmlEreader % (self.title, self.subject, self.author, self.link, meta, self.text)
-		self.text = templateHtml % (self.title, self.subject, self.author, self.link, meta, self.text)
 		File.write (self, 'w')
 
 	def createSummary (self):
@@ -725,7 +726,7 @@ class Html (Article):
 			return False
 		else:
 			self.read()
-			remove (self.path.replace ('\t', 'tmp'))
+			os.remove (self.path.replace ('\t', 'tmp'))
 			return True
 
 	def fromUrl (self, params=None):
