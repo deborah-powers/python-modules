@@ -42,10 +42,16 @@ elif argv[2] == 'md':
 	page.read()
 	page.toMarkdown()
 	page.write()
-elif argv[1][-5:] == '.html' and argv[2] == 'inde':
-	page = Html (argv[1])
-	page.read()
-	page.toEreader()
+elif argv[2] == 'inde':
+	pageHtml = Html()
+	if argv[1][-5:] == '.html':
+		pageHtml = Html (argv[1])
+		pageHtml.read()
+	elif argv[1][-4:] == '.txt':
+		page = Article (argv[1])
+		page.read()
+		pageHtml.fromText (page)
+	pageHtml.toEreader()
 elif argv[2] == 'conv':
 	page = None
 	if argv[1][-4:] == '.txt':
