@@ -17,13 +17,13 @@ l'url peut correspondre à une page ou un fichier local
 
 # setattr (htmlCls.HtmlTag, 'uniscielImg', uniscielImg)
 
-class Fanfic (htmlCls.Html, Article):
+class Fanfic (htmlCls.Html):
 	def __init__ (self, url, subject=None):
 		if url in 'aooo unisciel recette wiki': url = 'b/' + url + '.html'
-		Article.__init__ (self)
+		elif url[:4] != 'http': self.path = url
 		htmlCls.Html.__init__ (self, url)
 		if subject: self.subject = subject
-		if self.path[:4] != 'http': self.read()
+		if url[:4] != 'http': self.read()
 		if 'https://archiveofourown.org/' in self.text or 'https://archiveofourown.org/' in self.link or url == 'b/aooo.html':
 			self.fromAooo()
 			self.fromAoooSpe()
@@ -284,9 +284,14 @@ class Fanfic (htmlCls.Html, Article):
 		# les auteurs
 		tmpText = self.getOneById ('ws-data')
 		tmpText = htmlCls.getInnerHtml (tmpText)
-		authlist = tmpText.split ('/wiki/author:')
+		authlist =[]
+		self.meta = { 'lien-auteur': '/wiki/author:' }
+		if '/wiki/auteur:' in tmpText:
+			authlist = tmpText.split ('/wiki/auteur:')
+			self.meta['lien-auteur'] = '/wiki/auteur:'
+		else: authlist = tmpText.split ('/wiki/author:')
 		d= authlist[1].find (' ') -1
-		self.meta = { 'lien-auteur': authlist[1][:d] }
+		self.meta['lien-auteur'] = self.meta['lien-auteur'] + authlist[1][:d]
 		d=1+ authlist[1].find ('>',d)
 		f= authlist[1].find ('<',d)
 		self.author = authlist[1][d:f]
