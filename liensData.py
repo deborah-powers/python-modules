@@ -4,13 +4,16 @@
 import json
 from fileCls import File
 from fileLocal import pathLienData
+import loggerFct as log
 
 jsonTitleB = 'r/Downloads\\liens-data.js'
 jsonTitleC = 'b/liens-data.js'
 
 jsonFileA = File (pathLienData)
+jsonFileA.read()
 jsonDataA = jsonFileA.readJson()
 jsonFileB = File (jsonTitleB)
+jsonFileB.read()
 jsonDataB = jsonFileB.readJson()
 
 modif = False
