@@ -253,6 +253,77 @@ fkz,fzkl,fam; v adbazjkbdafaef"""
 		print (self.text[:200])
 		self.write()
 
+class FileCss (File):
+	def __init__ (self, file =None):
+		File.__init__ (self, file)
+		self.blocs =[]
+
+	def cleanForStandarding (self):
+		while "  " in self.text: self.text = self.text.replace ("  "," ")
+		marquers ='{}:;'
+		for mark in marquers:
+			self.text = self.text.replace (" "+ mark, mark)
+			self.text = self.text.replace (mark +" ", mark)
+
+	def read (self):
+		File.read (self)
+		self.text = self.text.replace ('\n'," ")
+		self.text = self.text.replace ('\t'," ")
+		self.text = self.text.replace ('\r'," ")
+		self.cleanForStandarding()
+		# supprimer les commentaires
+		if '/*' in self.text:
+			textList = self.text.split ('/*')
+			rangeList = range (1, len (textList))
+			for c in rangeList:
+				f=2+ textList[c].find ('*/')
+				textList[c] = textList[c][f:]
+			self.text = "".join (textList)
+			self.cleanForStandarding()
+		# repérer les média queries
+		if '@media' in self.text:
+			textList = self.text.split ('@media')
+			rangeList = range (1, len (textList))
+			for c in rangeList:
+				d= textList[c].find ('}')
+				nOpening = textList[c][:d].count ('{')
+				nClosing =1
+				while nOpening > nClosing:
+					d= textList[c].find ('}',d+1)
+					nOpening = textList[c][:d].count ('{')
+					nClosing =1+ textList[c][:d].count ('}')
+				text = textList[c][:d].replace ('}',']]')
+				text = text.replace ('{','[[')
+				text = text.replace ('[[','{',1)
+				textList[c] = text + textList[c][d:]
+			self.text = '@media'.join (textList)
+			self.cleanForStandarding()
+		# créer les blocks
+		textList = self.text.split ('}')
+		trash = textList.pop (-1)
+		rangeList = range (len (textList))
+		for c in rangeList:
+			textList[c] = textList[c].strip()
+			textList[c] = textList[c].split ('{')
+			if 2!= len (textList[c]): log.message (textList[c])
+			textList[c][0] = textList[c][0].strip()
+			textList[c][1] = textList[c][1].strip()
+			textList[c][1] = textList[c][1].replace ('[[','{ ')
+			textList[c][1] = textList[c][1].replace (']]','}')
+			self.blocs.append (( textList[c][0], textList[c][1] ))
+
+	def toSelection (self, tagList=[]):
+		text =""
+		for bloc in self.blocs:
+			if '*' in bloc[0] or ':root' in bloc[0] or 'body' in bloc[0] or 'html' in bloc[0]:
+				text = text + bloc[0] +' { '+ bloc[1].replace (':', ': ') +'}\n'
+		for tag in tagList:
+			for bloc in self.blocs:
+				if tag in bloc[0] and bloc[0] not in text:
+					text = text + bloc[0] +' { '+ bloc[1].replace (':', ': ') +'}\n'
+		text = text.replace (';', '; ')
+		return text
+
 class Article (File):
 	# classe pour les fichiers txt et html
 	def __init__ (self, file =None):

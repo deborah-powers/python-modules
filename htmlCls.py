@@ -7,7 +7,7 @@ import codecs
 from fileLocal import pathDesktop, pathCard
 import textFct
 import htmlFct
-from fileCls import File, Article
+from fileCls import File, Article, FileCss
 from fileTemplate import templateHtml, templateHtmlEreader
 from htmlToText import fromHtml
 from htmlFromText import toHtml
@@ -613,13 +613,27 @@ class Html (Article):
 		if os.path.exists (pathCard): self.path = pathCard + self.title + '.html'
 		else:
 			self.title = self.title +" reader"
-			self.path = pathDesktop + self.title +" reader.html"
+			self.path = pathDesktop + self.title +".html"
 		self.imgToB64()
 		self.text = htmlFct.cleanHtmlForWritting (self.text)
 	#	self.createSummary()
 		meta = self.getMetas()
 		self.text = templateHtmlEreader % (self.title, self.subject, self.author, self.link, meta, self.text)
 		File.write (self, 'w')
+
+	def getCssFromFileForEreader (self):
+		tagList =[]
+		for tag in listTags:
+			if len (tag) >2 and tag +'>' in self.text: tagList.append (tag)
+		for tag in listTagsSelfClosing:
+			if len (tag) >2 and (tag +'>' in self.text or tag +'/>' in self.text or tag +' />' in self.text): tagList.append (tag)
+		for tag in listTagsLocal:
+			if len (tag) >2 and tag +'>' in self.text: tagList.append (tag)
+		fileCss = FileCss ('s/library-css\\structure.css')
+		fileCss.read()
+		# dimensions de ma liseuse kobo aura
+		style = "\n<style type='text/css' media='(width: 295px) and (height: 380px)'>\n" + fileCss.toSelection (tagList) + '</style>'
+		return style
 
 	def createSummary (self):
 		if '</h1>' in self.text and "<section id='sommaire'>" not in self.text and self.text.count ('</h1>') >4:
