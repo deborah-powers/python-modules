@@ -3,6 +3,7 @@
 import os
 import codecs
 import json
+from urllib import request as urlRequest
 import listFct
 import textFct
 import htmlFct
@@ -14,6 +15,66 @@ import loggerFct as log
 dateFormatFull = '%Y/%m/%d %H:%M:%S'
 dateFormatDay = '%Y-%m-%d'
 dateFormatHour = dateFormatDay + '-%H-%M'
+
+# ------ fonctions basiques ------
+
+def decodeFileContent (textBrut):
+	tmpByte = textBrut.read()
+	encodingList = ('utf-8', 'ascii', 'ISO-8859-1')
+	text =""
+	for encoding in encodingList:
+		try: text = codecs.decode (tmpByte, encoding=encoding)
+		except UnicodeDecodeError: pass
+		else: break
+	if not text:
+		for encoding in encodingList:
+			try: text = codecs.decode (tmpByte, encoding=encoding, errors='ignore')
+			except UnicodeDecodeError: pass
+			else: break
+	textBrut.close()
+	return text
+
+def fromFile (fileName):
+	if not os.path.exists (fileName):
+		print ("ce fichier n'existe pas:", fileName)
+		return ""
+	else:
+		textBrut = open (fileName, 'rb')
+		text = decodeFileContent (textBrut)
+		return text
+
+def toFile (fileName, text, mode='w'):
+	if not text:
+		print ('rien a ecrire pour:', fileName)
+		return
+	d=1+ fileName.rfind (os.sep)
+	title = fileName[d:]
+	chars = '/\\\t\n><';
+	toWrite = True
+	for c in chars:
+		if c in title: toWrite = False
+	if toWrite:
+		if mode == 'a': text = '\n'+ text
+		textBrut = open (fileName, mode +'b')
+		textBrut.write (text.encode ('utf-8'))
+		textBrut.close()
+	else: print ('le titre du fichier est mal formé', title)
+
+def fromUrl (url):
+	text =""
+	myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
+	try:
+		textBrut = urlRequest.urlopen (myRequest, paramsUrl)
+		text = decodeFileContent (textBrut)
+	except Exception as e: print (e)
+	if text:
+		try: urlRequest.urlretrieve (url, 'tmp.txt')
+		except Exception as e: print (e)
+		else:
+			textBrut = open ('tmp.txt', 'rb')
+			text = decodeFileContent (textBrut)
+			os.remove ('tmp.txt')
+	else: print ('la récupération à échoué, impossible de récupérer les données pour\n' + url)
 
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")
@@ -78,37 +139,12 @@ class File():
 	def read (self):
 		self.toPath()
 		if not os.path.exists (self.path): return
-		textBrut = open (self.path, 'rb')
-		tmpByte = textBrut.read()
-		encodingList = ('utf-8', 'ascii', 'ISO-8859-1')
-		text =""
-		for encoding in encodingList:
-			try: text = codecs.decode (tmpByte, encoding=encoding)
-			except UnicodeDecodeError: pass
-			else: break
-		textBrut.close()
-		if text: self.text = text
+		self.text = fromFile (self.path)
 		self.fromPath()
 
 	def write (self, mode='w'):
-		# pas de texte
-		if not self.text:
-			print ('rien a ecrire pour:', self.title)
-			return
-		chars = '/\\\t\n><'; c=0
-		while chars != 'error' and c<6:
-			if chars[c] in self.title:
-				print ('le fichier est mal formé:', self.title [:100])
-				print (c, chars[c])
-				chars = 'error'
-			c+=1
-		if chars != 'error':
-			self.toPath()
-			if mode == 'a' and os.path.isfile (self.path): self.text ='\n'+ self.text
-			# ouvrir le fichier et ecrire le texte
-			textBrut = open (self.path, mode +'b')
-			textBrut.write (self.text.encode ('utf-8'))
-			textBrut.close()
+		self.toPath()
+		toFile (self.path, self.text, mode)
 
 	def copy (self):
 		newFile = File (self.path)

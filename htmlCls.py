@@ -305,6 +305,7 @@ class Html (Article):
 		self.link =""
 
 		if file and file[:4] == 'http':
+			file = file.replace ('!', '&')
 			self.link = file
 			self.path = 'b/tmp.html'
 			self.fromPath()

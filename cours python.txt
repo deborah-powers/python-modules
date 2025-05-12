@@ -303,6 +303,26 @@ https://developers.google.com/photos/picker/guides/get-started-picker?hl=fr
 
 les scopes: https://developers.google.com/identity/protocols/oauth2/scopes
 
+============ Récupérer les fichiers de mon drive ============
+
+https://developers.google.com/workspace/drive/api/quickstart/python
+
+mon profil de développeuse est actif et associé au compte contenant mon drive.
+créer le projet drive-deborah
+https://console.cloud.google.com/apis/enableflow?apiid=drive.googleapis.com&inv=1&invt=AbxL8Q&project=drive-deborah
+Activer l'api drive
+configurer l'écran de consentement
+https://console.cloud.google.com/auth/branding?inv=1&invt=AbxL8Q&project=drive-deborah
+créer un identifiant ID clients OAuth 2.0
+https://console.cloud.google.com/apis/credentials?inv=1&invt=AbxL8Q&project=drive-deborah
+application de bureau
+dans audience, entrer mes utilisateurs de test. mes adresses de gmail.
+créer le fichier python, fromDrive.py
+
+documentation
+https://developers.google.com/resources/api-libraries/documentation/drive/v3/python/latest/index.html
+https://developers.google.com/workspace/drive/api/guides/search-files
+
 ============ Récupérer les éléments de mes calendriers google ============
 
 https://developers.google.com/calendar/api/quickstart/python
