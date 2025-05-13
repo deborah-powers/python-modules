@@ -62,12 +62,14 @@ def toFile (fileName, text, mode='w'):
 
 def fromUrl (url):
 	text =""
-	myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
 	try:
-		textBrut = urlRequest.urlopen (myRequest, paramsUrl)
+		myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
+		textBrut = urlRequest.urlopen (myRequest)
 		text = decodeFileContent (textBrut)
-	except Exception as e: print (e)
-	if text:
+	except Exception as e:
+		text =""
+		print (e)
+	if not text:
 		try: urlRequest.urlretrieve (url, 'tmp.txt')
 		except Exception as e: print (e)
 		else:
@@ -75,6 +77,7 @@ def fromUrl (url):
 			text = decodeFileContent (textBrut)
 			os.remove ('tmp.txt')
 	else: print ('la récupération à échoué, impossible de récupérer les données pour\n' + url)
+	return text
 
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")

@@ -317,16 +317,26 @@ créer un identifiant ID clients OAuth 2.0
 https://console.cloud.google.com/apis/credentials?inv=1&invt=AbxL8Q&project=drive-deborah
 application de bureau
 dans audience, entrer mes utilisateurs de test. mes adresses de gmail.
+si besoin, installer les librairies python pour google.
+pip install --upgrade google-api-python-client
+pip install --upgrade google-auth-oauthlib
 créer le fichier python, fromDrive.py
 
-documentation
+*** documentation ***
 https://developers.google.com/resources/api-libraries/documentation/drive/v3/python/latest/index.html
 https://developers.google.com/workspace/drive/api/guides/search-files
+
+*** erreurs ***
+
+code: 403
+Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API
+service = build (appli, 'v3', credentials=creds, client_options={ 'quota_project_id': appli-id })
 
 ============ Récupérer les éléments de mes calendriers google ============
 
 https://developers.google.com/calendar/api/quickstart/python
-Dans google, créer mon profil de développeuse. Vérifier que le profil est associé au compte contenant le calendrier.
+Dans google, créer mon profil de développeuse.
+Vérifier que le profil est associé au compte contenant le calendrier.
 https://developers.google.com/profile/u/116171585149691769782?hl=fr&authuser=2&utm_source=developers.google.com
 Activer l'api google calendar
 https://console.cloud.google.com/projectselector2/apis/enableflow?apiid=calendar-json.googleapis.com&hl=fr&pli=1&supportedpurview=project
@@ -368,9 +378,10 @@ https://console.cloud.google.com/apis/credentials?hl=fr&authuser=2&project=calen
 ************ Erreurs ************
 
 Modulenotfounderror: No module named 'googleapiclient'
-Pip install --upgrade google-api-python-client
+pip install --upgrade google-api-python-client
 Modulenotfounderror: No module named 'google_auth_oauthlib'
-Pip install google-auth-oauthlib
+pip install --upgrade google-api-python-client
+pip install --upgrade google-auth-oauthlib
 "message": "api keys are not supported by this api. Expected oauth2 access token or other authentication credentials that assert a principal. See https://cloud.google.com/docs/authentication",
 https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t2%3a31%3a00z&alt=json
 Error
@@ -392,5 +403,5 @@ Deborah@deborah-thinkpad-t420: ~/python$
 https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4@group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t2%3a31%3a00z&alt=json
 https://www.googleapis.com/calendar/v3/calendars/33akjnknr3mp1oletdkm8tdjog@group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t3%3a11%3a00z&alt=json
 Modulenotfounderror: No module named 'googleapiclient'
-Pip install google-api-python-client
-Pip install google-auth-oauthlib
+pip install google-api-python-client
+pip install google-auth-oauthlib
