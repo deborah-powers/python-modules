@@ -18,11 +18,11 @@ def setService (appli, scopes):
 		print ("impossible de récupérer les authentifications, aucun fichier d'authentification n'existe")
 		return None
 	elif exists (fileToken): creds = Credentials.from_authorized_user_file (fileToken, scopes)
-	if not creds and exists (fileCreds):
+	if exists (fileCreds) and (not creds or not creds.valid):
 		flow = InstalledAppFlow.from_client_secrets_file (fileCreds, scopes)
 		creds = flow.run_local_server (port=0)
 		with open (fileToken, 'w') as token: token.write (creds.to_json())
-	if creds and not creds.valid:
+	if not creds or not creds.valid:
 		try:
 			creds.refresh (Request())
 			with open (fileToken, 'w') as token: token.write (creds.to_json())
