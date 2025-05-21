@@ -9,7 +9,7 @@ from textFct import *
 from fileLocal import pathRoot
 import loggerFct as log
 
-listTagsContainer = ( 'ul', 'ol', 'dl', 'table', 'nav', 'div', 'fieldset', 'form', 'figure', 'math', 'section', 'article', 'body', 'header', 'footer', 'main' )
+listTagsContainer =( 'ul', 'ol', 'dl', 'table', 'nav', 'div', 'fieldset', 'form', 'figure', 'math', 'section', 'article', 'body', 'header', 'footer', 'main' )
 listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'thead', 'tbody' )
 tagHtml =(
 	('\n<h1>', '\n== '), ('\n<h2>', '\n** '), ('\n<h3>', '\n-- '), ('\n<h4>', '\n__ '), ('\n<h5>', '\n## '), ('\n<h6>', '\n++ '),
@@ -19,15 +19,15 @@ tagHtml =(
 )
 
 def findTitleFromUrl (link):
-	d= link.rfind ('/')
-	if '\\' in link: d= link.rfind ('\\')
-	title = link[d+1:]
+	pos = link.rfind ('/')
+	if '\\' in link: pos = link.rfind ('\\')
+	title = link[pos+1:]
 	if '.' in title:
-		d= title.rfind ('.')
-		if len (title) -d <11: title = title[:d]
-	title = title.replace ('-'," ")
-	title = title.replace ('_'," ")
-	title = title.replace ('.'," ")
+		pos = title.rfind ('.')
+		if len (title) -pos <11: title = title[:pos]
+	title = title.replace ('www.',"")
+	urlWords =( '-', '_', '.', '?', '#', '%20' );
+	for word in urlWords: title = title.replace (word, " ")
 	while "  " in title: title = title.replace ("  "," ")
 	return title
 

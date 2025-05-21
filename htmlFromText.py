@@ -267,6 +267,7 @@ def toHtml (text):
 	for html, perso in tagHtml:
 		if perso in text: text = text.replace (perso, html)
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	# compléter les tîtres
 	textList = text.split ('\n')
 	textRange = range (len (textList))
 	for l in textRange:

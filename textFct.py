@@ -26,7 +26,7 @@ weirdChars =(
 	('<br>', '<br/>'), ('<hr>', '<hr/>')
 )
 urlWords =( ('c:', 'C:\\'), (': /', ':/'), ('localhost: ', 'localhost:'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js'), (': 80', ':80'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico') )
-titleChars = '*#=~-_+'
+titleChars = '=*-_#+~'
 
 # ________________________ ma mise en forme perso ________________________
 
