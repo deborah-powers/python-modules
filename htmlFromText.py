@@ -141,7 +141,7 @@ def toImage (text):
 					title = textList[i+1][2:e]
 					textList[i+1] = textList[i+1][e+1:]
 					title = title.replace ('-'," ")
-				else: title = getTitleFromLink (title)
+				else: title = findTitleFromUrl (title)
 				title = title.replace ('_'," ")
 				title = title.replace ('.'," ")
 				textList[i] = textList[i][:f] + "<img src='" + textList[i][f:].replace ('http', 'ht/tp') +"."+ ext +"' alt='" + title +"'/>"
@@ -149,6 +149,7 @@ def toImage (text):
 	return text
 
 def toLinkProtocol (text, protocol):
+	if protocol not in text: return text
 	endingChars = '<;, !\t\n'
 	textList = text.split (protocol)
 	paragraphRange = range (1, len (textList))
@@ -168,11 +169,16 @@ def toLinkProtocol (text, protocol):
 			e= textList[p].find (')')
 			title = textList[p][f+2:e]
 			textList[p] = textList[p][e+1:]
+		elif ': '== textList[p-1][-2:]:
+			d=3+ textList[p-1].rfind ('<p>')
+			title = textList[p-1][d:-2]
+			if '>' in title or '<' in title: title = findTitleFromUrl (paragraphTmp)
+			else: textList[p-1] = textList[p-1][:d]
+			d= textList[p].find ('</p>')
+			textList[p] = textList[p][d:]
 		else:
 			textList[p] = textList[p][f:]
-			title = paragraphTmp [d:e].replace ('-',' ')
-			title = title.replace ('_',' ')
-			title = title.replace ('.'," ")
+			title = findTitleFromUrl (paragraphTmp)
 		textList[p] = paragraphTmp +"'>"+ title +'</a> '+ textList[p]
 	text = (" <a href='" + protocol).join (textList)
 	text = text.replace ('> <a ', '><a ')
@@ -216,41 +222,54 @@ def toMath (text):
 def toFigure (text):
 	if '<figure>' in text:
 		# mettre en forme le contenu des figures
-		textList = text.split ('figure>')
-		paragraphRange= range (1, len (textList), 2)
+		textList = text.split ('<figure>')
+		paragraphRange= range (1, len (textList))
 		for i in paragraphRange:
+			f= textList[i].find ('\n/\n')
+			fin = '</figure>' + textList[i][f+3:]
+			textList[i] = textList[i][:f].strip()
+			textList[i] = textList[i].strip ('\n\t ')
 			# nettoyer le texte pour faciliter sa transformation
-			textList[i] = textList[i].strip ('\n')
 			textList[i] = textList[i].split ('\n')
-			paragraphRange = range (len (textList[i]) -1)
-			for j in paragraphRange:
+			textRange = range (len (textList[i]) -1)
+			for j in textRange:
 				# les images ont deja ete modifiees precedement
 				if textList[i][j][:4] != '<img':
 					textList[i][j] = '<figcaption>' + textList[i][j] + '</figcaption>'
 			textList[i] = "".join (textList[i])
-		text = 'figure>'.join (textList)
+			textList[i] = textList[i] + fin
+		text = '<figure>'.join (textList)
 	return text
 
 def toCode (text):
 	if '<xmp>' in text:
-		textList = text.split ('xmp>')
-		paragraphRange = range (1, len (textList), 2)
+		textList = text.split ('<xmp>')
+		paragraphRange = range (1, len (textList))
 		for i in paragraphRange:
-			textList[i] = textList[i].strip()
+			f= textList[i].find ('\n/\n')
+			fin = '</xmp>' + textList[i][f+3:]
+			textList[i] = textList[i][:f].strip()
 			textList[i] = textList[i].strip ('\n\t ')
 			textList[i] = textList[i].replace ('\n', '\a')
 			textList[i] = textList[i].replace ('\t', '\f')
-		text = 'xmp>'.join (textList)
+			textList[i] = textList[i] + fin
+		text = '<xmp>'.join (textList)
 		text = text.replace ('\a</xmp>', '</xmp>')
 	return text
 
 def toHtml (text):
 	text = shape (text)
-	for char in '=*-_+/':
-		while 7* char in text: text = text.replace (7* char, 6* char)
 	# transformer la mise en page en balises
+	text = '\n'+ text +'\n'
 	for html, perso in tagHtml:
 		if perso in text: text = text.replace (perso, html)
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	textList = text.split ('\n')
+	textRange = range (len (textList))
+	for l in textRange:
+		if textList[l][:2] != '<h' or textList[l][3] != '>' or textList[l][2] not in '123456': continue
+		textList[l] = textList[l] +'</h'+ textList[l][2] +'>'
+	text = '\n'.join (textList)
 	# autres modifications
 	text = toMath (text)
 	text = toFigure (text)
@@ -275,7 +294,7 @@ def toHtml (text):
 	text = text.replace ('ht/tp', 'http')
 	text = text.replace ('\a', '\n')
 	text = text.replace ('\f', '\t')
-	text = cleanHtml (text)
+	text = cleanBasic (text)
 	text = text.replace (' </', '</')
 	text = text.replace ('<p>.</p>', '<br/>')
 	text = text.replace ('<p>-->', "<p class='arrow'>")

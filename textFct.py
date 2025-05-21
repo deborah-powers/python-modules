@@ -26,12 +26,13 @@ weirdChars =(
 	('<br>', '<br/>'), ('<hr>', '<hr/>')
 )
 urlWords =( ('c:', 'C:\\'), (': /', ':/'), ('localhost: ', 'localhost:'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js'), (': 80', ':80'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico') )
+titleChars = '*#=~-_+'
 
 # ________________________ ma mise en forme perso ________________________
 
 def upperCaseIntern (text):
 	text ='\n'+ text
-	points =( '\n', '. ', '! ', '? ', ': ', ':\t', '\n_ ', '\n* ', '\n- ', '\n--> ', '\n\t', '++++++ ' '###### ', '______ ', '______ ', '------ ', '****** ', '====== ')
+	points =( '\n', '. ', '! ', '? ', ': ', ':\t', '\n_ ', '\n* ', '\n- ', '\n--> ', '\n\t', '++ ' '## ', '__ ', '-- ', '** ', '== ')
 	for i, j in uppercaseLetters:
 		for p in points: text = text.replace (p+i, p+j)
 	punctuation = '({[?!;.,:]})"\' \n\t'
@@ -228,44 +229,6 @@ def cleanText (text):
 	text = text.replace ('\n ', '\n')
 	return text
 
-def cleanTextVa (text):
-	text = cleanBasic (text)
-	# la ponctuation
-	punctuation = '?!;.:,'
-	for p in punctuation: text = text.replace (' '+p, p)
-	while '....' in text: text = text.replace ('....', '...')
-	for letter in letters:
-		text = text.replace (letter +'?', letter +' ?')
-		text = text.replace (letter +'!', letter +' !')
-		text = text.replace (letter +';', letter +' ;')
-		text = text.replace ('...' + letter, '... '+ letter)
-	text = text.replace (':', ': ')
-	while "  " in text: text = text.replace ("  ", " ")
-	# restaurer les heures
-	liste = text.split (': ')
-	rliste = range (1, len (liste))
-	for l in rliste:
-		if len (liste[l]) >1 and liste[l][0] in '012345' and liste[l][1] in '0123456789':
-			if len (liste[l]) >2 and liste[l][2] != '.':
-				d= findEndUrl (liste[l])
-				if d!=2: liste[l] =' '+ liste[l]
-		else: liste[l] =' '+ liste[l]
-	text = ':'.join (liste)
-	text = text.replace (' \n', '\n')
-	text = text.replace (' \t', '\t')
-	# restaurer les url
-	charEndUrl = '\n\t \'",;!()[]{}'
-	for wordStart, wordEnd in urlWords[:9]: text = text.replace (wordStart, wordEnd)
-	for wordStart, wordEnd in urlWords[9:]:
-		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
-	liste = text.split (' ?')
-	rliste = range (1, len (liste))
-	for l in rliste:
-		d= findEndUrl (liste[l])
-		if '=' not in liste[l][:d]: liste[l-1] = liste[l-1] +' '
-	text = '?'.join (liste)
-	return text
-
 def shape (text, case=""):
 	""" mettre le text en forme pour simplifier sa transformation
 	j'utilise une mise en forme personnelle
@@ -276,13 +239,23 @@ def shape (text, case=""):
 	"""
 	text = cleanText (text)
 	text = '\n'+ text +'\n'
-	for char in '*#=~-_+':
-		while 4* char in text: text = text.replace (4* char, 3* char)
-		text = text.replace (' '+ 3* char +'\n', ' '+ 12* char +'\n\n')
-		text = text.replace ('\n'+ 3* char +' ', '\n\n'+ 12* char +' ')
-		text = text.replace ('\n'+ 3* char +'\n', '\n\n'+ 48* char +'\n\n')
-	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
+	for char in titleChars:
+		while '\n'+ 3* char in text: text = text.replace ('\n'+ 3* char, '\n'+ 2* char)
 	if case: text = upperCase (text, case)
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
+	text = text.strip()
+	textList = text.split ('\n')
+	titleCharsList = list (titleChars)
+	textRange = range (len (titleCharsList))
+	for c in textRange: titleCharsList[c] = titleCharsList[c] + titleCharsList[c] +" "
+	textRange = range (len (textList))
+	for l in textRange:
+		if textList[l][:3] in titleCharsList: textList[l] = textList[l] +'\n'
+	text = '\n'.join (textList)
+	for char in titleChars:
+		text = text.replace ('\n'+ 2* char +'\n', '\n\n'+ 2* char +'\n\n')
+		text = text.replace ('\n'+ 2* char, '\n\n'+ 2* char)
+	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
 	return text
 
 def cleanPdf (text):
@@ -300,9 +273,9 @@ def cleanPdf (text):
 
 def toMarkdown (text):
 	text = shape (text, 'upper')
-	text = text.replace ('============', '=')
-	text = text.replace ('************', '==')
-	text = text.replace ('------------', "'''")
+	text = text.replace ('== ', '= ')
+	text = text.replace ('** ', '== ')
+	text = text.replace ('-- ', "''' ")
 	text = text.replace ('\n\t', '\n- ')
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	text = text.replace ('\n', '\n\n')

@@ -83,8 +83,8 @@ def fromLink (text):
 
 def fromHtml (text):
 	# les conteneurs
-	tagsBlank =( ('<hr/>', '\n************\n'), ('<hr>', '\n************\n'), ('<br>', '\n'), ('<br/>', '\n'))
-	tagsClosing =( 'li', 'dd', 'tr', 'th', 'td')
+	tagsBlank =( ('<hr/>', '\n**\n'), ('<hr>', '\n**\n'), ('<br>', '\n'), ('<br/>', '\n'))
+	tagsClosing =( 'li', 'dd', 'tr', 'th', 'td', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')
 	for tag in listTagsContainer:
 		text = text.replace ('</'+ tag +'>', "")
 		text = text.replace ('<'+ tag +'>', "")

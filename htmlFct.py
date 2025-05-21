@@ -12,14 +12,13 @@ import loggerFct as log
 listTagsContainer = ( 'ul', 'ol', 'dl', 'table', 'nav', 'div', 'fieldset', 'form', 'figure', 'math', 'section', 'article', 'body', 'header', 'footer', 'main' )
 listTagsIntern =( 'i', 'b', 'em', 'span', 'strong', 'thead', 'tbody' )
 tagHtml =(
-	('\n<h1>', '\n====== '), ('</h1>\n', ' ======\n'), ('\n<h2>', '\n****** '), ('</h2>\n', ' ******\n'), ('\n<h3>', '\n------ '), ('</h3>\n', ' ------\n'), ('\n<h4>', '\n______ '), ('</h4>\n', ' ______\n'), ('\n<h5>', '\n###### '), ('</h5>\n', ' ######\n'), ('\n<h6>', '\n++++++ '), ('</h6>\n', ' ++++++\n'),
-	("\n<hr class='h1'/>\n", '\n\n======\n\n'), ("\n<hr class='h2'/>\n", '\n\n******\n\n'), ("\n<hr class='h3'/>\n", '\n\n------\n\n'),
-	("\n<hr>\n", '\n\n******\n\n'), ("\n<hr/>\n", '\n\n******\n\n'),
-	("\n<img src='", '\nImg\t'), ('\n<figure>', '\nFig\n'), ('</figure>', '\n/fig\n'), ('\n<xmp>', '\ncode\n'), ('</xmp>', '\n/code\n'),
-	('\n<li>', '\n\t')
+	('\n<h1>', '\n== '), ('\n<h2>', '\n** '), ('\n<h3>', '\n-- '), ('\n<h4>', '\n__ '), ('\n<h5>', '\n## '), ('\n<h6>', '\n++ '),
+	("\n<hr class='h1'/>\n", '\n\n==\n\n'), ("\n<hr class='h2'/>\n", '\n\n**\n\n'), ("\n<hr class='h3'/>\n", '\n\n--\n\n'),
+	("\n<hr>\n", '\n\n**\n\n'), ("\n<hr/>\n", '\n\n**\n\n'),
+	('\n<figure>', '\nfig\n'), ('\n<xmp>', '\ncode\n'), ('\n<xmp>', '\ncode: '), ('\n<li>', '\n\t')
 )
 
-def getTitleFromLink (link):
+def findTitleFromUrl (link):
 	d= link.rfind ('/')
 	if '\\' in link: d= link.rfind ('\\')
 	title = link[d+1:]
@@ -66,7 +65,8 @@ def imgToB64 (text):
 	return text
 
 def cleanHtmlForWritting (text):
-	text = cleanHtml (text)
+	if '</xmp>' in text: text = cleanBasic (text)
+	else: text = cleanHtml (text)
 	innerTags =( 'i', 'b', 'em', 'span', 'strong', 'a')
 	for tag in listTagsIntern:
 		text = text.replace ('<'+ tag +'>', ' <'+ tag +'>')

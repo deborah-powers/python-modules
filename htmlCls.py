@@ -565,8 +565,13 @@ class Html (Article):
 		self.cleanBody()
 
 	def addIndentation (self):
-		self.replace ('\n'," ")
-		self.replace ('\t'," ")
+		if '</xmp>' in self.text:
+			while '\n\n' in self.text: self.text = self.text.replace ('\n\n', '\n')
+			while '\t\t' in self.text: self.text = self.text.replace ('\t\t', '\t')
+			self.text = self.text.replace ('\t\n', '\n')
+		else:
+			self.replace ('\n'," ")
+			self.replace ('\t'," ")
 		self.text = textFct.simpleSpace (self.text)
 		self.replace ("> ",'>')
 		self.replace (" <",'<')

@@ -1,20 +1,14 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 
-templateTextMeta ="""================================================
+templateTextMeta ="""==
 
-sujet:	%s
-auteur:	%s
-lien:	%s
+sujet: %s
+auteur: %s
+lien: %s
 %s"""
 
 templateText = '%s\n\n' + templateTextMeta
-
-templateTextOld ="""Sujet:	%s
-Auteur:	%s
-Lien:	%s
-Laut:	%s
-%s"""
 
 templateHtml = """<!DOCTYPE html><html><head>
 	<title>%s</title>

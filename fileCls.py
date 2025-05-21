@@ -176,8 +176,8 @@ class File():
 		if len (self.text) < 420000: self.write()
 		else:
 			sep = '\n'
-			if '============ ' in self.text: sep = '============ '
-			elif '************ ' in self.text: sep = '************ '
+			if '== ' in self.text: sep = '== '
+			elif '** ' in self.text: sep = '** '
 			elif '<h1>' in self.text and self.text.count ('<h1>') >1: sep = '<h1>'
 			elif '<h2>' in self.text: sep = '<h2>'
 
@@ -393,8 +393,8 @@ class Article (File):
 			if '<h1>' in self.text: sep = '<h1>'
 			elif self.type == 'txt':
 				self.text = textFct.clean (self.text)
-				if '****** ' in self.text: sep = '****** '
-				elif '====== ' in self.text: sep = '====== '
+				if '** ' in self.text: sep = '** '
+				elif '== ' in self.text: sep = '== '
 			if sep:
 				ficList = self.text.split (sep)
 				if not ficList[0]: trash = ficList.pop (0)
@@ -440,7 +440,7 @@ class Article (File):
 			text = text[:d] + text[f:].strip()
 		textList = text.split ('\n')
 		for line in textList:
-			d= line.find (':\t')
+			d= line.find (': ')
 			self.meta [line[:d]] = line[d+2:]
 
 	def fromPath (self):
@@ -455,9 +455,9 @@ class Article (File):
 		self.text = textFct.cleanText (self.text)
 		self.text = textFct.shape (self.text)
 		self.text = self.text.strip()
-		d= self.text.rfind ('\n======')
+		d= self.text.rfind ('\n==')
 		metaText = self.text[d:].lower()
-		metaText = metaText.replace (': ',':\t')
+		metaText = metaText.replace (':\t',': ')
 		metaText = metaText +'\n'
 		self.text = self.text[:d]
 		metadata = textFct.fromModel (metaText, templateTextMeta)
