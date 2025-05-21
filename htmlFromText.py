@@ -50,75 +50,71 @@ def toList (text):
 			text = text.replace ('<li># ', '<li>', 1)
 	return text
 
-def toTable (text):
-	if '\t' in text:
-		# les cases vides sont représentées par un point. les doubles tabulations ont été rajoutées pour une meilleure lisibilité au format txt
-		while '\t\t' in text: text = text.replace ('\t\t', '\t')
-		textList = text.split ('\n')
-		len_chn = len (textList)
-		d=-1; c=-1; i=0
-		while i< len_chn:
-			# rechercher une table
-			d=-1; c=-1
-			if d==-1 and c==-1 and '\t' in textList[i]:
-				c= textList[i].count ('\t')
-				d=i; i+=1
-			while i< len_chn and textList[i].count ('\t') ==c: i+=1
-			c=i-d
-			# une table a ete trouve
-			if c>1 and d>0:
-				rtable = range (d, i)
-				for j in rtable:
-					# entre les cases
-					textList [j] = textList [j].replace ('\t', '</td><td>')
-					# bordure des cases
-					textList [j] = '<tr><td>' + textList [j] +'</td></tr>'
-				# les limites de la table
-				textList [d] = '<table>' + textList [d]
-				textList [i-1] = textList [i-1] +'</table>'
-			i+=1
-		text = '\n'.join (textList)
-		text = text.replace ('\n<tr>', '<tr>')
-		# les titres de colonnes ou de lignes
-		if ':</td></tr>' in text:
-			textList = text.split (':</td></tr>')
-			paragraphRange = range (len (textList) -1)
-			for p in paragraphRange:
-				d= textList[p].rfind ('<tr><td>')
-				textList[p] = textList[p][:d] +'<tr><th>'+ textList[p][d+8:].replace ('td>', 'th>')
-			text = '</th></tr>'.join (textList)
-		if ':</td>' in text:
-			textList = text.split (':</td>')
-			paragraphRange = range (len (textList) -1)
-			for p in paragraphRange:
-				d= textList[p].rfind ('<td>')
-				textList[p] = textList[p][:d] +'<th>'+ textList[p][d+4:]
-			text = '</th>'.join (textList)
-	text = text.replace ('\t', "")
-	text = text.replace ('<td>.</td>', '<td></td>')
+def toDefList (text):
+	if ": " not in text: return text
+	textList = text.split ('\n')
+	textListLen = len (textList)
+	d=-1; t=0
+	while t< textListLen:
+		if ": " in textList[t] and textList[t].count (": ") ==1 and d==-1: d=t
+		elif ": " not in textList[t] and d>=0:
+			listRange = range (d,t)
+			for l in listRange: textList[l] = '<dt>' + textList[l].replace (": ", '</dt><dd>') + '</dd>'
+			textList[d] = textList[d].replace ('<dt>', '<dl><dt>')
+			textList[t-1] = textList[t-1].replace ('</dd>', '</dd></dl>')
+			d=-1
+		t+=1
+	text = '\n'.join (textList)
+	text = text.replace ('\n<dt>', '<dt>')
+	text = text.replace ('</dd>\n', '<dd>')
 	return text
 
-def toDefList (text):
-	if '<tr>' not in text: return text
-	textList = text.split ('<tr>')
-	textRange = range (1, len (textList))
-	for t in textRange:
-		f= textList[t].find ('</tr>')
-		line = textList[t][:f]
-		if line.count ('</t') ==2:
-			d=1+ line.find ('>')
-			e= line.rfind ('</')
-			line = line[d:e]
-			line = line.replace ('<td>', '</dt><dd>')
-			line = line.replace ('</td>', "")
-			line = line.replace ('</th>', "")
-			line = '<dt>'+ line +'</dd>'
-			f+=5
-		else: line = '<tr>'+ line
-		textList[t] = line + textList[t][f:]
-	text ="".join (textList)
-	text = text.replace ('<table><dt>', '<dl><dt>')
-	text = text.replace ('</dd></table>', '</dd></dl>')
+def toTable (text):
+	if '\t' not in text: return text
+	# les cases vides sont représentées par un point. les doubles tabulations ont été rajoutées pour une meilleure lisibilité au format txt
+	while '\t\t' in text: text = text.replace ('\t\t', '\t')
+	textList = text.split ('\n')
+	len_chn = len (textList)
+	d=-1; c=-1; i=0
+	while i< len_chn:
+		# rechercher une table
+		d=-1; c=-1
+		if d==-1 and c==-1 and '\t' in textList[i]:
+			c= textList[i].count ('\t')
+			d=i; i+=1
+		while i< len_chn and textList[i].count ('\t') ==c: i+=1
+		c=i-d
+		# une table a ete trouve
+		if c>1 and d>0:
+			rtable = range (d, i)
+			for j in rtable:
+				# entre les cases
+				textList [j] = textList [j].replace ('\t', '</td><td>')
+				# bordure des cases
+				textList [j] = '<tr><td>' + textList [j] +'</td></tr>'
+			# les limites de la table
+			textList [d] = '<table>' + textList [d]
+			textList [i-1] = textList [i-1] +'</table>'
+		i+=1
+	text = '\n'.join (textList)
+	text = text.replace ('\n<tr>', '<tr>')
+	# les titres de colonnes ou de lignes
+	if ':</td></tr>' in text:
+		textList = text.split (':</td></tr>')
+		paragraphRange = range (len (textList) -1)
+		for p in paragraphRange:
+			d= textList[p].rfind ('<tr><td>')
+			textList[p] = textList[p][:d] +'<tr><th>'+ textList[p][d+8:].replace ('td>', 'th>')
+		text = '</th></tr>'.join (textList)
+	if ':</td>' in text:
+		textList = text.split (':</td>')
+		paragraphRange = range (len (textList) -1)
+		for p in paragraphRange:
+			d= textList[p].rfind ('<td>')
+			textList[p] = textList[p][:d] +'<th>'+ textList[p][d+4:]
+		text = '</th>'.join (textList)
+	text = text.replace ('\t', "")
+	text = text.replace ('<td>.</td>', '<td></td>')
 	return text
 
 def toImage (text):
@@ -242,8 +238,15 @@ def toFigure (text):
 	return text
 
 def toCode (text):
-	if '<xmp>' in text:
-		textList = text.split ('<xmp>')
+	if '<xmp>' not in text: return text
+	elif '<xmp>:' in text:
+		textList = text.split ('\n<xmp>:')
+		paragraphRange = range (1, len (textList))
+		for t in paragraphRange:
+			textList[t] = textList[t].replace ('\n', '</xmp>', 1)
+		text = '<xmp>'.join (textList)
+	if '<xmp>!' in text:
+		textList = text.split ('<xmp>!')
 		paragraphRange = range (1, len (textList))
 		for i in paragraphRange:
 			f= textList[i].find ('\n/\n')

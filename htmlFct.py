@@ -15,7 +15,7 @@ tagHtml =(
 	('\n<h1>', '\n== '), ('\n<h2>', '\n** '), ('\n<h3>', '\n-- '), ('\n<h4>', '\n__ '), ('\n<h5>', '\n## '), ('\n<h6>', '\n++ '),
 	("\n<hr class='h1'/>\n", '\n\n==\n\n'), ("\n<hr class='h2'/>\n", '\n\n**\n\n'), ("\n<hr class='h3'/>\n", '\n\n--\n\n'),
 	("\n<hr>\n", '\n\n**\n\n'), ("\n<hr/>\n", '\n\n**\n\n'),
-	('\n<figure>', '\nfig\n'), ('\n<xmp>', '\ncode\n'), ('\n<xmp>', '\ncode: '), ('\n<li>', '\n\t')
+	('\n<figure>', '\nFig\n'), ('\n<xmp>!', '\nCode\n'), ('\n<xmp>: ', '\nCode: '), ('\n<li>', '\n\t')
 )
 
 def findTitleFromUrl (link):
@@ -24,7 +24,7 @@ def findTitleFromUrl (link):
 	title = link[d+1:]
 	if '.' in title:
 		d= title.rfind ('.')
-		if len (title -d) <11: title = title[:d]
+		if len (title) -d <11: title = title[:d]
 	title = title.replace ('-'," ")
 	title = title.replace ('_'," ")
 	title = title.replace ('.'," ")
