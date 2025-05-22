@@ -140,7 +140,9 @@ def toImage (text):
 				else: title = findTitleFromUrl (title)
 				title = title.replace ('_'," ")
 				title = title.replace ('.'," ")
-				textList[i] = textList[i][:f] + "<img src='" + textList[i][f:].replace ('http', 'ht/tp') +"."+ ext +"' alt='" + title +"'/>"
+				url = textList[i][f:].replace ('http', 'ht/tp')
+				url = url.replace ('file', 'fi/le')
+				textList[i] = textList[i][:f] + "<img src='" + url +"."+ ext +"' alt='" + title +"'/>"
 			text = "".join (textList)
 	return text
 
@@ -296,6 +298,7 @@ def toHtml (text):
 	text = toLink (text)
 	# restaurer le texte, remplacer mes placeholders
 	text = text.replace ('ht/tp', 'http')
+	text = text.replace ('fi/le', 'file')
 	text = text.replace ('\a', '\n')
 	text = text.replace ('\f', '\t')
 	text = cleanBasic (text)
