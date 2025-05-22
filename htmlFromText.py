@@ -58,10 +58,12 @@ def toDefList (text):
 	while t< textListLen:
 		if ": " in textList[t] and textList[t].count (": ") ==1 and d==-1: d=t
 		elif ": " not in textList[t] and d>=0:
-			listRange = range (d,t)
-			for l in listRange: textList[l] = '<dt>' + textList[l].replace (": ", '</dt><dd>') + '</dd>'
-			textList[d] = textList[d].replace ('<dt>', '<dl><dt>')
-			textList[t-1] = textList[t-1].replace ('</dd>', '</dd></dl>')
+			if t-d >1:
+				log.log (t,d, textList[d], textList[t-1])
+				listRange = range (d,t)
+				for l in listRange: textList[l] = '<dt>' + textList[l].replace (": ", '</dt><dd>') + '</dd>'
+				textList[d] = textList[d].replace ('<dt>', '<dl><dt>')
+				textList[t-1] = textList[t-1].replace ('</dd>', '</dd></dl>')
 			d=-1
 		t+=1
 	text = '\n'.join (textList)
