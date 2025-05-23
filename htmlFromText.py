@@ -134,8 +134,6 @@ def toImageProtocolExtension (text, protocol, extension):
 			if char in title: d=-1
 		if d==-1: continue
 		textList[i] = textList[i][:d]
-		title = title.replace ('http', 'ht/tp');
-		title = title.replace ('file', 'fi/le');
 		url = title + extension
 		# trouver la description
 		if textList[i+1][:2] == " (":
@@ -149,6 +147,8 @@ def toImageProtocolExtension (text, protocol, extension):
 			else: textList[i] = textList[i][:d]
 		else: title = findTitleFromUrl (url)
 		url = "<img src='" + url + "' alt='" + title +"' />"
+		url = url.replace ('http', 'ht/tp');
+		url = url.replace ('file', 'fi/le');
 		textList[i] = textList[i] + url
 	text = extension.join (textList)
 	text = text.replace ('/>' + extension, '/>')
@@ -160,35 +160,6 @@ def toImage (text):
 	text = text.replace ('C:\\', 'file:///C:\\')
 	for protocol in protocols:
 		for extension in imgExtension: text = toImageProtocolExtension (text, protocol, extension)
-	return text
-
-def toImage_va (text):
-	imgExtension =( 'jpg', 'jpeg', 'bmp', 'gif', 'png')
-	imgCharStart = '>\n\t\'",;!()[]{}:'
-	for ext in imgExtension:
-		if '.'+ ext in text:
-			textList = text.split ('.'+ ext)
-			textRange = range (len (textList) -1)
-			for i in textRange:
-				d= textList[i].rfind (':')
-				f= textList[i][:d].rfind (' ')
-				for char in imgCharStart:
-					e= textList[i][:d].rfind (char)
-					if e>f: f=e
-				f=f+1
-				title = textList[i][f+1:].replace ('-'," ")
-				if textList[i+1][:2] == ' (':
-					e= textList[i+1].find (')')
-					title = textList[i+1][2:e]
-					textList[i+1] = textList[i+1][e+1:]
-					title = title.replace ('-'," ")
-				else: title = findTitleFromUrl (title)
-				title = title.replace ('_'," ")
-				title = title.replace ('.'," ")
-				url = textList[i][f:].replace ('http', 'ht/tp')
-				url = url.replace ('file', 'fi/le')
-				textList[i] = textList[i][:f] + "<img src='" + url +"."+ ext +"' alt='" + title +"'/>"
-			text = "".join (textList)
 	return text
 
 def toLinkProtocol (text, protocol):
