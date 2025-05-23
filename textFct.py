@@ -5,7 +5,7 @@ letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZaàâbcdeéêèëfghiîïjkmlmnoôpqrstuûv
 uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
 # liste des points, des chaines de caracteres suivies par une majuscule
-wordsBeginMaj = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'papi', 'victo', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'leto', 'ville valo', 'valo', 'shelby', 'magritte', 'france', 'paris', 'rueil', 'malmaison', 'avon', 'fontainebleau', 'ivry', 'chateaudun', 'châteaudun', 'c:/', 'c:\\' )
+wordsBeginMaj = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'deborah', 'powers', 'maman', 'mamie', 'papa', 'papi', 'victo', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'leto', 'ville valo', 'valo', 'shelby', 'magritte', 'france', 'paris', 'rueil', 'malmaison', 'avon', 'fontainebleau', 'ivry', 'chateaudun', 'châteaudun', 'c://', 'c:\\' )
 wordsBeginMin = ('Deborah.powers', 'Deborah.noisetier', 'Http', 'File:///', '\nPg_')
 codeKeywords =(
 	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where',
@@ -25,7 +25,11 @@ weirdChars =(
 	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#xa0;', " "), ('&#39;', "'"), ('&#8217;', "'"), ('\n" ', '\n"'),
 	('<br>', '<br/>'), ('<hr>', '<hr/>')
 )
-urlWords =( ('c:', 'C:\\'), (': /', ':/'), ('localhost: ', 'localhost:'), ('www. ', 'www.'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js'), (': 80', ':80'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico') )
+urlWords =(('. gif', '.gif'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'),
+	(': /', ':/'), (': \\', ':\\'), ('C:\\', 'file:///C:\\'), ('C:/', 'file:///C:/'), ('c:\\', 'file:///C:\\'), ('c:/', 'file:///C:/'),
+	('localhost: ', 'localhost:'), (': 80', ':80'), ('www. ', 'www.'),
+	('. bmp', '.bmp'), ('. jpeg', '.jpeg'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js')
+)
 titleChars = '=*-_#+~'
 
 # ________________________ ma mise en forme perso ________________________
@@ -35,19 +39,8 @@ def upperCaseIntern (text):
 	points =( '\n', '. ', '! ', '? ', ': ', ':\t', '\n_ ', '\n* ', '\n- ', '\n--> ', '\n\t', '++ ' '## ', '__ ', '-- ', '** ', '== ')
 	for i, j in uppercaseLetters:
 		for p in points: text = text.replace (p+i, p+j)
-	punctuation = '({[?!;.,:]})"\' \n\t'
-	for word in wordsBeginMaj:
-		for p in punctuation:
-			text = text.replace (" "+ word +p, " "+ word.capitalize() +p)
-			text = text.replace ("\t"+ word +p, "\t"+ word.capitalize() +p)
-	"""
-	for p in " "+ punctuation[-11:]:
-		for q in " "+ punctuation[0:5]:
-			for word in wordsBeginMaj:
-				if word == 'powers': print (p,q)
-				text = text.replace (q+ word +p, q+ word.capitalize() +p)
-	"""
 	for word in wordsBeginMin: text = text.replace (word, word.lower())
+	for word in wordsBeginMaj: text = text.replace (word, word.capitalize())
 	# le code
 	for artefact in codeKeywords:
 		text = text.replace ('\n'+ artefact.capitalize() +' ', '\n'+ artefact +' ')
@@ -220,8 +213,8 @@ def cleanText (text):
 	text = ':'.join (textList)
 	while "  " in text: text = text.replace ("  ", " ")
 	charEndUrl = '\n\t \'",;!()[]{}'
-	for wordStart, wordEnd in urlWords[:9]: text = text.replace (wordStart, wordEnd)
-	for wordStart, wordEnd in urlWords[9:]:
+	for wordStart, wordEnd in urlWords[6:]: text = text.replace (wordStart, wordEnd)
+	for wordStart, wordEnd in urlWords[:6]:	# les six premiers éléments ressemblent à des débuts de mots
 		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
 	text = text.replace (' \n', '\n')
 	text = text.replace (' \t', '\t')

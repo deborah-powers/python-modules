@@ -10,6 +10,8 @@ from htmlFct import *
 from fileLocal import pathRoot
 import loggerFct as log
 
+protocols =( 'https://', 'http://', 'file:///' )
+
 def toList (text):
 	if '<li>' in text:
 		text = '\n'+ text +'\n'
@@ -59,7 +61,6 @@ def toDefList (text):
 		if ": " in textList[t] and textList[t].count (": ") ==1 and d==-1: d=t
 		elif ": " not in textList[t] and d>=0:
 			if t-d >1:
-				log.log (t,d, textList[d], textList[t-1])
 				listRange = range (d,t)
 				for l in listRange: textList[l] = '<dt>' + textList[l].replace (": ", '</dt><dd>') + '</dd>'
 				textList[d] = textList[d].replace ('<dt>', '<dl><dt>')
@@ -119,7 +120,49 @@ def toTable (text):
 	text = text.replace ('<td>.</td>', '<td></td>')
 	return text
 
+def toImageProtocolExtension (text, protocol, extension):
+	extension = '.'+ extension
+	if protocol not in text or extension not in text: return text
+	endingChars = '<;, !\t\n';
+	textList = text.split (extension);
+	textRange = range (len (textList) -1)
+	for i in textRange:
+		if protocol not in textList[i]: continue
+		d= textList[i].rfind (protocol)
+		title = textList[i][d:]
+		for char in endingChars:
+			if char in title: d=-1
+		if d==-1: continue
+		textList[i] = textList[i][:d]
+		title = title.replace ('http', 'ht/tp');
+		title = title.replace ('file', 'fi/le');
+		url = title + extension
+		# trouver la description
+		if textList[i+1][:2] == " (":
+			d= textList[i+1].find (')')
+			title = textList[i+1][2:d]
+			textList[i+1] = textList[i+1][d+1:].strip()
+		elif textList[i][-2:] == ": ":
+			d=3+ textList[i].rfind ('<p>')
+			title = textList[i][d:-2]
+			if '>' in title or '<' in title: title = findTitleFromUrl (url)
+			else: textList[i] = textList[i][:d]
+		else: title = findTitleFromUrl (url)
+		url = "<img src='" + url + "' alt='" + title +"' />"
+		textList[i] = textList[i] + url
+	text = extension.join (textList)
+	text = text.replace ('/>' + extension, '/>')
+	return text
+
 def toImage (text):
+	imgExtension =( 'jpg', 'jpeg', 'bmp', 'gif', 'png')
+	text = text.replace ('C://', 'file:///C://')
+	text = text.replace ('C:\\', 'file:///C:\\')
+	for protocol in protocols:
+		for extension in imgExtension: text = toImageProtocolExtension (text, protocol, extension)
+	return text
+
+def toImage_va (text):
 	imgExtension =( 'jpg', 'jpeg', 'bmp', 'gif', 'png')
 	imgCharStart = '>\n\t\'",;!()[]{}:'
 	for ext in imgExtension:
@@ -187,7 +230,6 @@ def toLinkProtocol (text, protocol):
 def toLink (text):
 	text = text.replace ('c:/', 'file:///c:/')
 	text = text.replace ('file:///file:///', 'file:///')
-	protocols =( 'https://', 'http://', 'file:///' )
 	for protocol in protocols: text = toLinkProtocol (text, protocol)
 	return text
 
@@ -225,18 +267,15 @@ def toFigure (text):
 		textList = text.split ('<figure>')
 		paragraphRange= range (1, len (textList))
 		for i in paragraphRange:
-			f= textList[i].find ('\n/\n')
-			fin = '</figure>' + textList[i][f+3:]
+			f= textList[i].find ('<p>/</p>')
+			fin = '</figure>' + textList[i][f+8:]
 			textList[i] = textList[i][:f].strip()
 			textList[i] = textList[i].strip ('\n\t ')
-			# nettoyer le texte pour faciliter sa transformation
-			textList[i] = textList[i].split ('\n')
-			textRange = range (len (textList[i]) -1)
-			for j in textRange:
-				# les images ont deja ete modifiees precedement
-				if textList[i][j][:4] != '<img':
-					textList[i][j] = '<figcaption>' + textList[i][j] + '</figcaption>'
-			textList[i] = "".join (textList[i])
+			# nettoyer le texte
+			textList[i] = textList[i].replace ('/></p>', '/>')
+			textList[i] = textList[i].replace ('<p><img', '<img')
+			textList[i] = textList[i].replace ('<p>', '<figcaption>', 1)
+			textList[i] = textList[i].replace ('</p>', '</figcaption>', 1)
 			textList[i] = textList[i] + fin
 		text = '<figure>'.join (textList)
 	return text
@@ -280,7 +319,6 @@ def toHtml (text):
 	text = '\n'.join (textList)
 	# autres modifications
 	text = toMath (text)
-	text = toFigure (text)
 	text = toCode (text)
 	text = toList (text)
 	text = toTable (text)
@@ -306,5 +344,6 @@ def toHtml (text):
 	text = cleanBasic (text)
 	text = text.replace (' </', '</')
 	text = text.replace ('<p>.</p>', '<br/>')
+	text = toFigure (text)
 	text = text.replace ('<p>-->', "<p class='arrow'>")
 	return text
