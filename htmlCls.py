@@ -367,7 +367,8 @@ class Html (Article):
 		if '</'+ tagName +'>' not in self.text or self.text.count ('</'+ tagName +'>') >1: return
 		d= self.text.find ('<'+ tagName)
 		d=1+ self.text.find ('>',d)
-		f= self.text.find ('</'+ tagName +'>')
+		f= self.text.find ('</'+ tagName +'>', d)
+		log.log (d,f, tagName, self.text)
 		self.text = self.text[d:f]
 
 	def setByHtml (self):
@@ -959,11 +960,12 @@ class Html (Article):
 
 	def cleanBody (self):
 		self.text = self.text.lower()
-		self.cleanRead()
+	#	self.cleanRead()
 		self.setByHtml()
 		self.setMetas()
 		self.setTitle()
 		self.setByBody()
+		log.message (self.text)
 		self.delScript()
 		self.findTagsLocals()
 		self.delEmptyTags()

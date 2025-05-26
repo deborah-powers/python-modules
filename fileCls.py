@@ -276,12 +276,12 @@ class File():
 
 	def toList (self, sep='\n'):
 		if sep not in self.text: return []
-		textTmp = = self.text.replace (sep + sep, sep)
+		textTmp = self.text.replace (sep + sep, sep)
 		while sep + sep in textTmp: textTmp = textTmp.replace (sep + sep, sep)
 		textList = self.split (textTmp)
 		return textList
 
-	def fromList (self, sep='\n', textList):
+	def fromList (self, textList, sep='\n'):
 		if textList: self.text = sep.join (textList)
 
 	def test (self):
