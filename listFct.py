@@ -98,3 +98,62 @@ def test():
 	liste = iterate (liste, testIterate)
 	print ('iterate\t', liste)
 
+class ListText():
+	def init (self, sep='\n'):
+		self.list =[]
+		self.sep = sep
+		self.range =[]
+		self.lenght =0
+		self.rangeInit()
+
+	def rangeInit (self):
+		self.range =[]
+		self.lenght = len (self.list)
+		if self.lenght >0:
+			r=0
+			while r< self.lenght: self.range.append (r)
+
+	def range (self, start=0, end=0, step=1):
+		# end peut valoir -1
+		if self.lenght ==0: return []
+		while end <=0: end += self.lenght
+		if end > self.lenght: end = self.lenght
+		newList =[]
+		while start <end:
+			newList.append (start)
+			start += step
+		return newList
+
+	def append (item):
+		self.list.append (item)
+		self.lenght +=1
+		self.range.append (self.range[-1] +1)
+
+	def pop (pos):
+		trash = self.list.pop (pos)
+		self.lenght -=1
+		self.range.pop()
+
+	def iterate (self, function):
+		newList = ListText()
+		for i in self.range: newList.append (function (liste[i]))
+		return newList
+
+	def __str__ (self):
+		r=1
+		infos = self.list[0]
+		while len (infos) < 200 or r< self.lenght:
+			infos = infos + self.sep + self.list[r]
+			r+=1
+		infos = 'liste de %d lignes, séparées par: %s\n' % (self.lenght, self.sep) + infos
+		return infos
+
+	def toText (self):
+		return self.sep.join (self.list)
+
+	def fromText (self, text):
+		if not text: return
+		while self.sep + self.sep in text: text = text.replace (self.sep + self.sep, self.sep)
+		self.list = text.split (self.sep)
+		self.rangeInit()
+
