@@ -221,6 +221,7 @@ def cleanText (text):
 	for wordStart, wordEnd in urlWords[6:]: text = text.replace (wordStart, wordEnd)
 	for wordStart, wordEnd in urlWords[:6]:	# les six premiers éléments ressemblent à des débuts de mots
 		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
+	while 'ile:///file:///' in text: text = text.replace ('ile:///file:///', 'ile:///')
 	text = text.replace (' \n', '\n')
 	text = text.replace (' \t', '\t')
 	text = text.replace ('\t ', '\t')

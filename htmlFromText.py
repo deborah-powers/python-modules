@@ -257,20 +257,20 @@ def toCode (text):
 		textList = text.split ('\n<xmp>:')
 		paragraphRange = range (1, len (textList))
 		for t in paragraphRange:
-			textList[t] = textList[t].replace ('\n', '</xmp>', 1)
-		text = '<xmp>'.join (textList)
+			textList[t] = textList[t].replace ('\n', '</xmp>\n', 1)
+		text = '\n<xmp>'.join (textList)
 	if '<xmp>!' in text:
 		textList = text.split ('<xmp>!')
 		paragraphRange = range (1, len (textList))
 		for i in paragraphRange:
 			f= textList[i].find ('\n/\n')
-			fin = '</xmp>' + textList[i][f+3:]
+			fin = '</xmp>\n' + textList[i][f+3:]
 			textList[i] = textList[i][:f].strip()
 			textList[i] = textList[i].strip ('\n\t ')
 			textList[i] = textList[i].replace ('\n', '\a')
 			textList[i] = textList[i].replace ('\t', '\f')
 			textList[i] = textList[i] + fin
-		text = '<xmp>'.join (textList)
+		text = '\n<xmp>'.join (textList)
 		text = text.replace ('\a</xmp>', '</xmp>')
 	return text
 
