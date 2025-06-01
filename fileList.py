@@ -1,5 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+import textFct
+import listFct
 from fileCls import File
 
 class FileList (File):
@@ -10,6 +12,12 @@ class FileList (File):
 		self.length =0
 
 	def write (self, upper=False):
+		self.toText()
+		if upper: self.text = textFct.shape (self.text, 'reset upper')
+		else: self.text = textFct.shape (self.text, 'reset')
+		File.write (self)
+
+	def write_va (self, upper=False):
 		self.text = self.sep.join (self.list)
 		if upper: self.text = textFct.shape (self.text, 'reset upper')
 		else: self.text = textFct.shape (self.text, 'reset')
@@ -41,6 +49,11 @@ class FileList (File):
 		return listFct.iterate (self.list, function)
 
 	def __str__(self):
+		text = 'liste de %d éléments dans %s\n' % (self.length, self.path)
+		text = text + self.sep.join (self.list[:5])
+		return text
+
+	def __str__va (self):
 		self.text = self.sep.join (self.list)
 		return self.path +'\n'+ self.text
 
@@ -167,4 +180,12 @@ class FileTable (FileList):
 		rangeList = range (self.length)
 		for l in rangeList: self.list[l] = self.list[l].split (self.sepCol)
 		self.lenCol = len (self.list[0])
+
+	def __str__(self):
+		text = 'liste '
+		if self.length ==0: text = text + 'vide dans '+ self.path
+		else:
+			text = text + 'de %d éléments à %d cases dans %s\n' % (self.length, len (self.list[0]), self.path)
+			for line in self.list[:5]: text = text + self.sepCol.join (line) + self.sep
+		return text
 
