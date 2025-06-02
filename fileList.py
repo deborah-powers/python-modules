@@ -49,13 +49,11 @@ class FileList (File):
 		return listFct.iterate (self.list, function)
 
 	def __str__(self):
-		text = 'liste de %d éléments dans %s\n' % (self.length, self.path)
+		text = 'liste '
+		if self.length ==0: text = text + 'vide dans '+ self.path
+		text = text = text + 'de %d éléments dans %s\n' % (self.length, self.path)
 		text = text + self.sep.join (self.list[:5])
 		return text
-
-	def __str__va (self):
-		self.text = self.sep.join (self.list)
-		return self.path +'\n'+ self.text
 
 	def __len__(self):
 		self.length = len (self.list)
@@ -182,7 +180,7 @@ class FileTable (FileList):
 		self.lenCol = len (self.list[0])
 
 	def __str__(self):
-		text = 'liste '
+		text = 'table '
 		if self.length ==0: text = text + 'vide dans '+ self.path
 		else:
 			text = text + 'de %d éléments à %d cases dans %s\n' % (self.length, len (self.list[0]), self.path)
