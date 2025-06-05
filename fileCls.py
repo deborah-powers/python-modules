@@ -315,9 +315,17 @@ class FileJs (File):
 
 	def readPrep (self):
 		File.read (self)
-		self.text = self.text.replace ('\n'," ")
+		# supprimer les commentaires
+		if '//' in self.text:
+			textList = self.text.split ('//')
+			rangeList = range (1, len (textList))
+			for c in rangeList:
+				f= textList[c].find ('\n')
+				textList[c] = textList[c][f:]
+			self.text = "".join (textList)
 		self.text = self.text.replace ('\t'," ")
 		self.text = self.text.replace ('\r'," ")
+		self.text = self.text.replace ('\n'," ")
 		self.cleanForStandarding()
 		# supprimer les commentaires
 		if '/*' in self.text:
@@ -359,8 +367,8 @@ les blocs libres
 			name = self.text[d+6:f]
 			f= self.text.find ('{',f)
 			f= self.findComplementaryBracket (f)
-			self.classes[name] =(d,f)
-			d=f+1
+			self.classes[name] =(d,f+1)
+			d=f+2
 		# isoler les fonctions d'objet
 		d=0
 		f=-1
@@ -373,8 +381,8 @@ les blocs libres
 			name = name[f+1:]
 			f= self.text.find ('{',d)
 			f= self.findComplementaryBracket (f)
-			self.functions[name] =(d,f, parent)
-			d=f+1
+			self.functions[name] =(d,f+1, parent)
+			d=f+2
 		# isoler les fonctions simples
 		self.text = self.text.replace (' = function ', ' = function$')
 		d=0
@@ -385,19 +393,20 @@ les blocs libres
 			name = self.text[d+9:f]
 			f= self.text.find ('{',f)
 			f= self.findComplementaryBracket (f)
-			self.functions[name] =(d,f, self.inClass (d))
-			d=f+1
+			self.functions[name] =(d,f+1, self.inClass (d))
+			d=f+2
 		self.text = self.text.replace (' = function$', ' = function ')
 		# isoler les blocs libres
 		# récupérer toutes les positions prises dans les structures
 		structuPos = list (self.classes.values())
 		structuPos.extend (list (self.functions.values()))
 		structuPos.sort()
-		for d,f,g in structuPos:
-			pStart
-			log.log (d,f,g)
-		d=0
-		f=-1
+		# les blocs
+		if structuPos[0][0] >0 and structuPos[0][1] > structuPos[0][0]: self.blocs.append ((0, structuPos[0][0]))
+		structuRange = range (len (structuPos) -1)
+		for s in structuRange:
+			if structuPos[s][1] +1 < structuPos[s+1][0]: self.blocs.append ((structuPos[s][1] +1, structuPos[s+1][0]))
+		if structuPos[-1][1] +1 < textLen: self.blocs.append ((structuPos[-1][1] +1, textLen))
 
 	def findComplementaryBracket (self, pStart):
 		pClose = self.text.find ('}', pStart)
@@ -437,6 +446,10 @@ les blocs libres
 				if not self.functions[name][2]: strInfos = strInfos +" "+ name +','
 				elif 'prototype' in self.functions[name][2]:
 					strInfos = strInfos +" "+ name +" ("+ self.functions[name][2].replace ('.prototype',"") +'),'
+		if self.blocs:
+			strInfos = strInfos + '\nblocs:'
+			for blocA, blocB in self.blocs:
+				strInfos = strInfos +"\n%d %d " % (blocA, blocB) + self.text[blocA:blocA +80] +" --- "+  self.text[blocB -80:blocB]
 		return strInfos
 
 class FileCss (File):
