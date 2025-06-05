@@ -10,7 +10,9 @@ import htmlFct
 from fileLocal import *
 from fileTemplate import *
 from htmlFromText import toHtml
+from modelThree import buildTree
 import loggerFct as log
+
 
 dateFormatFull = '%Y/%m/%d %H:%M:%S'
 dateFormatDay = '%Y-%m-%d'
@@ -105,13 +107,11 @@ class File():
 		# self et fileB sont ouverts
 		title = 'b/comparer %s et %s.txt' %( self.title, fileB.title)
 		fileCommon = File (title)
-		if (self.path[:-4] == '.css' and fileB.path[:-4] == '.css') or (self.path[:-3] == '.js' and fileB.path[:-3] == '.js'):
-			self.text = self.text.replace ('{',"")
-			self.text = self.text.replace ('}',"")
-			self.text = self.text.replace (';',"")
-			fileB.text = fileB.text.replace ('{',"")
-			fileB.text = fileB.text.replace ('}',"")
-			fileB.text = fileB.text.replace (';',"")
+		if (self.path[-4:] == '.css' and fileB.path[-4:] == '.css') or (self.path[-3:] == '.js' and fileB.path[-3:] == '.js'):
+			toClean = '{}();"\''
+			for item in toClean:
+				self.text = self.text.replace (item,"")
+				fileB.text = fileB.text.replace (item,"")
 		fileCommon.text = comparerText (self.text, fileB.text)
 		fileCommon.write()
 
@@ -302,17 +302,159 @@ fkz,fzkl,fam; v adbazjkbdafaef"""
 		print (self.text[:200])
 		self.write()
 
+class FileJs (File):
+	def __init__ (self, file =None):
+		File.__init__ (self, file)
+		self.classes ={}
+		self.functions ={}
+		self.blocs =[]
+
+	def read (self):
+		self.readPrep()
+		self.createBlock()
+
+	def readPrep (self):
+		File.read (self)
+		self.text = self.text.replace ('\n'," ")
+		self.text = self.text.replace ('\t'," ")
+		self.text = self.text.replace ('\r'," ")
+		self.cleanForStandarding()
+		# supprimer les commentaires
+		if '/*' in self.text:
+			textList = self.text.split ('/*')
+			rangeList = range (1, len (textList))
+			for c in rangeList:
+				f=2+ textList[c].find ('*/')
+				textList[c] = textList[c][f:]
+			self.text = "".join (textList)
+		self.cleanForStandarding()
+
+	def cleanForStandarding (self):
+		self.text = self.text.replace ("()"," ()")
+		while "  " in self.text: self.text = self.text.replace ("  "," ")
+		marquers ='{}:;"\''
+		for mark in marquers:
+			self.text = self.text.replace (" "+ mark, mark)
+			self.text = self.text.replace (mark +" ", mark)
+	"""
+dans un fichier js, il y a
+fonction simple, function truc()
+fonction d'objet, Truc.prototype.machin = function()
+variable globale
+classe, class Truc
+isoler
+les fonctions des deux types
+les classes
+les blocs libres
+	"""
+	def createBlock (self):
+		self.text =" "+ self.text +" "
+		textLen = len (self.text)
+		# isoler les classes
+		d=0
+		f=-1
+		while d< textLen and "class " in self.text[d:] and '{' in self.text[d:] and '}' in self.text[d:]:
+			d= self.text.find ("class ",d)
+			f= min (self.text.find (" ",d+7), self.text.find ('{',d))
+			name = self.text[d+6:f]
+			f= self.text.find ('{',f)
+			f= self.findComplementaryBracket (f)
+			self.classes[name] =(d,f)
+			d=f+1
+		# isoler les fonctions d'objet
+		d=0
+		f=-1
+		while d< textLen and " = function " in self.text[d:] and '{' in self.text[d:] and '}' in self.text[d:]:
+			f= self.text.find (" = function ",d)
+			d=1+ max (self.text[:f].rfind (" "), self.text[:f].rfind (';'), self.text[:f].rfind ('}'))
+			name = self.text[d:f]
+			f= name.rfind ('.')
+			parent = name[:f]
+			name = name[f+1:]
+			f= self.text.find ('{',d)
+			f= self.findComplementaryBracket (f)
+			self.functions[name] =(d,f, parent)
+			d=f+1
+		# isoler les fonctions simples
+		self.text = self.text.replace (' = function ', ' = function$')
+		d=0
+		f=-1
+		while d< textLen and "function " in self.text[d:] and '{' in self.text[d:] and '}' in self.text[d:]:
+			d= self.text.find ("function ",d)
+			f= self.text.find (" ",d+10)
+			name = self.text[d+9:f]
+			f= self.text.find ('{',f)
+			f= self.findComplementaryBracket (f)
+			self.functions[name] =(d,f, self.inClass (d))
+			d=f+1
+		self.text = self.text.replace (' = function$', ' = function ')
+		# isoler les blocs libres
+		# récupérer toutes les positions prises dans les structures
+		structuPos = list (self.classes.values())
+		structuPos.extend (list (self.functions.values()))
+		structuPos.sort()
+		for d,f,g in structuPos:
+			pStart
+			log.log (d,f,g)
+		d=0
+		f=-1
+
+	def findComplementaryBracket (self, pStart):
+		pClose = self.text.find ('}', pStart)
+		nStart = self.text[pStart +1:pClose].count ('{')
+		nClose = self.text[pStart +1:pClose].count ('}')
+		while nStart > nClose and '{' in self.text[pStart +1:pClose] and '}' in self.text[pStart +1:pClose]:
+			pClose = self.text.find ('}', pClose +1)
+			nStart = self.text[pStart +1:pClose].count ('{')
+			nClose = self.text[pStart +1:pClose].count ('}')
+		return pClose
+
+	def inClass (self, pos):
+		names = self.classes.keys()
+		isin =""
+		for name in names:
+			if pos >= self.classes[name][0] and pos <= self.classes[name][1]: isin = name
+		return isin
+
+	def inFunc (self, pos):
+		names = self.functions.keys()
+		isin =""
+		for name in names:
+			if pos >= self.functions[name][0] and pos <= self.functions[name][1]: isin = name
+		return isin
+
+	def __str__ (self):
+		self.toPath()
+		strInfos = self.path
+		if self.classes:
+			strInfos = strInfos + '\nclasses:'
+			names = self.classes.keys()
+			for name in names: strInfos = strInfos +" "+ name
+		if self.functions:
+			strInfos = strInfos + '\nfunctions:'
+			names = self.functions.keys()
+			for name in names:
+				if not self.functions[name][2]: strInfos = strInfos +" "+ name +','
+				elif 'prototype' in self.functions[name][2]:
+					strInfos = strInfos +" "+ name +" ("+ self.functions[name][2].replace ('.prototype',"") +'),'
+		return strInfos
+
 class FileCss (File):
 	def __init__ (self, file =None):
 		File.__init__ (self, file)
 		self.blocs =[]
 
-	def cleanForStandarding (self):
-		while "  " in self.text: self.text = self.text.replace ("  "," ")
-		marquers ='{}:;'
-		for mark in marquers:
-			self.text = self.text.replace (" "+ mark, mark)
-			self.text = self.text.replace (mark +" ", mark)
+	def toSelection (self, tagList=[]):
+		text =""
+		for bloc in self.blocs:
+			if '*' in bloc[0] or ':root' in bloc[0] or 'body' in bloc[0] or 'html' in bloc[0]:
+				text = text + bloc[0] +' { '+ bloc[1].replace (':', ': ') +'}\n'
+		for tag in tagList:
+			for bloc in self.blocs:
+				if tag in bloc[0] and bloc[0] not in text:
+					text = text + bloc[0] +' { '+ bloc[1].replace (':', ': ') +'}\n'
+		text = text.replace (';', '; ')
+		return text
 
 	def read (self):
 		File.read (self)
@@ -361,17 +503,12 @@ class FileCss (File):
 			textList[c][1] = textList[c][1].replace (']]','}')
 			self.blocs.append (( textList[c][0], textList[c][1] ))
 
-	def toSelection (self, tagList=[]):
-		text =""
-		for bloc in self.blocs:
-			if '*' in bloc[0] or ':root' in bloc[0] or 'body' in bloc[0] or 'html' in bloc[0]:
-				text = text + bloc[0] +' { '+ bloc[1].replace (':', ': ') +'}\n'
-		for tag in tagList:
-			for bloc in self.blocs:
-				if tag in bloc[0] and bloc[0] not in text:
-					text = text + bloc[0] +' { '+ bloc[1].replace (':', ': ') +'}\n'
-		text = text.replace (';', '; ')
-		return text
+	def cleanForStandarding (self):
+		while "  " in self.text: self.text = self.text.replace ("  "," ")
+		marquers ='{}:;'
+		for mark in marquers:
+			self.text = self.text.replace (" "+ mark, mark)
+			self.text = self.text.replace (mark +" ", mark)
 
 class Article (File):
 	# classe pour les fichiers txt et html
