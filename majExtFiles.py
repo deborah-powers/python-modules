@@ -1,6 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from fileCls import FileJs
+from fileJs import FileJs
 
 # comparer les fichiers copiés entre les extensions et site-dp
 
@@ -16,9 +16,9 @@ htmlFctFiles =[
 ]
 myfile = FileJs (htmlFctFiles[0])
 myfile.read()
-print (myfile)
 
 """
+print (myfile)
 def compareFiles (fileNameList):
 	fileRange = range (len (fileNameList))
 	fileList =[]
