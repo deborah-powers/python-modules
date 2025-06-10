@@ -20,6 +20,52 @@ class FileJs (File):
 		self.classes ={}
 		self.functions ={}
 		self.blocs =[]
+		if self.path[-3:] != '.js':
+			print ("ce fichier n'est pas en js")
+			return None
+
+	def comparer (self, newJs):
+		self.toPath()
+		newJs.toPath()
+		if self.path[-3:] != '.js' and new.path[-3:] != '.js':
+			print ("l'un des fichiers n'est pas en js:\n%s\n%s" % (self.path, newJs.path))
+			return
+		elif self.text == newJs.text:
+			print ("les fichiers sont identiques:\n%s\n%s" % (self.path, newJs.path))
+			return
+		# fichier de comparaison
+		title = 'b/comparer '+ self.title
+		if self.title != newJs.title: title = title + ' et '+ newJs.title
+		title = title + '.txt'
+		compareFile = File (title)
+		compareFile.text = 'fichier a: %s\nfichier b: %s' % (self.path, newJs.path)
+		# comparer les classes
+		names = self.classes.keys()
+		namesNew = newJs.classes.keys()
+		for name in names:
+			if name not in namesNew: compareFile.text = compareFile.text + '\nnouvelle classe dans a: '+ name
+			elif self.text [self.classes[name][0]:self.classes[name][1]] != newJs.text [newJs.classes[name][0]:newJs.classes[name][1]]:
+				 compareFile.text = compareFile.text + '\nchangement au sein de la classe: '+ name
+		for name in namesNew:
+			if name not in names: compareFile.text = compareFile.text + '\nnouvelle classe dans b: '+ name
+		# comparer les fonctions
+		names = self.functions.keys()
+		namesNew = newJs.functions.keys()
+		for name in names:
+			if name not in namesNew: compareFile.text = compareFile.text + '\nnouvelle fonction dans a: '+ name
+			elif self.text [self.functions[name][0]:self.functions[name][1]] != newJs.text [newJs.functions[name][0]:newJs.functions[name][1]]:
+				 compareFile.text = compareFile.text + '\nchangement au sein de la fonction: '+ name
+		for name in namesNew:
+			if name not in names: compareFile.text = compareFile.text + '\nnouvelle fonction dans b: '+ name
+		# comparer les blocs
+		for d,f in self.blocs:
+			if self.text[d:f] in newJs.text:
+				g= newJs.text.find (self.text[d:f])
+				if f!=g: compareFile.text = compareFile.text + '\nbloc déplacé: %d, %d --> %d' % (d,f,g)
+			else: compareFile.text = compareFile.text + '\nnouveaux blocs dans a: %d, %d' % (d,f)
+		for d,f in newJs.blocs:
+			if newJs.text[d:f] not in self.text: compareFile.text = compareFile.text + '\nnouveaux blocs dans b: %d, %d' % (d,f)
+		compareFile.write()
 
 	def read (self):
 		File.read (self)
@@ -88,16 +134,12 @@ class FileJs (File):
 		structuPos = list (self.classes.values())
 		structuPos.extend (list (self.functions.values()))
 		structuPos.sort()
-		for a,b,c in structuPos: log.log (a,b,c)
-		print (structuPos[2], self.text[structuPos[2][0]:structuPos[2][1]])
-		log.message ('---')
-		print (structuPos[3], self.text[structuPos[2][1]:structuPos[3][0]])
 		# les blocs
-		if structuPos[0][0] >0 and structuPos[0][1] > structuPos[0][0]: self.blocs.append ((0, structuPos[0][0]))
-		structuRange = range (len (structuPos) -1)
-		for s in structuRange:
-			if structuPos[s][1] +1 < structuPos[s+1][0]: self.blocs.append ((structuPos[s][1], structuPos[s+1][0]))
-		if structuPos[-1][1] +1 < textLen: self.blocs.append ((structuPos[-1][1], textLen))
+		if structuPos[0][0] >0: self.blocs.append ((0, structuPos[0][0]))
+		rangeList = range (1, len (structuPos))
+		for l in rangeList:
+			if structuPos[l][0] - structuPos[l-1][1] >1: self.blocs.append ((structuPos[l-1][1], structuPos[l][0]))
+		if structuPos[-1][1] < textLen: self.blocs.append ((structuPos[-1][1], textLen))
 
 	def clean (self):
 		self.text = self.text.replace ('\r'," ")
@@ -142,22 +184,6 @@ class FileJs (File):
 				textList[c] = textList[c][f:]
 			self.text = "".join (textList)
 
-	def findComplementaryBracket (self, pStart):
-		textLen = len (self.text)
-		# rechercher
-		pClose = self.text.find ('}', pStart)
-		nStart = self.text[pStart +1:pClose].count ('{')
-		nClose = self.text[pStart +1:pClose].count ('}')
-		while nStart > nClose and pClose >0 and '}' in self.text[pClose +1:]:
-	#	while nStart > nClose and pClose >=0 and pClose < textLen :
-			pClose = self.text.find ('}', pClose +1)
-			nStart = self.text[pStart +1:pClose].count ('{')
-			nClose = self.text[pStart +1:pClose].count ('}')
-		if nClose < nStart:
-			print (pStart, pClose, nStart, nClose, self.text[pStart +1:pStart +91], '---', self.text[pClose -30:pClose +1])
-		pClose +=1	# inclure la } dans les limites
-		return pClose
-
 	def inClass (self, pos):
 		names = self.classes.keys()
 		isin =""
@@ -183,19 +209,29 @@ class FileJs (File):
 			strInfos = strInfos + '\nfunctions:'
 			names = self.functions.keys()
 			for name in names:
-				if not self.functions[name][2]: strInfos = strInfos + "\n%d %d %s" % (self.functions[name][0], self.functions[name][1], name)
-				elif 'prototype' in self.functions[name][2]:
-					strInfos = strInfos + "\n%d %d %s (%s)" % (self.functions[name][0], self.functions[name][1], name, self.functions[name][2][:-10])
-		elif self.functions and 1==2:
-			strInfos = strInfos + '\nfunctions:'
-			names = self.functions.keys()
-			for name in names:
 				if not self.functions[name][2]: strInfos = strInfos +" "+ name +','
 				elif 'prototype' in self.functions[name][2]:
 					strInfos = strInfos +" "+ name +" ("+ self.functions[name][2][:-10] +'),'
 		if self.blocs:
 			strInfos = strInfos + '\nblocs:'
 			for blocA, blocB in self.blocs:
-				strInfos = strInfos +"\n%d %d %s --- %s" % (blocA, blocB, self.text[blocA:blocA +80], self.text[blocB -80:blocB])
+				if blocB - blocA <=130: strInfos = strInfos +"\nposition %d: %s" % (blocA, self.text[blocA:blocB].strip())
+				else: strInfos = strInfos +"\nposition %d: %s --- %s" % (blocA, self.text[blocA:blocA +60].strip(), self.text[blocB -60:blocB].strip())
 		return strInfos
+
+	def findComplementaryBracket (self, pStart):
+		textLen = len (self.text)
+		# rechercher
+		pClose = self.text.find ('}', pStart)
+		nStart = self.text[pStart +1:pClose].count ('{')
+		nClose = self.text[pStart +1:pClose].count ('}')
+		while nStart > nClose and pClose >0 and '}' in self.text[pClose +1:]:
+	#	while nStart > nClose and pClose >=0 and pClose < textLen :
+			pClose = self.text.find ('}', pClose +1)
+			nStart = self.text[pStart +1:pClose].count ('{')
+			nClose = self.text[pStart +1:pClose].count ('}')
+		if nClose < nStart:
+			print (pStart, pClose, nStart, nClose, self.text[pStart +1:pStart +91], '---', self.text[pClose -30:pClose +1])
+		pClose +=1	# inclure la } dans les limites
+		return pClose
 
