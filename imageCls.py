@@ -430,7 +430,7 @@ class ImageFolder (MediaFolder):
 			if ratio < ratioMin: ratioMin = ratio
 			elif ratio > ratioMax: ratioMax = ratio
 		imageRange = range (len (self.list))
-		if ratioMax <0.0:
+		if ratioMax <1.0:
 			for i in imageRange:
 				regrowMade = self.list[i].insta (drawBgfonc, ratioMax)
 				if regrowMade:
