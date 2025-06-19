@@ -60,10 +60,14 @@ def toFile (fileName, text, mode='w'):
 		textBrut.close()
 	else: print ('le titre du fichier est mal formé', title)
 
-def fromUrl (url):
+def fromUrl (url, params=None):
 	text =""
 	try:
-		myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
+		myRequest = None
+		if params:
+			paramsUrl = ul.parse.urlencode (params).encode ('utf-8')
+			myRequest = urlRequest.Request (url, method='POST', headers={ 'User-Agent': 'Mozilla/5.0' })
+		else: myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
 		textBrut = urlRequest.urlopen (myRequest)
 		text = decodeFileContent (textBrut)
 	except Exception as e:
