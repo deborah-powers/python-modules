@@ -12,7 +12,7 @@ from selenium.common import exceptions
 from webdriver_manager.chrome import ChromeDriverManager	# utiliser le navigateur chrome
 import time
 
-urlTest = 'https://forgeaxyus.local.axyus.com/plugins/docman/?group_id=171&action=show&id=6080'
+urlSpecForge = 'https://forgeaxyus.local.axyus.com/plugins/docman/?group_id=171&action=show&id=6080'
 
 # lancer le navigateur, ici chrome
 service = Service()
@@ -23,11 +23,12 @@ options.add_argument ('--ignore-ssl-errors')
 options.add_argument ('--log-level=3')
 driver = webdriver.Chrome (service=service, options=options)
 
-# me connecter à l'url
-driver.get (urlTest)
+# me connecter à l'url. la première connection m'ammène sur la page de login
+driver.get (urlSpecForge)
+
+"""
 # faire une pause le temps de voir la page
 time.sleep (1)
-
 # reffuser les cookies
 try:
 	cookiesReffuser =  driver.find_element (By.ID, 'tarteaucitronAllDenied2')
@@ -35,17 +36,19 @@ try:
 	time.sleep (1)
 except exceptions.NoSuchElementException:
 	print ('les cookies ont déjà été validés')
-
-assert 'forge' in driver.title
-# assert 'ocumentation' in driver.title
-
+"""
+# remplir et valider le formulaire de login
 fieldName = driver.find_element (By.NAME, 'form_loginname')
 fieldName.send_keys ('deborah.powers')
 fieldPwd = driver.find_element (By.NAME, 'form_pw')
 fieldPwd.send_keys ('LmUFhiYhoub8!')
 buttonSend = driver.find_element (By.NAME, 'login')
-buttonSend.click()
-# buttonSend.summit()
+buttonSend.submit()
+# buttonSend.click()
 
-# assert 'ocumentation' in driver.title
-print (driver)
+# rediriger vers la page désirée pour de bon
+driver.get (urlSpecForge)
+print (driver.title)
+time.sleep (1)
+
+
