@@ -62,7 +62,6 @@ def getUrlData (url, parentName):
 		for link in links:
 			if link.text:
 				href = link.get_dom_attribute ('href')
-				print (link.text, href)
 				# les fichiers
 				if '/download/' in href or '.' in link.text:
 					finalText = finalText +'\n'+ parentName +'\t'+ link.text +'\t'+ link.get_dom_attribute ('href')
