@@ -4,6 +4,7 @@
 sources:
 	https://pypi.org/project/selenium/
 	https://www.selenium.dev/selenium/docs/api/py/
+	https://www.selenium.dev/selenium/docs/api/py/webdriver_remote/selenium.webdriver.remote.webelement.html
 """
 from selenium import webdriver	# contrôle le navigateur
 from selenium.webdriver.chrome.service import Service
@@ -12,7 +13,8 @@ from selenium.common import exceptions
 from webdriver_manager.chrome import ChromeDriverManager	# utiliser le navigateur chrome
 import time
 
-urlSpecForge = 'https://forgeaxyus.local.axyus.com/plugins/docman/?group_id=171&action=show&id=6080'
+urlSpecForgeBase = 'https://forgeaxyus.local.axyus.com'
+urlSpecForge = '/plugins/docman/?group_id=171&action=show&id=6080'
 
 # lancer le navigateur, ici chrome
 service = Service()
@@ -24,7 +26,7 @@ options.add_argument ('--log-level=3')
 driver = webdriver.Chrome (service=service, options=options)
 
 # me connecter à l'url. la première connection m'ammène sur la page de login
-driver.get (urlSpecForge)
+driver.get (urlSpecForgeBase + urlSpecForge)
 
 """
 # faire une pause le temps de voir la page
@@ -46,9 +48,54 @@ buttonSend = driver.find_element (By.NAME, 'login')
 buttonSend.submit()
 # buttonSend.click()
 
-# rediriger vers la page désirée pour de bon
-driver.get (urlSpecForge)
-print (driver.title)
-time.sleep (1)
+def getUrlData (url, parentName):
+	finalText = 'url: '+ urlSpecForge	# les informations
+	linkList =[]	# les liens enfants
+	try:
+		# rediriger vers la page désirée pour de bon
+		driver.get (urlSpecForgeBase + url)
+		# fouiller le dom afin de trouver les données d'intérêt
+		content = driver.find_element (By.CLASS_NAME, 'content')
+		finalText = finalText + "\nfil d'ariane: "+ content.find_element (By.TAG_NAME, 'td').text[10:]
+		content = content.find_elements (By.TAG_NAME, 'ul')[1]
+		links = content.find_elements (By.TAG_NAME, 'a')
+		for link in links:
+			if link.text:
+				href = link.get_dom_attribute ('href')
+				print (link.text, href)
+				# les fichiers
+				if '/download/' in href or '.' in link.text:
+					finalText = finalText +'\n'+ parentName +'\t'+ link.text +'\t'+ link.get_dom_attribute ('href')
+				# les pages enfants
+				else: linkList.append ((link.text, href))
+	except Exception as e: print ('une érreur bloque le traitement de', url, e)
+	else:
+		# traiter les liens enfants
+		for name, url in linkList: finalText = finalText +'\n\n'+ getUrlData (url, parentName +" - "+ name)
+	return finalText
 
+def getUrlData (url, parentName):
+	finalText = 'url: '+ urlSpecForge	# les informations
+	linkList =[]	# les liens enfants
+	try:
+		# rediriger vers la page désirée pour de bon
+		driver.get (urlSpecForgeBase + url)
+		# fouiller le dom afin de trouver les données d'intérêt
+		content = driver.find_element (By.CLASS_NAME, 'content')
+		finalText = finalText + "\nfil d'ariane: "+ content.find_element (By.TAG_NAME, 'td').text[10:]
+		content = content.find_elements (By.TAG_NAME, 'ul')[1]
+		links = content.find_elements (By.TAG_NAME, 'a')
+		for link in links:
+			if link.text:
+				finalText = finalText +'\n'+ parentName +'\t'+ link.text +'\t'+ link.get_dom_attribute ('href')
+				linkList.append ((link.text, link.get_dom_attribute ('href')))
+	except Exception as e: print ('une érreur bloque le traitement de', url, e)
+	else:
+		# traiter les liens enfants
+		for name, url in linkList:
+			if '/download/' in url: print (name, url)
+			else: finalText = finalText +'\n\n'+ getUrlData (url, parentName +" - "+ name)
+	return finalText
 
+finalText = getUrlData (urlSpecForge, '.')
+print (finalText)
