@@ -29,7 +29,8 @@ options.add_argument ('--log-level=3')
 
 driver = webdriver.Chrome (service=service, options=options)
 
-time.sleep (1)	# tuto. besoin d'un délai
+# faire une pause le temps de voir la page, ou si elle a besoin d'un délai pour se charger
+time.sleep (1)
 driver.get(urlFull)
 time.sleep (1)
 
@@ -38,6 +39,13 @@ time.sleep (1)
 accept_cookies =  driver.find_element (By.ID, 'didomi-notice-agree-button')
 # b. cliquer dessus
 driver.execute_script ('arguments[0].click();', accept_cookies);
+
+# reffuser les cookies
+try:
+	cookiesReffuser =  driver.find_element (By.ID, 'tarteaucitronAllDenied2')
+	driver.execute_script ('arguments[0].click();', cookiesReffuser);
+	time.sleep (1)
+except exceptions.NoSuchElementException: print ('les cookies ont déjà été validés')
 
 # scroller
 def scroll (value):

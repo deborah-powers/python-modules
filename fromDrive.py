@@ -52,12 +52,14 @@ def downloadFile (service, fileId, folderOutput, fileLog, totalPages):
 def downloadFolder (service, folderId, folderOutput, fileLog):
 	files, totalPages = list_files_in_folder (service, folderId)
 	for file in files:
+		# les sous-dossiers
 		if file['mimeType'] == 'applicaton/vnd.google-apps.folder':
 			subFolderId = file['id']
 			subFolderName = file['name']
 			subFolderOutput = os.path.join (folderOutput, subFolderName)
 			os.makedirs (subFolderOutput, exist_ok=True)
 			downloadFolder (service, subFolderId, subFolderOutput, fileLog)
+		# les fichiers
 		else: downloadFile (service, file['id'], folderOutput, fileLog, totalPages)
 
 def listFolders (service, folderId):

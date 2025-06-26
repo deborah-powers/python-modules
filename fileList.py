@@ -3,6 +3,7 @@
 import textFct
 import listFct
 from fileCls import File
+import loggerFct as log
 
 class FileList (File):
 	def __init__(self, file=None, sep='\n'):
