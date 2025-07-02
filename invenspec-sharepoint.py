@@ -46,13 +46,10 @@ for crum in listArianne: filArianne = filArianne +" / "+ crum.text;
 filArianne = filArianne[3:]
 log.message (filArianne)
 # récupérer les liens
-content = driver.find_element (By.ID, 'html-list_2')
+content = driver.execute_script ("return document.getElementById ('html-list_2').children[0].children[7].children[1];")
 log.message (len (content.find_elements (By.CSS_SELECTOR, '*')))
 log.message (len (content.find_elements (By.XPATH, './/*')))
 log.message (len (content.find_elements (By.XPATH, '//*')))
-driver.execute_script ("alert (document.getElementById ('html-list_2').children.length);")
-res = driver.execute_script ("document.getElementById ('html-list_2').children.length;")
-log.message (res)
 
 content = content.find_element (By.CSS_SELECTOR, '*').find_elements (By.CSS_SELECTOR, '*')[7].find_elements (By.CSS_SELECTOR, '*')[1]
 folders = content.find_elements (By.CSS_SELECTOR, '*')
