@@ -85,6 +85,7 @@ driver.get (myurlBis)
 # actions
 # la page est rechargée. récupérer l'élément content
 driver.back()
+driver.execute_script ('window.history.go(-1)')
 content = driver.find_element (By.CLASS_NAME, 'toto')
 
 """ options du navigateur chrome qui ne me servent pas

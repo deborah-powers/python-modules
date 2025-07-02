@@ -2,119 +2,68 @@
 # -*- coding: utf-8 -*-
 from invenspec import *
 
-urlSpecForgeBase = 'https://forgeaxyus.local.axyus.com'
-urlSpecForge = '/plugins/docman/?group_id=171&action=show&id=6080'
+downloadFolder = downloadFolder + '-sharepoint'
+urlSpecForgeBase = 'https://magellanpartners.sharepoint.com/sites/MP-PRJ-ANCTSYNERGIECLOUD/Documents%20partages/Forms/AllItems.aspx?'
+urlSpecForge = 'id=%2Fsites%2FMP%2DPRJ%2DANCTSYNERGIECLOUD%2FDocuments%20partages%2FGeneral%2F08%2E%20Fonds%20documentaire%2FSp%C3%A9cifications%20Fonctionnelles&viewid=1e36e7b7%2D898c%2D45d2%2Db4de%2D1f26676d52a6&FolderCTID=0x012000CF7A84DB29E4C4498BE77545E32687D6'
 
-# me connecter à l'url. la première connection m'ammène sur la page de login
-driver.get (urlSpecForgeBase + urlSpecForge)
-
-# remplir et valider le formulaire de login
-fieldName = driver.find_element (By.NAME, 'form_loginname')
-fieldName.send_keys ('deborah.powers')
-fieldPwd = driver.find_element (By.NAME, 'form_pw')
-fieldPwd.send_keys ('')
-buttonSend = driver.find_element (By.NAME, 'login')
-buttonSend.submit()
+# https://magellanpartners.sharepoint.com/sites/MP-PRJ-ANCTSYNERGIECLOUD/Documents%20partages/Forms/AllItems.aspx?id=%2Fsites%2FMP%2DPRJ%2DANCTSYNERGIECLOUD%2FDocuments%20partages%2FGeneral%2F08%2E%20Fonds%20documentaire%2FSp%C3%A9cifications%20Fonctionnelles&viewid=1e36e7b7%2D898c%2D45d2%2Db4de%2D1f26676d52a6&FolderCTID=0x012000CF7A84DB29E4C4498BE77545E32687D6
 
 # les fichiers
 fileRes.title = fileRes.title +' sharepoint'
-fileRes.write()
+# fileRes.write()
 fileError.title = fileError.title +' sharepoint'
-fileError.write()
+# fileError.write()
 
-def natureChild (childUrl, childLink):
-	nature =""
-	if '/plugins/docman/?group_id=' in childUrl: nature = 'dossier'
-	elif '/download/' in childUrl: nature = 'fichier'
-	else:
-		try:
-			childLink.click()
-			frameDetail = driver.find_element (By.CLASS_NAME, 'docman_item_menu')
-			if 'ouveau dossier' in frameDetail.text: nature = 'dossier'
-			else: nature = 'fichier'
-			frameDetail.find_element (By.TAG_NAME, 'a').click()
-		except Exception as e:
-			fileError.text = childUrl + '\ttest de la nature du lien\n' + str(e)
-			print (fileError.text)
-			fileError.write ('a')
-		finally: return nature
-	return nature
+driver = createWebDriver (downloadFolder)
+# me connecter à l'url. la première connection m'ammène sur la page de login
+driver.get (urlSpecForgeBase + urlSpecForge)
+time.sleep(1)
 
-def getUrlData (url):
-	links =[]	# les liens enfants
-	linkList =[]
-	try:
-		# rediriger vers la page désirée pour de bon
-		driver.get (urlSpecForgeBase + url)
-		time.sleep (0.5)	# donner le temps au dom de bien se charger
-		# fouiller le dom afin de trouver les données d'intérêt
-		content = driver.find_element (By.CLASS_NAME, 'content')
-		time.sleep (0.5)
-		filArianne = content.find_element (By.TAG_NAME, 'td').text[10:]
-		linkList = content.find_elements (By.TAG_NAME, 'ul')
-	except Exception as e:
-		fileError.text = url + '\tdébut du traitement\n' + str(e)
-		print (fileError.text)
-		fileError.write ('a')
-	else:
-		if len (linkList) >1:
-			linkList = linkList[1].find_elements (By.TAG_NAME, 'a')
-			linkRange = range (1, len (linkList), 3)	# linkList[l] = lien de l'élément, linkList[l+1] = lien vers ses métadonnées
-			for l in linkRange:
-				childUrl = linkList[l].get_dom_attribute ('href')
-				if not childUrl:
-					fileError.text = url[15:] + '\tenfant sans lien\t' + linkList[l].text
-					fileError.write ('a')
-					continue
-				elif childUrl in fileRef.text: continue
-				nature = natureChild (childUrl, linkList[l+1])
-				if 'dossier' == nature: links.append ((linkList[l].text, childUrl))
-				elif not nature:
-					fileError.text = url[15:] + '\tnature du lien enfant non précisable\t' + childUrl
-					fileError.write ('a')
-				else:
-					# fil d'ariane, titre de la forge, vrai nom du fichier, url, date de modification de la forge, taille réelle
-					fileRes.text = '%s\t%s\t%s\t%s\t%s\t%s' % ('%s', '%s', '%s', '%s', childUrl, filArianne)
-					# récupérer les infos du fichier lui-même
-					linkList[l].click()
-					time.sleep (0.5)
-					fileName = '.crdownload'
-					countIter =0
-					try:
-						while '.crdownload' in fileName and countIter <100:
-							fileName = os.listdir (dossierTelechargements)[0]
-							countIter +=1
-							time.sleep (3)
-						if '.crdownload' in fileName:
-							fileRes.text = fileRes.text % ('%s', fileName, '%s', '!! NON téléchargé !!')
-							fileError.text = url[15:] + '\ttéléchargement raté de %s\t%s' % (fileName, childUrl[15:])
-							print (fileError.text)
-							fileError.write ('a')
-						else:
-							fileData = nameSpace.ParseName (fileName)
-							fileSize = nameSpace.GetDetailsOf (fileData, 1)
-							fileRes.text = fileRes.text % ('%s', fileName, '%s', fileSize.replace (' '," "))
-						# récupérer les infos de la forge
-						linkList[l+1].click()
-						content = driver.find_element (By.CLASS_NAME, 'docman_item_menu')
-						content.find_elements (By.TAG_NAME, 'a')[-1].click()
-						time.sleep (0.5)
-						content = driver.find_elements (By.TAG_NAME, 'table')[1]
-						linkList = content.find_elements (By.TAG_NAME, 'tr')
-						fileRes.text = fileRes.text % (linkList[1].find_elements (By.TAG_NAME, 'td')[1].text, linkList[5].find_elements (By.TAG_NAME, 'td')[1].text)
-						fileRes.write ('a')
-						os.remove (dossierTelechargements + os.sep + fileName)
-						driver.back()
-						content = driver.find_element (By.CLASS_NAME, 'content')
-						linkList = content.find_elements (By.TAG_NAME, 'ul')
-						linkList = linkList[1].find_elements (By.TAG_NAME, 'a')
-					except Exception as e:
-						fileError.text = url[15:] + '\trécupération ratée de %s\t%s\n%s' % (fileName, childUrl[15:], str(e))
-						print (fileError.text)
-						fileError.write ('a')
-						viderTelechargements()
-			# traiter les liens enfants
-			for name, url in links: getUrlData (url)
+# remplir et valider le formulaire de login de la page https://login.microsoftonline.com/xxx
+fieldName = driver.find_element (By.NAME, 'loginfmt')
+fieldName.send_keys ('deborah.powers@cgi.com')
+# bouton "suivant"
+buttonConnect = driver.find_element (By.ID, 'idSIButton9')
+buttonConnect.click()
+"""
+# bouton "se connecter"
+buttonConnect = driver.find_element (By.ID, 'loginHeader')
+print (buttonConnect)
+buttonConnect.click()
+"""
+# me connecter manuellement
+time.sleep(45)
+# revenir sur ma vraie page
+driver.get (urlSpecForgeBase + urlSpecForge)
+time.sleep(1)
 
-getUrlData (urlSpecForge)
+# récupérer les infos du dossier où je suis
+content = driver.find_element (By.ID, 'appRoot')
+# récupérer le fil d'arianne
+listArianne = content.find_element (By.TAG_NAME, 'ol').find_elements (By.TAG_NAME, 'li')
+filArianne =""
+for crum in listArianne: filArianne = filArianne +" / "+ crum.text;
+filArianne = filArianne[3:]
+log.message (filArianne)
+# récupérer les liens
+content = driver.find_element (By.ID, 'html-list_2')
+log.message (len (content.find_elements (By.CSS_SELECTOR, '*')))
+log.message (len (content.find_elements (By.XPATH, './/*')))
+log.message (len (content.find_elements (By.XPATH, '//*')))
+driver.execute_script ("alert (document.getElementById ('html-list_2').children.length);")
+res = driver.execute_script ("document.getElementById ('html-list_2').children.length;")
+log.message (res)
 
+content = content.find_element (By.CSS_SELECTOR, '*').find_elements (By.CSS_SELECTOR, '*')[7].find_elements (By.CSS_SELECTOR, '*')[1]
+folders = content.find_elements (By.CSS_SELECTOR, '*')
+log.message (len (folders))
+"""
+	content = document.getElementById ().children[0].children[0].children[0].children[0].children[0].children[7].children[1];
+	document.body.style.overflow = 'scroll';
+	var dataTab ="";	// titre	nom	date de modification	taille	url	fil d'ariane
+	var folderList =[];
+	for (var frame of content.children){
+		if (frame.children[1].children[0].tagName === 'DIV' && frame.children[1].children[0].children[0].getAttribute ('aria-label').includes ('Dossier'))
+			folderList.push (frame);
+		else dataTab = dataTab + frame.extractFileData() +'\t'+ filArianne +'\n';
+"""

@@ -73,7 +73,7 @@ def getUrlData (url):
 				fileError.text = url[15:] + '\tenfant sans lien\t' + linkList[l].text
 				fileError.write ('a')
 				continue
-			elif childUrl in fileRef.text: continue
+		#	elif childUrl in fileRef.text: continue
 			elif '.jar' in linkList[l].text or '.zip' in linkList[l].text:
 				fileError.text = url[15:] + '\tfichier zip ou jar\t%s\t%s' % (linkList[l].text, childUrl[15:])
 				fileError.write ('a')
@@ -87,75 +87,96 @@ def getUrlData (url):
 				fileError.write ('a')
 				continue
 			else:
+				log.coucou()
 				fileRes.text = '%s\t%s\t%s\t%s\t%s\t%s' % ('%s', '%s', '%s', '%s', childUrl, filArianne)
+				# récupérer les infos du fichier lui-même
+				linkList[l].click()
+				log.coucou()
+				time.sleep (0.5)
+				fileName = '.crdownload'
+				countIter =0
+				unwriten = True
+				try:
+					"""
+					while '.crdownload' in fileName and countIter <2:
+						log.log (fileName, countIter)
+						fileName = os.listdir (downloadFolder)[0]
+						countIter +=1
+						time.sleep (15)
+					"""
+					log.coucou()
+					if '.crdownload' in fileName:
+						fileRes.text = fileRes.text % ('%s', fileName, '%s', '!! NON téléchargé !!')
+						fileError.text = url[15:] + '\ttéléchargement raté de %s\t%s' % (fileName, childUrl[15:])
+						fileError.write ('a')
+						log.message (fileError.text)
+						unwriten = False
+						emptyingFolder (downloadFolder)
+					if '.jar' == fileName[-4:] or '.zip' == fileName[-4:]:
+						if unwriten:
+							fileError.text = url[15:] + '\tfichier %s\t%s\t%s' % (fileName[-3:], fileName, childUrl[15:])
+							log.message (fileError.text)
+							fileError.write ('a')
+							unwriten = False
+						emptyingFolder (downloadFolder)
+					else:
+						log.coucou()
+						fileData = nameSpace.ParseName (fileName)
+						log.coucou()
+						fileSize = nameSpace.GetDetailsOf (fileData, 1)
+						log.coucou()
+						fileRes.text = fileRes.text % ('%s', fileName, '%s', fileSize.replace (' '," "))
+						log.message (fileRes.text)
+						emptyingFolder (downloadFolder)
+				except Exception as e:
+					log.message (fileRes.text)
+					fileRes.text = fileRes.text % ('%s', fileName, '%s', '!! NON téléchargé !!')
+					log.message (fileRes.text)
+					fileError.text = url[15:] + '\ttéléchargement raté de %s\t%s\n%s' % (fileName, childUrl[15:], str(e))
+					fileError.write ('a')
+					emptyingFolder (downloadFolder)
 				# récupérer les infos de la forge
+				log.coucou()
+				if '.jar' == fileName[-4:] or '.zip' == fileName[-4:]:
+					emptyingFolder (downloadFolder)
+					continue
 				linkList[l+1].click()
+				log.coucou()
 				try:
 					details = driver.find_element (By.CLASS_NAME, 'docman_item_menu')
+					log.coucou()
 					details.find_elements (By.TAG_NAME, 'a')[-1].click()
+					log.coucou()
 					time.sleep (0.5)
 					details = driver.find_elements (By.TAG_NAME, 'table')[1]
-					detailList = details.find_elements (By.TAG_NAME, 'tr')
-					fileName = detailList[1].find_elements (By.TAG_NAME, 'td')[1].text
+					log.coucou()
+					linkList = details.find_elements (By.TAG_NAME, 'tr')
+					log.coucou()
+					fileName = linkList[l].find_elements (By.TAG_NAME, 'td')[1].text
+					log.message (fileName)
 					# sauter certains types de fichiers
 					if '.jar' == fileName[-4:] or '.zip' == fileName[-4:]:
 						fileError.text = url[15:] + '\tfichier jar\t%s\t%s' % (fileName, childUrl[15:])
 						fileError.write ('a')
 						continue
-					fileRes.text = fileRes.text % (fileName, '%s', detailList[5].find_elements (By.TAG_NAME, 'td')[1].text, '%s')
-				#	fileRes.write ('a')
+					log.coucou()
+					fileRes.text = fileRes.text % (fileName, linkList[l].find_elements (By.TAG_NAME, 'td')[1].text)
+					log.message (fileRes.text)
 				except Exception as e:
 					fileError.text = url[15:] + '\trécupération ratée de %s\t%s\n%s' % (fileName, childUrl[15:], str(e))
-				#	log.message (fileError.text)
+					log.message (fileError.text)
 					fileError.write ('a')
 				finally:
+					log.coucou()
 					driver.back()
-					time.sleep(0.5)
+					log.coucou()
+					# récupérer les éléments éffacés par les redirections
 					content = driver.find_element (By.CLASS_NAME, 'content')
+					log.coucou()
 					linkList = content.find_elements (By.TAG_NAME, 'ul')
 					linkList = linkList[1].find_elements (By.TAG_NAME, 'a')
-					# récupérer les infos du fichier lui-même
-					linkList[l].click()
-					time.sleep (0.5)
-					fileName = '.crdownload'
-					countIter =0
-					unwriten = True
-					try:
-						while '.crdownload' in fileName and countIter <100:
-							log.log (fileName, countIter)
-							fileName = os.listdir (downloadFolder)[0]
-							countIter +=1
-							time.sleep (15)
-						if '.crdownload' in fileName:
-							fileRes.text = fileRes.text % (fileName, '!! NON téléchargé !!')
-							fileRes.write ('a')
-							fileError.text = url[15:] + '\ttéléchargement raté de %s\t%s' % (fileName, childUrl[15:])
-							fileError.write ('a')
-						#	log.message (fileError.text)
-							unwriten = False
-							emptyingFolder (downloadFolder)
-						elif '.jar' == fileName[-4:] or '.zip' == fileName[-4:]:
-							if unwriten:
-								fileError.text = url[15:] + '\tfichier %s\t%s\t%s' % (fileName[-3:], fileName, childUrl[15:])
-							#	log.message (fileError.text)
-								fileError.write ('a')
-								unwriten = False
-							emptyingFolder (downloadFolder)
-						else:
-							fileData = nameSpace.ParseName (fileName)
-							fileSize = nameSpace.GetDetailsOf (fileData, 1)
-							fileRes.text = fileRes.text % (fileName, fileSize.replace (' '," "))
-							fileRes.write ('a')
-						#	log.message (fileRes.text)
-							emptyingFolder (downloadFolder)
-					except Exception as e:
-						if unwriten:
-							fileRes.text = fileRes.text % (fileName, '!! NON téléchargé !!')
-							fileRes.write ('a')
-						#	log.message (fileRes.text)
-						fileError.text = url[15:] + '\ttéléchargement raté de %s\t%s\n%s' % (fileName, childUrl[15:], str(e))
-						fileError.write ('a')
-						emptyingFolder (downloadFolder)
+					log.message (fileRes.text)
+					fileRes.write ('a')
 		# traiter les liens enfants
 		for name, url in links: getUrlData (url)
 
