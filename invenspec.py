@@ -16,6 +16,7 @@ import loggerFct as log
 downloadFolder = 'C:\\Users\\deborah.powers\\Desktop\\fouille-spec\\telechargements'
 fileRes = File ('b/fouille-spec\\invenspec.tsv')
 fileRes.text = "titre	nom	date de modification	taille	url	fil d'ariane"
+# fileRes.text = "titre	date de modification	url	fil d'ariane"
 fileError = File ('b/fouille-spec\\erreurs.tsv')
 fileError.text = 'url	erreur	url enfant'
 

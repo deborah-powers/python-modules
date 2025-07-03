@@ -5,6 +5,7 @@ from invenspec import *
 downloadFolder = downloadFolder + '-forge'
 urlSpecForgeBase = 'https://forgeaxyus.local.axyus.com'
 urlSpecForge = '/plugins/docman/?group_id=171&action=show&id=6080'
+# https://forgeaxyus.local.axyus.com/plugins/docman/?group_id=171&action=show&id=6080
 
 driver = createWebDriver (downloadFolder)
 nameSpace = createFolderNameSpace (downloadFolder)
@@ -45,6 +46,50 @@ def natureChild (childUrl, childLink):
 			fileError.write ('a')
 		finally: return nature
 	return nature
+
+def getFileData (fileElement, folderUrl, fileUrl, fileRes):
+	# récupérer les infos du fichier lui-même
+	fileElement.click()
+	time.sleep (0.5)
+	fileName = '.crdownload'
+	countIter =0
+	unwriten = True
+	try:
+		while '.crdownload' in fileName and countIter <16:
+			log.log (fileName, countIter)
+			fileName = os.listdir (downloadFolder)[0]
+			countIter +=1
+			time.sleep (15)
+		if '.crdownload' in fileName:
+			fileRes.text = fileRes.text % (fileName, '!! NON téléchargé !!')
+			fileRes.write ('a')
+			fileError.text = folderUrl[15:] + '\ttéléchargement raté de %s\t%s' % (fileName, fileUrl[15:])
+			fileError.write ('a')
+		#	log.message (fileError.text)
+			unwriten = False
+			emptyingFolder (downloadFolder)
+		elif '.jar' == fileName[-4:] or '.zip' == fileName[-4:]:
+			if unwriten:
+				fileError.text = folderUrl[15:] + '\tfichier %s\t%s\t%s' % (fileName[-3:], fileName, fileUrl[15:])
+			#	log.message (fileError.text)
+				fileError.write ('a')
+				unwriten = False
+			emptyingFolder (downloadFolder)
+		else:
+			fileData = nameSpace.ParseName (fileName)
+			fileSize = nameSpace.GetDetailsOf (fileData, 1)
+			fileRes.text = fileRes.text % (fileName, fileSize.replace (' '," "))
+			fileRes.write ('a')
+		#	log.message (fileRes.text)
+			emptyingFolder (downloadFolder)
+	except Exception as e:
+		if unwriten:
+			fileRes.text = fileRes.text % (fileName, '!! NON téléchargé !!')
+			fileRes.write ('a')
+		#	log.message (fileRes.text)
+		fileError.text = folderUrl[15:] + '\ttéléchargement raté de %s\t%s\n%s' % (fileName, fileUrl[15:], str(e))
+		fileError.write ('a')
+		emptyingFolder (downloadFolder)
 
 def getUrlData (url):
 	links =[]	# les liens enfants
@@ -103,7 +148,6 @@ def getUrlData (url):
 						fileError.write ('a')
 						continue
 					fileRes.text = fileRes.text % (fileName, '%s', detailList[5].find_elements (By.TAG_NAME, 'td')[1].text, '%s')
-				#	fileRes.write ('a')
 				except Exception as e:
 					fileError.text = url[15:] + '\trécupération ratée de %s\t%s\n%s' % (fileName, childUrl[15:], str(e))
 				#	log.message (fileError.text)
@@ -114,48 +158,7 @@ def getUrlData (url):
 					content = driver.find_element (By.CLASS_NAME, 'content')
 					linkList = content.find_elements (By.TAG_NAME, 'ul')
 					linkList = linkList[1].find_elements (By.TAG_NAME, 'a')
-					# récupérer les infos du fichier lui-même
-					linkList[l].click()
-					time.sleep (0.5)
-					fileName = '.crdownload'
-					countIter =0
-					unwriten = True
-					try:
-						while '.crdownload' in fileName and countIter <100:
-							log.log (fileName, countIter)
-							fileName = os.listdir (downloadFolder)[0]
-							countIter +=1
-							time.sleep (15)
-						if '.crdownload' in fileName:
-							fileRes.text = fileRes.text % (fileName, '!! NON téléchargé !!')
-							fileRes.write ('a')
-							fileError.text = url[15:] + '\ttéléchargement raté de %s\t%s' % (fileName, childUrl[15:])
-							fileError.write ('a')
-						#	log.message (fileError.text)
-							unwriten = False
-							emptyingFolder (downloadFolder)
-						elif '.jar' == fileName[-4:] or '.zip' == fileName[-4:]:
-							if unwriten:
-								fileError.text = url[15:] + '\tfichier %s\t%s\t%s' % (fileName[-3:], fileName, childUrl[15:])
-							#	log.message (fileError.text)
-								fileError.write ('a')
-								unwriten = False
-							emptyingFolder (downloadFolder)
-						else:
-							fileData = nameSpace.ParseName (fileName)
-							fileSize = nameSpace.GetDetailsOf (fileData, 1)
-							fileRes.text = fileRes.text % (fileName, fileSize.replace (' '," "))
-							fileRes.write ('a')
-						#	log.message (fileRes.text)
-							emptyingFolder (downloadFolder)
-					except Exception as e:
-						if unwriten:
-							fileRes.text = fileRes.text % (fileName, '!! NON téléchargé !!')
-							fileRes.write ('a')
-						#	log.message (fileRes.text)
-						fileError.text = url[15:] + '\ttéléchargement raté de %s\t%s\n%s' % (fileName, childUrl[15:], str(e))
-						fileError.write ('a')
-						emptyingFolder (downloadFolder)
+					getFileData (linkList[l], url, childUrl, fileRes)
 		# traiter les liens enfants
 		for name, url in links: getUrlData (url)
 
