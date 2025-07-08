@@ -1,4 +1,4 @@
-============ Divers ============
+== Divers
 
 Object.__dir__()	récupère les fonctions d'un objet
 Object.__module__	nom du fichier contenant la classe de l'objet
@@ -6,7 +6,7 @@ Object.__class__	nom de la classe de l'objet
 Object.__dict__		renvoi les champs et leurs valeurs sous la forme d'un dictionnaire
 Id (variable)	id de la case mémoire contenant la variable
 __file__			nom du script s'executant
-if __name__ == 'main': Pass
+if __name__ 'main': Pass
 Else: Xxx
 Empêche de lancer certaines actions quand le script est une dépendance
 Syntaxerror: Erreur dans l'écriture du code. Mauvaise indentation.
@@ -19,12 +19,12 @@ Variable contre littéral: Un littéral est une donnée (le nombre 3) utilisée 
 
 
 
-*** string template utilisant des paramètres nommés ***
+*** string template utilisant des paramètres nommés
 
 urlRef = 'https://www.euronews.com/%(year)d/%(month)02d/%(day)02d'
 urlFull = urlRef % { 'year': 2025, 'month': 1, 'day': 6, 'page': 2 }
 
-*** erreur 403 quand je fais du web scrapping ***
+*** erreur 403 quand je fais du web scrapping
 
 https://stackoverflow.com/questions/16627227/how-do-i-avoid-http-error-403-when-web-scraping-with-python
 
@@ -36,22 +36,22 @@ myRequest = Request(
 )
 myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
 
-=== installation ====
+== installation
 
 pip install opencv-python
 
 
-============ Espaces de nom ============
+== Espaces de nom
 
 Dictionnaire contenant les noms des fonctions, des variables et leurs valeurs pour un script.
 Il en existe quatre types: Built-in, global, enclosing, local.
 
-************ Built-in ************
+** Built-in
 
 En de base de python, qui contient les fonctions de base (print, erreurs, etc). Il vit temps que l'interprêteur tourne.
 Dir(__builtins__)
 
-************ Global ************
+** Global
 
 En du script tournant. Il contient certains noms communs à tous (__name__, __main__, etc) en plus des variables créées dans mon script.
 Lorsque j'importe une dépendance (import dep), python lui créé son propre espace de nom.
@@ -59,7 +59,7 @@ Si j'importe une variable à partir d'un dépendence (from dep import var), elle
 Globals()
 Si j'appelle globals() dans une fonction, elle ne récupère pas ses variables locales.
 
-************ Local ************
+** Local
 
 En de la fonction. Il contient ses paramètres et les variables créées à l'intérieur.
 Si elle est applelée à la base du script, elle a la même valeur que globals().
@@ -67,17 +67,17 @@ Si je l'appelle dans une boucle for, elle affiche les variables créées dans la
 Un espace enclosing représente l'en d'une fonction en contenant une autre.
 Locals()
 
-============ Scopes ============
+== Scopes
 
 Ce qui sous-temps les espaces de nom.
 Il en existe quatre types: Built-in, global, enclosing, local.
 Le built-in est identique à l'espace de nom. Ses fonctions agissent et sont accessibles de partout où l'en est accessible.
 
-************ Local ************
+** Local
 
 Scope des variables contenues dans une fonction. Ses variables ne sont modifiables et lisibles que de l'intérieur de la fonction. A chaque appel, un nouveau scope indépendant est créé.
 
-************ Enclosing et global ************
+** Enclosing et global
 
 Pour les fonctions imbriquées, une variable de rang 1 peut être lue au rang 2 mais pas modifiée. Sauf avec le mot-clef nonlocal.
 Glovar = 'global_value'
@@ -93,12 +93,12 @@ def enclosing_function():
 	Enclosing_function.var est modifiée
 	La v globale glonew est créée et accessible ailleur.
 
-************ Scope résolution ************
+** Scope résolution
 
 Règle selon laquelle python recherche les variables entre les espaces de nom.
 La norme est legb, local, enclosing, global, built-in.
 
-============ Fonctions à arguments variables ============
+== Fonctions à arguments variables
 
 def funcnbargvariable (*args):
 	# args est un tuple
@@ -112,7 +112,7 @@ Funcnomargvariable (arg1='coucou', myarg=22)
 def functout (argpositionnel, *args, argnomme, **kwargs):
 Functout ('coucou', 'les', 'amis', argnomme='il fait beau', argnomme2="aujourd'hui", argnomme3="n'est-ce pas ?")
 
-************ Les arguments mutables ************
+** Les arguments mutables
 
 def myfunc (arg1, arglist=[]):
 	Arglist.append (arg1)
@@ -124,10 +124,10 @@ Les arguments mutables sont des conteneurs dont le contenu sera modifié par la 
 Arglist avec sa valeur par défaut n'est déclaré qu'une fois dans la mémoire. Lors des deux appels, python utilise cette unique fausse variable.
 Solution
 def myfunc (arg1, arglist=none):
-	if arglist ==none: Arglist =[]
+	if arglistnone: Arglist =[]
 	Arglist.append (arg1)
 
-************************************************
+*********
 
 *args =[2,8]
 Range (*args)
@@ -141,7 +141,7 @@ Num_collection = [3, 6, 9]
 Funcnbargvariable (*num_collection)
 >> comme si j'avais transmit 3 arguments indépendants au lieu d'un.
 
-============ Fonctions lambda ============
+== Fonctions lambda
 
 Add_two = lambda nb: Nb + 2
 Check_if_a_grade = lambda grade: 'got an a !' if grade >= 90 else 'did not get an a.'
@@ -149,7 +149,7 @@ Check_if_a_grade = lambda grade: 'got an a !' if grade >= 90 else 'did not get a
 from math import *
 hypothenuse = lambda deg: sqrt (cos (radians (deg)) * cos (radians (deg)) + sin (radians (deg)) * sin (radians (deg)))
 
-============ les fonctions d'ordre suppérieur ============
+== les fonctions d'ordre suppérieur
 
 les fonctions sont en fait des objets. ont peut les stoquer dans des listes, dans des variables, etc.
 lowerCustomName = str.lower
@@ -170,15 +170,15 @@ box_volume_height15 = make_box_volume_function (15)
 print (box_volume_height15 (3,2))
 
 
-============ Rajouter une fonction à une classe ============
+== Rajouter une fonction à une classe
 
 def newfunction (self):
 	Pass
-Setattr (myclass, 'myfunction', newfunction)
-Item = myclass()
+Setattr (Myclass, 'myfunction', newfunction)
+Item = Myclass()
 Item.myfunction()
 
-============ Changer la version de python par défaut ============
+== Changer la version de python par défaut
 
 Quand j'ai deux versions sur mon ordi.
 # remove python 2
@@ -192,7 +192,7 @@ Sudo ln -s /usr/bin/pip3 /usr/bin/pip
 # confirm the new version of python: 3
 python --version
 
-************ Seconde méthode ************
+** Seconde méthode
 
 # try following to see all instances of python
 Whereis python
@@ -201,7 +201,7 @@ Which python
 Sudo apt autoremove python
 # repeat sudo apt autoremove python(for all versions) that should do it, then install anaconda and manage pythons however you like if you need to reinstall it.
 
-============ Ajouter un dossier à sys.path ============
+== Ajouter un dossier à sys.path
 
 Je veux utiliser les scripts de /home/deborah/python partout.
 from sys import path
@@ -218,7 +218,7 @@ Sudo cp /home/ent6904919/bureau/my-path.pth /usr/lib/python3.9/site-packages/
 
 C:\Users\deborah.powers\AppData\Local\anaconda3\Lib\site-packages
 
-============ Créer un package ============
+== Créer un package
 
 Monpackage/
 	Setup.py
@@ -240,19 +240,19 @@ Setup (
 )
 __init__.py contient les trucs chargés à l'appel du package. Il est obligatoire.
 
-************ Installer le package ************
+** Installer le package
 
 Sudo apt-get install python3-setuptools
 Sudo chmod -r 774 /usr/local/lib/python3.8/
 cd monpackage/
 python setup.py
 
-************ Appeler mes objets ************
+** Appeler mes objets
 
 from monpackage import trucdansinit
 from monpackage.autre import trucdansautre
 
-============ Lancer un package comme un script, mais de partout ============
+== Lancer un package comme un script, mais de partout
 
 Dans mon package, j'ai
 Monpackage/
@@ -263,12 +263,12 @@ Monpackage/
 		autre.py
 __main__.py contient le l'action, le script à lancer.
 
-************ Lancer le package ************
+** Lancer le package
 
 python -m monpackage args
 Les arguments sont récupérés via sys.argv, comme pour les scripts.
 
-============ Lancer une application ============
+== Lancer une application
 
 Pour l'utiliser moi-même
 Import os
@@ -284,7 +284,7 @@ Applis:
 	Vlc	vlc
 	Eog	visionneuse d'image
 
-============ Récupérer les photos à partir de google photo ============
+== Récupérer les photos à partir de google photo
 
 https://developers.google.com/photos/picker/reference/rest?hl=fr
 https://developers.google.com/photos/picker/samples?hl=fr
@@ -303,7 +303,7 @@ https://developers.google.com/photos/picker/guides/get-started-picker?hl=fr
 
 les scopes: https://developers.google.com/identity/protocols/oauth2/scopes
 
-============ Récupérer les fichiers de mon drive ============
+== Récupérer les fichiers de mon drive
 
 https://developers.google.com/workspace/drive/api/quickstart/python
 
@@ -322,11 +322,11 @@ pip install --upgrade google-api-python-client
 pip install --upgrade google-auth-oauthlib
 créer le fichier python, fromDrive.py
 
-*** documentation ***
+*** documentation
 https://developers.google.com/resources/api-libraries/documentation/drive/v3/python/latest/index.html
 https://developers.google.com/workspace/drive/api/guides/search-files
 
-*** erreurs ***
+*** erreurs
 
 code: 403
 Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API
@@ -342,7 +342,7 @@ pip install google-cloud-service-control
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 
 
-============ Récupérer les éléments de mes calendriers google ============
+== Récupérer les éléments de mes calendriers google
 
 https://developers.google.com/calendar/api/quickstart/python
 Dans google, créer mon profil de développeuse.
@@ -356,7 +356,7 @@ projet calendrier-deborah
 https://console.cloud.google.com/apis/library?hl=fr&inv=1&invt=AbkN4A&project=calendrier-deborah
 dans la console, aller dans identifiants pour créer un nouveau ID clients OAuth 2.0
 
-************ Erreur invalid_grant ************
+** Erreur invalid_grant
 
 File "c:/users/lenovo/desktop/python/calendrier.py", line 315, in <module>
 Service = setservice()
@@ -385,7 +385,7 @@ https://console.cloud.google.com/projectselector2/apis/credentials?hl=fr&support
 Sélectionner calendrier-deborah. Attention, mon utilisateur doit être deborah.powers89.
 https://console.cloud.google.com/apis/credentials?hl=fr&authuser=2&project=calendrier-deborah&supportedpurview=project
 
-************ Erreurs ************
+** Erreurs
 
 Modulenotfounderror: No module named 'googleapiclient'
 pip install --upgrade google-api-python-client

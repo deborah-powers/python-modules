@@ -49,6 +49,9 @@ class FileList (File):
 	def range (self, start=0, end=0, step=1):
 		return listFct.rangeList (self.list, start, end, step)
 
+	def length (self):
+		return self.__len__()
+
 	def iterate (self, function):
 		return listFct.iterate (self.list, function)
 
@@ -109,8 +112,8 @@ class FileList (File):
 
 	def pop (self, pos):
 		length = len (self.list)
-		if pos <0: pos += self.len
-		elif pos >= self.len: pos -= self.len
+		if pos <0: pos += self.length
+		elif pos >= self.length: pos -= self.length
 		trash = self.list.pop (pos)
 		self.length -=1
 
