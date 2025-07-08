@@ -60,6 +60,8 @@ gotByInputName = driver.find_element (By.NAME, 'valeur')
 gotByXpath = driver.find_element (By.XPATH, '//p[@class="valeur"]/strong[1]')
 gotFromElement = gotById.find_element (By.CLASS_NAME, 'valeur')
 gotList = driver.find_elements (By.CLASS_NAME, 'valeur')
+directChildren = gotById.find_elements (By.XPATH, './*')
+allDescents = gotById.find_elements (By.XPATH, './/*')
 
 # récupérer les propriétés des éléments
 innerText = gotById.text

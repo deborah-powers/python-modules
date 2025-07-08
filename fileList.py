@@ -35,6 +35,9 @@ class FileList (File):
 	def fromText (self, text=None):
 		if text: self.text = text
 		while self.sep + self.sep in self.text: self.text = self.text.replace (self.sep + self.sep, self.sep)
+		lsep = len (self.sep)
+		if self.text[:lsep] == self.sep: self.text = self.text[lsep:]
+		if self.text[-lsep:] == self.sep: self.text = self.text[:-lsep]
 		self.list = self.text.split (self.sep)
 		self.length = len (self.list)
 
@@ -175,6 +178,7 @@ class FileTable (FileList):
 	def fromText (self, text=None):
 		if text: self.text = text
 		while self.sepCol + self.sepCol in self.text: self.text = self.text.replace (self.sepCol + self.sepCol, self.sepCol)
+		self.text = self.text.replace (self.sepCol + self.sep, self.sep)
 		FileList.fromText (self)
 		rangeList = range (self.length)
 		for l in rangeList: self.list[l] = self.list[l].split (self.sepCol)
