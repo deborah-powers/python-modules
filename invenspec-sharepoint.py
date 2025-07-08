@@ -49,7 +49,7 @@ driver.get (urlSpecForge)
 
 def getFileData():
 	time.sleep(3)
-	log.log (driver.title, driver.current_url[112:])
+	log.message (driver.title)
 	# récupérer les infos du dossier où je suis
 	content = driver.find_element (By.ID, 'appRoot')
 	# récupérer le fil d'arianne
@@ -57,7 +57,7 @@ def getFileData():
 	filArianne =""
 	for crum in listArianne: filArianne = filArianne +" / "+ crum.text;
 	filArianne = filArianne[3:]
-	log.message (filArianne)
+#	log.message (filArianne)
 	# récupérer les liens
 	# content = driver.execute_script ("return document.getElementById ('html-list_2').children[0].children[7].children[1];")
 	content = driver.find_element (By.ID, 'html-list_2').find_element (By.XPATH, './*')
@@ -70,16 +70,16 @@ def getFileData():
 		if 'aria-label="Dossier' in child.get_attribute ('innerHTML'):
 			try:
 				currentUrl = driver.current_url
-				log.message (driver.current_url[112:])
+				log.message (driver.current_url[193:])
 				button.click()
 				getFileData()
 				driver.back()
 				time.sleep(0.5)
-				log.message (currentUrl[112:])
-				log.message (driver.current_url[112:])
+				log.message (currentUrl[193:])
+				log.message (driver.current_url[193:])
 			except exceptions.StaleElementReferenceException as staleException:
-				log.log ('élément manquant', filArianne, driver.current_url[112:])
-		else:
-			fileRes.text = 'fichier\t%s\t%s\n' % (driver.current_url[112:], filArianne)
+				log.log ('élément manquant', filArianne, driver.current_url[193:])
+		else:	# 112 puis 193
+			fileRes.text = 'fichier\t%s\t%s\n' % (driver.current_url[193:], filArianne)
 			fileRes.write()
 getFileData()
