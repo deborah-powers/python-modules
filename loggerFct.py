@@ -4,6 +4,8 @@ from datetime import datetime
 from inspect import stack
 from fileLocal import pathRoot, pathDesktop
 
+logDate = False
+
 def traceLine():
 	stackList = stack()
 	stackLen = len (stackList)
@@ -27,9 +29,6 @@ def computeTrace():
 	while len (strDate) <13: strDate = strDate +' '
 	return strDate
 
-def traceDate():
-	return computeTrace() + traceLine()
-
 def objToStr (message):
 	if type (message) == int and message ==0: return 'O'
 	elif type (message) == bool:
@@ -51,27 +50,27 @@ def objToStr (message):
 	elif type (message) == str: return message[:100]
 	else: return str (message)
 
-def logInfo (showDate=False):
+def logInfo():
 	trace = traceLine()
-	if showDate: trace = computeTrace() + trace
+	if logDate: trace = computeTrace() + trace
 	print (trace)
 
-def message (message, showDate=False):
+def message (message):
 	trace = traceLine()
-	if showDate: trace = computeTrace() + trace
+	if logDate: trace = computeTrace() + trace
 	res = objToStr (message)
 	trace = trace +'\t'+ res
 	print (trace)
 
-def coucou (showDate=False):
-	message ('coucou', showDate)
+def coucou ():
+	message ('coucou')
 
-def log (*messages, showDate=False):
+def log (*messages):
 	trace = traceLine()
-	if showDate: trace = computeTrace() + trace
+	if logDate: trace = computeTrace() + trace
 	for message in messages:
 		res = objToStr (message)
-		if '\n' in res: trace = trace +'\n'+ res
+		if '\n' in res or len (res) >300: trace = trace +'\n'+ res
 		else: trace = trace +'\t'+ res
 	print (trace)
 
@@ -86,3 +85,30 @@ def letter():
 	log (alphabet [letterPos])
 	letterPos = letterPos +1
 	if letterPos >25: letterPos =0
+
+# afficher l'aide basique pour un objet. conçu pour mes classes perso
+
+def findParentsClass (classObj):
+	name = classObj.__name__
+	methods =[]
+	for item in classObj.__dict__:
+		if classObj.__dict__[item] and 'function' == type (classObj.__dict__[item]).__name__: methods.append (item)
+	if 'object' != classObj.__bases__[0].__name__:
+		for parent in classObj.__bases__:
+			parentName, parentMethods = findParentsClass (parent)
+			name = name +", "+ parentName
+			for parentMethod in parentMethods:
+				if parentMethod not in methods: methods.append (parentMethod)
+	return name, methods
+
+def objectManual (item):
+	text = 'object of class %s, in module %s\nfields: ' % (item.__class__.__name__, item.__class__.__module__)
+	for field in item.__dict__: text = text + field +", "
+	text = text[:-2]
+	name, methods = findParentsClass (item.__class__)
+	eraseInit = methods.pop (0)
+	text = text +'\nmethods: '+ ", ".join (methods)
+	posClassName =1+ name.find (', ')
+	name = name[posClassName:]
+	text = text +'\nparents:' + name
+	return text
