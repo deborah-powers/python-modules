@@ -55,6 +55,9 @@ class FileList (File):
 	def iterate (self, function):
 		return listFct.iterate (self.list, function)
 
+	def deleteDoublons (self):
+		self.list = listFct.deleteDoublons (self.list)
+
 	def __str__(self):
 		text = 'liste '
 		if self.length ==0: text = text + 'vide dans '+ self.path
@@ -145,7 +148,9 @@ class FileTable (FileList):
 
 	def popCol (self, ncol):
 		rangeList = self.range()
-		for i in rangeList: trash = self.list[i].pop (ncol)
+		for i in rangeList:
+			log.log (i, len (self.list[i]), self.list[i])
+			trash = self.list[i].pop (ncol)
 		self.lenCol -=1
 
 	def addCol (self, item):

@@ -14,6 +14,13 @@ def rangeList (liste, start=0, end=0, step=1):
 		start += step
 	return newList
 
+def deleteDoublons (liste):
+	rangeLst = rangeList (liste)
+	rangeLst.reverse()
+	for l in rangeLst:
+		if liste.count (liste[l]) >1: trash = liste.pop (l)
+	return liste
+
 def iterate (liste, function):
 	rangeLst = rangeList (liste)
 	newList =[]

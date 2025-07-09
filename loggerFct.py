@@ -88,24 +88,24 @@ def letter():
 
 # afficher l'aide basique pour un objet. conçu pour mes classes perso
 
-def findParentsClass (classObj):
+def findParentsClasses (classObj):
 	name = classObj.__name__
 	methods =[]
 	for item in classObj.__dict__:
 		if classObj.__dict__[item] and 'function' == type (classObj.__dict__[item]).__name__: methods.append (item)
 	if 'object' != classObj.__bases__[0].__name__:
 		for parent in classObj.__bases__:
-			parentName, parentMethods = findParentsClass (parent)
+			parentName, parentMethods = findParentsClasses (parent)
 			name = name +", "+ parentName
 			for parentMethod in parentMethods:
 				if parentMethod not in methods: methods.append (parentMethod)
 	return name, methods
 
-def objectManual (item):
+def manual (item):
 	text = 'object of class %s, in module %s\nfields: ' % (item.__class__.__name__, item.__class__.__module__)
 	for field in item.__dict__: text = text + field +", "
 	text = text[:-2]
-	name, methods = findParentsClass (item.__class__)
+	name, methods = findParentsClasses (item.__class__)
 	eraseInit = methods.pop (0)
 	text = text +'\nmethods: '+ ", ".join (methods)
 	posClassName =1+ name.find (', ')
