@@ -49,7 +49,7 @@ class FileList (File):
 	def range (self, start=0, end=0, step=1):
 		return listFct.rangeList (self.list, start, end, step)
 
-	def length (self):
+	def len (self):
 		return self.__len__()
 
 	def iterate (self, function):
@@ -148,9 +148,7 @@ class FileTable (FileList):
 
 	def popCol (self, ncol):
 		rangeList = self.range()
-		for i in rangeList:
-			log.log (i, len (self.list[i]), self.list[i])
-			trash = self.list[i].pop (ncol)
+		for i in rangeList: trash = self.list[i].pop (ncol)
 		self.lenCol -=1
 
 	def addCol (self, item):
