@@ -83,9 +83,6 @@ forgeLen = invenspecForge.len()
 sharepointLen = invenspecSharepoint.len()
 
 for titleC, typeC, categorie, etravail, modifC in invenspecCosmose.list:
-	log.message (titleC)
-
-"""
 	if len (titleC) <5:
 		invenspecConly.append (titleC)
 		continue
@@ -120,5 +117,4 @@ invenspecConly.write()
 invenspecCFS.write()
 invenspecCF.write()
 invenspecCS.write()
-"""
 

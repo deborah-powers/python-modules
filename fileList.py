@@ -26,6 +26,7 @@ class FileList (File):
 
 	def read (self):
 		File.read (self)
+		self.text = textFct.cleanBasic (self.text)
 		self.fromText()
 
 	def toText (self):
