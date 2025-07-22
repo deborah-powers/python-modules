@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+from fileCls import File
 from fileList import FileList, FileTable
 import loggerFct as log
 invenspecPath = 'b/fouille-spec\\invenspec %s.tsv'
@@ -27,14 +28,22 @@ invenspecCosmose.read()
 invenspecCosmose.pop(0)
 
 # fichiers contenant les données triées
-invenspecConly = FileList (invenspecPath % 'cosmose uniquement')
-invenspecConly.sepCol = '\t'
+invenspecConly = File (invenspecPath % 'cosmose uniquement')
+invenspecCFS = File (invenspecPath % 'cfs')
+invenspecCFS.text = '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % ('titre cosmose', 'titre forge', 'titre sharepoint', 'comparaison date forge', 'comparaison date sharepoint', 'modif cosmose', 'modif forge', 'modif sharepoint')
+invenspecCF = File (invenspecPath % 'cf')
+invenspecCF.text = '%s\t%s\t%s\t%s\t%s' % ('titre cosmose', 'titre forge', 'comparaison date', 'modif cosmose', 'modif forge')
+invenspecCS = File (invenspecPath % 'cs')
+invenspecCS.text = '%s\t%s\t%s\t%s\t%s' % ('titre cosmose', 'titre sharepoint', 'comparaison date', 'modif cosmose', 'modif sharepoint')
+"""
 invenspecCFS = FileTable (invenspecPath % 'cfs')
 invenspecCFS.append ([ 'titre cosmose', 'titre forge', 'titre sharepoint', 'comparaison date forge', 'comparaison date sharepoint', 'modif cosmose', 'modif forge', 'modif sharepoint' ])
 invenspecCF = FileTable (invenspecPath % 'cf')
 invenspecCF.append ([ 'titre cosmose', 'titre forge', 'comparaison date', 'modif cosmose', 'modif forge' ])
 invenspecCS = FileTable (invenspecPath % 'cs')
 invenspecCS.append ([ 'titre cosmose', 'titre sharepoint', 'comparaison date', 'modif cosmose', 'modif sharepoint' ])
+"""
+invenspecConly.read()
 
 def dateEquals (datA, datO):
 	# date = 04/11/2025 ou 04/11/2025 14:37
@@ -83,8 +92,10 @@ forgeLen = invenspecForge.len()
 sharepointLen = invenspecSharepoint.len()
 
 for titleC, typeC, categorie, etravail, modifC in invenspecCosmose.list:
-	if len (titleC) <5:
-		invenspecConly.append (titleC)
+	if titleC in invenspecConly.text: continue
+	elif len (titleC) <5:
+		invenspecConly.text = invenspecConly.text +'\n'+ titleC
+		invenspecConly.write()
 		continue
 	# repérer les fichiers similaires
 	titleCb = cleanTitle (titleC)
@@ -107,14 +118,21 @@ for titleC, typeC, categorie, etravail, modifC in invenspecCosmose.list:
 	# comparer les dates de modification entre cosmose, la forge et le sharepoint
 	if pForge >=0: dateCompF = dateEquals (modifC, invenspecForge[pForge][2])
 	if pSharepoint >=0: dateCompS = dateEquals (modifC, invenspecSharepoint[pSharepoint][1])
-	if pForge <0 and pSharepoint <0: invenspecConly.append (titleC)
+	if pForge <0 and pSharepoint <0:
+		invenspecConly.text = invenspecConly.text +'\n'+ titleC
+		invenspecConly.write()
 	elif pSharepoint <0:
-		invenspecCF.append ([ titleC, invenspecForge[pForge][0], dateCompF, modifC, invenspecForge[pForge][2] ])
+		invenspecCF.text = invenspecCF.text + '\n%s\t%s\t%s\t%s\t%s' % (titleC, invenspecForge[pForge][0], dateCompF, modifC, invenspecForge[pForge][2])
+		invenspecCF.write()
 	elif pForge <0:
-		invenspecCS.append ([ titleC, invenspecSharepoint[pSharepoint][0], dateCompS, modifC, invenspecSharepoint[pSharepoint][1] ])
-	else: invenspecCFS.append ([ titleC, invenspecForge[pForge][0], invenspecSharepoint[pSharepoint][0], dateCompF, dateCompS, modifC, invenspecForge[pForge][2], invenspecSharepoint[pSharepoint][1] ])
+		invenspecCS.text = invenspecCS.text + '\n%s\t%s\t%s\t%s\t%s' % (titleC, invenspecSharepoint[pSharepoint][0], dateCompS, modifC, invenspecSharepoint[pSharepoint][1])
+		invenspecCS.write()
+	else:
+		invenspecCFS.text = invenspecCFS.text + '\n%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % (titleC, invenspecForge[pForge][0], invenspecSharepoint[pSharepoint][0], dateCompF, dateCompS, modifC, invenspecForge[pForge][2], invenspecSharepoint[pSharepoint][1])
+		invenspecCFS.write()
+"""
 invenspecConly.write()
 invenspecCFS.write()
 invenspecCF.write()
 invenspecCS.write()
-
+"""
