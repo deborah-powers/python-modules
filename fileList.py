@@ -117,6 +117,9 @@ class FileList (File):
 			return newList
 		else: return None
 
+	def sort (self):
+		self.list.sort()
+
 	def reverse (self):
 		self.list.reverse()
 
