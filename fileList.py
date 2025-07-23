@@ -35,10 +35,28 @@ class FileList (File):
 
 	def fromText (self, text=None):
 		if text: self.text = text
-		while self.sep + self.sep in self.text: self.text = self.text.replace (self.sep + self.sep, self.sep)
 		lsep = len (self.sep)
+		# éliminer les commentaires
+		if '/*' in self.text:
+			self.list = self.text.split ('/*')
+			rangeList = self.range (1)
+			for l in rangeList:
+				d=2+ self.list[l].find ('*/')
+				self.list[l] = self.list[l][d:]
+			self.text = "".join (self.list)
+		if '// ' in self.text:
+			self.list = self.text.split ('// ')
+			rangeList = self.range (1)
+			for l in rangeList:
+				d= lsep + self.list[l].find (self.sep)
+				self.list[l] = self.list[l][d:]
+			self.text = "".join (self.list)
+			self.list =[]
+		# préparer le texte
+		while self.sep + self.sep in self.text: self.text = self.text.replace (self.sep + self.sep, self.sep)
 		if self.text[:lsep] == self.sep: self.text = self.text[lsep:]
 		if self.text[-lsep:] == self.sep: self.text = self.text[:-lsep]
+		# créer la liste
 		self.list = self.text.split (self.sep)
 		self.length = len (self.list)
 
