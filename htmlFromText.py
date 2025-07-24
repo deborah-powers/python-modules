@@ -82,7 +82,7 @@ def toTable (text):
 	while i< len_chn:
 		# rechercher une table
 		d=-1; c=-1
-		if d==-1 and c==-1 and '\t' in textList[i]:
+		if '\t' in textList[i]:
 			c= textList[i].count ('\t')
 			d=i; i+=1
 		while i< len_chn and textList[i].count ('\t') ==c: i+=1
