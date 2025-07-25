@@ -21,40 +21,21 @@ invenspecSharepoint = FileTable (invenspecPath % 'sharepoint tout')
 invenspecCosmose = FileTable (invenspecPath % 'cosmose tout')
 invenspecForge.read()
 invenspecForge.pop (0)
-# invenspecForge.deleteDoublons()
 invenspecSharepoint.read()
 invenspecSharepoint.pop(0)
 invenspecCosmose.read()
 invenspecCosmose.pop(0)
 
 # fichiers contenant les données triées
-invenspecConly = File (invenspecPath % 'cosmose uniquement')
 invenspecCFS = File (invenspecPath % 'cosmose forge sharepoint')
 invenspecCFS.text = '%s\t%s\t%s' % ('titre cosmose', 'comparaison date forge', 'comparaison date sharepoint')
 invenspecCF = File (invenspecPath % 'cosmose forge')
 invenspecCF.text = '%s\t%s' % ('titre cosmose', 'comparaison date')
 invenspecCS = File (invenspecPath % 'cosmose sharepoint')
 invenspecCS.text = '%s\t%s' % ('titre cosmose', 'comparaison date')
-
-"""
-invenspecCFS.text = '%s\t%s\t%s\t%s\t%s\t%s' % ('titre cosmose', 'comparaison date forge', 'comparaison date sharepoint', 'date cosmose', 'date forge', 'date sharepoint')
-invenspecCF = File (invenspecPath % 'cosmose forge')
-invenspecCF.text = '%s\t%s\t%s\t%s' % ('titre cosmose', 'comparaison date', 'date cosmose', 'date forge')
-invenspecCS = File (invenspecPath % 'cosmose sharepoint')
-invenspecCS.text = '%s\t%s\t%s\t%s' % ('titre cosmose', 'comparaison date', 'date cosmose', 'date sharepoint')
-
-invenspecCFS.text = '%s\t%s\t%s\t%s\t%s' % ('titre cosmose', 'titre forge', 'titre sharepoint', 'comparaison date forge', 'comparaison date sharepoint')
-invenspecCF = File (invenspecPath % 'cosmose forge')
-invenspecCF.text = '%s\t%s\t%s' % ('titre cosmose', 'titre forge', 'comparaison date')
-invenspecCS = File (invenspecPath % 'cosmose sharepoint')
-invenspecCS.text = '%s\t%s\t%s' % ('titre cosmose', 'titre sharepoint', 'comparaison date')
-
-invenspecCFS.text = '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % ('titre cosmose', 'titre forge', 'titre sharepoint', 'comparaison date forge', 'comparaison date sharepoint', 'modif cosmose', 'modif forge', 'modif sharepoint')
-invenspecCF = File (invenspecPath % 'cf')
-invenspecCF.text = '%s\t%s\t%s\t%s\t%s' % ('titre cosmose', 'titre forge', 'comparaison date', 'modif cosmose', 'modif forge')
-invenspecCS = File (invenspecPath % 'cs')
-invenspecCS.text = '%s\t%s\t%s\t%s\t%s' % ('titre cosmose', 'titre sharepoint', 'comparaison date', 'modif cosmose', 'modif sharepoint')
-"""
+invenspecFonly = File (invenspecPath % 'forge uniquement')
+invenspecSonly = File (invenspecPath % 'sharepoint uniquement')
+invenspecConly = File (invenspecPath % 'cosmose uniquement')
 invenspecConly.read()
 
 def dateEquals (datA, datO):
@@ -65,15 +46,6 @@ def dateEquals (datA, datO):
 	elif datO[:10] in datA: return '~'
 	elif datA > datO: return '>'
 	else: return '<'
-
-def dateEquals_va (datA, datO):
-	# date = 04/11/2025 ou 04/11/2025 14:37
-	if datA == datO and len (datA) >10: return 2
-	elif datA in datO: return 1
-	elif datO in datA: return 1
-	elif datA[:10] in datO: return 1
-	elif datO[:10] in datA: return 1
-	else: return 0
 
 def cleanTitle (title):
 	title = title.lower()
@@ -130,17 +102,10 @@ for titleC, typeC, categorie, etravail, modifC in invenspecCosmose.list:
 	# comparer les dates de modification entre cosmose, la forge et le sharepoint
 	if pForge >=0: dateCompF = dateEquals (modifC, invenspecForge[pForge][2])
 	if pSharepoint >=0: dateCompS = dateEquals (modifC, invenspecSharepoint[pSharepoint][1])
-	if pForge <0 and pSharepoint <0:
-		invenspecConly.text = invenspecConly.text +'\n'+ titleC
-	elif pSharepoint <0:
-		invenspecCF.text = invenspecCF.text + '\n%s\t%s' % (titleC, dateCompF)
-#		invenspecCF.text = invenspecCF.text + '\n%s\t%s\t%s\t%s' % (titleC, dateCompF, modifC, invenspecForge[pForge][2])
-	elif pForge <0:
-		invenspecCS.text = invenspecCS.text + '\n%s\t%s' % (titleC, dateCompS)
-#		invenspecCS.text = invenspecCS.text + '\n%s\t%s\t%s\t%s' % (titleC, dateCompS, modifC, invenspecSharepoint[pSharepoint][1])
-	else:
-		invenspecCFS.text = invenspecCFS.text + '\n%s\t%s\t%s' % (titleC, dateCompF, dateCompS)
-#		invenspecCFS.text = invenspecCFS.text + '\n%s\t%s\t%s\t%s\t%s' % (titleC, dateCompF, dateCompS, invenspecForge[pForge][2], invenspecSharepoint[pSharepoint][1])
+	if pForge <0 and pSharepoint <0: invenspecConly.text = invenspecConly.text +'\n'+ titleC
+	elif pSharepoint <0: invenspecCF.text = invenspecCF.text + '\n%s\t%s' % (titleC, dateCompF)
+	elif pForge <0: invenspecCS.text = invenspecCS.text + '\n%s\t%s' % (titleC, dateCompS)
+	else: invenspecCFS.text = invenspecCFS.text + '\n%s\t%s\t%s' % (titleC, dateCompF, dateCompS)
 
 invenspecConly.write()
 invenspecCFS.write()
