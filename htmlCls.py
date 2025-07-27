@@ -620,6 +620,7 @@ class Html (Article):
 		else:
 			self.title = self.title +" reader"
 			self.path = pathDesktop + self.title +".html"
+		self.replace ('file:///')
 		self.imgToB64()
 		self.text = htmlFct.cleanHtmlForWritting (self.text)
 	#	self.createSummary()
@@ -958,8 +959,10 @@ class Html (Article):
 			if self.text[c:d] == self.text[d+3:e]: self.replace (self.text[c-1:e+1], "")
 
 	def cleanBody (self):
+		"""
 		self.text = self.text.lower()
-	#	self.cleanRead()
+		self.cleanRead()
+		"""
 		self.setByHtml()
 		self.setMetas()
 		self.setTitle()

@@ -70,6 +70,21 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	}
 	h4 { font-style: italic; }
 	ul { margin-left: 2em; }
+	img { max-width: 100%; }
+	dl { width: 100%; }
+	dt {
+		float: left;
+		clear: left;
+		min-width: 6em;
+		display: inline-block;
+	}
+	dd {
+		float: right;
+		clear: right;
+		min-width: 10em;
+		display: inline-block;
+	}
+	dt:after { content: ' :'; }
 </style></head><body>
 %s
 </body></html>"""

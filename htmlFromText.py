@@ -128,35 +128,44 @@ def toImageProtocolExtension (text, protocol, extension):
 	textRange = range (len (textList) -1)
 	for i in textRange:
 		if protocol not in textList[i]: continue
+		# trouver l'url
 		d= textList[i].rfind (protocol)
-		title = textList[i][d:]
-		for char in endingChars:
-			if char in title: d=-1
-		if d==-1: continue
+		goodProtocol = True
+		for protocol in protocols:
+			if protocol in textList[i][d+5:]: goodProtocol = False
+		if not goodProtocol: continue
+		url = textList[i][d:] + extension
+		title =""
 		textList[i] = textList[i][:d]
-		url = title + extension
 		# trouver la description
 		if textList[i+1][:2] == " (":
 			d= textList[i+1].find (')')
 			title = textList[i+1][2:d]
 			textList[i+1] = textList[i+1][d+1:].strip()
 		elif textList[i][-2:] == ": ":
-			d=3+ textList[i].rfind ('<p>')
+			d=0
+			if '\n' in textList[i]: d=1+ textList[i].rfind ('\n')
 			title = textList[i][d:-2]
-			if '>' in title or '<' in title: title = findTitleFromUrl (url)
-			else: textList[i] = textList[i][:d]
-		else: title = findTitleFromUrl (url)
-		url = "<img src='" + url + "' alt='" + title +"' />"
+		#	if '>' in title or '<' in title: title = findTitleFromUrl (url)
+			textList[i] = textList[i][:d]
+		else:
+			if '\\' in url: d=1+ url.rfind ('\\')
+			else: d=1+ url.rfind ('/')
+			title = url[d:]
+			d= title.rfind ('.')
+			title = title[:d]
+		url = "\n<img src='" + url + "' alt='" + title +"' />\n"
 		url = url.replace ('http', 'ht/tp');
 		url = url.replace ('file', 'fi/le');
 		textList[i] = textList[i] + url
 	text = extension.join (textList)
-	text = text.replace ('/>' + extension, '/>')
+	text = text.replace ('/>\n' + extension, ' />\n')
 	return text
 
 def toImage (text):
 	imgExtension =( 'jpg', 'jpeg', 'bmp', 'gif', 'png')
-	text = text.replace ('C://', 'file:///C://')
+	text = text.replace ('file:///', "")
+	text = text.replace ('C:/', 'file:///C:/')
 	text = text.replace ('C:\\', 'file:///C:\\')
 	for protocol in protocols:
 		for extension in imgExtension: text = toImageProtocolExtension (text, protocol, extension)
@@ -289,10 +298,12 @@ def toHtml (text):
 		textList[l] = textList[l] +'</h'+ textList[l][2] +'>'
 	text = '\n'.join (textList)
 	# autres modifications
+	text = toImage (text)
 	text = toMath (text)
 	text = toCode (text)
 	text = toList (text)
 	text = toTable (text)
+	text = toLink (text)
 	text = toDefList (text)
 	text = cleanText (text)
 	text = toEmphasis (text)
@@ -304,12 +315,10 @@ def toHtml (text):
 	# rajouter d'eventuel <p/> s'il n'y a pas de balise en debut ou fin de text
 	if '<' not in text [0:3]: text = '<p>'+ text
 	if '>' not in text [-3:]: text = text +'</p>'
-	# autres modifications
-	text = toImage (text)
-	text = toLink (text)
 	# restaurer le texte, remplacer mes placeholders
 	text = text.replace ('ht/tp', 'http')
 	text = text.replace ('fi/le', 'file')
+	while 'ile:///file:///' in text: text = text.replace ('ile:///file:///', 'ile:///')
 	text = text.replace ('\a', '\n')
 	text = text.replace ('\f', '\t')
 	text = cleanBasic (text)
