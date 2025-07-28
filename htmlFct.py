@@ -36,6 +36,7 @@ def imageFromBase64One (imgStr):
 	return Image.open (buff)
 
 def imgToB64One (imageName):
+	log.message (imageName)
 	imageName = imageName.replace ('c:', 'C:')
 	imageOriginal = Image.open (imageName)
 	imageOriginal = imageOriginal.convert ('RGB')
