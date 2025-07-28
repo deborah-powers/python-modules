@@ -5,7 +5,7 @@ letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZaàâbcdeéêèëfghiîïjkmlmnoôpqrstuûv
 uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
 # liste des points, des chaines de caracteres suivies par une majuscule
-wordsBeginMaj =( 'paris', 'rueil', 'avon', 'valo', 'leto', 'mars', 'mai', 'juin', 'papa', 'papi', 'france', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'avril', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre', 'decembre', 'deborah', 'powers', 'maman', 'mamie', 'victo', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'ville valo', 'shelby', 'magritte', 'gabin', 'malmaison', 'fontainebleau', 'ivry', 'chateaudun', 'châteaudun', 'c://', 'c:\\')
+wordsBeginMaj =( 'paris', 'rueil', 'avon', 'valo', 'leto', 'mars', 'mai', 'juin', 'papa', 'papi', 'victo', 'france', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'avril', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre', 'decembre', 'deborah', 'powers', 'cadiot', 'maman', 'mamie', 'régine', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'ville valo', 'shelby', 'magritte', 'gabin', 'makaron', 'malmaison', 'fontainebleau', 'ivry', 'issy', 'moulineaux', 'châte', 'chateaudun', 'michelet', 'chatelet', 'c:/', 'c:\\')
 wordsBeginMin =( 'Deborah.powers', 'Deborah.noisetier', 'Http', 'File:///', '\nPg_')
 codeKeywords =(
 	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where',
@@ -38,14 +38,15 @@ def upperCaseIntern (text):
 	text ='\n'+ text
 	points =( '\n', '. ', '! ', '? ', ': ', ':\t', '(', '{', '[',
 		'\n_ ', '\n* ', '\n- ', '\n--> ', '\n\t', '++ ' '## ', '__ ', '-- ', '** ', '== ')
-	pointsEnd ='\n\t /\\:.,;!?}])'
 	for i, j in uppercaseLetters:
 		for p in points: text = text.replace (p+i, p+j)
 	for word in wordsBeginMin: text = text.replace (word, word.lower())
-	for word in wordsBeginMaj[11:]: text = text.replace (word, word.capitalize())
-	for word in wordsBeginMaj[:11]:
-		for p in points:
-			for q in pointsEnd: text = text.replace (p+ word +q, p+ word.capitalize() +q)
+	for word in wordsBeginMaj[12:]: text = text.replace (word, word.capitalize())
+	for word in wordsBeginMaj[:12]:
+	pointsEnd ='\n\t /\\:.,;!?}])'
+	pointsStart ='\n\t ([{'
+		for s in pointsStart:
+			for e in pointsEnd: text = text.replace (s+ word +e, s+ word.capitalize() +e)
 	# le code
 	for artefact in codeKeywords:
 		text = text.replace ('\n'+ artefact.capitalize() +' ', '\n'+ artefact +' ')
