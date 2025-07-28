@@ -427,7 +427,7 @@ class Article (File):
 				self.write()
 
 	def metaToText (self):
-		metaTemplate = '%s:\t%s\n'
+		metaTemplate = '%s: %s\n'
 		text =""
 		for meta in self.meta: text = text + metaTemplate % (meta, self.meta[meta])
 		return text
