@@ -36,7 +36,8 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	%s
 	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
 	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
-<style type='text/css' media='(width: 295px) and (height: 380px)'>
+<!-- style type='text/css' media='(width: 295px) and (height: 380px)' -->
+<style type='text/css' media='(max-width: 600px)'>
 	* {
 		box-sizing: border-box;
 		padding: 0;
@@ -70,8 +71,8 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	}
 	h4 { font-style: italic; }
 	ul { margin-left: 2em; }
-	img { max-width: 100%; }
-	dl { width: 100%; }
+	img { max-width: 100%%; }
+	dl { width: 100%%; }
 	dt {
 		float: left;
 		clear: left;

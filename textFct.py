@@ -5,7 +5,7 @@ letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZaàâbcdeéêèëfghiîïjkmlmnoôpqrstuûv
 uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
 # liste des points, des chaines de caracteres suivies par une majuscule
-wordsBeginMaj =( 'paris', 'rueil', 'avon', 'valo', 'leto', 'mars', 'mai', 'juin', 'papa', 'papi', 'victo', 'france', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'avril', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre', 'decembre', 'deborah', 'powers', 'cadiot', 'maman', 'mamie', 'régine', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'ville valo', 'shelby', 'magritte', 'gabin', 'makaron', 'malmaison', 'fontainebleau', 'ivry', 'issy', 'moulineaux', 'châte', 'chateaudun', 'michelet', 'chatelet', 'cosmose', 'c:/', 'c:\\')
+wordsBeginMaj =( 'paris', 'rueil', 'avon', 'valo', 'leto', 'mars', 'mai', 'juin', 'papa', 'papi', 'victo', 'france', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'avril', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre', 'decembre', 'deborah', 'powers', 'cadiot', 'maman', 'mamie', 'régine', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'ville valo', 'shelby', 'magritte', 'gabin', 'makaron', 'malmaison', 'fontainebleau', 'ivry', 'issy', 'moulineaux', 'châte', 'chateaudun', 'michelet', 'chatelet', 'cosmose', 'c:\\', 'users\\', 'desktop\\')
 wordsBeginMin =( 'Deborah.powers', 'Deborah.noisetier', 'Http', 'File:///', '\nPg_')
 codeKeywords =(
 	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where',
@@ -18,16 +18,14 @@ weirdChars =(
 	('« ', '"'), (' »', '"'), ('«', '"'), ('»', '"'), ('–', '-'), ('‘', "'"), ('’', "'"), ('“', '"'), ('”', '"'), ('"', '"'), ('&hellip;', '...'), ('&#8230;', '...'), ('…', '...'),
 	('\n ', '\n'), ('\r', ''), (' \n', '\n'), ("\\'", "'"), ('\\n', '\n'), ('\\r', ''), ('\\t', '\t'),
 	('\\u00c2', 'Â'), ('\\u00ca', 'Ê'), ('\\u00cb', 'Ë'), ('\\u00ce', 'Î'), ('\\u00cf', 'Ï'), ('\\u00d4', 'Ô'), ('\\u00d6', 'Ö'), ('\\u00db', 'Û'), ('\\u00e0', 'à'), ('\\u00e2', 'â'), ('\\u00e7', 'ç'), ('\\u00e8', 'è'), ('\\u00e9', 'é'), ('\\u00ea', 'ê'), ('\\u00eb', 'ë'), ('\\u00ee', 'î'), ('\\u00ef', 'ï'), ('\\u00f4', 'ô'), ('\\u00f6', 'ö'), ('\\u00fb', 'û'),
-	('\\', '/'),
 	('\x85', '.'), ('\x92', "'"), ('\x96', '"'), ('\x97', "'"), ('\x9c', ' '), ('\xa0', ' '),
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'), ('&apos;', "'"),
 	('&mdash;', ' '), ('&nbsp;', ''), ('&oelig;', 'oe'), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&lsquo;', '"'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"), ('&laquo;', '"'), ('&raquo;', '"'), ('&#8220;', '"'), ('&#8221;', '"'), ('&#8211;', '-'),
 	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#xa0;', " "), ('&#39;', "'"), ('&#8217;', "'"), ('\n" ', '\n"'),
-	('<br>', '<br/>'), ('<hr>', '<hr/>')
+	('<br>', '<br/>'), ('<hr>', '<hr/>'), ('C:/', 'C:\\'), ('c:/', 'C:\\'), ('users/lenovo/', 'Users\\LENOVO\\'), ('Users/LENOVO/', 'Users\\LENOVO\\'), ('\\desktop/', '\\Desktop\\'), ('\\Desktop/', '\\Desktop\\')
 )
 urlWords =(('. gif', '.gif'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'),
-	(': /', ':/'), (': \\', ':\\'), ('C:\\', 'file:///C:\\'), ('C:/', 'file:///C:/'), ('c:\\', 'file:///C:\\'), ('c:/', 'file:///C:/'),
-	('localhost: ', 'localhost:'), (': 80', ':80'), ('www. ', 'www.'),
+	(': /', ':/'), (': \\', ':\\'), ('C:\\', 'file:///C:\\'), ('localhost: ', 'localhost:'), (': 80', ':80'), ('www. ', 'www.'),
 	('. bmp', '.bmp'), ('. jpeg', '.jpeg'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js')
 )
 titleChars = '=*-_#+~'
@@ -42,11 +40,13 @@ def upperCaseIntern (text):
 		for p in points: text = text.replace (p+i, p+j)
 	for word in wordsBeginMin: text = text.replace (word, word.lower())
 	for word in wordsBeginMaj[12:]: text = text.replace (word, word.capitalize())
+	text = text.replace ('', '')
 	pointsEnd ='\n\t /\\:.,;!?}])'
 	pointsStart ='\n\t ([{'
 	for word in wordsBeginMaj[:12]:
 		for s in pointsStart:
 			for e in pointsEnd: text = text.replace (s+ word +e, s+ word.capitalize() +e)
+	text = text.replace ('\\lenovo\\', '\\LENOVO\\')
 	# le code
 	for artefact in codeKeywords:
 		text = text.replace ('\n'+ artefact.capitalize() +' ', '\n'+ artefact +' ')
