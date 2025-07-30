@@ -34,12 +34,12 @@ invenspecCF = File (invenspecPath % 'cosmose forge')
 invenspecCF.text = '\t'.join ([ 'titre cosmose', 'comparaison date', 'modif cosmose', 'titre forge', 'modif forge', 'chemin forge' ])
 invenspecCS = File (invenspecPath % 'cosmose sharepoint')
 invenspecCS.text = '\t'.join ([ 'titre cosmose', 'comparaison date', 'modif cosmose', 'titre sharepoint', 'modif sharepoint', 'chemin sharepoint' ])
-invenspecFonly = File (invenspecPath % 'forge uniquement')
-invenspecFonly.read()
-invenspecSonly = File (invenspecPath % 'sharepoint uniquement')
-invenspecSonly.read()
 invenspecConly = File (invenspecPath % 'cosmose uniquement')
-invenspecConly.read()
+invenspecFonly = File (invenspecPath % 'forge uniquement')
+invenspecFonly.text = '\t'.join ([ 'nom', 'modif', 'chemin' ])
+# invenspecFonly.read()
+invenspecSonly = File (invenspecPath % 'sharepoint uniquement')
+invenspecSonly.text = '\t'.join ([ 'nom', 'modif', 'chemin' ])
 
 def dateEquals (datA, datO):
 	# date = 04/11/2025 ou 04/11/2025 14:37
@@ -66,9 +66,30 @@ def cleanTitle (title):
 	while "  " in title: title = title.replace ("  "," ")
 	return title
 
+def cleanTitle0accent (title):
+	title = cleanTitle (title)
+	accents = 'àéèêëîïô'
+	for accent in accents: title = title.replace (accent, "")
+	return title
+
 def titlesIdem (titleA, titleO):
 #	titleA = cleanTitle (titleA)
 	titleO = cleanTitle (titleO)
+	if titleA == titleO: return True
+	idems = False
+	lenA = len (titleA)
+	lenO = len (titleO)
+	if lenA > lenO and '.' in titleA:
+		f= titleA.rfind ('.')
+		if titleA[:f] == titleO: idems = True
+	elif lenO > lenA and '.' in titleO:
+		f= titleO.rfind ('.')
+		if titleO[:f] == titleA: idems = True
+	return idems
+
+def titlesIdem0accent (titleA, titleO):
+#	titleA = cleanTitle (titleA)
+	titleO = cleanTitle0accent (titleO)
 	if titleA == titleO: return True
 	idems = False
 	lenA = len (titleA)
@@ -86,7 +107,6 @@ sharepointLen = invenspecSharepoint.len()
 
 for titleC, typeC, categorie, etravail, modifC in invenspecCosmose.list:
 	if typeC not in ('document', 'média', 'page wiki'): continue
-	elif titleC in invenspecConly.text: continue
 	elif len (titleC) <5:
 		invenspecConly.text = invenspecConly.text +'\n'+ titleC
 		continue
@@ -98,14 +118,41 @@ for titleC, typeC, categorie, etravail, modifC in invenspecCosmose.list:
 	dateCompS ='--'
 	p=0
 	while p< forgeLen:
-		if invenspecForge[p][0] not in invenspecFonly.text and invenspecForge[p][1] not in invenspecFonly.text and (titlesIdem (titleCb, invenspecForge[p][0]) or titlesIdem (titleCb, invenspecForge[p][1])):
+		if titlesIdem (titleCb, invenspecForge[p][0]) or titlesIdem (titleCb, invenspecForge[p][1]):
 			pForge =p
 			p= forgeLen
 		p+=1
 	p=0
 	while p< sharepointLen:
-		# if invenspecSharepoint[p][0] not in invenspecSonly.text and titlesIdem (titleCb, invenspecSharepoint[p][0]):
-		if titlesIdem (titleCb, invenspecSharepoint[p][0]):
+		if invenspecSharepoint[p][2] == 'élément' and titlesIdem (titleCb, invenspecSharepoint[p][0]):
+			pSharepoint =p
+			p= sharepointLen
+		p+=1
+	# comparer les dates de modification entre cosmose, la forge et le sharepoint
+	if pForge >=0: dateCompF = dateEquals (modifC, invenspecForge[pForge][2])
+	if pSharepoint >=0: dateCompS = dateEquals (modifC, invenspecSharepoint[pSharepoint][1])
+	if pForge >0 and pSharepoint >0:
+		invenspecCFS.text = invenspecCFS.text + '\n' + '\t'.join ([ titleC, dateCompF, dateCompS, modifC, invenspecForge[pForge][1], invenspecForge[pForge][2], invenspecForge[pForge][3], invenspecSharepoint[pSharepoint][0], invenspecSharepoint[pSharepoint][1], invenspecSharepoint[pSharepoint][3] ])
+
+# nom de fichier où les accents ont été éffacés
+for titleC, typeC, categorie, etravail, modifC in invenspecCosmose.list:
+	if typeC not in ('document', 'média', 'page wiki'): continue
+	elif titleC in invenspecCFS.text or titleC in invenspecConly.text: continue
+	# repérer les fichiers similaires
+	titleCb = cleanTitle0accent (titleC)
+	pForge =-1
+	pSharepoint =-1
+	dateCompF ='--'
+	dateCompS ='--'
+	p=0
+	while p< forgeLen:
+		if titlesIdem0accent (titleCb, invenspecForge[p][0]) or titlesIdem0accent (titleCb, invenspecForge[p][1]):
+			pForge =p
+			p= forgeLen
+		p+=1
+	p=0
+	while p< sharepointLen:
+		if titlesIdem0accent (titleCb, invenspecSharepoint[p][0]):
 			pSharepoint =p
 			p= sharepointLen
 		p+=1
@@ -119,7 +166,18 @@ for titleC, typeC, categorie, etravail, modifC in invenspecCosmose.list:
 		invenspecCS.text = invenspecCS.text + '\n' + '\t'.join ([ titleC, dateCompS, modifC, invenspecSharepoint[pSharepoint][0], invenspecSharepoint[pSharepoint][1], invenspecSharepoint[pSharepoint][3] ])
 	else: invenspecCFS.text = invenspecCFS.text + '\n' + '\t'.join ([ titleC, dateCompF, dateCompS, modifC, invenspecForge[pForge][1], invenspecForge[pForge][2], invenspecForge[pForge][3], invenspecSharepoint[pSharepoint][0], invenspecSharepoint[pSharepoint][1], invenspecSharepoint[pSharepoint][3] ])
 
+# les fichiers isolés
+for title, name, modif, path in invenspecForge.list:
+	if name not in invenspecCFS.text and name not in invenspecCF.text:
+		invenspecFonly.text = invenspecFonly.text +'\n'+ '\t'.join ([ name, modif, path ])
+
+for name, modif, typeS, path in invenspecSharepoint.list:
+	if typeS == 'élément' and name not in invenspecCFS.text and name not in invenspecCS.text:
+		invenspecSonly.text = invenspecSonly.text +'\n'+ '\t'.join ([ name, modif, path ])
+
 invenspecConly.write()
+invenspecFonly.write()
+invenspecSonly.write()
 invenspecCFS.write()
 invenspecCF.write()
 invenspecCS.write()
