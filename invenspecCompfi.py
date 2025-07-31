@@ -35,6 +35,7 @@ invenspecCF.text = '\t'.join ([ 'titre cosmose', 'comparaison date', 'modif cosm
 invenspecCS = File (invenspecPath % 'cosmose sharepoint')
 invenspecCS.text = '\t'.join ([ 'titre cosmose', 'comparaison date', 'modif cosmose', 'titre sharepoint', 'modif sharepoint', 'chemin sharepoint' ])
 invenspecConly = File (invenspecPath % 'cosmose uniquement')
+invenspecConly.text = '\t'.join ([ 'nom', 'modif', 'catégorie' ])
 invenspecFonly = File (invenspecPath % 'forge uniquement')
 invenspecFonly.text = '\t'.join ([ 'nom', 'modif', 'chemin' ])
 # invenspecFonly.read()
@@ -159,7 +160,7 @@ for titleC, typeC, categorie, etravail, modifC in invenspecCosmose.list:
 	# comparer les dates de modification entre cosmose, la forge et le sharepoint
 	if pForge >=0: dateCompF = dateEquals (modifC, invenspecForge[pForge][2])
 	if pSharepoint >=0: dateCompS = dateEquals (modifC, invenspecSharepoint[pSharepoint][1])
-	if pForge <0 and pSharepoint <0: invenspecConly.text = invenspecConly.text +'\n'+ titleC
+	if pForge <0 and pSharepoint <0: invenspecConly.text = invenspecConly.text +'\n'+ '\t'.join ([ titleC, modifC, categorie ])
 	elif pSharepoint <0:
 		invenspecCF.text = invenspecCF.text + '\n' + '\t'.join ([ titleC, dateCompF, modifC, invenspecForge[pForge][1], invenspecForge[pForge][2], invenspecForge[pForge][3] ])
 	elif pForge <0:
