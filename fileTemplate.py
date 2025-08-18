@@ -73,7 +73,16 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	ul { margin-left: 2em; }
 	img { max-width: 100%%; }
 	dl { width: 100%%; }
+	dl >* { display: inline-block; }
 	dt {
+		min-width: 6em;
+		max-width: 30%;
+	}
+	dd {
+		min-width: 10em;
+		max-width: 70%;
+	}
+/*	dt {
 		float: left;
 		clear: left;
 		min-width: 6em;
@@ -84,7 +93,7 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 		clear: right;
 		min-width: 10em;
 		display: inline-block;
-	}
+	}*/
 	dt:after { content: ' :'; }
 </style></head><body>
 %s
