@@ -76,11 +76,11 @@ templateHtmlEreader = """<!DOCTYPE html><html><head>
 	dl >* { display: inline-block; }
 	dt {
 		min-width: 6em;
-		max-width: 30%;
+		max-width: 30%%;
 	}
 	dd {
 		min-width: 10em;
-		max-width: 70%;
+		max-width: 70%%;
 	}
 /*	dt {
 		float: left;
