@@ -178,26 +178,9 @@ class eventGoogle (calendarGoogle, Event):
 				d= self.infos.index (" ")
 				details = self.infos [d+1:]
 				self.infos = self.infos[:d]
+			# tmpList = self.infos.split (" "); cost = tmpList.pop (-1)
 			if self.infos =='0' or self.infos == '0.0': return None
 			elif details: self.infos = self.infos +'\t'+ details
-			evtStr = '%s\t%s\t%s\t%s' % (self.date.toStrDay(), self.location, self.title, self.infos)
-			return evtStr
-		else: return None
-
-	def getOnePurchase_va (self):
-		# le destinateire était indiqué, avant le montant
-		if self.color == evtDict ['depenses'][1] and self.infos and self.title.lower() not in 'regles règles poids douleurs repas balade':
-			self.infos = self.infos.replace ('\r', "")
-			details =""
-			if '\n' in self.infos:
-				d= self.infos.index ('\n')
-				details = self.infos [d+1:]
-				self.infos = self.infos[:d]
-			tmpList = self.infos.split (" ")
-			cost = tmpList.pop (-1)
-			if cost =='0' or cost == '0.0': return None
-			self.infos = ' '.join (tmpList) +'\t' + cost
-			if details: self.infos = self.infos +'\t'+ details
 			evtStr = '%s\t%s\t%s\t%s' % (self.date.toStrDay(), self.location, self.title, self.infos)
 			return evtStr
 		else: return None
