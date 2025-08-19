@@ -264,8 +264,6 @@ class eventList (FileList):
 
 	def getAll (self):
 		# récupérer tous les calendriers
-	#	service = setService()
-	#	calDict = getCalDict (service)
 		for calName in calDict.keys():
 			loggerFct.log (calName)
 			cal = calendarGoogle()
@@ -282,7 +280,6 @@ class eventList (FileList):
 		evtList.write()
 
 	def getPastEvents (self, calName, func):
-	#	service = setService()
 		cal = calendarGoogle()
 		cal.fromName (service, calName)
 		# extraire tous leurs évênemnts
