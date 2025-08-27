@@ -193,7 +193,7 @@ def toLinkProtocol (text, protocol):
 			title = textList[p][f+2:e]
 			textList[p] = textList[p][e+1:]
 		elif ': '== textList[p-1][-2:]:
-			d=3+ textList[p-1].rfind ('<p>')
+			d=1+ textList[p-1].rfind ('\n')
 			title = textList[p-1][d:-2]
 			if '>' in title or '<' in title: title = findTitleFromUrl (paragraphTmp)
 			else: textList[p-1] = textList[p-1][:d]
@@ -202,9 +202,9 @@ def toLinkProtocol (text, protocol):
 		else:
 			textList[p] = textList[p][f:]
 			title = findTitleFromUrl (paragraphTmp)
-		textList[p] = paragraphTmp +"'>"+ title +'</a> '+ textList[p]
-	text = (" <a href='" + protocol).join (textList)
-	text = text.replace ('> <a ', '><a ')
+		textList[p] = paragraphTmp +"'>"+ title +'</a>\n'+ textList[p]
+	text = ("\n<a href='" + protocol).join (textList)
+	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	return text
 
 def toLink (text):
@@ -318,6 +318,11 @@ def toHtml (text):
 	# restaurer le texte, remplacer mes placeholders
 	text = text.replace ('ht/tp', 'http')
 	text = text.replace ('fi/le', 'file')
+	# mettre les liens dans des paragraphes
+	text = text.replace ('</a>', '</a></p>')
+	text = text.replace ('<a ', '<p><a ')
+	text = text.replace ('</p></p>', '</p>')
+	text = text.replace ('<p><p>', '<p>')
 	while 'ile:///file:///' in text: text = text.replace ('ile:///file:///', 'ile:///')
 	text = text.replace ('\a', '\n')
 	text = text.replace ('\f', '\t')

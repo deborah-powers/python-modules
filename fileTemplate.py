@@ -10,7 +10,7 @@ lien: %s
 
 templateText = '%s\n\n' + templateTextMeta
 
-templateHtml = """<!DOCTYPE html><html><head>
+templateHtml = """<!DOCTYPE html><html lang='fr-Fr'><head>
 	<title>%s</title>
 	<base target='_blank'/>
 	<meta charset='utf-8'/>
@@ -25,7 +25,7 @@ templateHtml = """<!DOCTYPE html><html><head>
 %s
 </body></html>"""
 
-templateHtmlEreader = """<!DOCTYPE html><html><head>
+templateHtmlEreader = """<!DOCTYPE html><html lang='fr-Fr'><head>
 	<title>%s</title>
 	<base target='_self'>
 	<meta charset='utf-8'/>
