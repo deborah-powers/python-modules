@@ -281,6 +281,7 @@ def toCode (text):
 			textList[i] = textList[i] + fin
 		text = '\n<xmp>'.join (textList)
 		text = text.replace ('\a</xmp>', '</xmp>')
+		text = text.replace ('< ','<')	# reformer les balises html du code
 	return text
 
 def toHtml (text):
