@@ -33,9 +33,11 @@ for link in linkAll:
 linkImgSrc =""
 for link in linkImg:
 	driver.get (link)
+	# retrouver le lien
 	imgAll = driver.find_elements (By.TAG_NAME, 'img')
 	imgNb = len (imgAll)
 	i=0
 	while i< imgNb and 'https://lh3.googleusercontent.com/pw/AP1Gcz' != imgAll[i].get_dom_attribute ('src')[:43]: i+=1
-	if i< imgNb: linkImgSrc = linkImgSrc +'\n'+ imgAll[i].get_dom_attribute ('src')[43:-8]
+	if i< imgNb: linkImgSrc = linkImgSrc + imgAll[i].get_dom_attribute ('src')[43:-8] +'\n'
 	driver.back()
+print (linkImgSrc)
