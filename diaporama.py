@@ -14,8 +14,8 @@ service = Service()
 options = webdriver.ChromeOptions()
 options.add_argument ('--enable-unsafe-swiftshader')
 options.add_argument ('--ignore-certificate-errors')
-# options.add_argument ('--ignore-ssl-errors')
-# options.add_argument ('--log-level=3')
+options.add_argument ('--ignore-ssl-errors')
+options.add_argument ('--log-level=3')
 
 driver = webdriver.Chrome (service=service, options=options)
 actionChains = ActionChains (driver)
@@ -23,6 +23,16 @@ actionChains = ActionChains (driver)
 urlAlbum = 'https://photos.google.com/share/AF1QipPao_azUraa3kWyoa7bgp67IGn60OYuyuVxnxrrOlO2Nfg1iY75owjIc1xDE7u2_A?key=Q1dlVDFqaVZlNTY4Q1puS3UwSmZsT21YUU1uWTJB'
 driver.get (urlAlbum)
 
+# scroller
+def scroll (value):
+	rangeMicroScroll =( 0,1,2,3,4,5,6,7,8,9 )	# nombre de micro-scroll à effectuer
+	for i in rangeMicroScroll:
+		driver.execute_script ('window.scrollBy (0, %d)' % value)
+		time.sleep (3)	# Temps entre chaque scroll
+
+scroll (300)	# scroll automatique vers le bas
+
+""" version a
 # récupérer les liens des images
 linkAll = driver.find_elements (By.TAG_NAME, 'a')
 linkImg =[]
@@ -41,3 +51,4 @@ for link in linkImg:
 	if i< imgNb: linkImgSrc = linkImgSrc + imgAll[i].get_dom_attribute ('src')[43:-8] +'\n'
 	driver.back()
 print (linkImgSrc)
+"""
