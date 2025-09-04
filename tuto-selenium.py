@@ -25,7 +25,7 @@ options.add_argument ('--ignore-ssl-errors')
 options.add_argument ('--log-level=3')
 # télécharger les fichiers dans un dossier spécifique
 # options.add_argument ('download.default_directory=' + dossierTelechargements)
-prefs ={ 'download.default_directory': dossierTelechargements }
+prefs ={ 'download.default_directory': dossierTelechargements, 'profile.default_content_setting_values.clipboard': 1 }
 options.add_experimental_option ('prefs', prefs)
 driver = webdriver.Chrome (service=service, options=options)
 
