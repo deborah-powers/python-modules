@@ -8,6 +8,11 @@ from selenium.webdriver.common.by import By	# accède aux élements de la page w
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager	# utiliser le navigateur chrome
 import time
+from fileCls import File
+
+# récupérer le fichier contenant les url déjà récupérées
+fileRef = File ('s/portfolio\\diaporama\\photos-data.csv')
+fileRef.read()
 
 # lancer le navigateur, ici chrome
 service = Service()
@@ -22,17 +27,8 @@ actionChains = ActionChains (driver)
 
 urlAlbum = 'https://photos.google.com/share/AF1QipPao_azUraa3kWyoa7bgp67IGn60OYuyuVxnxrrOlO2Nfg1iY75owjIc1xDE7u2_A?key=Q1dlVDFqaVZlNTY4Q1puS3UwSmZsT21YUU1uWTJB'
 driver.get (urlAlbum)
+time.sleep (10)	# temps pour scroller
 
-# scroller
-def scroll (value):
-	rangeMicroScroll =( 0,1,2,3,4,5,6,7,8,9 )	# nombre de micro-scroll à effectuer
-	for i in rangeMicroScroll:
-		driver.execute_script ('window.scrollBy (0, %d)' % value)
-		time.sleep (3)	# Temps entre chaque scroll
-
-scroll (300)	# scroll automatique vers le bas
-
-""" version a
 # récupérer les liens des images
 linkAll = driver.find_elements (By.TAG_NAME, 'a')
 linkImg =[]
@@ -48,7 +44,12 @@ for link in linkImg:
 	imgNb = len (imgAll)
 	i=0
 	while i< imgNb and 'https://lh3.googleusercontent.com/pw/AP1Gcz' != imgAll[i].get_dom_attribute ('src')[:43]: i+=1
-	if i< imgNb: linkImgSrc = linkImgSrc + imgAll[i].get_dom_attribute ('src')[43:-8] +'\n'
+	if i< imgNb:
+		imgUrl = imgAll[i].get_dom_attribute ('src')[43:-8]
+		if '=s250' in imgUrl: imgUrl = imgUrl.replace ('=s250', "")
+		if imgUrl not in fileRef.text:
+#			linkImgSrc = linkImgSrc + imgUrl +'\n'
+			print (imgUrl)
 	driver.back()
-print (linkImgSrc)
-"""
+	time.sleep (0.5)	# temps pour scroller
+# print (linkImgSrc)

@@ -1,0 +1,101 @@
+#!/usr/bin/python3.6
+# -*- coding: utf-8 -*-
+from fileCls import File
+from fileList import FileList, FileTable
+import loggerFct as log
+
+fileA = FileTable ('b/diaporama.txt')
+fileA.read()
+
+def cleanFsimple():
+	while "   " in fileA.text: fileA.replace ("   ","  ")
+	fileA.replace ("  ","\t")
+	fileA.replace (' 201', '\t201')
+	fileA.replace (' 202', '\t202')
+	eraseWords =( ' (1)', ' (2)', ' (3)', '-s-no-gm' )
+	for word in eraseWords: fileA.replace (word)
+	nombres = '0123456789'
+	for nba in nombres:
+		for nbo in nombres: fileA.replace ('-'+ nba + nbo +" ", '-'+ nba + nbo +'\t')
+	cities = ('paris', 'chtd', 'ftb', 'fontainebleau', 'avon', 'rueil', 'angers', 'cmaman', 'cpapa', 'issy', 'blr', 'jplantes', 'parc balzac', 'balzac' 'bagatelle', 'teiffel', 'boulogne', 'bboulogne', 'chateau', 'château', 'lengelen')
+	for city in cities:
+		fileA.replace (city +" ", city +'\t')
+		fileA.replace (" "+ city, '\t'+ city)
+	pronoms = ('de', 'du', 'au', 'aux')
+	for pronom in pronoms:
+		fileA.replace ('\t'+ pronom +'\t'," "+ pronom +" ")
+		fileA.replace (" "+ pronom +'\t'," "+ pronom +" ")
+		fileA.replace ('\t'+ pronom +" "," "+ pronom +" ")
+	citiesAbreviation ={ 'chateau': 'château', 'chtd': 'châteaudun', 'ftb': 'fontainebleau', 'cmaman': 'intérieur', 'cpapa': 'intérieur', 'blr': 'bois le rois', 'jplantes': 'paris\tjardin des plantes', 'teiffel': 'paris\ttour eiffel', 'bboulogne': 'boulogne\tbois' }
+	citiesKey = citiesAbreviation.keys()
+	for abbr in citiesKey: fileA.replace (abbr, citiesAbreviation[abbr])
+	fileA.replace ('paris\tparis', 'paris')
+	fileA.replace ('paris paris', 'paris')
+	photoList = fileA.text.split ('\n')
+	photoList.sort()
+	fileA.text = '\n'.join (photoList)
+
+def findDatePos (line):
+	d=-1
+	rangeCell = range (len (line))
+	for c in rangeCell:
+		if line[c][:2] == '20': d=c
+	return d
+
+def cleanDates():
+	rangeLines = range (len (fileA))
+	for l in rangeLines:
+		if fileA[l][0][:2] == '20': continue
+		else:
+			d= findDatePos (fileA[l])
+			if d>0:
+				cellDate = fileA[l].pop (d)
+				fileA[l].insert (0, cellDate)
+	fileA.sort()
+
+def cleanCities():
+	cities = ('paris', 'fontainebleau', 'avon', 'rueil', 'angers', 'beaucouzé', 'intérieur', 'issy', 'boulogne', 'châteaudun')
+	rangeLines = range (len (fileA))
+	for l in rangeLines:
+		if fileA[l][1] in cities: continue
+		else:
+			nbCells = len (fileA[l])
+			rangeCells = range (2, nbCells -1)
+			c=0
+			posCity =0
+			while c< nbCells and posCity:
+				if fileA[l][c] in cities: posCity =c
+				c+=1
+			if c>0:
+				cellCity = fileA[l].pop (posCity)
+				fileA[l].insert (1, cellCity)
+	fileA.sort()
+
+def eraseUrlDoubles():
+	fileRef = File ('s/portfolio\\diaporama\\photos-data.csv')
+	fileRef.read()
+	rangeLines = reversed (range (len (fileA)))
+	trash =[]
+	for l in rangeLines:
+		if fileA.list[l][-1] in fileRef.text:
+			print (fileA.list[l][:2])
+			trash = fileA.list.pop (l)
+
+def findDatePlaceDoubles():
+	fileRef = File ('s/portfolio\\diaporama\\photos-data.csv')
+	fileRef.read()
+	print ('doublons de lieux et de dates')
+	for line in fileA.list:
+		if line[0] +'\t'+ line[1] in fileRef.text: print (line[0], line[1])
+
+def findDatePlaceDoublesBis():
+	fileRef = FileTable ('s/portfolio\\diaporama\\photos-data.csv')
+	fileRef.read()
+	print ('doublons de lieux et de dates')
+	for line in fileA.list:
+		for ref in fileRef.list:
+			if line[0] in ref[0] and line[1] == ref[1]: print (line[0], ref[0], line[1])
+
+findDatePlaceDoublesBis()
+fileA.title = fileA.title +" bis"
+fileA.write()

@@ -63,6 +63,7 @@ gotFromElement = gotById.find_element (By.CLASS_NAME, 'valeur')
 gotList = driver.find_elements (By.CLASS_NAME, 'valeur')
 directChildren = gotById.find_elements (By.XPATH, './*')
 allDescents = gotById.find_elements (By.XPATH, './/*')
+someDescents = gotById.find_elements (By.XPATH, './/img[".jpg"=substring(@src, string-length(@src) -4)]')
 
 # récupérer les propriétés des éléments
 innerText = gotById.text

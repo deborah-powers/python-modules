@@ -14,8 +14,10 @@ class FileList (File):
 
 	def write (self, upper=False):
 		self.toText()
+		"""
 		if upper: self.text = textFct.shape (self.text, 'reset upper')
 		else: self.text = textFct.shape (self.text, 'reset')
+		"""
 		File.write (self)
 
 	def write_va (self, upper=False):
