@@ -6,6 +6,7 @@ import loggerFct as log
 
 fileA = FileTable ('b/diaporama.txt')
 fileA.read()
+fileA.sort()
 
 def cleanFsimple():
 	while "   " in fileA.text: fileA.replace ("   ","  ")
@@ -77,9 +78,9 @@ def eraseUrlDoubles():
 	rangeLines = reversed (range (len (fileA)))
 	trash =[]
 	for l in rangeLines:
-		if fileA.list[l][-1] in fileRef.text:
-			print (fileA.list[l][:2])
-			trash = fileA.list.pop (l)
+		if fileA.list[l][-1][:-9] in fileRef.text:
+			print (fileA.list[l][:3], fileA.list[l][-1][-9:])
+		#	trash = fileA.list.pop (l)
 
 def findDatePlaceDoubles():
 	fileRef = File ('s/portfolio\\diaporama\\photos-data.csv')
@@ -96,6 +97,6 @@ def findDatePlaceDoublesBis():
 		for ref in fileRef.list:
 			if line[0] in ref[0] and line[1] == ref[1]: print (line[0], ref[0], line[1])
 
-findDatePlaceDoublesBis()
+cleanCities()
 fileA.title = fileA.title +" bis"
 fileA.write()
