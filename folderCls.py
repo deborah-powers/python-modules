@@ -37,6 +37,7 @@ class Folder():
 
 	def replace (self, wordOld, wordNew):
 		""" remplacer un motif dans le texte """
+		self.toPath()
 		for file in self.list:
 			if wordOld in file.text:
 				file.replace (wordOld, wordNew)
@@ -69,8 +70,7 @@ class Folder():
 	def filter (self, tagName, sens=True):
 		""" quand on a besoin de ré-exclure certains fichiers après le get.
 		quand je veux exclure sur plusieurs mots-clefs """
-		rangeFile = listFct.range (self.list)
-		rangeFile.reverse()
+		rangeFile = reversed (range (len (self.list)))
 		if sens:
 			for f in rangeFile:
 				if tagName not in self.list[f].path and tagName not in self.list[f].title: trash = self.list.pop(f)
@@ -92,19 +92,19 @@ class Folder():
 		index.write()
 
 	def read (self):
-		rangeList = listFct.range (self.list)
+		rangeList = range (len (self.list))
 		self.toPath()
 		for i in rangeList: self[i].read()
 		self.fromPath()
 
 	def write (self):
 		self.toPath()
-		rangeList = listFct.range (self.list)
+		rangeList = range (len (self.list))
 		for i in rangeList: self[i].write()
 
 	def fromPath (self):
 		self.path = shortcut (self.path)
-		rangeList = listFct.rangeList (self.list)
+		rangeList = range (len (self.list))
 		for i in rangeList:
 			self[i].path = shortcut (self[i].path)
 			self[i].fromPath()
@@ -114,7 +114,7 @@ class Folder():
 		self.path = shortcut (self.path)
 		newPath = shortcut (self[0].path)
 		if self.path in newPath: return
-		rangeList = listFct.range (self.list)
+		rangeList = range (len (self.list))
 		for i in rangeList:
 			self[i].toPath()
 			self[i].path = self.path + self[i].path
@@ -166,6 +166,16 @@ class Folder():
 					i+=1
 
 	def __getitem__ (self, pos):
+		if type (pos) == int: return self.list [pos]
+		elif type (pos) == slice:
+			posIndex = pos.indices (lenList)
+			rangeList = self.range (posIndex[0], posIndex[1], posIndex[2])
+			newList = Folder (self.path)
+			for l in rangeList: newList.append (self.list[l])
+			return newList
+		else: return None
+
+	def __getitemVa__ (self, pos):
 		lenList = len (self.list)
 		if type (pos) == int:
 			while pos <0: pos += lenList

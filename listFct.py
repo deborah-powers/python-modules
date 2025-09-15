@@ -2,6 +2,20 @@
 # -*- coding: utf-8 -*-
 from random import choice
 
+def rangeListVb (liste, start=0, end=0, step=1):
+	# end peut valoir -1
+	lenList = len (liste)
+	if lenList ==0: return []
+	while end <=0: end += lenList
+	if end > lenList: end = lenList
+	rangeLst = None
+	if start > end: rangeLst = reversed (range (end, start, step))
+	newList =[]
+	while start <end:
+		newList.append (start)
+		start += step
+	return newList
+
 def rangeList (liste, start=0, end=0, step=1):
 	# end peut valoir -1
 	lenList = len (liste)
