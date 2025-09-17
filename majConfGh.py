@@ -9,7 +9,7 @@ else:
 	newToken = argv[1]
 	lenToken = len (argv[1])
 	if newToken[:4] == 'ghp_' and lenToken !=40: newToken = 'mauvais token'
-	elif newToken[:4] != 'ghp_':
+	elif newToken[:4] != 'ghp_' and newToken[:11] != 'github_pat_':
 		if lenToken ==36: newToken = 'ghp_' + newToken
 		else: newToken = 'mauvais token'
 

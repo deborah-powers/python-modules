@@ -6,6 +6,8 @@ def rangeListVb (liste, start=0, end=0, step=1):
 	# end peut valoir -1
 	lenList = len (liste)
 	if lenList ==0: return []
+	while start <0: start += lenList
+	if start > lenList: start = lenList
 	while end <=0: end += lenList
 	if end > lenList: end = lenList
 	rangeLst = None
@@ -20,6 +22,8 @@ def rangeList (liste, start=0, end=0, step=1):
 	# end peut valoir -1
 	lenList = len (liste)
 	if lenList ==0: return []
+	while start <0: start += lenList
+	if start > lenList: start = lenList
 	while end <=0: end += lenList
 	if end > lenList: end = lenList
 	newList =[]

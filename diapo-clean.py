@@ -4,6 +4,35 @@ from fileCls import File
 from fileList import FileList, FileTable
 import loggerFct as log
 
+def comparPhotoByCity (photoA, photoI):
+	if photoA[1] > photoI[1]: return 1
+	elif photoA[1] < photoI[1]: return -1
+	# la localisation
+	elif photoA[5] > photoI[5]: return 1
+	elif photoA[5] < photoI[5]: return -1
+	elif photoA[0] > photoI[0]: return 1
+	elif photoA[0] < photoI[0]: return -1
+	elif photoA[3] > photoI[3]: return 1
+	elif photoA[3] < photoI[3]: return -1
+	elif photoA[2] > photoI[2]: return 1
+	elif photoA[2] < photoI[2]: return -1
+
+def comparPhotoByDate (photoA, photoI):
+	if photoA[0] > photoI[0]: return 1
+	elif photoA[0] < photoI[0]: return -1
+	elif photoA[1] > photoI[1]: return 1
+	elif photoA[1] < photoI[1]: return -1
+	# la localisation
+	elif photoA[5] > photoI[5]: return 1
+	elif photoA[5] < photoI[5]: return -1
+	elif photoA[3] > photoI[3]: return 1
+	elif photoA[3] < photoI[3]: return -1
+	elif photoA[2] > photoI[2]: return 1
+	elif photoA[2] < photoI[2]: return -1
+
+
+sorted (mylist, key=cmp_to_key (comparPhotoByCity))
+
 fileA = FileTable ('b/diaporama.txt')
 fileA.read()
 fileA.sort()
@@ -97,6 +126,15 @@ def findDatePlaceDoublesBis():
 		for ref in fileRef.list:
 			if line[0] in ref[0] and line[1] == ref[1]: print (line[0], ref[0], line[1])
 
-cleanCities()
+def listThemes():
+	themes =[]
+	for line in fileA.list:
+		if line[3] not in themes: themes.append (line[3])
+	for theme in themes: print (theme)
+
+listThemes()
+"""
 fileA.title = fileA.title +" bis"
 fileA.write()
+"""
+

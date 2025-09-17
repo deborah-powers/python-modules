@@ -67,8 +67,26 @@ class FileList (File):
 		self.path = fileSimple.path
 		self.text = fileSimple.text
 
-	def range (self, start=0, end=0, step=1):
+	def rangeVa (self, start=0, end=0, step=1):
 		return listFct.rangeList (self.list, start, end, step)
+
+	def range (self, start=0, end=0, step=1):
+		# end peut valoir -1
+		lenList = self.__len__()
+		if lenList ==0 or step ==0: return []
+		if step <0:
+			tmp = start
+			start = end
+			end = tmp
+			step *=-1
+		while start <0: start += lenList
+		if start > lenList: start = lenList
+		while end <=0: end += lenList
+		if end > lenList: end = lenList
+		rangeList = None
+		if start > end: rangeList = reversed (range (end, start, step))
+		else: rangeList = range (start, end, step)
+		return rangeList
 
 	def len (self):
 		return self.__len__()
