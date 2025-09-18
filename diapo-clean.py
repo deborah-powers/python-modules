@@ -4,6 +4,7 @@ from fileCls import File
 from fileList import FileList, FileTable
 import loggerFct as log
 
+<<<<<<< HEAD
 def comparPhotoByCity (photoA, photoI):
 	if photoA[1] > photoI[1]: return 1
 	elif photoA[1] < photoI[1]: return -1
@@ -31,7 +32,7 @@ def comparPhotoByDate (photoA, photoI):
 	elif photoA[2] < photoI[2]: return -1
 
 
-sorted (mylist, key=cmp_to_key (comparPhotoByCity))
+# sorted (mylist, key=cmp_to_key (comparPhotoByCity))
 
 fileA = FileTable ('b/diaporama.txt')
 fileA.read()
@@ -107,9 +108,10 @@ def eraseUrlDoubles():
 	rangeLines = reversed (range (len (fileA)))
 	trash =[]
 	for l in rangeLines:
-		if fileA.list[l][-1][:-9] in fileRef.text:
-			print (fileA.list[l][:3], fileA.list[l][-1][-9:])
-		#	trash = fileA.list.pop (l)
+		if fileA.list[l][-1] in fileRef.text:
+		#	print (fileA.list[l][:3], fileA.list[l][-1][-9:])
+			print (fileA.list[l])
+			trash = fileA.list.pop (l)
 
 def findDatePlaceDoubles():
 	fileRef = File ('s/portfolio\\diaporama\\photos-data.csv')
@@ -126,6 +128,7 @@ def findDatePlaceDoublesBis():
 		for ref in fileRef.list:
 			if line[0] in ref[0] and line[1] == ref[1]: print (line[0], ref[0], line[1])
 
+<<<<<<< HEAD
 def listThemes():
 	themes =[]
 	for line in fileA.list:
@@ -134,6 +137,18 @@ def listThemes():
 
 listThemes()
 """
+=======
+def findShortDates():
+	rangeLines = reversed (range (len (fileA)))
+	trash =[]
+	for l in rangeLines:
+		if fileA.list[l][7] !="\t":
+		#	print (fileA.list[l])
+			trash = fileA.list.pop (l)
+
+
+findShortDates()
+>>>>>>> 50d4e38 (maison 09/18 18:28)
 fileA.title = fileA.title +" bis"
 fileA.write()
 """
