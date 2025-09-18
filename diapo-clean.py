@@ -1,40 +1,44 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+from functools import cmp_to_key
 from fileCls import File
 from fileList import FileList, FileTable
 import loggerFct as log
 
-<<<<<<< HEAD
 def comparPhotoByCity (photoA, photoI):
 	if photoA[1] > photoI[1]: return 1
 	elif photoA[1] < photoI[1]: return -1
-	# la localisation
-	elif photoA[5] > photoI[5]: return 1
-	elif photoA[5] < photoI[5]: return -1
-	elif photoA[0] > photoI[0]: return 1
-	elif photoA[0] < photoI[0]: return -1
-	elif photoA[3] > photoI[3]: return 1
-	elif photoA[3] < photoI[3]: return -1
 	elif photoA[2] > photoI[2]: return 1
 	elif photoA[2] < photoI[2]: return -1
+	elif photoA[0] > photoI[0]: return 1
+	elif photoA[0] < photoI[0]: return -1
+	elif photoA[4] > photoI[4]: return 1
+	elif photoA[4] < photoI[4]: return -1
+	elif photoA[3] > photoI[3]: return 1
+	elif photoA[3] < photoI[3]: return -1
+	elif photoA[5] > photoI[5]: return 1
+	elif photoA[5] < photoI[5]: return -1
 
 def comparPhotoByDate (photoA, photoI):
 	if photoA[0] > photoI[0]: return 1
 	elif photoA[0] < photoI[0]: return -1
 	elif photoA[1] > photoI[1]: return 1
 	elif photoA[1] < photoI[1]: return -1
-	# la localisation
-	elif photoA[5] > photoI[5]: return 1
-	elif photoA[5] < photoI[5]: return -1
-	elif photoA[3] > photoI[3]: return 1
-	elif photoA[3] < photoI[3]: return -1
 	elif photoA[2] > photoI[2]: return 1
 	elif photoA[2] < photoI[2]: return -1
+	elif photoA[4] > photoI[4]: return 1
+	elif photoA[4] < photoI[4]: return -1
+	elif photoA[3] > photoI[3]: return 1
+	elif photoA[3] < photoI[3]: return -1
+	elif photoA[5] > photoI[5]: return 1
+	elif photoA[5] < photoI[5]: return -1
 
 
-# sorted (mylist, key=cmp_to_key (comparPhotoByCity))
-
+"""
+sorted (mylist, key=cmp_to_key (comparPhotoByCity))
 fileA = FileTable ('b/diaporama.txt')
+"""
+fileA = FileTable ('s/portfolio\\diaporama\\photos-data.tsv')
 fileA.read()
 fileA.sort()
 
@@ -128,16 +132,29 @@ def findDatePlaceDoublesBis():
 		for ref in fileRef.list:
 			if line[0] in ref[0] and line[1] == ref[1]: print (line[0], ref[0], line[1])
 
-<<<<<<< HEAD
 def listThemes():
 	themes =[]
 	for line in fileA.list:
 		if line[3] not in themes: themes.append (line[3])
+	themes.sort()
 	for theme in themes: print (theme)
 
-listThemes()
+def sortThemes():
+	themes =[]
+	rangeLines = range (len (fileA.list))
+	for l in rangeLines:
+		themes = fileA.list[l][3].split (", ")
+		themes.sort()
+		fileA.list[l][3] = ", ".join (themes)
+
+
+colPlace = fileA.getCol (4)
+fileA.popCol (4)
+fileA.insertCol (2, colPlace)
+fileA.list = sorted (fileA.list, key=cmp_to_key (comparPhotoByCity))
+
 """
-=======
+listThemes()
 def findShortDates():
 	rangeLines = reversed (range (len (fileA)))
 	trash =[]
@@ -146,10 +163,6 @@ def findShortDates():
 		#	print (fileA.list[l])
 			trash = fileA.list.pop (l)
 
-
-findShortDates()
->>>>>>> 50d4e38 (maison 09/18 18:28)
+"""
 fileA.title = fileA.title +" bis"
 fileA.write()
-"""
-

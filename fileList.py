@@ -206,6 +206,7 @@ class FileTable (FileList):
 
 	def appendCol (self, item):
 		action = self.addCol (item)
+		rangeList = range (len (self.list))
 		if action == 'unique':
 			for l in rangeList: self.list[l].append (item[l])
 		elif action == 'commun':
@@ -213,6 +214,7 @@ class FileTable (FileList):
 
 	def insertCol (self, pos, item):
 		action = self.addCol (item)
+		rangeList = range (len (self.list))
 		if action == 'unique':
 			for l in rangeList: self.list[l].insert (pos, item[l])
 		elif action == 'commun':
