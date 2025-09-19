@@ -3,7 +3,7 @@
 from fileList import FileList
 import loggerFct as log
 
-filePhoto = FileList ('s/portfolio\\diaporama\\photos-data.csv')
+filePhoto = FileList ('s/portfolio\\diaporama\\photos-data.tsv')
 filePhoto.read()
 # filePhoto.sort()
 photoRange = range (len (filePhoto.list))

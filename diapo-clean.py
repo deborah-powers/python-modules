@@ -147,22 +147,6 @@ def sortThemes():
 		themes.sort()
 		fileA.list[l][3] = ", ".join (themes)
 
-
-colPlace = fileA.getCol (4)
-fileA.popCol (4)
-fileA.insertCol (2, colPlace)
 fileA.list = sorted (fileA.list, key=cmp_to_key (comparPhotoByCity))
-
-"""
-listThemes()
-def findShortDates():
-	rangeLines = reversed (range (len (fileA)))
-	trash =[]
-	for l in rangeLines:
-		if fileA.list[l][7] !="\t":
-		#	print (fileA.list[l])
-			trash = fileA.list.pop (l)
-
-"""
-fileA.title = fileA.title +" bis"
+# fileA.title = fileA.title +" bis"
 fileA.write()
