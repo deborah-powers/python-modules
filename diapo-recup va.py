@@ -21,52 +21,17 @@ options.add_argument ('--log-level=3')
 driver = webdriver.Chrome (service=service, options=options)
 actionChains = ActionChains (driver)
 
-cities =( 'ftb', 'blr', 'fontainebleau', 'bois le rois', 'avon', 'rueil', 'paris', 'issy' )
-citiesDico ={ 'ftb': 'fontainebleau', 'blr': 'bois le rois' }
-
 class PhotoGoogle():
 	def __init__ (self):
 		self.date =""
 		self.city =""
-		self.place = 'NULL'
-		self.themes = 'NULL'
+		self.place =""
+		self.themes =""
 		self.title =""
 		self.url =""
 
 	def extractCityFromLocation (self):
 		pass
-
-	def doTitle (self):
-		if self.title[-3] =='.': self.title = self.title[:-3]
-		elif self.title[-4] =='.': self.title = self.title[:-4]
-		# la ville
-		d=0
-		while d<8:
-			if cities[d] in self.title:
-				self.city = cities[d]
-				self.title = self.title.replace (cities[d], "")
-				self.title = self.title.replace ("  ", " ")
-				self.title = self.title.strip()
-				d=8
-			d+=1
-		if self.city in cities[:2]: self.city = citiesDico [self.city]
-		# la date
-		if '202' in self.title and not self.date:
-			lTitle = len (self.title)
-			d= self.title.find ('202')
-			f= lTitle
-			if " " in self.title[d:]: f= self.title.find (" ",d)
-			self.date = self.title[d:f]
-			# la ville
-			if self.city: self.title = self.title[:d] + self.title[f:]
-			elif d>2 and self.title[:d].count (" ") ==1:
-				self.city = self.title[:d-1]
-				self.title = self.title[f:]
-			elif f< lTitle -2 and self.title[f:].count (" ") ==1:
-				self.city = self.title[f+1:]
-				self.title = self.title[:d]
-			else: self.title = self.title[:d] + self.title[f:]
-			self.title = self.title.replace ("  ", " ")
 
 	def __str__(self):
 		photoStr = self.date +'\t'+ self.city +'\t'+ self.title +'\t'+ self.themes +'\t'+ self.place +'\t'+ self.url
@@ -144,8 +109,11 @@ class PhotoGoogleList (FileList):
 		for photo in self.list: photoStr = photoStr + photo.__str__() + self.sep
 		return photoStr
 
+	def write (self):
+		pass
+
+
 def getImgData (first=False):
-	photoGoogle = PhotoGoogle()
 	time.sleep (0.5)
 	# trouver le bouton pour afficher les infos
 	buttonInfos = driver.find_elements (By.TAG_NAME, 'button')[4]
@@ -161,19 +129,17 @@ def getImgData (first=False):
 		imgTmp = imgAll[i].get_dom_attribute ('aria-label')
 		if 'Nom du fichier' == imgTmp[:14]: imgData = imgAll[i].text[:-4]
 		i+=1
-	photoGoogle.title = imgData
-	photoGoogle.doTitle()
-	imgAll = driver.find_elements (By.XPATH, './/dd/div')
-	for img in imgAll: print ('info', img.text)
+	if imgData[-1] =='.': imgData = imgData[:-1]
 	buttonInfos.click()
 	time.sleep (0.5)
 	# récupérer les images de la page
 	imgAll = driver.find_elements (By.XPATH, './/img[contains(@src, "https://lh3.googleusercontent.com/pw/AP1Gcz")]')
 	imgLen = len (imgAll)
-	if first: photoGoogle.url = imgAll[0].get_dom_attribute ('src')[43:]
-	else: photoGoogle.url = imgAll[2].get_dom_attribute ('src')[43:]
+	imgSrc =""
+	if first: imgSrc = imgAll[0].get_dom_attribute ('src')[43:]
+	else: imgSrc = imgAll[2].get_dom_attribute ('src')[43:]
 	# aller à la page suivante
-	print (photoGoogle)
+	print (imgData +"  "+ imgSrc)
 """
 	if imgLen ==6 or first:
 		first = False
