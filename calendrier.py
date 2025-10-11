@@ -26,7 +26,7 @@ les valeurs de tag
 	repas:		"	"	repas
 """ % __file__
 
-dateStart = DatePerso (2025, 9, 23)
+dateStart = DatePerso (2025, 10, 7)
 dateEnd = DatePerso.today()
 dateEndStr = dateEnd.toStrDay()
 """
@@ -214,7 +214,7 @@ class eventGoogle (calendarGoogle, Event):
 class eventList (FileList):
 	def __init__ (self):
 		FileList.__init__ (self)
-		self.path = 'b/calendar.txt'
+		self.path = 'b/calendrier.txt'
 		self.fromPath()
 
 	def fromCalendar (self, service, calendar, dateMin, duplicate='False'):
