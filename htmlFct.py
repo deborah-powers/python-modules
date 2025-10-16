@@ -1,12 +1,14 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 # attention, l'ordre des sous-fonctions est important
+""" traiter les images
 from os import sep
-from PIL import Image, ImageOps
+from PIL import Image
 from io import BytesIO
 import base64
-from textFct import *
 from fileLocal import pathRoot
+"""
+from textFct import *
 import loggerFct as log
 
 listTagsContainer =( 'ul', 'ol', 'dl', 'table', 'nav', 'div', 'fieldset', 'form', 'figure', 'math', 'section', 'article', 'body', 'header', 'footer', 'main' )
@@ -31,6 +33,7 @@ def findTitleFromUrl (link):
 	while "  " in title: title = title.replace ("  "," ")
 	return title
 
+"""
 def imageFromBase64One (imgStr):
 	buff = BytesIO (base64.b64decode (imgStr))
 	return Image.open (buff)
@@ -63,6 +66,7 @@ def imgToB64 (text):
 			text = 'src='.join (textList)
 		text = text.replace ('scr=', 'src=')
 	return text
+"""
 
 def cleanHtmlForWritting (text):
 	if '</xmp>' in text: text = cleanBasic (text)

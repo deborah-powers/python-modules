@@ -1,13 +1,8 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 # attention, l'ordre des sous-fonctions est important
-from os import sep
-from PIL import Image, ImageOps
-from io import BytesIO
-import base64
 from textFct import *
 from htmlFct import *
-from fileLocal import pathRoot
 import loggerFct as log
 
 def fromTable (text):

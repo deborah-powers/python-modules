@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # attention, l'ordre des sous-fonctions est important
 from os import sep
-from PIL import Image
 from io import BytesIO
 import base64
 from textFct import *
