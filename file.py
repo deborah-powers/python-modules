@@ -14,7 +14,7 @@ les valeurs de tag
 	clean (ru - r - u):	nettoyer le texte. modifier ou pas la casse.
 	mef (ru):	mettre en forme un texte utilisant ma mise en forme spécifique.
 	help:		afficher l'aide d'un fichier python.
-	convert:	transformer un fichier html en texte et vice-versa.
+	conv:		transformer un fichier html en texte et vice-versa.
 	md:			transformer un fichier txt en markdown
 	comp:		comparer deux fichiers
 	art:		transformer un texte simple en article
@@ -54,13 +54,19 @@ elif argv[2] == 'inde':
 	pageHtml.toEreader()
 elif argv[2] == 'conv':
 	page = None
-	if argv[1][-4:] == '.txt':
+	if argv[1][-4:] == '.txt' and argv[3]:
 		page = Article (argv[1])
+		page.read()
+		pageHtml = Html()
+		pageHtml.fromArticle (page)
+		pageHtml.write()
+	elif argv[1][-4:] == '.txt':
+		page = File (argv[1])
 		page.read()
 		pageHtml = Html()
 		pageHtml.fromText (page)
 		pageHtml.write()
-	if argv[1][-4:] == 'html':
+	elif argv[1][-5:] == '.html':
 		page = Html (argv[1])
 		page.read()
 		page = page.toText()

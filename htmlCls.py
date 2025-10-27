@@ -532,10 +532,13 @@ class Html (Article):
 		for key in keys: article.meta[key] = self.meta[key]
 		return article
 
-	def fromText (self, article):
-		self.text = toHtml (article.text)
-		self.title = article.title
-		self.path = article.path.replace ('.txt', '.html')
+	def fromText (self, fileTxt):
+		self.text = toHtml (fileTxt.text)
+		self.title = fileTxt.title
+		self.path = fileTxt.path.replace ('.txt', '.html')
+
+	def fromArticle (self, article):
+		self.fromText (article)
 		self.subject = article.subject
 		self.author = article.author
 		self.link = article.link
