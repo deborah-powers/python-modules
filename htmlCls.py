@@ -515,11 +515,17 @@ class Html (Article):
 
 	def toText (self):
 		# if '</a>' in self.text or '<img' in self.text: return None
+		self.replace ('\n')
+		self.replace ('\t')
 		article = Article()
 		self.replace (" class='arrow'>", '>--> ')
 		self.delAttributes()
 		article.text = fromHtml (self.text)
-		if '</' in article.text: return None
+		if '</' in article.text:
+		#	print (article.text)
+			d= article.text.find ('</')
+			log.log ('présence de balise html', article.text.count ('</'), article.text[d-6:d+8])
+			return None
 		article.path = self.path.replace ('.html', '.txt')
 		if self.type == 'xhtml': article.path = self.path.replace ('.xhtml', '.txt')
 		article.type = 'txt'

@@ -218,6 +218,8 @@ def cleanText (text):
 		else: textList[t+1] =" "+ textList[t+1]
 	text = ':'.join (textList)
 	while "  " in text: text = text.replace ("  ", " ")
+	text = text.replace ('--> ', '-->')
+	text = text.replace ('-->', '--> ')
 	charEndUrl = '\n\t \'",;!()[]{}'
 	for wordStart, wordEnd in urlWords[6:]: text = text.replace (wordStart, wordEnd)
 	for wordStart, wordEnd in urlWords[:6]:	# les six premiers éléments ressemblent à des débuts de mots

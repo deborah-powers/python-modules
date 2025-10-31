@@ -48,37 +48,25 @@ def fromLink (text):
 	textList = text.split ('</a>')
 	textRange = range (len (textList) -1)
 	for t in textRange:
-		title =""
-		link =""
-		f= textList[t].rfind ('>')
-		if f>=0: title = textList[t][f+1:]
-		if 'href=' in textList[t][:f]:
-			textList[t] = textList[t][:f-1]
-			d=6+ textList[t].rfind ('href=')
-			f= textList[t].find (textList[t][d-1], d)
-			link = textList[t][d:f]
-		"""
-		if not title:
-			d= link.rfind ('/')
-			if '\\' in src: d= link.rfind ('\\')
-			title = link[d+1:]
-			if '.' in title:
-				f= title.rfind ('.')
-				title = title[:f]
-		"""
-		f= textList[t].rfind ('<a')
-		textList[t] = textList[t][:f] +" "+ link
-		if title: textList[t] = textList[t] +' ('+ title +') '	# inverse de la méthode de htmlFromText
-		"""
-		textList[t] = textList[t][:f] +" "+ title +' ('+ link +') '
-		textList[t] = textList[t][:f] +" "+ title +': '+ link
-		"""
+		d=6+ textList[t].rfind ('href=')
+		f= textList[t].find (textList[t][d-1], d+1)
+		link = textList[t][d:f]
+		f=1+ textList[t].find ('>', f)
+		title = textList[t][f:]
+		d= textList[t].rfind ('<a ')
+		textList[t] = textList[t][:d]
+		textList[t] = textList[t] + link +' ('+ title +')'	# inverse de la méthode de htmlFromText
 	text = " ".join (textList)
+	text = text.replace (' <','<')
+	text = text.replace ('> ','>')
 	return text
 
 def fromHtml (text):
+	text = cleanHtml (text)
+	text = text.replace ('</dt><dd>', ': ')
+	text = fromLink (text)
 	# les conteneurs
-	tagsBlank =( ('<hr/>', '\n**\n'), ('<hr>', '\n**\n'), ('<br>', '\n'), ('<br/>', '\n'))
+	tagsBlank =( ('<hr/>', '\n**\n'), ('<hr>', '\n**\n'), ('<br>', '\n'), ('<br/>', '\n'), ('<dt>', '\n'), ('<xmp>', '\nCode\n'), ('</xmp>', '\n/\n'), ('<figure>', '\nFigure\n'), ('</figure>', '\n/\n'))
 	tagsClosing =( 'li', 'dd', 'tr', 'th', 'td', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')
 	for tag in listTagsContainer:
 		text = text.replace ('</'+ tag +'>', "")
@@ -101,7 +89,6 @@ def fromHtml (text):
 		text = text.replace ('<'+ tag +'>', " ")
 	text = text.replace (' \n', '\n')
 	text = text.replace ('\n ', '\n')
-	text = fromLink (text)
 	text = shape (text)
 	return text
 
