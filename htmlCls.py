@@ -611,6 +611,9 @@ class Html (Article):
 		self.replace ('\n<tr>', '<tr>\n\t')
 		self.replace ('</tr>\n', '\n</tr>')
 		self.replace ('<li>', '\t<li>')
+		self.replace ('<dt>', '\t<dt>')
+		self.replace ('</dt>\n<dd>', '</dt><dd>')
+		self.replace ('</a>\n', '</a>')
 		self.replace ('> ', '>')
 		self.replace (' <', '<')
 

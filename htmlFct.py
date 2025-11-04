@@ -73,7 +73,6 @@ def imgToB64 (text):
 def cleanHtmlForWritting (text):
 	if '</xmp>' in text: text = cleanBasic (text)
 	else: text = cleanHtml (text)
-	innerTags =( 'i', 'b', 'em', 'span', 'strong', 'a')
 	for tag in listTagsIntern:
 		text = text.replace ('<'+ tag +'>', ' <'+ tag +'>')
 		text = text.replace ('</'+ tag +'>', '</'+ tag +'> ')
@@ -84,6 +83,7 @@ def cleanHtmlForWritting (text):
 	points = '.,)'
 	for p in points: text = text.replace (" "+p, p)
 	text = text.replace ("( ", '(')
+	innerTags =( 'i', 'b', 'em', 'span', 'strong', 'a')
 	for tag in innerTags:
 		for tig in innerTags: text = text.replace ('</'+ tag + '><'+ tig +'>', '</'+ tag + '> <'+ tig +'>')
 	return text
