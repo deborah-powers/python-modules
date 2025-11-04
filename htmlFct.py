@@ -21,9 +21,11 @@ tagHtml =(
 )
 
 def findTitleFromUrl (link):
-	pos = link.rfind ('/')
-	if '\\' in link: pos = link.rfind ('\\')
-	title = link[pos+1:]
+	if link[-1] == '/' or link[-1] == '\\': link = link[:-1]
+	pos =0
+	if '/' in link: pos =1+ link.rfind ('/')
+	elif '\\' in link: pos =1+ link.rfind ('\\')
+	title = link[pos:]
 	if '.' in title:
 		pos = title.rfind ('.')
 		if len (title) -pos <11: title = title[:pos]

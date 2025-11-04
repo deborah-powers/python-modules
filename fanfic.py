@@ -43,7 +43,7 @@ class Fanfic (htmlCls.Html):
 		else:
 			self.meta ={}
 			self.setByMain()
-	#	self.delAttributes()
+		self.delAttributes()
 		"""
 		article = self.toText()
 		if article: article.divide()

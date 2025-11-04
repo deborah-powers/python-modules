@@ -54,7 +54,7 @@ elif argv[2] == 'inde':
 	pageHtml.toEreader()
 elif argv[2] == 'conv':
 	page = None
-	if argv[1][-4:] == '.txt' and argv[3]:
+	if argv[1][-4:] == '.txt' and nbArg >3:
 		page = Article (argv[1])
 		page.read()
 		pageHtml = Html()

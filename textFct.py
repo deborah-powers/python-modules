@@ -22,7 +22,7 @@ weirdChars =(
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'), ('&apos;', "'"),
 	('&mdash;', ' '), ('&nbsp;', ''), ('&oelig;', 'oe'), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&lsquo;', '"'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"), ('&laquo;', '"'), ('&raquo;', '"'), ('&#8220;', '"'), ('&#8221;', '"'), ('&#8211;', '-'),
 	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#xa0;', " "), ('&#39;', "'"), ('&#8217;', "'"), ('\n" ', '\n"'),
-	('<br>', '<br/>'), ('<hr>', '<hr/>'), ('C:/', 'C:\\'), ('c:/', 'C:\\'), ('users/lenovo/', 'Users\\LENOVO\\'), ('Users/LENOVO/', 'Users\\LENOVO\\'), ('\\desktop/', '\\Desktop\\'), ('\\Desktop/', '\\Desktop\\')
+	('<br>', '<br/>'), ('<hr>', '<hr/>'), ('c:\\', 'C:\\'), ('c:/', 'C:/')
 )
 urlWords =(('. gif', '.gif'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'),
 	(': /', ':/'), (': \\', ':\\'), ('C:\\', 'file:///C:\\'), ('localhost: ', 'localhost:'), (': 80', ':80'), ('www. ', 'www.'),
@@ -224,7 +224,9 @@ def cleanText (text):
 	for wordStart, wordEnd in urlWords[6:]: text = text.replace (wordStart, wordEnd)
 	for wordStart, wordEnd in urlWords[:6]:	# les six premiers éléments ressemblent à des débuts de mots
 		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
-	while 'ile:///file:///' in text: text = text.replace ('ile:///file:///', 'ile:///')
+	text = text.replace ('file:///', "")
+	text = text.replace ('File:///', "")
+	while 'file:///' in text: text = text.replace ('ile:///file:///', 'ile:///')
 	text = text.replace (' \n', '\n')
 	text = text.replace (' \t', '\t')
 	text = text.replace ('\t ', '\t')

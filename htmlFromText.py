@@ -122,20 +122,16 @@ def toTable (text):
 def toImageProtocolExtension (text, protocol, extension):
 	extension = '.'+ extension
 	if protocol not in text or extension not in text: return text
-	endingChars = '<;, !\t\n';
 	textList = text.split (extension);
 	textRange = range (len (textList) -1)
 	for i in textRange:
 		if protocol not in textList[i]: continue
 		# trouver l'url
 		d= textList[i].rfind (protocol)
-		goodProtocol = True
-		for protocol in protocols:
-			if protocol in textList[i][d+5:]: goodProtocol = False
-		if not goodProtocol: continue
+		if '\n' in textList[i][d:] or '\t' in textList[i][d:]: continue
 		url = textList[i][d:] + extension
-		title =""
 		textList[i] = textList[i][:d]
+		title =""
 		# trouver la description
 		if textList[i+1][:2] == " (":
 			d= textList[i+1].find (')')
@@ -173,35 +169,32 @@ def toImage (text):
 def toLinkProtocol (text, protocol):
 	if protocol not in text: return text
 	endingChars = '<;, !\t\n'
+	text = text +'\n'
 	textList = text.split (protocol)
 	paragraphRange = range (1, len (textList))
 	for p in paragraphRange:
-		paragraphTmp = textList[p]
+		# récupérer l'url
+		url = textList[p]
 		e=-1; f=-1; d=-1
 		for char in endingChars:
-			if char in paragraphTmp:
-				f= paragraphTmp.find (char)
-				paragraphTmp = paragraphTmp [:f]
-		paragraphTmp = paragraphTmp.strip ('/')
-		d= paragraphTmp.rfind ('/') +1
-		e= len (paragraphTmp)
-		if '.' in paragraphTmp[d:]: e= paragraphTmp.rfind ('.')
+			if char in url:
+				f= url.find (char)
+				if f>=0: url = url[:f]
+		d= len (url)
+		textList[p] = textList[p][d:]
+		if url[-1] == '/': url = url[:-1]
+		# récupérer le tître
 		title =""
-		if textList[p][f:f+2] == ' (':
-			e= textList[p].find (')')
-			title = textList[p][f+2:e]
-			textList[p] = textList[p][e+1:]
+		if textList[p][:2] == ' (':
+			d= textList[p].find (')')
+			title = textList[p][2:d]
+			textList[p] = textList[p][d+1:]
 		elif ': '== textList[p-1][-2:]:
 			d=1+ textList[p-1].rfind ('\n')
 			title = textList[p-1][d:-2]
-			if '>' in title or '<' in title: title = findTitleFromUrl (paragraphTmp)
-			else: textList[p-1] = textList[p-1][:d]
-			d= textList[p].find ('</p>')
-			textList[p] = textList[p][d:]
-		else:
-			textList[p] = textList[p][f:]
-			title = findTitleFromUrl (paragraphTmp)
-		textList[p] = paragraphTmp +"'>"+ title +'</a>\n'+ textList[p]
+			textList[p-1] = textList[p-1][:d]
+		else: title = findTitleFromUrl (url)
+		textList[p] = url +"'>"+ title +'</a>\n'+ textList[p]
 	text = ("\n<a href='" + protocol).join (textList)
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	return text
