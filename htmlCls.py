@@ -725,10 +725,7 @@ class Html (Article):
 					if imageName[:2] == './': imageName = imageName[2:]
 					elif imageName[0] == '/': imageName = imageName[1:]
 					elif imageName[:2] == 'C:' and '/' in imageName: imageName = imageName.replace ('/','\\')
-					log.message (imageName)
-					log.message (pathTmp)
-					imageName = pathTmp + os.sep + imageName
-					log.message (imageName)
+					if imageName[:2] != 'C:': imageName = pathTmp + os.sep + imageName
 					imgStr = htmlFct.imgToB64One (imageName)
 					textList[t] = textList[t][0] + imgStr + textList[t][f:]
 				self.text = 'src='.join (textList)

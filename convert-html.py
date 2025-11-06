@@ -3,7 +3,7 @@
 import pypandoc
 
 
-fileSrc = 'C:\\Users\\deborah.powers\\Desktop\\rgaa-certif\\rgaa présentation 2025-10-17.html'
+fileSrc = 'C:\\Users\\deborah.powers\\Desktop\\rgaa-certif\\rgaa diaporama.html'
 fileDst = 'C:\\Users\\deborah.powers\\Desktop\\rgaa présentation conv.pptx'
 output = pypandoc.convert_file (fileSrc, 'pptx', outputfile=fileDst)
 
