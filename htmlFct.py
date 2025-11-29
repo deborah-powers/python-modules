@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # attention, l'ordre des sous-fonctions est important
 from os import sep
+from urllib import request as urlRequest
 from PIL import Image
 from io import BytesIO
 import base64
@@ -37,6 +38,40 @@ def imageFromBase64One (imgStr):
 	buff = BytesIO (base64.b64decode (imgStr))
 	return Image.open (buff)
 
+def imgToB64Local (imgPath):
+	imgPath = textList[t][1:f].replace ('/', sep)
+	if pathRoot not in imgPath: return ""
+	imageOriginal = Image.open (imgPath)
+	imageOriginal = imageOriginal.convert ('RGB')
+	buff = BytesIO()
+	if imgPath[-3:] == 'jpg': imageOriginal.save (buff, format='jpeg')
+	else: imageOriginal.save (buff, format=imgPath[-3:])
+	imgStr = base64.b64encode (buff.getvalue())
+	imgStr = 'data:image/' + imgPath[-3:] + ';base64,' + str (imgStr)[2:-1]
+	return imgStr
+
+def imgToB64Web (imgPath):
+	myRequest = urlRequest.Request (imgPath, headers={ 'User-Agent': 'Mozilla/5.0' })
+	response = urlRequest.urlopen (myRequest)
+	tmpByte = response.read()
+	imgStr = base64.b64encode (tmpByte)
+	imgStr = 'data:image/' + imgPath[-3:] + ';base64,' + str (imgStr)[2:-1]
+	return imgStr
+
+def imgToB64 (text):
+	if 'src=' not in text: return text
+	textList = text.split ('src=')
+	textRange = range (1, len (textList))
+	for t in textRange:
+		f= textList[t].find (textList[t][0], 2)
+		if textList[t][f-4:f] not in '.bmp .png .gif .jpg': continue
+		imgStr = textList[t][1:f]
+		if textList[t][1:5] == 'http': imgToB64Web (imgStr)
+		else: imgStr = imgToB64Local (imgStr)
+		textList[t] = textList[t][0] + imgStr + textList[t][f:]
+	text = 'src='.join (textList)
+	return text
+
 def imgToB64One (imageName):
 	imageOriginal = Image.open (imageName)
 	imageOriginal = imageOriginal.convert ('RGB')
@@ -47,7 +82,7 @@ def imgToB64One (imageName):
 	imgStr = 'data:image/' + imageName[-3:] + ';base64,' + str (imgStr)[2:-1]
 	return imgStr
 
-def imgToB64 (text):
+def imgToB64_va (text):
 	if 'src=' in text:
 		text = text.replace ("src='http", "scr='http")
 		text = text.replace ('src="http', 'scr="http')
