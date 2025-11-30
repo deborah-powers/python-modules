@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+import subprocess
 from sys import argv
 import textFct
 from fileCls import File, Article
@@ -21,6 +22,7 @@ les valeurs de tag
 	inde:		transformer un fichier html local en fichier adapté pour ma liseuse
 	pdf:		mettre en forme le texte copié - collé d'un fichier pdf
 """
+
 nbArg = len (argv)
 if nbArg <3: print (help)
 elif argv[2] == 'help':

@@ -66,7 +66,7 @@ def imgToB64 (text):
 		f= textList[t].find (textList[t][0], 2)
 		if textList[t][f-4:f] not in '.bmp .png .gif .jpg': continue
 		imgStr = textList[t][1:f]
-		if textList[t][1:5] == 'http': imgToB64Web (imgStr)
+		if imgStr[0:4] == 'http': imgStr = imgToB64Web (imgStr)
 		else: imgStr = imgToB64Local (imgStr)
 		textList[t] = textList[t][0] + imgStr + textList[t][f:]
 	text = 'src='.join (textList)

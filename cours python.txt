@@ -38,8 +38,10 @@ myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
 
 == installation
 
+python.exe -m pip install --upgrade pip
 pip install opencv-python
-
+pip install Spire.PDF
+pip install xpdf-python --no-binary=:all:
 
 == Espaces de nom
 

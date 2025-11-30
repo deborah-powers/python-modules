@@ -4,6 +4,7 @@ import os
 import codecs
 import json
 from urllib import request as urlRequest
+import pdfplumber
 import listFct
 import textFct
 import htmlFct
@@ -20,7 +21,7 @@ dateFormatHour = dateFormatDay + '-%H-%M'
 
 def decodeFileContent (textBrut):
 	tmpByte = textBrut.read()
-	encodingList = ('utf-8', 'ascii', 'ISO-8859-1')
+	encodingList = ('utf-8', 'ascii', 'ISO-8859-1', 'ISO8859-1')
 	text =""
 	for encoding in encodingList:
 		try: text = codecs.decode (tmpByte, encoding=encoding)
@@ -171,6 +172,28 @@ class File():
 		self.text = self.text[d:f]
 		jsonData = json.loads (self.text)
 		return jsonData
+
+	def fromPdf (self):
+		# le fichier d'origine est un pdf, path.pdf
+		self.toPath()
+		filePdf = pdfplumber.open (self.path)
+		self.path = self.path.replace ('.pdf', '.txt')
+		pageRange = range (len (filePdf.pages))
+		for p in pageRange:
+			self.text = self.text + filePdf.pages[p].extract_text()
+			self.text = self.text +'\n/\n'
+		self.text = self.text.replace ('-\n', "")
+		self.text = textFct.cleanText (self.text)
+		midleChars = '?!:;,. -_abcdefghijklmnopqrstuvwxyz'
+		for char in midleChars: self.text = self.text.replace ('\n'+ char, " "+ char)
+		startChars = 'ABCDEFGIJKLMNOPQRSTUVWXYZ0123456789/\\-_0123456789'
+		endChars = '?!:./\\0123456789'
+		for char in startChars: self.text = self.text.replace ('\n'+ char, '\t'+ char)
+		for char in endChars: self.text = self.text.replace (char +'\n', char +'\t')
+		self.text = self.text.replace ('\n', " ")
+		for char in startChars: self.text = self.text.replace ('\t'+ char, '\n'+ char)
+		for char in endChars: self.text = self.text.replace (char +'\t', char +'\n')
+		self.write()
 
 	def divide (self):
 		self.fromPath()

@@ -37,12 +37,14 @@ class Fanfic (htmlCls.Html):
 		elif 'https://www.ebooksgratuits.com/html/' in url: self.ebGratuit()
 		elif 'https://menace-theoriste.fr/' in url: self.menaceTheoriste()
 		elif 'https://www.reddit.com/r/' in url: self.reddit()
+		elif 'https://geology.com/gemstones/' in url or 'opals.html' in url: self.geology()
 		elif 'egb' in url: self.ebGratuit()
 		elif 'wiki' in url: self.wiki()
 		elif 'osmose' in url: self.fromOsmose()
 		else:
 			self.meta ={}
 			self.setByMain()
+			self.cleanOne()
 		self.delAttributes()
 		"""
 		article = self.toText()
@@ -472,7 +474,7 @@ class Fanfic (htmlCls.Html):
 		autlink = 'https://www.fanfiction.net/u/' + self.text[d:f]
 		self.link = 'https:' + self.metas ['canonical']
 		d= autlink.rfind ('/') +1
-		self.author = cleanTitle (autlink[d:])
+		self.author = htmlCls.cleanTitle (autlink[d:])
 		self.meta = { 'lien-auteur': autlink }
 		# le sujet
 		if '- Romance/' in self.text: self.subject = 'romance'
@@ -485,6 +487,77 @@ class Fanfic (htmlCls.Html):
 		self.text = self.text[d:f]
 		self.text = self.text.strip()
 		self.text = '<p>'+ self.text +'</p>'
+
+	def geology (self):
+		self._setByTagSimple ('article')
+		d=14+ self.text.find ('<h4>Author:')
+		d=5+ self.text.find ('href=', d)
+		f= self.text.find (self.text[d], d+2)
+		self.meta = { 'lien-auteur': self.text[d+1:f] }
+		d=1+ self.text.find ('>', f)
+		f= self.text.find ('</a>', d)
+		self.author = htmlCls.cleanTitle (self.text[d:f])
+		self.subject = 'bijou, culture'
+		self.replace ('\n')
+		self.replace ('\t')
+		self.delAttributes()
+		d= self.text.find ('<h1>')
+		self.text = self.text[d:]
+		tagsToDelete =( 'section', 'center', 'table', 'tr', 'hrnoshade', 'map', 'area' )
+		for tag in tagsToDelete:
+			self.replace ('</'+ tag +'>')
+			self.replace ('<'+ tag +'>')
+		self.replace ('><b>','>')
+		self.replace ('<b>',' ')
+		self.replace ('</b><','<')
+		self.replace (':</b>',': ')
+		self.replace ('</b>',' ')
+		self.replace ('<div><div>ADVERTISEMENT</div><div></div></div>',"")
+		self.replace ('<div>ADVERTISEMENT</div>',"")
+		self.replace ('</td><td><img src="https://geology.com/w.gif"/></td>',"")
+		self.replace ("</td><td><img src='https://geology.com/w.gif'/></td>","")
+		self.replace ('h2>','h3>')
+		f=-1
+		if '<div><td>More Gemstones' in self.text: f= self.text.find ('<div><td>More Gemstones')
+		elif '<h3>Find Other Topics' in self.text: f= self.text.find ('<h3>Find Other Topics')
+		if f>=0: self.text = self.text[:f]
+
+		# traiter les images contenus dans des liens inutiles
+		textList = self.text.split ('/></a>')
+		textRange = range (len (textList) -1)
+		for t in textRange:
+			d= textList[t].rfind ('<a ')
+			f= textList[t].rfind ('<img')
+			textList[t] = textList[t][:d] + textList[t][f:]
+		self.text = '/>'.join (textList)
+		# créer les figures
+		self.replace ('<div><img', '<figure><img')
+		imgExtentions =( 'jpg', 'bmp', 'png', 'gif' )
+		for ext in imgExtentions:
+			self.replace ('.'+ ext + "'/></div>", '.'+ ext + "'/><figcaption></figcaption></figure>")
+			self.replace ('.'+ ext + '"/></div>', '.'+ ext + '"/><figcaption></figcaption></figure>')
+			self.replace ('.'+ ext + "'/><p>", '.'+ ext + "'/><figcaption>")
+			self.replace ('.'+ ext + '"/><p>', '.'+ ext + '"/><figcaption>')
+		# corriger les figures ayant été encadrées par un lien
+		textList = self.text.split ('<figcaption>')
+		textRange = range (1, len (textList))
+		for t in textRange:
+			if '</figcaption>' not in textList[t]: textList[t] = textList[t].replace ('</p></div>', '</figcaption></figure>', 1)
+		self.text = '<figcaption>'.join (textList)
+		# éliminer les liens des tîtres
+		textList = self.text.split ('<h3><a ')
+		textRange = range (1, len (textList))
+		for t in textRange:
+			d= textList[t].find ('.shtml')
+			d=1+ textList[t].find ('>',d)
+			textList[t] = textList[t][d:]
+			textList[t] = textList[t].replace ('</a>', " ",1)
+		self.text = '<h3>'.join (textList)
+		self.replace (' </h3>', '</h3>')
+		self.replace ('<div></div>',"")
+
+	def cleanOne (self):
+		pass
 
 if len (argv) >=2:
 	url = argv[1]

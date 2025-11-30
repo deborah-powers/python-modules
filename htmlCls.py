@@ -633,7 +633,7 @@ class Html (Article):
 			self.title = self.title +" reader"
 			self.path = pathDesktop + self.title +".html"
 		self.replace ('file:///')
-		self.imgToB64()
+		self.text = htmlFct.imgToB64 (self.text)
 		self.text = htmlFct.cleanHtmlForWritting (self.text)
 	#	self.createSummary()
 		meta = self.getMetas()
