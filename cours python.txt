@@ -39,7 +39,21 @@ myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
 == installation
 
 python.exe -m pip install --upgrade pip
-pip install opencv-python
+pip install --upgrade pdfplumber
+pip install --upgrade pypandoc_binary
+pip install --upgrade numpy
+pip install --upgrade Pillow
+pip install --upgrade pillow-heif
+pip install --upgrade opencv-python
+pip install --upgrade -U selenium
+pip install --upgrade webdriver_manager
+pip install --upgrade axe-selenium-python
+pip install --upgrade google-api-python-client
+pip install --upgrade google-cloud-service-control
+pip install --upgrade google-auth-httplib2
+pip install --upgrade google-auth-oauthlib
+
+
 pip install Spire.PDF
 pip install xpdf-python --no-binary=:all:
 
@@ -362,7 +376,7 @@ It seems that the Service Control API might not be enabled on your project.
 dans mon projet, activer l'api service control
 https://console.cloud.google.com/apis/library/servicecontrol.googleapis.com?inv=1&invt=AbxXgg&project=drive-deborah
 
-pip install google-cloud-service-control
+pip install --upgrade google-cloud-service-control
 
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 
