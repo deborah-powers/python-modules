@@ -1,6 +1,48 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 
+def listMethodsSort_va (itemA, itemO):
+	voyelles = 'aeiouy'
+	if itemA in voyelles and itemO in voyelles: return itemA > itemO
+	elif itemA not in voyelles and itemO not in voyelles: return itemA > itemO
+	elif itemA in voyelles and itemO not in voyelles: return True
+	else: return False
+
+def listMethodsSort (itemA, itemO):
+	voyelles = 'aeiouy'
+	if itemA == itemO: return 0
+	if itemA in voyelles and itemO in voyelles:
+		if itemA > itemO: return 1	# itemA est après itemO
+		else: return -1
+	elif itemA not in voyelles and itemO not in voyelles:
+		if itemA > itemO: return 1
+		else: return -1
+	elif itemA in voyelles and itemO not in voyelles: return -1
+	else: return 1
+
+def listMethods():
+	from functools import cmp_to_key
+	myList =[ 'a', 'b', 'c', 'd' ]
+	b= myList.pop (1)
+	myList.remove ('c')
+	myList.append ('e')
+	myList.extend ([ 'i', 'j', 'k' ])
+	myList = myList + [ 'f', 'g', 'h' ]
+	myList.sort()
+	myList.insert (2, 'l')
+	print (myList)
+	myList = sorted (myList, key=cmp_to_key (listMethodsSort))
+	print (myList)
+	yList =[]
+	for l in myList: yList.append (l+'y')
+	print (yList)
+	zList =[ l+ 'z' for l in myList ]
+	print (zList)
+	for (a,b) in yList: print (a, ':', b)
+
+listMethods()
+
+Reference = list	# nécessaire pour faire tourner le scipt. Reference peut-être n'importe quelle classe pré-existente
 class Custom (Reference):
 	# https://realpython.com/operator-function-overloading/#the-internals-of-operations-like-len-and
 	def __init__(self, parameter):

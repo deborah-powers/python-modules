@@ -203,6 +203,29 @@ Which python
 Sudo apt autoremove python
 # repeat sudo apt autoremove python(for all versions) that should do it, then install anaconda and manage pythons however you like if you need to reinstall it.
 
+== présentation des erreurs
+
+SyntaxError: non-respect de la grammaire de python
+NameError: utilisation d'une variable non déclarée. faute d'ortographe, oubli de déclaration de variable
+TypeError: réalisation d'une opération sur une variable de mauvais type. ex additionner des dictionnaires, du texte et un nombre, ect
+erreur de logique: le programme tourne mais ne fais pas ce que le développeur veut
+
+** SyntaxError
+
+mal ortographier un mot-clef de python.
+manquer ou utilier une ponctuation inadaptée, :;.
+oublier un membre d'une parenthère ou de guillemets, "'({[.
+
+** erreurs supplémentaires
+
+IndexError: éssayer de récupérer une case à un indice qui n'existe pas dans une liste
+ValueError: faire appel à une donnée qui n'existe pas, qui n'est pas là où l'on la cherche.
+
+== rappels sur les listes
+
+il est normal que les listes contiennent des éléments de types différents.
+cf cours python.py / listMethods
+
 == Ajouter un dossier à sys.path
 
 Je veux utiliser les scripts de /home/deborah/python partout.
@@ -328,7 +351,7 @@ créer le fichier python, fromDrive.py
 https://developers.google.com/resources/api-libraries/documentation/drive/v3/python/latest/index.html
 https://developers.google.com/workspace/drive/api/guides/search-files
 
-*** erreurs
+*** erreurs rencontrées
 
 code: 403
 Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API
