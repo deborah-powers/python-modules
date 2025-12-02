@@ -4,6 +4,8 @@ import os
 import codecs
 import json
 from urllib import request as urlRequest
+from pdfminer.image import ImageWriter
+from pdfminer.layout import LTImage
 import pdfplumber
 import listFct
 import textFct
@@ -174,14 +176,35 @@ class File():
 		return jsonData
 
 	def fromPdf (self):
-		# le fichier d'origine est un pdf, path.pdf
+		# le fichier d'origine est un pdf, path.pdf. https://pypi.org/project/pdfplumber/#command-line-interface
 		self.toPath()
 		filePdf = pdfplumber.open (self.path)
+		"""
+		metaDict = filePdf.metadata
+		imgName = filePdf.pages[1].images[0]['name']
+		imgData = filePdf.pages[1].images[0]['stream'].__dict__['rawdata']
+		print (filePdf.pages[1].images[0]['stream'].__dict__)
+		"""
+		# créer un dossier pour contenir les éventuelles images
+		self.fromPath()
+		i= self.path.find ('\t')
+		imgPath = self.path[:i] + self.title + os.sep
+		if not os.path.exists (imgPath): os.mkdir (imgPath)
+		images =[]
+		# pour chaque page, récupérer le texte et les images
 		self.path = self.path.replace ('.pdf', '.txt')
-		pageRange = range (len (filePdf.pages))
-		for p in pageRange:
-			self.text = self.text + filePdf.pages[p].extract_text()
-			self.text = self.text +'\n/\n'
+		for page in filePdf.pages:
+			self.text = self.text +'\n/ img / page %02d /\n' % page.page_number
+			self.text = self.text + page.extract_text()
+			images.append ("")
+			for img in page.images:
+				bbox = [img['x0'], page.cropbox[3] - img['y1'], img['x1'], page.cropbox[3] - img['y0']]
+				imgPage = page.crop (bbox=bbox)
+				imgObj = imgPage.to_image (resolution=100)
+				imgName = "%s%02d %s.png" % (imgPath, img['page_number'], img['name'])
+				imgObj.save (imgName)
+				images[-1] = images[-1] + imgName +'\n'
+		# nettoyer le texte
 		self.text = self.text.replace ('-\n', "")
 		self.text = textFct.cleanText (self.text)
 		midleChars = '?!:;,. -_abcdefghijklmnopqrstuvwxyz'
@@ -193,6 +216,11 @@ class File():
 		self.text = self.text.replace ('\n', " ")
 		for char in startChars: self.text = self.text.replace ('\t'+ char, '\n'+ char)
 		for char in endChars: self.text = self.text.replace (char +'\t', char +'\n')
+		# rajouter les images dans le texte
+		textList = self.text.split ('/ img / ')
+		textRange = range (1, len (textList))
+		for t in textRange: textList[t] = textList[t] + images[t-1]
+		self.text = '/ '.join (textList)
 		self.write()
 
 	def divide (self):
