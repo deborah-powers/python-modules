@@ -75,15 +75,6 @@ def upperCase (text, case=""):
 	text = text.strip()
 	return text
 
-def findStickedWords (text):
-	punctuation = '?!;.:,[](){}_=*+-/\'\t\n"'
-	for p in punctuation: text = text.replace (p," ")
-	text = cleanBasic (text)
-	textList = text.split (" ")
-	textSet = set (textList)
-	for word in textSet:
-		if len (word) >15: print ('fusion probable', word)
-
 def findEndUrl (text, pos=0):
 	charEndUrl = '\n\t \'",;!()[]{}'
 	lenText = len (text) +1
@@ -260,19 +251,6 @@ def shape (text, case=""):
 		text = text.replace ('\n'+ 2* char +'\n', '\n\n'+ 2* char +'\n\n')
 		text = text.replace ('\n'+ 2* char, '\n\n'+ 2* char)
 	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
-	return text
-
-def cleanPdf (text):
-	# mettre en forme un texte copié - collé d'un pdf
-	text = cleanText (text)
-	points = ',;.:!?)]}"\''
-	for p in points: text = text.replace (p+'\n', p+'%%')
-	text = text.replace ('%%', '\n')
-	text = text.replace ('\n', ' ')
-	text = text.replace (' • ', '\n\t')
-	text = text.replace ('\n• ', '\n\t')
-	text = shape (text, 'reset upper')
-	findStickedWords (text)
 	return text
 
 def toMarkdown (text):

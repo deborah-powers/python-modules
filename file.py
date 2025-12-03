@@ -29,9 +29,8 @@ elif argv[2] == 'help':
 	from funcHelp import printHelp
 	printHelp (argv[1])
 elif argv[2] == 'pdf':
-	page = File (argv[1])
-	page.read()
-	page.text = textFct.cleanPdf (page.text)
+	page = Article (argv[1])
+	page.fromPdf()
 	page.write()
 elif argv[2] == 'art':
 	page = File (argv[1])
