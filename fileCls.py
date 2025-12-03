@@ -528,9 +528,12 @@ class Article (File):
 			images.append ("")
 			for img in page.images:
 				bbox = [img['x0'], page.cropbox[3] - img['y1'], img['x1'], page.cropbox[3] - img['y0']]
+				if bbox[0] < page.cropbox[0]: bbox[0] = page.cropbox[0]
+				if bbox[1] < page.cropbox[1]: bbox[1] = page.cropbox[1]
+				if bbox[2] > page.cropbox[2]: bbox[2] = page.cropbox[2]
+				if bbox[3] > page.cropbox[3]: bbox[3] = page.cropbox[3]
 				imgPage = page.crop (bbox=bbox)
-				imgObj = imgPage.to_image (resolution=50)
-				log.message (type (imgObj))
+				imgObj = imgPage.to_image (resolution=100)
 				imgNameShort = "%s%02d %s.png" % (imgPathShort, img['page_number'], img['name'])
 				imgName = "%s%02d %s.png" % (imgPath, img['page_number'], img['name'])
 				imgObj.save (imgName)

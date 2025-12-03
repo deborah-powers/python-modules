@@ -42,6 +42,7 @@ python.exe -m pip install --upgrade pip
 pip install --upgrade pdfplumber
 pip install --upgrade pypandoc_binary
 pip install --upgrade numpy
+pip install --upgrade pywin32
 pip install --upgrade Pillow
 pip install --upgrade pillow-heif
 pip install --upgrade opencv-python
