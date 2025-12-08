@@ -8,7 +8,7 @@ from fileLocal import pathDesktop, pathCard
 import textFct
 import htmlFct
 from fileCls import File, Article, FileCss
-from fileTemplate import templateHtml, templateHtmlEreader
+from fileTemplate import templateHtml, templateEreader, templateTheater
 from htmlToText import fromHtml
 from htmlFromText import toHtml
 import loggerFct as log
@@ -636,8 +636,10 @@ class Html (Article):
 		self.text = htmlFct.imgToB64 (self.text)
 		self.text = htmlFct.cleanHtmlForWritting (self.text)
 	#	self.createSummary()
-		meta = self.getMetas()
-		self.text = templateHtmlEreader % (self.title, self.subject, self.author, self.link, meta, self.text)
+	#	meta = self.getMetas()
+		if 'theatre' in self.subject or 'théâtre' in self.subject:
+			self.text = templateTheater % (self.title, self.subject, self.author, self.link, self.text)
+		else: self.text = templateEreader % (self.title, self.subject, self.author, self.link, self.text)
 		File.write (self, 'w')
 
 	def getCssFromFileForEreader (self):

@@ -19,39 +19,57 @@ templateHtml = """<!DOCTYPE html><html lang='fr-Fr'><head>
 	<meta name='author' content='%s'/>
 	<meta name='link' content='%s'/>
 %s
-	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
-	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
+	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css' />
+	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen' />
 </head><body>
 %s
 </body></html>"""
 
-templateHtmlEreader = """<!DOCTYPE html><html lang='fr-Fr'><head>
-	<title>%s</title>
-	<base target='_self'>
-	<meta charset='utf-8'/>
-	<meta name='viewport' content='width=device-width, initial-scale=1'/>
-	<meta name='subject' content='%s'/>
-	<meta name='author' content='%s'/>
-	<meta name='link' content='%s'/>
-	%s
-	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/structure.css'/>
-	<link rel='stylesheet' type='text/css' href='file:///C:/wamp64/www/site-dp/library-css/perso.css' media='screen'/>
-<!-- style type='text/css' media='(width: 295px) and (height: 380px)' -->
-<style type='text/css' media='(max-width: 600px)'>
+templateEreaderCss ="""
+<style type='text/css' media='(max-width: 350px)'>
 	* {
 		box-sizing: border-box;
 		padding: 0;
-		margin-bottom: 1em;
+		margin: 0 0 1em 0;
 		font-size: 1em;
+		line-height: 1.5em;
 		font-family: inherit;
 		font-style: normal;
 		font-weight: normal;
 		text-decoration: none;
-		line-height: 1.5em;
-		color: inherit;
 		background: none;
+		color: black;
 	}
+	body { padding: 0 0.5em; }
 	*:first-letter, title:first-letter { text-transform: uppercase; }
+	h1 {
+		font-size: 1.5em;
+		background-color: #444;
+		color: white;
+		text-align: center;
+	}
+	dt {
+		color: #444;
+		float: left;
+		clear: left;
+		margin-right: 0.5em;
+	}
+	dt:after { content: ':'; }
+	/*
+	dl >* { display: block; }
+	dt {
+		color: #444;
+		width: 90%;
+	}
+	dt:after {
+		content: ':';
+		width: 5%;
+	}
+	dd {
+		margin-left: 0;
+		width: 100%;
+	}
+	*/
 	h1 {
 		font-size: 1.2em;
 		text-align: center;
@@ -72,34 +90,30 @@ templateHtmlEreader = """<!DOCTYPE html><html lang='fr-Fr'><head>
 	h4 { font-style: italic; }
 	ul { margin-left: 2em; }
 	img { max-width: 100%%; }
-	dl { width: 100%%; }
-	dl >* { display: inline-block; }
-	dt {
-		min-width: 6em;
-		max-width: 30%%;
+</style>"""
+templateTheaterCss ="""
+<style type='text/css'>
+	p.didascalie, span { font-style: italic; }
+	span:before { content: '('; }
+	span:after { content: ')'; }
+	@media (min-width: 350px){
+		dl { grid-template-columns: 6em 1fr; }
+		p { color: var(--bord-color); }
+		p.moi { color: var(--text-color); }
 	}
-	dd {
-		min-width: 10em;
-		max-width: 70%%;
-	}
-/*	dt {
-		float: left;
-		clear: left;
-		min-width: 6em;
-		display: inline-block;
-	}
-	dd {
-		float: right;
-		clear: right;
-		min-width: 10em;
-		display: inline-block;
-	}*/
-	dt:after { content: ' :'; }
-</style></head><body>
-%s
-</body></html>"""
+</style>""" + templateEreaderCss[:-9] +"""
+	p { color: #444; }
+	p.moi { color: black; }
+</style>"""
 
-templateHtmlEreaderjs = """<script type='text/javascript'>
+templateEreader = templateHtml % ('%s', '%s', '%s', '%s', templateEreaderCss, '%s')
+templateEreader = templateEreader.replace (".css' />", ".css' media='(min-width: 350px)' />", 1)
+templateEreader = templateEreader.replace ("media='screen' />", "media='screen and (min-width: 350px)' />", 1)
+templateTheater = templateHtml % ('%s', '%s', '%s', '%s', templateTheaterCss, '%s')
+templateTheater = templateTheater.replace (".css' />", ".css' media='(min-width: 350px)' />", 1)
+templateTheater = templateTheater.replace ("media='screen' />", "media='screen and (min-width: 350px)' />", 1)
+
+templateEreaderjs = """<script type='text/javascript'>
 	var titles = document.getElementsByTagName ('h1');
 	var sommaire = "<section id='sommaire'>";
 	// que des titres h1
