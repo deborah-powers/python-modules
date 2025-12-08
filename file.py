@@ -10,17 +10,17 @@ import loggerFct as log
 help ="""traiter des fichiers
 utilisation
 	le script est appelable dans un fichier
-	python3 fileClass.py fichier tag (fichierB)
+	python3 file.py fichier tag (fichierB)
 les valeurs de tag
 	clean (ru - r - u):	nettoyer le texte. modifier ou pas la casse.
 	mef (ru):	mettre en forme un texte utilisant ma mise en forme spécifique.
 	help:		afficher l'aide d'un fichier python.
-	conv:		transformer un fichier html en texte et vice-versa.
+	conv (ind):	transformer un fichier html en texte et vice-versa. ind pour créer un html adapté à la liseuse
 	md:			transformer un fichier txt en markdown
 	comp:		comparer deux fichiers
 	art:		transformer un texte simple en article
 	inde:		transformer un fichier html local en fichier adapté pour ma liseuse
-	pdf:		mettre en forme le texte copié - collé d'un fichier pdf
+	pdf (img):	récupérer le texte d'un pdf
 """
 
 nbArg = len (argv)
@@ -30,13 +30,14 @@ elif argv[2] == 'help':
 	printHelp (argv[1])
 elif argv[2] == 'pdf':
 	page = Article (argv[1])
-	page.fromPdf()
+	if nbArg >3: page.fromPdf (True)
+	else: page.fromPdf (False)
 	page.write()
 elif argv[2] == 'art':
 	page = File (argv[1])
 	page.read()
 	article = Article (argv[1])
-	article.text = page.text
+	article.fromFile()
 	article.write()
 elif argv[2] == 'md':
 	page = File (argv[1])

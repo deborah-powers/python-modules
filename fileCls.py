@@ -4,8 +4,6 @@ import os
 import codecs
 import json
 from urllib import request as urlRequest
-from pdfminer.image import ImageWriter
-from pdfminer.layout import LTImage
 import pdfplumber
 import listFct
 import textFct
@@ -429,11 +427,54 @@ class Article (File):
 				self.title = self.title +' '+ str (idFile)
 				self.write()
 
-	def metaToText (self):
-		metaTemplate = '%s: %s\n'
-		text =""
-		for meta in self.meta: text = text + metaTemplate % (meta, self.meta[meta])
-		return text
+	def fromPath (self):
+		File.fromPath (self)
+		if self.path[-3:] == 'txt': self.type = 'txt'
+		elif self.path[-5:] == 'xhtml': self.type = 'xhtml'
+		elif self.path[-4:] == 'html': self.type = 'html'
+
+	def write (self):
+		self.title = self.title.lower()
+		meta = self.metaToText()
+		self.text = textFct.cleanText (self.text)
+		self.text = textFct.shape (self.text, 'reset upper')
+		self.text = templateText % (self.text, self.subject, self.author, self.link, meta)
+		File.write (self, 'w')
+
+	def read (self):
+		File.read (self)
+		self.getMeta()
+
+	def fromFile (self, fileObj):
+		self.title = fileObj.title
+		self.path = fileObj.path
+		self.text = fileObj.text
+		self.subject = 'o'
+		self.author = 'o'
+		self.link = 'o'
+		if '\n==\n' in self.text and '\nSujet: ' in self.text: self.getMeta()
+
+	def getMeta (self):
+		metadata =[]
+		self.text = textFct.cleanText (self.text)
+		self.text = textFct.shape (self.text)
+		self.text = self.text.strip()
+		d= self.text.rfind ('\n==')
+		metaText = self.text[d:].lower()
+	#	metaText = metaText.replace (':\t',': ')
+		metaText = metaText +'\n'
+		self.text = self.text[:d]
+		metadata = textFct.fromModel (metaText, templateTextMeta)
+		self.subject = metadata[0]
+		self.author = metadata[1]
+		self.link = metadata[2]
+		if len (metadata) >3: self.metaFromText (metadata[3])
+		"""
+			metaList = metadata[3].split ('\n')
+			for meta in metaList:
+				d= meta.find (':')
+				self.meta[meta[:d]] = meta[d+2:]
+		"""
 
 	def metaFromText (self, text):
 		if 'style:\n' in text:
@@ -458,43 +499,11 @@ class Article (File):
 			d= line.find (': ')
 			self.meta [line[:d]] = line[d+2:]
 
-	def fromPath (self):
-		File.fromPath (self)
-		if self.path[-3:] == 'txt': self.type = 'txt'
-		elif self.path[-5:] == 'xhtml': self.type = 'xhtml'
-		elif self.path[-4:] == 'html': self.type = 'html'
-
-	def read (self):
-		File.read (self)
-		metadata =[]
-		self.text = textFct.cleanText (self.text)
-		self.text = textFct.shape (self.text)
-		self.text = self.text.strip()
-		d= self.text.rfind ('\n==')
-		metaText = self.text[d:].lower()
-		metaText = metaText.replace (':\t',': ')
-		metaText = metaText +'\n'
-		self.text = self.text[:d]
-		metadata = textFct.fromModel (metaText, templateTextMeta)
-		self.subject = metadata[0]
-		self.author = metadata[1]
-		self.link = metadata[2]
-		if len (metadata) >3:
-			self.metaFromText (metadata[3])
-			"""
-			metaList = metadata[3].split ('\n')
-			for meta in metaList:
-				d= meta.find (':')
-				self.meta[meta[:d]] = meta[d+2:]
-			"""
-
-	def write (self):
-		self.title = self.title.lower()
-		meta = self.metaToText()
-		self.text = textFct.cleanText (self.text)
-		self.text = textFct.shape (self.text, 'reset upper')
-		self.text = templateText % (self.text, self.subject, self.author, self.link, meta)
-		File.write (self, 'w')
+	def metaToText (self):
+		metaTemplate = '%s: %s\n'
+		text =""
+		for meta in self.meta: text = text + metaTemplate % (meta, self.meta[meta])
+		return text
 
 	def copy (self):
 		article = Article (self.path)
@@ -506,38 +515,18 @@ class Article (File):
 		self.meta = self.meta
 		return article
 
-	def fromPdf (self):
+	def fromPdf (self, getImg=True):
 		# le fichier d'origine est un pdf, path.pdf. https://pypi.org/project/pdfplumber/#command-line-interface
 		self.subject = 'o'
 		self.author = 'o'
 		self.toPath()
 		self.link = self.path
 		filePdf = pdfplumber.open (self.path)
-		# créer un dossier pour contenir les éventuelles images
-		self.fromPath()
-		i= self.path.find ('\t')
-		imgPathShort = self.title + os.sep
-		imgPath = self.path[:i] + imgPathShort
-		if not os.path.exists (imgPath): os.mkdir (imgPath)
-		images =[]
-		# pour chaque page, récupérer le texte et les images
+		# pour chaque page, récupérer le texte
 		self.path = self.path.replace ('.pdf', '.txt')
 		for page in filePdf.pages:
 			self.text = self.text +'\n/ img / page %02d\n' % page.page_number
 			self.text = self.text + page.extract_text()
-			images.append ("")
-			for img in page.images:
-				bbox = [img['x0'], page.cropbox[3] - img['y1'], img['x1'], page.cropbox[3] - img['y0']]
-				if bbox[0] < page.cropbox[0]: bbox[0] = page.cropbox[0]
-				if bbox[1] < page.cropbox[1]: bbox[1] = page.cropbox[1]
-				if bbox[2] > page.cropbox[2]: bbox[2] = page.cropbox[2]
-				if bbox[3] > page.cropbox[3]: bbox[3] = page.cropbox[3]
-				imgPage = page.crop (bbox=bbox)
-				imgObj = imgPage.to_image (resolution=100)
-				imgNameShort = "%s%02d %s.png" % (imgPathShort, img['page_number'], img['name'])
-				imgName = "%s%02d %s.png" % (imgPath, img['page_number'], img['name'])
-				imgObj.save (imgName)
-				images[-1] = images[-1] + imgNameShort +'\n'
 		# nettoyer le texte
 		self.text = self.text.replace ('-\n', "")
 		self.text = textFct.cleanText (self.text)
@@ -550,11 +539,9 @@ class Article (File):
 		self.text = self.text.replace ('\n', " ")
 		for char in startChars: self.text = self.text.replace ('\t'+ char, '\n'+ char)
 		for char in endChars: self.text = self.text.replace (char +'\t', char +'\n')
-		# rajouter les images dans le texte
-		textList = self.text.split ('/ img / ')
-		textRange = range (1, len (textList))
-		for t in textRange: textList[t] = textList[t] + images[t-1]
-		self.text = '== '.join (textList)
+		# pour chaque page, récupérer les images
+		if getImg: self.fromPdfImg (filePdf.pages)
+		else: self.text = self.text.replace ('/ img / ', '== ')
 		# récupérer d'éventuelles métadonnées
 		metaKeys = filePdf.metadata.keys()
 		if 'subject' in metaKeys: self.subject = filePdf.metadata['subject']
@@ -568,6 +555,35 @@ class Article (File):
 		if 'ModDate' in metaKeys: self.meta['date'] = filePdf.metadata['ModDate']
 		elif 'ModificationDate' in metaKeys: self.meta['date'] = filePdf.metadata['ModificationDate']
 		elif 'CreationDate' in metaKeys: self.meta['date'] = filePdf.metadata['CreationDate']
+
+	def fromPdfImg (self, pages):
+		# créer un dossier pour contenir les éventuelles images. pages = filePdf.pages
+		self.fromPath()
+		i= self.path.find ('\t')
+		imgPathShort = self.title + os.sep
+		imgPath = self.path[:i] + imgPathShort
+		if not os.path.exists (imgPath): os.mkdir (imgPath)
+		images =[]
+		# pour chaque page, récupérer les images
+		for page in pages:
+			images.append ("")
+			for img in page.images:
+				bbox = [img['x0'], page.cropbox[3] - img['y1'], img['x1'], page.cropbox[3] - img['y0']]
+				if bbox[0] < page.cropbox[0]: bbox[0] = page.cropbox[0]
+				if bbox[1] < page.cropbox[1]: bbox[1] = page.cropbox[1]
+				if bbox[2] > page.cropbox[2]: bbox[2] = page.cropbox[2]
+				if bbox[3] > page.cropbox[3]: bbox[3] = page.cropbox[3]
+				imgPage = page.crop (bbox=bbox)
+				imgObj = imgPage.to_image (resolution=100)
+				imgNameShort = "%s%02d %s.png" % (imgPathShort, img['page_number'], img['name'])
+				imgName = "%s%02d %s.png" % (imgPath, img['page_number'], img['name'])
+				imgObj.save (imgName)
+				images[-1] = images[-1] + imgNameShort +'\n'
+		# rajouter les images dans le texte
+		textList = self.text.split ('/ img / ')
+		textRange = range (1, len (textList))
+		for t in textRange: textList[t] = textList[t] + images[t-1]
+		self.text = '== '.join (textList)
 
 	def __str__ (self):
 		strShow = 'Titre: %s\tSujet: %s\tAuteur: %s' % (self.title, self.subject, self.author)
