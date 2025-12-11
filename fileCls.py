@@ -87,15 +87,17 @@ def fromUrl (url, params=None):
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")
 	textA = textFct.cleanBasic (textA)
-	listA = textA.split ('\n')
 	textB = textB.replace ('\t'," ")
 	textB = textFct.cleanBasic (textB)
+	if textA == textB: return 'c	les textes sont identiques'
+	listA = textA.split ('\n')
 	listB = textB.split ('\n')
 	listCommon = listFct.comparer (listA, listB)
+	if listCommon[0][1] == 'c': return 'c	les textes sont différents'
 	textCommon =""
 	for line in listCommon:
 		textCommon = textCommon +'\n'+ line[1] +'\t'+ line[0]
-	return textCommon
+	return textCommon[1:]
 
 class File():
 	def __init__ (self, file =None):
@@ -116,7 +118,7 @@ class File():
 				self.text = self.text.replace (item,"")
 				fileB.text = fileB.text.replace (item,"")
 		fileCommon.text = comparerText (self.text, fileB.text)
-		fileCommon.write()
+		if fileCommon.text[0] != 'c': fileCommon.write()
 
 	def fromPath (self):
 		if '\t' in self.path: return

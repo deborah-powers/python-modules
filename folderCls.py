@@ -112,7 +112,7 @@ class Folder():
 
 	def toPath (self):
 		self.path = shortcut (self.path)
-		newPath = shortcut (self[0].path)
+		newPath = shortcut (self.list[0].path)
 		if self.path in newPath: return
 		rangeList = range (len (self.list))
 		for i in rangeList:
@@ -127,12 +127,18 @@ class Folder():
 		return newList
 
 	def append (self, file):
-		# file.path doit avoir été déracié
-		d= file.path.rfind ('.')
-	#	file.path = self.path +'\t'+ file.path[d:]
-		file.shortcut()
-		file.toPath()
-		self.list.append (file)
+		if type (file) == str:
+			fileTmp = File (file)
+			self.append (fileTmp)
+		else:
+			file.shortcut()
+			file.toPath()
+			if self.path in file.path: file.path = file.path.replace (self.path, "")
+			self.list.append (file)
+
+	def remove (self, file):
+		self.list.remove (file)
+
 
 	def __str__ (self):
 		strList = 'Dossier: '+ self.path +'\nListe:'

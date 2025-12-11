@@ -91,7 +91,7 @@ templateEreaderCss ="""
 	ul { margin-left: 2em; }
 	img { max-width: 100%%; }
 </style>"""
-templateTheaterCss ="""
+templateTheaterCssA ="""
 <style type='text/css'>
 	p.didascalie, span { font-style: italic; }
 	span:before { content: '('; }
@@ -101,17 +101,16 @@ templateTheaterCss ="""
 		p { color: var(--bord-color); }
 		p.moi { color: var(--text-color); }
 	}
-</style>""" + templateEreaderCss[:-9] +"""
-	p { color: #444; }
-	p.moi { color: black; }
 </style>"""
-
+templateTheaterCssB = '\n\tp { color: #444; }\n\tp.moi { color: black; }\n'
 templateEreader = templateHtml % ('%s', '%s', '%s', '%s', templateEreaderCss, '%s')
 templateEreader = templateEreader.replace (".css' />", ".css' media='(min-width: 350px)' />", 1)
 templateEreader = templateEreader.replace ("media='screen' />", "media='screen and (min-width: 350px)' />", 1)
-templateTheater = templateHtml % ('%s', '%s', '%s', '%s', templateTheaterCss, '%s')
-templateTheater = templateTheater.replace (".css' />", ".css' media='(min-width: 350px)' />", 1)
-templateTheater = templateTheater.replace ("media='screen' />", "media='screen and (min-width: 350px)' />", 1)
+
+t= templateEreader.rfind ('</style>')
+templateTheater = templateEreader[:t] + templateTheaterCssB + templateEreader[t:]
+t= templateTheater.find ('<style ')
+templateTheater = templateTheater[:t] + templateTheaterCssA + templateTheater[t:]
 
 templateEreaderjs = """<script type='text/javascript'>
 	var titles = document.getElementsByTagName ('h1');
