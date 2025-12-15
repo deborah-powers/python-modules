@@ -27,7 +27,7 @@ def groupByRef (folderRef, folderExt):
 	dicoFiles ={}
 	for ref in folderRef.list:
 		dicoFiles[ref.title] = Folder (PathExt)
-		dicoFiles[ref.title].append (ref)	# la référence est falsificalement considérée comme le premier élément du folder
+		dicoFiles[ref.title].append (ref)	# la référence est faussement considérée comme le premier élément du folder
 		f=0
 		nbFile = len (folderExt.list)
 		while f< nbFile:
@@ -56,12 +56,11 @@ def findModif (pathRef, folderIdem):
 		#	print ('modification possible dans', fileRef.title, fidem.title)
 			fileRef.comparer (fidem)
 
-print ('\t=== comparer les fichiers css ===\n')
+# print ('\t=== comparer les fichiers css ===\n')
 groups = groupByRef (folderRefCss, folderExtCss)
 refList = groups.keys()
 for ref in refList: findModif (pathRefCss, groups [ref])
 
-print ('\n\t=== comparer les fichiers js ===\n')
 groups = groupByRef (folderRefJs, folderExtJs)
 refList = groups.keys()
 for ref in refList: findModif (pathRefJs, groups [ref])
