@@ -59,15 +59,15 @@ templateEreaderCss ="""
 	dl >* { display: block; }
 	dt {
 		color: #444;
-		width: 90%;
+		width: 90%%;
 	}
 	dt:after {
 		content: ':';
-		width: 5%;
+		width: 5%%;
 	}
 	dd {
 		margin-left: 0;
-		width: 100%;
+		width: 100%%;
 	}
 	*/
 	h1 {
@@ -106,7 +106,6 @@ templateTheaterCssB = '\n\tp { color: #444; }\n\tp.moi { color: black; }\n'
 templateEreader = templateHtml % ('%s', '%s', '%s', '%s', templateEreaderCss, '%s')
 templateEreader = templateEreader.replace (".css' />", ".css' media='(min-width: 350px)' />", 1)
 templateEreader = templateEreader.replace ("media='screen' />", "media='screen and (min-width: 350px)' />", 1)
-
 t= templateEreader.rfind ('</style>')
 templateTheater = templateEreader[:t] + templateTheaterCssB + templateEreader[t:]
 t= templateTheater.find ('<style ')
