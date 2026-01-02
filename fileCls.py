@@ -123,7 +123,8 @@ class File():
 	def fromPath (self):
 		if '\t' in self.path: return
 		self.path = shortcut (self.path)
-		if os.sep not in self.path or '.' not in self.path:
+	#	if os.sep not in self.path or '.' not in self.path:
+		if '.' not in self.path:
 			print ('fichier malformé:\n' + self.path)
 			return
 		elif self.path.rfind (os.sep) > self.path.rfind ('.'):
@@ -445,7 +446,7 @@ class Article (File):
 
 	def read (self):
 		File.read (self)
-		self.getMeta()
+		self.getMetas()
 
 	def fromFile (self, fileObj):
 		self.title = fileObj.title
@@ -454,29 +455,30 @@ class Article (File):
 		self.subject = 'o'
 		self.author = 'o'
 		self.link = 'o'
-		if '\n==\n' in self.text and '\nSujet: ' in self.text: self.getMeta()
+		if '\n==\n' in self.text and '\nSujet: ' in self.text: self.getMetas()
 
-	def getMeta (self):
+	def getMetas (self):
 		metadata =[]
 		self.text = textFct.cleanText (self.text)
-		self.text = textFct.shape (self.text)
-		self.text = self.text.strip()
-		d= self.text.rfind ('\n==')
-		metaText = self.text[d:].lower()
-	#	metaText = metaText.replace (':\t',': ')
-		metaText = metaText +'\n'
-		self.text = self.text[:d]
-		metadata = textFct.fromModel (metaText, templateTextMeta)
-		self.subject = metadata[0]
-		self.author = metadata[1]
-		self.link = metadata[2]
-		if len (metadata) >3: self.metaFromText (metadata[3])
-		"""
-			metaList = metadata[3].split ('\n')
-			for meta in metaList:
-				d= meta.find (':')
-				self.meta[meta[:d]] = meta[d+2:]
-		"""
+		if self.type == 'txt' and '\n==\n' in self.text:
+			self.text = textFct.shape (self.text)
+			self.text = self.text.strip()
+			d= self.text.rfind ('\n==')
+			metaText = self.text[d:].lower()
+		#	metaText = metaText.replace (':\t',': ')
+			metaText = metaText +'\n'
+			self.text = self.text[:d]
+			metadata = textFct.fromModel (metaText, templateTextMeta)
+			self.subject = metadata[0]
+			self.author = metadata[1]
+			self.link = metadata[2]
+			if len (metadata) >3: self.metaFromText (metadata[3])
+			"""
+				metaList = metadata[3].split ('\n')
+				for meta in metaList:
+					d= meta.find (':')
+					self.meta[meta[:d]] = meta[d+2:]
+			"""
 
 	def metaFromText (self, text):
 		if 'style:\n' in text:
@@ -506,6 +508,15 @@ class Article (File):
 		text =""
 		for meta in self.meta: text = text + metaTemplate % (meta, self.meta[meta])
 		return text
+
+	def toDico (self):
+		dico ={}
+		dico['title'] = self.title
+		dico['subject'] = self.subject
+		dico['author'] = self.author
+		self.toPath()
+		dico['path'] = self.path
+		return dico
 
 	def copy (self):
 		article = Article (self.path)

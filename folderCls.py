@@ -221,10 +221,10 @@ class FolderArticle (Folder):
 	def __init__ (self, path='a/', subject=""):
 		Folder.__init__(self, path)
 		self.subject = subject
-		if subject == 'fanfic' or subject == 'romance': self.path = 'a/fanfics/'
-		elif subject == 'cour': self.path = 'a/cours/'
-		elif subject == 'education': self.path = 'a/education/'
-		elif subject == 'roman': self.path = 'a/romans/'
+		if subject == 'fanfic' or subject == 'romance': self.path = 'b/fanfics\\'
+		elif subject == 'cour': self.path = 'a/cours\\'
+		elif subject == 'education': self.path = 'a/education\\'
+		elif subject == 'roman': self.path = 'b/livres numeriques\\'
 		self.path = shortcut (self.path)
 
 	def createIndex (self):
@@ -235,7 +235,6 @@ class FolderArticle (Folder):
 		for file in self.list:
 			file.toPath()
 			index.text = index.text + file.subject +'\t'+ file.author +'\t'+ file.title +'\t'+ file.path +'\n'
-		print (self.path)
 		index.text = index.text.replace (self.path, "")
 		index.write()
 
@@ -258,7 +257,12 @@ class FolderArticle (Folder):
 		tmpList.get (tagName, sens)
 		for file in tmpList.list:
 			article = Article (file.path)
-			if article.type in ('html', 'txt'): self.append (article)
+			article.title = file.title
+			if article.type == 'txt': self.append (article)
+			elif article.type == 'html':
+				articleHtml = Html (article.path)
+				articleHtml.title = article.title
+				self.append (articleHtml)
 		self.list.sort()
 
 	def __getitem__ (self, pos):

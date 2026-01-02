@@ -5,6 +5,15 @@ from folderCls import Folder, FolderArticle
 from imageCls import ImageFolder
 import loggerFct as log
 
+"""
+folfic = Folder ('f/')
+folfic.get ('.txt')
+folfic.read()
+for fic in folfic:
+	while '===' in fic.text: fic.replace ('===', '==')
+	fic.replace (' ==')
+folfic.write()
+"""
 help ="""
 ce script peut être appelé dans un autre script
 python %s folderName action oldArg (newArg)
