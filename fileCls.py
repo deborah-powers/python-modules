@@ -537,16 +537,21 @@ class Article (File):
 		filePdf = pdfplumber.open (self.path)
 		# pour chaque page, récupérer le texte
 		self.path = self.path.replace ('.pdf', '.txt')
+		numbers = '0123456789'
 		for page in filePdf.pages:
 			self.text = self.text +'\n/ img / page %02d\n' % page.page_number
-			self.text = self.text + page.extract_text()
+			textTmp = page.extract_text()
+			if '\n' in textTmp:
+				f=1+ textTmp.rfind ('\n')
+				if (len (textTmp) -f) <4 and textTmp[-1] in numbers and textTmp[f] in numbers: textTmp = textTmp[:f-1]
+			self.text = self.text + textTmp
 		# nettoyer le texte
 		self.text = self.text.replace ('-\n', "")
 		self.text = textFct.cleanText (self.text)
 		midleChars = '?!:;,. -_abcdefghijklmnopqrstuvwxyz'
 		for char in midleChars: self.text = self.text.replace ('\n'+ char, " "+ char)
-		startChars = 'ABCDEFGIJKLMNOPQRSTUVWXYZ0123456789/\\-_0123456789'
-		endChars = '?!:./\\0123456789'
+		startChars = 'ABCDEFGIJKLMNOPQRSTUVWXYZ0123456789/\\-_' + numbers
+		endChars = '?!:./\\' + numbers
 		for char in startChars: self.text = self.text.replace ('\n'+ char, '\t'+ char)
 		for char in endChars: self.text = self.text.replace (char +'\n', char +'\t')
 		self.text = self.text.replace ('\n', " ")
@@ -581,11 +586,13 @@ class Article (File):
 		for page in pages:
 			images.append ("")
 			for img in page.images:
-				bbox = [img['x0'], page.cropbox[3] - img['y1'], img['x1'], page.cropbox[3] - img['y0']]
+				bbox = [img['x0'], img['y0'], img['x1'], img['y1']]
+			#	bbox = [img['x0'], page.cropbox[3] - img['y1'], img['x1'], page.cropbox[3] - img['y0']]
 				if bbox[0] < page.cropbox[0]: bbox[0] = page.cropbox[0]
 				if bbox[1] < page.cropbox[1]: bbox[1] = page.cropbox[1]
 				if bbox[2] > page.cropbox[2]: bbox[2] = page.cropbox[2]
 				if bbox[3] > page.cropbox[3]: bbox[3] = page.cropbox[3]
+				if bbox[2] <= bbox[0] or bbox[3] <= bbox[1]: continue
 				imgPage = page.crop (bbox=bbox)
 				imgObj = imgPage.to_image (resolution=100)
 				imgNameShort = "%s%02d %s.png" % (imgPathShort, img['page_number'], img['name'])

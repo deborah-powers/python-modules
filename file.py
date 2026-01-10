@@ -15,7 +15,7 @@ les valeurs de tag
 	clean (ru - r - u):	nettoyer le texte. modifier ou pas la casse.
 	mef (ru):	mettre en forme un texte utilisant ma mise en forme spécifique.
 	help:		afficher l'aide d'un fichier python.
-	conv (ind):	transformer un fichier html en texte et vice-versa. ind pour créer un html adapté à la liseuse
+	conv (art):	transformer un fichier html en texte et vice-versa. art pour convertir un article
 	md:			transformer un fichier txt en markdown
 	comp:		comparer deux fichiers
 	art:		transformer un texte simple en article
