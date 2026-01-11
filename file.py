@@ -13,13 +13,12 @@ utilisation
 	python3 file.py fichier tag (fichierB)
 les valeurs de tag
 	clean (ru - r - u):	nettoyer le texte. modifier ou pas la casse.
-	mef (ru):	mettre en forme un texte utilisant ma mise en forme spécifique.
+	mef (ru - r - u):	mettre en forme un texte utilisant ma mise en forme spécifique.
 	help:		afficher l'aide d'un fichier python.
-	conv (art):	transformer un fichier html en texte et vice-versa. art pour convertir un article
+	conv:		transformer un fichier html en texte et vice-versa. art pour convertir un article
 	md:			transformer un fichier txt en markdown
 	comp:		comparer deux fichiers
 	art:		transformer un texte simple en article
-	inde:		transformer un fichier html local en fichier adapté pour ma liseuse
 	pdf (img):	récupérer le texte d'un pdf
 """
 
@@ -30,8 +29,10 @@ elif argv[2] == 'help':
 	printHelp (argv[1])
 elif argv[2] == 'pdf':
 	page = Article (argv[1])
-	if nbArg >3: page.fromPdf (True)
-	else: page.fromPdf (False)
+	if argv[1][-4:] == '.pdf' or argv[1][-4:] == '.PDF':
+		if nbArg >3: page.fromPdf (True)
+		else: page.fromPdf (False)
+	if argv[1][-4:] == '.txt': page.fromPdfTxt()
 	page.write()
 elif argv[2] == 'art':
 	page = File (argv[1])
@@ -44,30 +45,18 @@ elif argv[2] == 'md':
 	page.read()
 	page.toMarkdown()
 	page.write()
-elif argv[2] == 'inde':
-	pageHtml = Html()
-	if argv[1][-5:] == '.html':
-		pageHtml = Html (argv[1])
-		pageHtml.read()
-	elif argv[1][-4:] == '.txt':
-		page = Article (argv[1])
-		page.read()
-		pageHtml.fromText (page)
-	pageHtml.toEreader()
 elif argv[2] == 'conv':
 	page = None
-	if argv[1][-4:] == '.txt' and nbArg >3:
-		page = Article (argv[1])
-		page.read()
+	if argv[1][-4:] == '.txt':
 		pageHtml = Html()
-		pageHtml.fromArticle (page)
-		pageHtml.write()
-	elif argv[1][-4:] == '.txt':
 		page = File (argv[1])
 		page.read()
-		pageHtml = Html()
-		pageHtml.fromText (page)
-		pageHtml.write()
+		if '\n\n==\n\nsujet: ' in page.text or '\n\n==\n\nSujet: ' in page.text:
+			page = Article (argv[1])
+			page.read()
+			pageHtml.fromArticle (page)
+		else: pageHtml.fromText (page)
+		pageHtml.toEreader()	# je ne créé de html que pour mes appareils
 	elif argv[1][-5:] == '.html':
 		page = Html (argv[1])
 		page.read()

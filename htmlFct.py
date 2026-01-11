@@ -39,9 +39,10 @@ def imageFromBase64One (imgStr):
 	return Image.open (buff)
 
 def imgToB64Local (imgPath):
-	log.message (imgPath)
-	imgPath = imgPath.replace ('/', sep)
-	log.message (imgPath)
+	if sep == '\\':
+		imgPath = imgPath.replace ('/', sep)
+		imgPath = imgPath.replace ('users\\lenovo', 'Users\\LENOVO')
+		imgPath = imgPath.replace ('c:\\', 'C:\\')
 	if pathRoot not in imgPath: return ""
 	imageOriginal = Image.open (imgPath)
 	imageOriginal = imageOriginal.convert ('RGB')
@@ -70,7 +71,6 @@ def imgToB64 (text):
 		imgStr = textList[t][1:f]
 		if imgStr[0:4] == 'http': imgStr = imgToB64Web (imgStr)
 		else: imgStr = imgToB64Local (imgStr)
-		log.message (imgStr)
 		textList[t] = textList[t][0] + imgStr + textList[t][f:]
 	text = 'src='.join (textList)
 	return text

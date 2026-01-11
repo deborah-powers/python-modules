@@ -115,7 +115,7 @@ class File():
 		if (self.path[-4:] == '.css' and fileB.path[-4:] == '.css') or (self.path[-3:] == '.js' and fileB.path[-3:] == '.js'):
 			toClean = '{}();"\''
 			for item in toClean:
-				self.text = self.text.replace (item,"")
+				self.text = self.replace (item,"")
 				fileB.text = fileB.text.replace (item,"")
 		fileCommon.text = comparerText (self.text, fileB.text)
 		if fileCommon.text[0] != 'c': fileCommon.write()
@@ -282,7 +282,7 @@ class File():
 
 	def toList (self, sep='\n'):
 		if sep not in self.text: return []
-		textTmp = self.text.replace (sep + sep, sep)
+		textTmp = self.replace (sep + sep, sep)
 		while sep + sep in textTmp: textTmp = textTmp.replace (sep + sep, sep)
 		textList = self.split (textTmp)
 		return textList
@@ -327,9 +327,9 @@ class FileCss (File):
 
 	def read (self):
 		File.read (self)
-		self.text = self.text.replace ('\n'," ")
-		self.text = self.text.replace ('\t'," ")
-		self.text = self.text.replace ('\r'," ")
+		self.text = self.replace ('\n'," ")
+		self.text = self.replace ('\t'," ")
+		self.text = self.replace ('\r'," ")
 		self.cleanForStandarding()
 		# supprimer les commentaires
 		if '/*' in self.text:
@@ -373,11 +373,11 @@ class FileCss (File):
 			self.blocs.append (( textList[c][0], textList[c][1] ))
 
 	def cleanForStandarding (self):
-		while "  " in self.text: self.text = self.text.replace ("  "," ")
+		while "  " in self.text: self.text = self.replace ("  "," ")
 		marquers ='{}:;'
 		for mark in marquers:
-			self.text = self.text.replace (" "+ mark, mark)
-			self.text = self.text.replace (mark +" ", mark)
+			self.text = self.replace (" "+ mark, mark)
+			self.text = self.replace (mark +" ", mark)
 
 class Article (File):
 	# classe pour les fichiers txt et html
@@ -528,6 +528,26 @@ class Article (File):
 		self.meta = self.meta
 		return article
 
+	def fromPdfTxt (self):
+		# le fichier d'origine est un txt contenant du texte mal formaté récupéré par copié-collé d'un pdf
+		# gérer les espaces blancs
+		while "  " in self.text: self.replace ("  "," ")
+		self.replace ('\n \n', '\n')
+		while '\n\n' in self.text: self.replace ('\n\n', '\n')
+		self.replace ("\n ", " ")
+		self.replace (" \n", " ")
+		# gérer les coupures de mots
+		self.replace ('-\n')
+		self.replace ('- \n')
+		# gérer les lettres
+		alphabet = 'aàbc\xe7deéêèëfghiîïjklmnoôpqrstuùvwxyz,;/\\'
+		for l in alphabet:
+			self.replace (l+'\n', l+" ")
+			self.replace ('\n'+l, " "+l)
+		points = '.!?;,/\\'
+		for p in points: self.replace ('\n'+p, " "+p)
+		self.cleanBasic()
+
 	def fromPdf (self, getImg=True):
 		# le fichier d'origine est un pdf, path.pdf. https://pypi.org/project/pdfplumber/#command-line-interface
 		self.subject = 'o'
@@ -546,20 +566,20 @@ class Article (File):
 				if (len (textTmp) -f) <4 and textTmp[-1] in numbers and textTmp[f] in numbers: textTmp = textTmp[:f-1]
 			self.text = self.text + textTmp
 		# nettoyer le texte
-		self.text = self.text.replace ('-\n', "")
+		self.text = self.replace ('-\n', "")
 		self.text = textFct.cleanText (self.text)
 		midleChars = '?!:;,. -_abcdefghijklmnopqrstuvwxyz'
-		for char in midleChars: self.text = self.text.replace ('\n'+ char, " "+ char)
+		for char in midleChars: self.text = self.replace ('\n'+ char, " "+ char)
 		startChars = 'ABCDEFGIJKLMNOPQRSTUVWXYZ0123456789/\\-_' + numbers
 		endChars = '?!:./\\' + numbers
-		for char in startChars: self.text = self.text.replace ('\n'+ char, '\t'+ char)
-		for char in endChars: self.text = self.text.replace (char +'\n', char +'\t')
-		self.text = self.text.replace ('\n', " ")
-		for char in startChars: self.text = self.text.replace ('\t'+ char, '\n'+ char)
-		for char in endChars: self.text = self.text.replace (char +'\t', char +'\n')
+		for char in startChars: self.text = self.replace ('\n'+ char, '\t'+ char)
+		for char in endChars: self.text = self.replace (char +'\n', char +'\t')
+		self.text = self.replace ('\n', " ")
+		for char in startChars: self.text = self.replace ('\t'+ char, '\n'+ char)
+		for char in endChars: self.text = self.replace (char +'\t', char +'\n')
 		# pour chaque page, récupérer les images
 		if getImg: self.fromPdfImg (filePdf.pages)
-		else: self.text = self.text.replace ('/ img / ', '== ')
+		else: self.text = self.replace ('/ img / ', '== ')
 		# récupérer d'éventuelles métadonnées
 		metaKeys = filePdf.metadata.keys()
 		if 'subject' in metaKeys: self.subject = filePdf.metadata['subject']

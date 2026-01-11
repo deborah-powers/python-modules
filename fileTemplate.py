@@ -43,39 +43,10 @@ templateEreaderCss ="""
 	body { padding: 0 0.5em; }
 	*:first-letter, title:first-letter { text-transform: uppercase; }
 	h1 {
-		font-size: 1.5em;
+		font-size: 1.2em;
 		background-color: #444;
 		color: white;
 		text-align: center;
-	}
-	dt {
-		color: #444;
-		float: left;
-		clear: left;
-		margin-right: 0.5em;
-	}
-	dt:after { content: ':'; }
-	/*
-	dl >* { display: block; }
-	dt {
-		color: #444;
-		width: 90%%;
-	}
-	dt:after {
-		content: ':';
-		width: 5%%;
-	}
-	dd {
-		margin-left: 0;
-		width: 100%%;
-	}
-	*/
-	h1 {
-		font-size: 1.2em;
-		text-align: center;
-		font-weight: bold;
-		border-top: double 6px grey;
-		border-bottom: solid 2px grey;
 	}
 	h2 {
 		font-size: 1.2em;
@@ -88,7 +59,14 @@ templateEreaderCss ="""
 		text-align: center;
 	}
 	h4 { font-style: italic; }
-	ul { margin-left: 2em; }
+	dt {
+		color: #444;
+		float: left;
+		clear: left;
+		margin-right: 0.5em;
+	}
+	dt:after { content: ':'; }
+	ul, ol { margin-left: 2em; }
 	img { max-width: 100%%; }
 </style>"""
 templateTheaterCssA ="""
