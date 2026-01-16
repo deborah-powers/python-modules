@@ -5,10 +5,10 @@ letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZaàâbcdeéêèëfghiîïjkmlmnoôpqrstuûv
 uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
 # liste des points, des chaines de caracteres suivies par une majuscule
-wordsBeginMaj =( 'paris', 'rueil', 'avon', 'valo', 'leto', 'mars', 'mai', 'juin', 'papa', 'papi', 'victo', 'france', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'avril', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre', 'decembre', 'deborah', 'powers', 'cadiot', 'maman', 'mamie', 'régine', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'ville valo', 'shelby', 'magritte', 'gabin', 'makaron', 'malmaison', 'fontainebleau', 'ivry', 'issy', 'moulineaux', 'châte', 'chateaudun', 'michelet', 'chatelet', 'cosmose', 'c:\\', 'users\\', 'desktop\\')
+wordsBeginMaj =( 'paris', 'rueil', 'avon', 'valo', 'leto', 'mars', 'mai', 'juin', 'papa', 'papi', 'victo', 'france', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'avril', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre', 'decembre', 'deborah', 'powers', 'cadiot', 'maman', 'mamie', 'régine', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'ville valo', 'shelby', 'magritte', 'gabin', 'makaron', 'malmaison', 'fontainebleau', 'issy', 'moulineaux', 'châte', 'chateaudun', 'michelet', 'chatelet', 'c:\\', 'users\\', 'desktop\\')
 wordsBeginMin =( 'Deborah.powers', 'Deborah.noisetier', 'Http', 'File:///', '\nPg_')
 codeKeywords =(
-	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where',
+	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where', 'and',
 	'having', 'group by', 'order by', 'insert into', 'if', 'elseif', 'end', 'loop', 'perform', 'drop ',
 	'cd', 'psql', 'git', 'return', 'mvn', 'python', 'else',
 	'def', 'class', 'console.log', 'var', 'function', 'private', 'protected', 'public',
@@ -25,7 +25,7 @@ weirdChars =(
 	('<br>', '<br/>'), ('<hr>', '<hr/>'), ('c:\\', 'C:\\'), ('c:/', 'C:/')
 )
 urlWords =(('. gif', '.gif'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'),
-	(': /', ':/'), (': \\', ':\\'), ('C:\\', 'file:///C:\\'), ('localhost: ', 'localhost:'), (': 80', ':80'), ('www. ', 'www.'),
+	(': /', ':/'), (': \\', ':\\'), ('localhost: ', 'localhost:'), (': 80', ':80'), ('www. ', 'www.'),
 	('. bmp', '.bmp'), ('. jpeg', '.jpeg'), ('. jpg', '.jpg'), ('. png', '.png'), ('. css', '.css'), ('. js', '.js')
 )
 titleChars = '=*-_#+~'
@@ -217,7 +217,6 @@ def cleanText (text):
 		for e in charEndUrl: text = text.replace (wordStart +e, wordEnd +e)
 	text = text.replace ('file:///', "")
 	text = text.replace ('File:///', "")
-	while 'file:///' in text: text = text.replace ('ile:///file:///', 'ile:///')
 	text = text.replace (' \n', '\n')
 	text = text.replace (' \t', '\t')
 	text = text.replace ('\t ', '\t')
