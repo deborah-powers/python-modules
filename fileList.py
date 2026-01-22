@@ -67,6 +67,17 @@ class FileList (File):
 		self.path = fileSimple.path
 		self.text = fileSimple.text
 
+	def toJslist (self):
+		self.toPath()
+		jsfile = File (self.path)
+		p=1+ jsfile.path.rfind ('.')
+		jsfile.path = jsfile.path[:d] + 'js'
+		jsfile.text = 'var data =['
+		for line in self.list:
+			jsfile.text = jsfile.text +'\n\t"'+ line +'",'
+		jsfile.text = jsfile.text[:-1] +'\n];\n'
+		jsfile.write()
+
 	def rangeVa (self, start=0, end=0, step=1):
 		return listFct.rangeList (self.list, start, end, step)
 
@@ -219,6 +230,20 @@ class FileTable (FileList):
 			for l in rangeList: self.list[l].insert (pos, item[l])
 		elif action == 'commun':
 			for l in rangeList: self.list[l].insert (pos, item)
+
+	def toJslist (self):
+		self.toPath()
+		jsfile = File (self.path)
+		p=1+ jsfile.path.rfind ('.')
+		jsfile.path = jsfile.path[:p] + 'js'
+		jsfile.text = 'var data =['
+		for line in self.list:
+			jsfile.text = jsfile.text +"\n\t[ "
+			for case in line: jsfile.text = jsfile.text +'"'+ case.replace ('"', "'") +'", '
+			jsfile.text = jsfile.text +'],'
+		jsfile.replace (', ]', ' ]')
+		jsfile.text = jsfile.text[:-1] +'\n];\n'
+		jsfile.write()
 
 	def toText (self):
 		newList =[]

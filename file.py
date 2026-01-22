@@ -5,6 +5,7 @@ from sys import argv
 import textFct
 from fileCls import File, Article
 from htmlCls import Html
+from fileList import FileTable
 import loggerFct as log
 
 help ="""traiter des fichiers
@@ -20,6 +21,7 @@ les valeurs de tag
 	comp:		comparer deux fichiers
 	art:		transformer un texte simple en article
 	pdf (img):	récupérer le texte d'un pdf
+	js:			transformer un tableau tsv en variable js
 """
 
 nbArg = len (argv)
@@ -40,6 +42,10 @@ elif argv[2] == 'art':
 	article = Article (argv[1])
 	article.fromFile()
 	article.write()
+elif argv[2] == 'js':
+	page = FileTable (argv[1])
+	page.read()
+	page.toJslist()
 elif argv[2] == 'md':
 	page = File (argv[1])
 	page.read()
