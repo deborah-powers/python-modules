@@ -8,7 +8,7 @@ uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE
 wordsBeginMaj =( 'paris', 'rueil', 'avon', 'valo', 'leto', 'mars', 'mai', 'juin', 'papa', 'papi', 'victo', 'france', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'avril', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre', 'decembre', 'deborah', 'powers', 'cadiot', 'maman', 'mamie', 'régine', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'ville valo', 'shelby', 'magritte', 'gabin', 'makaron', 'malmaison', 'fontainebleau', 'issy', 'moulineaux', 'châte', 'chateaudun', 'michelet', 'chatelet', 'c:\\', 'users\\', 'desktop\\')
 wordsBeginMin =( 'Deborah.powers', 'Deborah.noisetier', 'Http', 'File:///', '\nPg_')
 codeKeywords =(
-	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where', 'and', 'with', 'union',
+	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where', 'and', 'with', 'union', 'when', 'case',
 	'having', 'group by', 'order by', 'insert into', 'if', 'elseif', 'end', 'loop', 'perform', 'drop',
 	'cd', 'psql', 'git', 'return', 'mvn', 'python', 'else',
 	'def', 'class', 'console.log', 'var', 'function', 'private', 'protected', 'public',
@@ -177,8 +177,17 @@ def cleanSql (text):
 	if '\nselect ' not in text: return text
 	textList = text.split ('\nselect ')
 	textRange = range (1, len (textList))
-	for t in textRange: textList[t] = textList[t].replace (';\n', ';\n\n', 1)
-	text = '\n\nselect '.join (textList)
+	for t in textRange: textList[t] = textList[t].replace (';\n', ';\n/\n', 1)
+	text = '\ncode\nselect '.join (textList)
+	if '\nwith ' in text:
+		textList = text.split ('\nwith ')
+		textRange = range (1, len (textList))
+		for t in textRange:
+			d= textList[t].find ('\n')
+			if ' as (' in textList[t][:d] or ' as(' in textList[t][:d]:
+				textList[t] = textList[t].replace ('\ncode\nselect ', '\nselect ', 1)
+				textList[t-1] = textList[t-1] +'\ncode'
+		text = '\nwith '.join (textList)
 	return text
 
 def cleanText (text):
@@ -246,6 +255,7 @@ def shape (text, case=""):
 	text = '\n'+ text +'\n'
 	for char in titleChars:
 		while '\n'+ 3* char in text: text = text.replace ('\n'+ 3* char, '\n'+ 2* char)
+	text = cleanSql (text)
 	if case: text = upperCase (text, case)
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	text = text.strip()
@@ -257,7 +267,6 @@ def shape (text, case=""):
 	for l in textRange:
 		if textList[l][:3] in titleCharsList: textList[l] = textList[l] +'\n'
 	text = '\n'.join (textList)
-	text = cleanSql (text)
 	for char in titleChars:
 		text = text.replace ('\n'+ 2* char +'\n', '\n\n'+ 2* char +'\n\n')
 		text = text.replace ('\n'+ 2* char, '\n\n'+ 2* char)
