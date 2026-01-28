@@ -62,19 +62,25 @@ def upperCaseIntern (text):
 def upperCase (text, case=""):
 	"""	rest: je supprime l'ancienne casse
 		upper: je rajoute les majuscules
-	log (type (text))
 	"""
-	if 'reset' in case: text = text.lower()
-	if 'upper' in case:
-		text = '\n'+ text +'\n'
-		if '\n/code\n' in text:
-			paragraphList = text.split ('\ncode\n')
-			paragraphRange = range (1, len (paragraphList))
-			for i in paragraphRange:
-				d= paragraphList[i].find ('\n/code\n') +7
-				paragraphList[i] = paragraphList[i][:d] + upperCaseIntern (paragraphList[i][d:])
-			text = '\ncode\n'.join (paragraphList)
-		else: text = upperCaseIntern (text)
+	text = '\n'+ text +'\n'
+	text = text.replace ('\nCode\n', '\ncode\n')
+	if '\ncode\n' in text:
+		paragraphList = text.split ('\ncode\n')
+		if 'reset' in case: paragraphList[0] = paragraphList[0].lower()
+		if 'upper' in case: paragraphList[0] = upperCaseIntern (paragraphList[0])
+		paragraphRange = range (1, len (paragraphList))
+		for i in paragraphRange:
+			d= paragraphList[i].find ('\n/\n') +1
+			temp = paragraphList[i][d:]
+			paragraphList[i] = paragraphList[i][:d]
+			if 'reset' in case: temp = temp.lower()
+			if 'upper' in case: temp = upperCaseIntern (temp)
+			paragraphList[i] = paragraphList[i] + temp
+		text = '\ncode\n'.join (paragraphList)
+	else:
+		if 'reset' in case: text = text.lower()
+		if 'upper' in case: text = upperCaseIntern (text)
 	text = text.strip()
 	return text
 
@@ -174,7 +180,7 @@ def cleanCss (text):
 	return text
 
 def cleanSql (text):
-	if '\nselect ' not in text: return text
+	if '\nselect ' not in text or ';\n/\n' in text: return text
 	textList = text.split ('\nselect ')
 	textRange = range (1, len (textList))
 	for t in textRange: textList[t] = textList[t].replace (';\n', ';\n/\n', 1)
@@ -185,8 +191,9 @@ def cleanSql (text):
 		for t in textRange:
 			d= textList[t].find ('\n')
 			if ' as (' in textList[t][:d] or ' as(' in textList[t][:d]:
-				textList[t] = textList[t].replace ('\ncode\nselect ', '\nselect ', 1)
-				textList[t-1] = textList[t-1] +'\ncode'
+				f= textList[t].find (';\n')
+				textList[t] = textList[t][:f].replace ('\ncode\n', '\n') + textList[t][f:]
+				textList[t-1] = textList[t-1] + '\ncode'
 		text = '\nwith '.join (textList)
 	return text
 
@@ -251,8 +258,8 @@ def shape (text, case=""):
 		rest: je supprime l'ancienne casse
 		upper: je rajoute les majuscules
 	"""
-	text = cleanText (text)
 	text = '\n'+ text +'\n'
+	text = cleanText (text)
 	for char in titleChars:
 		while '\n'+ 3* char in text: text = text.replace ('\n'+ 3* char, '\n'+ 2* char)
 	text = cleanSql (text)
@@ -271,6 +278,8 @@ def shape (text, case=""):
 		text = text.replace ('\n'+ 2* char +'\n', '\n\n'+ 2* char +'\n\n')
 		text = text.replace ('\n'+ 2* char, '\n\n'+ 2* char)
 	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
+	text = text.replace ('\n/\n', '\n')
+	text = text.replace ('\ncode\n', '\n')
 	return text
 
 def toMarkdown (text):
