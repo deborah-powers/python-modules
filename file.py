@@ -74,22 +74,25 @@ elif nbArg >2 and argv[2] == 'comp':
 	fileB = File (argv[3])
 	fileB.read()
 	fileA.comparer (fileB)
-elif nbArg >2:
-	# TODO: à refaire
+elif argv[2] == 'mef':
 	filePerso = File (argv[1])
 	filePerso.read()
-	if 'clean' in argv:
-		if filePerso.path[-5:] == '.html' or filePerso.path[-6:] == '.xhtml' or filePerso.path[-4:] == '.xml': filePerso.text = textFct.cleanHtml (filePerso.text)
-		# formats dérivés du xml
-		elif filePerso.path[-4:] == '.ops' or filePerso.path[-4:] == '.opf' or filePerso.path[-4:] == '.ncx': filePerso.text = textFct.cleanHtml (filePerso.text)
-		elif filePerso.path[-4:] == '.css': filePerso.text = textFct.cleanCss (filePerso.text)
-		else: filePerso.text = textFct.cleanText (filePerso.text)
-	elif 'mef' in argv: filePerso.text = textFct.shape (filePerso.text)
+	affinement =""
 	if nbArg >3:
-		# rajouter un argument afin d'empêcher l'écriture des majuscules
-		if 'r' in argv[3] and 'u' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset upper')
-		elif 'r' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'reset')
-		elif 'u' in argv[3]: filePerso.text = textFct.upperCase (filePerso.text, 'upper')
+		if 'r' in argv[3] and 'u' in argv[3]: affinement = 'reset upper'
+		elif 'r' in argv[3]: affinement = 'reset'
+		elif 'u' in argv[3]: affinement = 'upper'
+	filePerso.text = textFct.shape (filePerso.text, affinement)
+	filePerso.write()
+elif argv[2] == 'clean':
+	filePerso = File (argv[1])
+	filePerso.read()
+	# TODO: à revoir
+	if filePerso.path[-5:] == '.html' or filePerso.path[-6:] == '.xhtml' or filePerso.path[-4:] == '.xml': filePerso.text = textFct.cleanHtml (filePerso.text)
+	# formats dérivés du xml
+	elif filePerso.path[-4:] == '.ops' or filePerso.path[-4:] == '.opf' or filePerso.path[-4:] == '.ncx': filePerso.text = textFct.cleanHtml (filePerso.text)
+	elif filePerso.path[-4:] == '.css': filePerso.text = textFct.cleanCss (filePerso.text)
+	else: filePerso.text = textFct.cleanText (filePerso.text)
 	filePerso.write()
 # le nom du fichier n'a pas ete donne
 else: print (help)
