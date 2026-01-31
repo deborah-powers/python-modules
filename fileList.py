@@ -71,7 +71,7 @@ class FileList (File):
 		self.toPath()
 		jsfile = File (self.path)
 		p=1+ jsfile.path.rfind ('.')
-		jsfile.path = jsfile.path[:d] + 'js'
+		jsfile.path = jsfile.path[:p] + 'js'
 		jsfile.text = 'var data =['
 		for line in self.list:
 			jsfile.text = jsfile.text +'\n\t"'+ line +'",'
