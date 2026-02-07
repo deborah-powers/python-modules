@@ -30,16 +30,6 @@ urlWords =(('. gif', '.gif'), ('. com', '.com'), ('. org', '.org'), ('. net', '.
 )
 titleChars = '=*-_#+~'
 
-def findEndUrl (text, pos=0):
-	charEndUrl = '\n\t \'",;!(){}'
-#	charEndUrl = '\n\t \'",;!(){}[]'
-	lenText = len (text) +1
-	posEnd = lenText
-	posTmp = lenText
-	for char in charEndUrl:
-		posTmp = text.find (char, pos)
-		if posTmp >0 and posTmp < posEnd: posEnd = posTmp
-	return posEnd
 # ________________________ ma mise en forme perso ________________________
 
 def upperCaseIntern (text):
@@ -69,45 +59,40 @@ def upperCaseIntern (text):
 	while "  " in text: text = text.replace ("  "," ")
 	return text
 
-def upperCaseBloc (text, pos, case=""):
-	temp = text [pos:]
-	text = text [:pos]
-	if 'reset' in case: temp = temp.lower()
-	if 'upper' in case: temp = upperCaseIntern (temp)
-	text = text + temp
-	return text
-
 def upperCase (text, case=""):
 	"""	rest: je supprime l'ancienne casse
 		upper: je rajoute les majuscules
 	"""
 	text = '\n'+ text +'\n'
 	text = text.replace ('\nCode\n', '\ncode\n')
-	if '\ncode\n' not in text and 'http' not in text:
-		if 'reset' in case: text = text.lower()
-		if 'upper' in case: text = upperCaseIntern (text)
-		text = text.strip()
-		return text
-	elif '\ncode\n' in text:
+	if '\ncode\n' in text:
 		paragraphList = text.split ('\ncode\n')
 		if 'reset' in case: paragraphList[0] = paragraphList[0].lower()
 		if 'upper' in case: paragraphList[0] = upperCaseIntern (paragraphList[0])
 		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange:
 			d= paragraphList[i].find ('\n/\n') +1
-			paragraphList[i] = upperCaseBloc (paragraphList[i], d, case)
+			temp = paragraphList[i][d:]
+			paragraphList[i] = paragraphList[i][:d]
+			if 'reset' in case: temp = temp.lower()
+			if 'upper' in case: temp = upperCaseIntern (temp)
+			paragraphList[i] = paragraphList[i] + temp
 		text = '\ncode\n'.join (paragraphList)
-	if 'http' in text:
-		paragraphList = text.split ('http')
-		if 'reset' in case: paragraphList[0] = paragraphList[0].lower()
-		if 'upper' in case: paragraphList[0] = upperCaseIntern (paragraphList[0])
-		paragraphRange = range (1, len (paragraphList))
-		for i in paragraphRange:
-			d= findEndUrl (paragraphList[i])
-			paragraphList[i] = upperCaseBloc (paragraphList[i], d, case)
-		text = 'http'.join (paragraphList)
+	else:
+		if 'reset' in case: text = text.lower()
+		if 'upper' in case: text = upperCaseIntern (text)
 	text = text.strip()
 	return text
+
+def findEndUrl (text, pos=0):
+	charEndUrl = '\n\t \'",;!()[]{}'
+	lenText = len (text) +1
+	posEnd = lenText
+	posTmp = lenText
+	for char in charEndUrl:
+		posTmp = text.find (char, pos)
+		if posTmp >0 and posTmp < posEnd: posEnd = posTmp
+	return posEnd
 
 def simpleSpace (text):
 	while "  " in text: text = text.replace ("  ", " ")

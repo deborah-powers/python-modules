@@ -119,6 +119,7 @@ class File():
 				fileB.text = fileB.text.replace (item,"")
 		fileCommon.text = comparerText (self.text, fileB.text)
 		if fileCommon.text[0] != 'c': fileCommon.write()
+		else: print (fileCommon.text)
 
 	def fromPath (self):
 		if '\t' in self.path: return
