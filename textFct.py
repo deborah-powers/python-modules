@@ -82,50 +82,6 @@ def upperCase (text, case=""):
 		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange: paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
 		text = '\ncode\n'.join (paragraphList)
-	if ': C:\\' in text:
-		paragraphList = text.split (': C:\\')
-		paragraphRange = range (0, len (paragraphList))
-		for i in paragraphRange:
-			e= findEndUrl (paragraphList[i])
-			if paragraphList[i][e] == '\n':
-				d=1+ paragraphList[i-1].rfind ('\n')
-				temp = paragraphList[i-1][d:]
-				paragraphList[i-1] = paragraphList[i-1][:d]
-				temp = '\ncode\n' + temp.capitalize()
-				paragraphList[i-1] = paragraphList[i-1] + temp
-				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
-		text = ': C:\\'.join (paragraphList)
-	if '\nC:\\' in text:
-		paragraphList = text.split ('\nC:\\')
-		paragraphRange = range (1, len (paragraphList))
-		for i in paragraphRange:
-			e= findEndUrl (paragraphList[i])
-			if paragraphList[i][e] == '\n':
-				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
-				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
-		text = '\nC:\\'.join (paragraphList)
-	if ': http' in text:
-		paragraphList = text.split (': http')
-		paragraphRange = range (0, len (paragraphList))
-		for i in paragraphRange:
-			e= findEndUrl (paragraphList[i])
-			if paragraphList[i][e] == '\n':
-				d=1+ paragraphList[i-1].rfind ('\n')
-				temp = paragraphList[i-1][d:]
-				paragraphList[i-1] = paragraphList[i-1][:d]
-				temp = '\ncode\n' + temp.capitalize()
-				paragraphList[i-1] = paragraphList[i-1] + temp
-				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
-		text = ': http'.join (paragraphList)
-	if '\nhttp' in text:
-		paragraphList = text.split ('\nhttp')
-		paragraphRange = range (1, len (paragraphList))
-		for i in paragraphRange:
-			e= findEndUrl (paragraphList[i])
-			if paragraphList[i][e] == '\n':
-				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
-				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
-		text = '\nhttp'.join (paragraphList)
 	# isoler les blocs devant rester intacts
 	if '\ncode\n' in text:
 		paragraphList = text.split ('\ncode\n')
@@ -232,7 +188,8 @@ def cleanCss (text):
 	return text
 
 def cleanSql (text):
-	if '\nselect ' not in text or ';\n/\n' in text: return text
+#	if '\nselect ' not in text or ';\n/\n' in text: return text
+	if '\nselect ' not in text: return text
 	textList = text.split ('\nselect ')
 	textRange = range (1, len (textList))
 	for t in textRange: textList[t] = textList[t].replace (';\n', ';\n/\n', 1)
@@ -247,6 +204,53 @@ def cleanSql (text):
 				textList[t] = textList[t][:f].replace ('\ncode\n', '\n') + textList[t][f:]
 				textList[t-1] = textList[t-1] + '\ncode'
 		text = '\nwith '.join (textList)
+	return text
+
+def protectUrl (text):
+	if ': C:\\' in text:
+		paragraphList = text.split (': C:\\')
+		paragraphRange = range (0, len (paragraphList))
+		for i in paragraphRange:
+			e= findEndUrl (paragraphList[i])
+			if paragraphList[i][e] == '\n':
+				d=1+ paragraphList[i-1].rfind ('\n')
+				temp = paragraphList[i-1][d:]
+				paragraphList[i-1] = paragraphList[i-1][:d]
+				temp = '\ncode\n' + temp.capitalize()
+				paragraphList[i-1] = paragraphList[i-1] + temp
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+		text = ': C:\\'.join (paragraphList)
+	if '\nC:\\' in text:
+		paragraphList = text.split ('\nC:\\')
+		paragraphRange = range (1, len (paragraphList))
+		for i in paragraphRange:
+			e= findEndUrl (paragraphList[i])
+			if paragraphList[i][e] == '\n':
+				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+		text = '\nC:\\'.join (paragraphList)
+	if ': http' in text:
+		paragraphList = text.split (': http')
+		paragraphRange = range (0, len (paragraphList))
+		for i in paragraphRange:
+			e= findEndUrl (paragraphList[i])
+			if paragraphList[i][e] == '\n':
+				d=1+ paragraphList[i-1].rfind ('\n')
+				temp = paragraphList[i-1][d:]
+				paragraphList[i-1] = paragraphList[i-1][:d]
+				temp = '\ncode\n' + temp.capitalize()
+				paragraphList[i-1] = paragraphList[i-1] + temp
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+		text = ': http'.join (paragraphList)
+	if '\nhttp' in text:
+		paragraphList = text.split ('\nhttp')
+		paragraphRange = range (1, len (paragraphList))
+		for i in paragraphRange:
+			e= findEndUrl (paragraphList[i])
+			if paragraphList[i][e] == '\n':
+				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+		text = '\nhttp'.join (paragraphList)
 	return text
 
 def cleanText (text):
@@ -315,6 +319,7 @@ def shape (text, case=""):
 	for char in titleChars:
 		while '\n'+ 3* char in text: text = text.replace ('\n'+ 3* char, '\n'+ 2* char)
 	text = cleanSql (text)
+	text = protectUrl (text)
 	if case: text = upperCase (text, case)
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	text = text.strip()
