@@ -22,7 +22,7 @@ weirdChars =(
 	('&agrave;', 'à'), ('&acirc;', 'â'), ('&ccedil;', 'ç'), ('&eacute;', 'é'), ('&egrave;', 'è'), ('&ecirc;', 'ê'), ('&icirc;', 'î'), ('&iuml;', 'ï'), ('&ocirc;', 'ô'), ('&ugrave;', 'ù'), ('&ucirc;', 'û'), ('&apos;', "'"),
 	('&mdash;', ' '), ('&nbsp;', ''), ('&oelig;', 'oe'), ('&quot;', ''), ('&lt;', '<'), ('&gt;', '>'), ('&lsquo;', '"'), ('&ldquo;', '"'), ('&rdquo;', '"'), ('&rsquo;', "'"), ('&laquo;', '"'), ('&raquo;', '"'), ('&#8220;', '"'), ('&#8221;', '"'), ('&#8211;', '-'),
 	('&amp;', '&'), ('&#x27;', "'"), ('&#039', "'"), ('&#160;', ' '), ('&#xa0;', " "), ('&#39;', "'"), ('&#8217;', "'"), ('\n" ', '\n"'),
-	('<br>', '<br/>'), ('<hr>', '<hr/>'), ('c:\\', 'C:\\'), ('c:/', 'C:/')
+	('<br>', '<br/>'), ('<hr>', '<hr/>'), ('File:///', ""), ('file:///', ""), ('c:\\', 'C:\\'), ('C:/', 'C:\\'), ('c:/', 'C:\\')
 )
 urlWords =(('. gif', '.gif'), ('. com', '.com'), ('. org', '.org'), ('. net', '.net'), ('. fr', '.fr'), ('. ico', '.ico'),
 	(': /', ':/'), (': \\', ':\\'), ('localhost: ', 'localhost:'), (': 80', ':80'), ('www. ', 'www.'),
@@ -31,6 +31,17 @@ urlWords =(('. gif', '.gif'), ('. com', '.com'), ('. org', '.org'), ('. net', '.
 titleChars = '=*-_#+~'
 
 # ________________________ ma mise en forme perso ________________________
+
+def findEndUrl (text, pos=0):
+#	charEndUrl = '\n\t \'",;!()[]{}'
+	charEndUrl = '\n\t \'",;!(){}'
+	lenText = len (text) +1
+	posEnd = lenText
+	posTmp = lenText
+	for char in charEndUrl:
+		posTmp = text.find (char, pos)
+		if posTmp >0 and posTmp < posEnd: posEnd = posTmp
+	return posEnd
 
 def upperCaseIntern (text):
 	text ='\n'+ text
@@ -63,8 +74,59 @@ def upperCase (text, case=""):
 	"""	rest: je supprime l'ancienne casse
 		upper: je rajoute les majuscules
 	"""
+	# préparer le texte
 	text = '\n'+ text +'\n'
-	text = text.replace ('\nCode\n', '\ncode\n')
+	text = text.replace ('\ncode\n', '\ncode\n')
+	if '\ncode\t' in text:
+		paragraphList = text.split ('\ncode\t')
+		paragraphRange = range (1, len (paragraphList))
+		for i in paragraphRange: paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+		text = '\ncode\n'.join (paragraphList)
+	if ': C:\\' in text:
+		paragraphList = text.split (': C:\\')
+		paragraphRange = range (0, len (paragraphList))
+		for i in paragraphRange:
+			e= findEndUrl (paragraphList[i])
+			if paragraphList[i][e] == '\n':
+				d=1+ paragraphList[i-1].rfind ('\n')
+				temp = paragraphList[i-1][d:]
+				paragraphList[i-1] = paragraphList[i-1][:d]
+				temp = '\ncode\n' + temp.capitalize()
+				paragraphList[i-1] = paragraphList[i-1] + temp
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+		text = ': C:\\'.join (paragraphList)
+	if '\nC:\\' in text:
+		paragraphList = text.split ('\nC:\\')
+		paragraphRange = range (1, len (paragraphList))
+		for i in paragraphRange:
+			e= findEndUrl (paragraphList[i])
+			if paragraphList[i][e] == '\n':
+				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+		text = '\nC:\\'.join (paragraphList)
+	if ': http' in text:
+		paragraphList = text.split (': http')
+		paragraphRange = range (0, len (paragraphList))
+		for i in paragraphRange:
+			e= findEndUrl (paragraphList[i])
+			if paragraphList[i][e] == '\n':
+				d=1+ paragraphList[i-1].rfind ('\n')
+				temp = paragraphList[i-1][d:]
+				paragraphList[i-1] = paragraphList[i-1][:d]
+				temp = '\ncode\n' + temp.capitalize()
+				paragraphList[i-1] = paragraphList[i-1] + temp
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+		text = ': http'.join (paragraphList)
+	if '\nhttp' in text:
+		paragraphList = text.split ('\nhttp')
+		paragraphRange = range (1, len (paragraphList))
+		for i in paragraphRange:
+			e= findEndUrl (paragraphList[i])
+			if paragraphList[i][e] == '\n':
+				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+		text = '\nhttp'.join (paragraphList)
+	# isoler les blocs devant rester intacts
 	if '\ncode\n' in text:
 		paragraphList = text.split ('\ncode\n')
 		if 'reset' in case: paragraphList[0] = paragraphList[0].lower()
@@ -83,16 +145,6 @@ def upperCase (text, case=""):
 		if 'upper' in case: text = upperCaseIntern (text)
 	text = text.strip()
 	return text
-
-def findEndUrl (text, pos=0):
-	charEndUrl = '\n\t \'",;!()[]{}'
-	lenText = len (text) +1
-	posEnd = lenText
-	posTmp = lenText
-	for char in charEndUrl:
-		posTmp = text.find (char, pos)
-		if posTmp >0 and posTmp < posEnd: posEnd = posTmp
-	return posEnd
 
 def simpleSpace (text):
 	while "  " in text: text = text.replace ("  ", " ")
