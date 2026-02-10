@@ -209,7 +209,7 @@ def cleanSql (text):
 def protectUrl (text):
 	if ': C:\\' in text:
 		paragraphList = text.split (': C:\\')
-		paragraphRange = range (0, len (paragraphList))
+		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange:
 			e= findEndUrl (paragraphList[i])
 			if paragraphList[i][e] == '\n':
@@ -231,7 +231,7 @@ def protectUrl (text):
 		text = '\nC:\\'.join (paragraphList)
 	if ': http' in text:
 		paragraphList = text.split (': http')
-		paragraphRange = range (0, len (paragraphList))
+		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange:
 			e= findEndUrl (paragraphList[i])
 			if paragraphList[i][e] == '\n':
@@ -314,8 +314,8 @@ def shape (text, case=""):
 		rest: je supprime l'ancienne casse
 		upper: je rajoute les majuscules
 	"""
-	text = '\n'+ text +'\n'
 	text = cleanText (text)
+	text = '\n'+ text +'\n'
 	for char in titleChars:
 		while '\n'+ 3* char in text: text = text.replace ('\n'+ 3* char, '\n'+ 2* char)
 	text = cleanSql (text)
