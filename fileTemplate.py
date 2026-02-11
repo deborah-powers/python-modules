@@ -72,15 +72,16 @@ templateEreaderCss ="""
 templateTheaterCssA ="""
 <style type='text/css'>
 	p.didascalie, span { font-style: italic; }
+	span { color: inherit; }
 	span:before { content: '('; }
 	span:after { content: ')'; }
 	@media (min-width: 350px){
 		dl { grid-template-columns: 6em 1fr; }
 		p { color: var(--bord-color); }
-		p.moi { color: var(--text-color); }
+		p.moi, p.deborah, p.femme { color: var(--text-color); }
 	}
 </style>"""
-templateTheaterCssB = '\n\tp { color: #444; }\n\tp.moi { color: black; }\n'
+templateTheaterCssB = '\n\tp { color: #444; }\n\tp.moi, p.deborah, p.femme { color: black; }\n'
 templateEreader = templateHtml % ('%s', '%s', '%s', '%s', templateEreaderCss, '%s')
 templateEreader = templateEreader.replace (".css' />", ".css' media='(min-width: 350px)' />", 1)
 templateEreader = templateEreader.replace ("media='screen' />", "media='screen and (min-width: 350px)' />", 1)

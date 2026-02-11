@@ -632,15 +632,25 @@ class Html (Article):
 		else:
 			self.title = self.title +" reader"
 			self.path = pathDesktop + self.title +".html"
-		self.replace ('file:///')
-		self.text = htmlFct.imgToB64 (self.text)
-		self.text = htmlFct.cleanHtmlForWritting (self.text)
-	#	self.createSummary()
-	#	meta = self.getMetas()
-		if 'theatre' in self.subject or 'théâtre' in self.subject:
-			self.text = templateTheater % (self.title, self.subject, self.author, self.link, self.text)
-		else: self.text = templateEreader % (self.title, self.subject, self.author, self.link, self.text)
+		if 'theatre' in self.subject or 'théâtre' in self.subject: self.toTheater()
+		else:
+			self.replace ('file:///')
+			self.text = htmlFct.imgToB64 (self.text)
+			self.text = htmlFct.cleanHtmlForWritting (self.text)
+		#	self.createSummary()
+		#	meta = self.getMetas()
+			self.text = templateEreader % (self.title, self.subject, self.author, self.link, self.text)
 		File.write (self, 'w')
+
+	def toTheater (self):
+		self.text = htmlFct.cleanHtmlForWritting (self.text)
+		self.replace ('(', '<span>')
+		self.replace (')', '</span>')
+		self.replace ('<p>D. ', "<p class='didascalie'>")
+		self.replace ('<p>H. ', "<p class='homme'>")
+		self.replace ('<p>F. ', "<p class='femme'>")
+		self.replace ('<p>Moi. ', "<p class='moi'>")
+		self.text = templateTheater % (self.title, self.subject, self.author, self.link, self.text)
 
 	def getCssFromFileForEreader (self):
 		tagList =[]
