@@ -212,7 +212,7 @@ def protectUrl (text):
 		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange:
 			e= findEndUrl (paragraphList[i])
-			if paragraphList[i][e] == '\n':
+			if e> len (paragraphList[i]) or paragraphList[i][e] == '\n':
 				d=1+ paragraphList[i-1].rfind ('\n')
 				temp = paragraphList[i-1][d:]
 				paragraphList[i-1] = paragraphList[i-1][:d]
@@ -225,7 +225,7 @@ def protectUrl (text):
 		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange:
 			e= findEndUrl (paragraphList[i])
-			if paragraphList[i][e] == '\n':
+			if e> len (paragraphList[i]) or paragraphList[i][e] == '\n':
 				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
 				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
 		text = '\nC:\\'.join (paragraphList)
@@ -234,7 +234,7 @@ def protectUrl (text):
 		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange:
 			e= findEndUrl (paragraphList[i])
-			if paragraphList[i][e] == '\n':
+			if e> len (paragraphList[i]) or paragraphList[i][e] == '\n':
 				d=1+ paragraphList[i-1].rfind ('\n')
 				temp = paragraphList[i-1][d:]
 				paragraphList[i-1] = paragraphList[i-1][:d]
@@ -247,7 +247,7 @@ def protectUrl (text):
 		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange:
 			e= findEndUrl (paragraphList[i])
-			if paragraphList[i][e] == '\n':
+			if e> len (paragraphList[i]) or paragraphList[i][e] == '\n':
 				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
 				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
 		text = '\nhttp'.join (paragraphList)
