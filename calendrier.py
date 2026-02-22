@@ -26,7 +26,7 @@ les valeurs de tag
 	repas:		"	"	repas
 """ % __file__
 
-dateStart = DatePerso (2026, 1, 8)
+dateStart = DatePerso (2026, 2, 21)
 dateEnd = DatePerso.today()
 dateEndStr = dateEnd.toStrDay()
 """
@@ -121,8 +121,9 @@ class eventGoogle (calendarGoogle, Event):
 		self.title = self.title.lower()
 		self.infos = self.infos.lower()
 		self.location = self.location.lower()
-		self.location = self.location.replace (', france', "")
 		self.location = self.location.replace (' paris', "")
+		self.location = self.location.replace (', france', "")
+		self.location = self.location.replace ('-le-grand, 93160 noisy-le-grand', "")
 		self.location = self.location.replace ('-malmaison, 92500 rueil-malmaison', "")
 		self.location = self.location.replace ('-les-moulineaux, 92130 issy-les-moulineaux', "")
 
@@ -173,22 +174,27 @@ class eventGoogle (calendarGoogle, Event):
 		if self.color == evtDict ['depenses'][1] and self.infos and self.title.lower() not in 'regles règles poids douleurs repas balade':
 			self.infos = self.infos.replace ('\r', "")
 			self.infos = self.infos.replace ('\n', " ")
-			details =""
+			details = 'inconnu'
 			if " " in self.infos:
 				d= self.infos.index (" ")
 				details = self.infos [d+1:]
 				self.infos = self.infos[:d]
 			# tmpList = self.infos.split (" "); cost = tmpList.pop (-1)
 			if self.infos =='0' or self.infos == '0.0': return None
-			elif details: self.infos = self.infos +'\t'+ details
-			evtStr = '%s\t%s\t%s\t%s' % (self.date.toStrDay(), self.location, self.title, self.infos)
+		#	elif details: self.infos = self.infos +'\t'+ details
+			evtStr = '%s\t%s\t%s\t%s\t%s' % (self.date.toStrDay(), self.infos, self.title, self.location, details)
 			return evtStr
 		else: return None
 
 	def getOneDolor (self):
-		if self.title == 'Douleur':
-			strDate = self.date.toStrHour() +'\t'+ self.duration.toStrHour() +'\t'+ self.infos.replace ('. ', '\t')
-			strDate = strDate.replace ('0/00/00 ',"")
+		if self.title[0] in 'mM': log.message (self.title)
+		if self.title == 'douleur' or self.title == 'maladie':
+			self.infos = self.infos.replace ('.\n', '. ')
+			self.infos = self.infos.replace ('\n', '. ')
+		#	strDate = self.date.toStrHour() +'\t'+ self.duration.toStrHour() +'\t'+ self.infos.replace ('. ', '\t')
+			strDate = self.date.toStrHour() +'\t%02d\t'+ self.infos
+			strDate = strDate % self.duration
+		#	strDate = strDate.replace ('0/00/00 ',"")
 			return strDate
 		else: return None
 
@@ -275,7 +281,7 @@ class eventList (FileList):
 			self.extend (tmpList.list)
 		self.list.sort()
 		self.list.reverse()
-		evtList = FileList ('b/calendar.tsv', '\n')
+		evtList = FileList ('b/calendrier.tsv', '\n')
 		for evt in self.list: evtList.append (evt.date.__str__() +'\t'+ evt.category +'\t'+ evt.title)
 		evtList.write()
 
@@ -284,8 +290,7 @@ class eventList (FileList):
 		cal.fromName (service, calName)
 		# extraire tous leurs évênemnts
 		self.fromCalendar (service, cal, dateStart, True)
-		evtList = FileList()
-		evtList.path = 'b/calendar.tsv'
+		evtList = FileList ('b/calendrier.tsv', '\n')
 		evtList.fromPath()
 		for evt in self.list:
 			if not evt.infos: evt.infos =""
