@@ -115,7 +115,7 @@ class File():
 		if (self.path[-4:] == '.css' and fileB.path[-4:] == '.css') or (self.path[-3:] == '.js' and fileB.path[-3:] == '.js'):
 			toClean = '{}();"\''
 			for item in toClean:
-				self.text = self.replace (item,"")
+				self.text = self.text.replace (item,"")
 				fileB.text = fileB.text.replace (item,"")
 		fileCommon.text = comparerText (self.text, fileB.text)
 		if fileCommon.text[0] != 'c': fileCommon.write()

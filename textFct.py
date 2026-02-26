@@ -7,6 +7,7 @@ uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE
 # liste des points, des chaines de caracteres suivies par une majuscule
 wordsBeginMaj =( 'paris', 'rueil', 'avon', 'valo', 'leto', 'mars', 'mai', 'juin', 'papa', 'papi', 'victo', 'france', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'avril', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre', 'decembre', 'deborah', 'powers', 'cadiot', 'maman', 'mamie', 'régine', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'ville valo', 'shelby', 'magritte', 'gabin', 'makaron', 'malmaison', 'fontainebleau', 'issy', 'moulineaux', 'châte', 'chateaudun', 'michelet', 'chatelet', 'c:\\', 'users\\', 'desktop\\')
 wordsBeginMin =( 'Deborah.powers', 'Deborah.noisetier', 'Http', 'File:///', '\nPg_')
+wordsFullMaj =( '\\lenovo\\', 'i3f' )
 codeKeywords =(
 	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where', 'and', 'with', 'union', 'when', 'case',
 	'having', 'group by', 'order by', 'insert into', 'if', 'elseif', 'end', 'loop', 'perform', 'drop',
@@ -51,6 +52,7 @@ def upperCaseIntern (text):
 		for p in points: text = text.replace (p+i, p+j)
 	for word in wordsBeginMin: text = text.replace (word, word.lower())
 	for word in wordsBeginMaj[12:]: text = text.replace (word, word.capitalize())
+	for word in wordsFullMaj: text = text.replace (word, word.upper())
 	text = text.replace ('', '')
 	pointsEnd ='\n\t /\\:.,;!?}])'
 	pointsStart ='\n\t ([{'
