@@ -42,8 +42,8 @@ def listMethods():
 
 listMethods()
 
-Reference = list	# nécessaire pour faire tourner le scipt. Reference peut-être n'importe quelle classe pré-existente
-class Custom (Reference):
+ClassReference = list	# nécessaire pour faire tourner le scipt. ClassReference peut-être n'importe quelle classe pré-existente
+class Custom (ClassReference):
 	# https://realpython.com/operator-function-overloading/#the-internals-of-operations-like-len-and
 	def __init__(self, parameter):
 		# custom = Custom (myParameter)
