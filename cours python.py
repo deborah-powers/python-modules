@@ -1,6 +1,13 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 
+def showArgs (argPositionnalA, argPositionnalB, argDefault=10):
+	messageRed = 'bonjour {}, voici {}. vous allez séjourner {} jours ensemble.'
+	print (messageRed.format (argPositionnalA, argPositionnalB, argDefault))
+
+showArgs ('david', 'jonathan')
+showArgs (argPositionnalB='david', argDefault=3, argPositionnalA='jonathan')
+
 def listMethodsSort_va (itemA, itemO):
 	voyelles = 'aeiouy'
 	if itemA in voyelles and itemO in voyelles: return itemA > itemO
@@ -40,7 +47,20 @@ def listMethods():
 	print (zList)
 	for (a,b) in yList: print (a, ':', b)
 
-listMethods()
+def stringMethods():
+	# template avec paramètres nommés
+	urlRef = 'https://www.euronews.com/%(year)d/%(month)02d/%(day)02d'
+	urlFull = urlRef % { 'year': 2025, 'month': 1, 'day': 6, 'page': 2 }
+	# le formattage
+	goutRef = "j'aime le {} au {} depuis mes {} ans"
+	goutFull = goutRef.format ('gateau', 'chocolat', 3)
+	print (goutFull)
+	colorRef = "le {1} est ma couleur préférée depuis mes {0:02d} ans"
+	colorFull = colorRef.format (8, 'violet')
+	print (colorFull)
+	musiqueRef = "j'aime le {styleMusic}, surtout le groupe {groupeMusic}"
+	musiqueFull = musiqueRef.format (groupeMusic='kyo', styleMusic='rock')
+	print (musiqueFull)
 
 ClassReference = list	# nécessaire pour faire tourner le scipt. ClassReference peut-être n'importe quelle classe pré-existente
 class Custom (ClassReference):
