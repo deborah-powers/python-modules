@@ -78,7 +78,8 @@ def upperCase (text, case=""):
 	"""
 	# préparer le texte
 	text = '\n'+ text +'\n'
-	text = text.replace ('\ncode\n', '\ncode\n')
+	text = text.replace ('\nmdp: ', '\ncode\tMdp: ')
+	text = text.replace ('\nMdp: ', '\ncode\tMdp: ')
 	if '\ncode\t' in text:
 		paragraphList = text.split ('\ncode\t')
 		paragraphRange = range (1, len (paragraphList))
