@@ -7,27 +7,37 @@ sources:
 	https://www.selenium.dev/selenium/docs/api/py/
 	https://www.selenium.dev/selenium/docs/api/py/webdriver_remote/selenium.webdriver.remote.webelement.html
 """
+import time
 from selenium import webdriver	# contrôle le navigateur
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By	# accède aux élements de la page web
 from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager	# utiliser le navigateur chrome
-import time
+from selenium.common.exceptions import NoSuchElementException
 
 myurl = 'http://www.my-url.com'
 
-# lancer le navigateur, ici chrome
+# utliser le navigateur chrome
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
 service = Service()
 options = webdriver.ChromeOptions()
-options.add_argument ('--enable-unsafe-swiftshader')
-options.add_argument ('--ignore-certificate-errors')
-options.add_argument ('--ignore-ssl-errors')
-options.add_argument ('--log-level=3')
 # télécharger les fichiers dans un dossier spécifique
 # options.add_argument ('download.default_directory=' + dossierTelechargements)
 prefs ={ 'download.default_directory': dossierTelechargements, 'profile.default_content_setting_values.clipboard': 1 }
 options.add_experimental_option ('prefs', prefs)
 driver = webdriver.Chrome (service=service, options=options)
+
+# utliser le navigateur firefox
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
+
+service = Service()
+options = Options()
+options.add_argument ('--enable-unsafe-swiftshader')
+options.add_argument ('--ignore-certificate-errors')
+options.add_argument ('--ignore-ssl-errors')
+options.add_argument ('--log-level=3')
+driver = webdriver.Firefox (service=service, options=options)
 
 # charger ma page dans le navigateur
 driver.get (myurl)
@@ -51,7 +61,7 @@ try:
 	cookiesReffuser.click()	# méthode 1
 	driver.execute_script ('arguments[0].click();', cookiesReffuser)	# méthode 2
 	time.sleep (1)
-except exceptions.NoSuchElementException: print ('les cookies ont déjà été validés')
+except NoSuchElementException: print ('les cookies ont déjà été validés')
 
 # recupérer des éléments
 gotById = driver.find_element (By.ID, 'valeur')
@@ -69,6 +79,21 @@ someDescents = gotById.find_elements (By.XPATH, './/img[".jpg"=substring(@src, s
 innerText = gotById.text
 domAttribute = anchorElement.get_dom_attribute ('href')
 customAttribute = gotById.get_attribute ('perso')
+
+# remplir des inputs text
+inputToFill = driver.find_element (By.ID, 'inputId')
+inputToFill.send_keys ('message')
+inputToFill.send_keys (Keys.ENTER)
+
+# pour les boutons radio et les checkbox
+inputToCheck = driver.find_element (By.ID, 'inputId')
+# inputToCheck.click()	échoue si l'élément est recouvert par un autre
+driver.execute_script ('arguments[0].click();', inputToCheck)
+
+# remplir un select
+selectToCheck = Select (driver.find_element (By.ID, 'selectId'))
+selectToCheck.select_by_value ('value')
+# selectToCheck.select_by_visible_text ('message')
 
 # scroller
 def scroll (value):
