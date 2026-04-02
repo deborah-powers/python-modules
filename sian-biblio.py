@@ -31,17 +31,21 @@ def goNextPage():
 def fillInputText (inputId, message):
 	inputToFill = driver.find_element (By.ID, inputId)
 	inputToFill.send_keys (message)
+	time.sleep (0.5)
 	inputToFill.send_keys (Keys.ENTER)
+	time.sleep (0.5)
 
 def checkInput (inputId):
 	# pour les boutons radio et les checkbox
 	inputToCheck = driver.find_element (By.ID, inputId)
 	# inputToCheck.click()	échoue si l'élément est recouvert par un autre
 	driver.execute_script ('arguments[0].click();', inputToCheck)
+	time.sleep (0.5)
 
 def checkSelect (selectId, value):
 	selectToCheck = Select (driver.find_element (By.ID, selectId))
 	selectToCheck.select_by_value (value)
+	time.sleep (0.5)
 	# selectToCheck.select_by_visible_text (message)
 
 # charger ma page dans le navigateur
