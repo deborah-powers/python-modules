@@ -14,6 +14,12 @@ les fonctions des deux types
 les classes
 les blocs libres
 """
+
+def convertPosToLine (text, posChar):
+	posChar +=1
+	posLine = text[:posChar].count ('\n')
+	return posLine
+
 class FileJs (File):
 	def __init__ (self, file =None):
 		File.__init__ (self, file)
@@ -35,7 +41,10 @@ class FileJs (File):
 			return
 		# fichier de comparaison
 		title = 'b/comparer '+ self.title
-		if self.title != newJs.title: title = title + ' et '+ newJs.title
+		if self.title in newJs.title:
+			titleEnd = newJs.title.replace (self.title, "")
+			title = title + ' vo et '+ titleEnd
+		elif self.title != newJs.title: title = title + ' et '+ newJs.title
 		title = title + '.txt'
 		compareFile = File (title)
 		compareFile.text = 'fichier a: %s\nfichier b: %s' % (self.path, newJs.path)
@@ -61,10 +70,10 @@ class FileJs (File):
 		for d,f in self.blocs:
 			if self.text[d:f] in newJs.text:
 				g= newJs.text.find (self.text[d:f])
-				if f!=g: compareFile.text = compareFile.text + '\nbloc déplacé: %d, %d --> %d' % (d,f,g)
-			else: compareFile.text = compareFile.text + '\nnouveaux blocs dans a: %d, %d' % (d,f)
+				if f!=g: compareFile.text = compareFile.text + '\nbloc déplacé: %d, %d --> %d' % (convertPosToLine (self.text, d), convertPosToLine (self.text, f), convertPosToLine (newJs.text, g))
+			else: compareFile.text = compareFile.text + '\nnouveaux blocs dans a: %d, %d' % (convertPosToLine (self.text, d), convertPosToLine (self.text, f))
 		for d,f in newJs.blocs:
-			if newJs.text[d:f] not in self.text: compareFile.text = compareFile.text + '\nnouveaux blocs dans b: %d, %d' % (d,f)
+			if newJs.text[d:f] not in self.text: compareFile.text = compareFile.text + '\nnouveaux blocs dans b: %d, %d' % (convertPosToLine (newJs.text, d), convertPosToLine (newJs.text, f))
 		compareFile.write()
 
 	def read (self):
@@ -135,11 +144,13 @@ class FileJs (File):
 		structuPos.extend (list (self.functions.values()))
 		structuPos.sort()
 		# les blocs
-		if structuPos[0][0] >0: self.blocs.append ((0, structuPos[0][0]))
+		if structuPos[0][0] >0 and self.text [structuPos[0][0]].strip() !="": self.blocs.append ((0, structuPos[0][0]))
 		rangeList = range (1, len (structuPos))
 		for l in rangeList:
-			if structuPos[l][0] - structuPos[l-1][1] >1: self.blocs.append ((structuPos[l-1][1], structuPos[l][0]))
-		if structuPos[-1][1] < textLen: self.blocs.append ((structuPos[-1][1], textLen))
+			if structuPos[l][0] - structuPos[l-1][1] >2 and self.text [structuPos[l-1][1]:structuPos[l][0]].strip() !="":
+				self.blocs.append ((structuPos[l-1][1], structuPos[l][0]))
+		if structuPos[-1][1] < (textLen -1) and self.text [structuPos[-1][1]:].strip() !="":
+			self.blocs.append ((structuPos[-1][1], textLen))
 
 	def clean (self):
 		self.text = self.text.replace ('\r'," ")

@@ -6,13 +6,11 @@ from fileJs import FileJs
 
 textFctFiles =[
 	's/library-js\\textFct.js',
-	'w/all-md-perso-va\\textFct 2025.js',
-	'w/all-md-perso-va\\textFct 2023.js'
+	'w/all-md-perso\\textFct.js',
 ]
 htmlFctFiles =[
 	's/library-js\\htmlFct.js',
-	'w/all-md-perso-va\\htmlFct 2025.js',
-	'w/all-md-perso-va\\htmlFct 2023.js'
+	'w/all-md-perso\\htmlFct.js',
 ]
 
 def compareFiles (fileNameList):
@@ -22,10 +20,10 @@ def compareFiles (fileNameList):
 	for f in fileRange:
 		fileList.append (FileJs (fileNameList[f]))
 		fileList[-1].read()
-		fileList[-1].title = fileList[-1].title +" "+ str(f)
 		fileList[-1].toPath()
 	# faire les comparaisons deux à deux
-	for f in fileRange[:-1]:
-		for g in fileRange[f+1:]: fileList[f].comparer (fileList[g])
+	for f in fileRange[1:]:
+		fileList[f].title = fileList[f].title +" "+ str(f)
+		fileList[0].comparer (fileList[f])
 
 compareFiles (textFctFiles)
