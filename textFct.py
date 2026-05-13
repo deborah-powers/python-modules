@@ -465,6 +465,37 @@ def sliceWord (text, wordStart, wordEnd):
 		if f>0 and f>d: res = text[d:f]
 	return res
 
+def commonParts (titleA, titleO):
+	# comparer le titre de deux fichiers aux noms ressemblants. les noms ont un début et une fin similaires
+	if titleA == titleO: return (0, len (titleA))
+	lenCommon = min (len (titleA), len (titleO))
+	d=0
+	while d< lenCommon and titleA[d] == titleO[d]: d+=1
+	lenCommon *=-1
+	f=-1
+	while f>= lenCommon and titleA[f] == titleO[f]: f-=1
+	f+=1
+	return (d,f)
+
+def commonStart (titleA, titleO):
+	if titleA == titleO: return (0, len (titleA))
+	if titleA[0] != titleO[0]: return 0
+	lenCommon = min (len (titleA), len (titleO))
+	d=0
+	while d< lenCommon and titleA[d] == titleO[d]: d+=1
+	return d
+
+def commonEnd (titleA, titleO):
+	if titleA == titleO: return (0, len (titleA))
+	if titleA[-1] != titleO[-1]: return 0
+	lenCommon = min (len (titleA), len (titleO))
+	lenCommon *=-1
+	print ('textFct commonEnd', lenCommon)
+	d=-1
+	while d> lenCommon and titleA[d] == titleO[d]: d-=1
+	print ('textFct d', d)
+	return d+1
+
 def test():
 	text = """nfznvvz
 zef,z "ofk" v,sknvdzkl.fnz fk" g

@@ -110,7 +110,15 @@ class File():
 
 	def comparer (self, fileB):
 		# self et fileB sont ouverts
-		title = 'b/comparer %s et %s.txt' %( self.title, fileB.title)
+		# calculer le titre de la comparaison
+		title = 'b/comparer '+ self.title +" et "
+		d,f= textFct.commonParts (self.title, fileB.title)
+		if d>3:
+			title = title + fileB.title[d:f]
+			while "  " in title: title = title.replace ("  "," ")
+		else: title = title + fileB.title
+		title = title + '.txt'
+		# comparer
 		fileCommon = File (title)
 		if (self.path[-4:] == '.css' and fileB.path[-4:] == '.css') or (self.path[-3:] == '.js' and fileB.path[-3:] == '.js'):
 			toClean = '{}();"\''
