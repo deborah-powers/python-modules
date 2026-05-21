@@ -19,6 +19,12 @@ class RuleCss():
 		rangeList = range (0, len (textList) -1, 2)
 		for c in rangeList: self.rules [textList[c]] = textList[c+1]
 
+	def __str__ (self):
+		res = self.query +':'
+		rules = self.rules.keys()
+		for rule in rules: res = res +'\t' + rule +": "+ self.rules[rule]
+		return res
+
 class QueryCss():
 	def __init__ (self):
 		self.query =""	# (max-width: 768px) ou print
@@ -36,11 +42,25 @@ class QueryCss():
 			self.rules.append (RuleCss())
 			self.rules[-1].fromText (textList[c])
 
+	def __str__ (self):
+		res = self.query +':'
+		for rule in self.rules:
+			res = res +'\n\t'+ rule.__str__()
+		return res
+
 class FileCss (File):
 	def __init__ (self, file =None):
 		File.__init__ (self, file)
 		self.queries =[]	# QueryCss
 		self.rules =[]		# RuleCss
+
+	def getRulesForItem (self, item):
+		rule = RuleCss()
+		rule.query = item
+		for ruleSelf in self.rules:
+			if item == ruleSelf.query or " "+ item +" " in ruleSelf.query or " "+ item +',' in ruleSelf.query or " "+ item +'>' in ruleSelf.query:
+				for line in ruleSelf.rules: rule.rules.append (line)
+		print (rule)
 
 	def read (self):
 		File.read (self)
@@ -72,7 +92,7 @@ class FileCss (File):
 		self.cleanForStandarding()
 
 	def listRules (self):
-		textList = text.split ('}')
+		textList = self.text.split ('}')
 		rangeList = range (len (textList) -1)
 		for c in rangeList:
 			self.rules.append (RuleCss())
@@ -99,3 +119,5 @@ class FileCss (File):
 fileName = 's/library-css\\structure.css'
 fileCss = FileCss (fileName)
 fileCss.read()
+fileCss.getRulesForItem ('p')
+

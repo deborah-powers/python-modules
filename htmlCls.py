@@ -7,7 +7,8 @@ import codecs
 from fileLocal import pathDesktop, pathCard
 import textFct
 import htmlFct
-from fileCls import File, Article, FileCss
+from fileCls import File, Article
+# from fileCss import FileCss
 from fileTemplate import templateHtml, templateEreader, templateTheater
 from htmlToText import fromHtml
 from htmlFromText import toHtml

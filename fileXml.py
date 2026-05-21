@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+import textFct
 from fileCls import File
 import loggerFct as log
 
@@ -63,105 +64,119 @@ class NodeXml():
 		return nameList
 
 	def comparer (self, newNode, parentSelf="", parentNew=""):
+		if self == newNode: return ""
 		longNameSelf = parentSelf +'.'+ self.name
 		longNameNew = parentNew +'.'+ newNode.name
-		message = self.comparerNoeuds (newNode, longNameSelf, longNameNew)
-		if 'comparer' in message and len (self.children) >0 and len (newNode.children) >0:
-			messageChildren =""
-			if '\n' not in message: message =""
-			else: messageChildren = '\nenfants différents'
-			childrenNew = newNode.getChildrenNames()
+		message =""
+		if self.sameStructureNode (newNode):
+			# début de la démarche
+			if parentSelf =="" and not self.sameStructureTree (newNode): message = message + '\nles arbres ont des structures différentes'
+		else:
+			if not self.sameAttributeStructure (newNode.attributes): message = message + '\nstructure des attributs différentes'
+			if not self.samesAttributes (newNode): message = message + '\nattributs différents'
+			if not self.samesChildren (newNode):
+				message = message + '\nnoms des enfants différents\n. '
+				children = newNode.getChildrenNames()
+				for child in self.children:
+					if child.name not in children: message = message + child.name +", "
+				message = message +'\n. '
+				children = self.getChildrenNames()
+				for child in newNode.children:
+					if child.name not in children: message = message + child.name +", "
+			message = message +'\n'
+			message = message.replace ('\n. \n', '\n.\n')
+			message = message.replace ('\n. ', '\n')
+		messageChildren =""
+		if self.text != newNode.text:
+			message = message + '\ncontenu différent\n'
+			if self.text: message = message + self.text +'\n'
+			else: message = message +'.\n'
+			if newNode.text: message = message + newNode.text
+			else: message = message +'.'
+		elif self.text =="":
 			for child in self.children:
-				if child.name in childrenNew:
-					childPos = newNode.findChildPosByName (child.name)
-					messageChildren = messageChildren +'\n'+ child.comparer (newNode.children [childPos], longNameSelf, longNameNew)
-			if '\n' in messageChildren: message = message + messageChildren
+				o= newNode.findChildPosByName (child.name)
+				if o>=0: messageChildren = messageChildren +'\n'+ child.comparer (newNode.children[o], longNameSelf, longNameNew)
+		# nettoyer le message
 		message = message.strip()
 		while '\n\n' in message: message = message.replace ('\n\n', '\n')
-		message = message.replace ('\ncomparer', '\n\ncomparer')
-		message = message.replace ('\ncomparer .', '\ncomparer ')
-		return message
-
-	def comparerNoeuds (self, newNode, longNameSelf="", longNameNew=""):
-		if self == newNode: return ""
-		else:
-		#	message = 'les noeuds xml sont différents: '+ self.name
-			message = "comparer "+ longNameSelf
-			if longNameSelf != longNameNew: message = message +" et "+ longNameNew
-			if not self.samesAttributes (newNode):
-				attributesSelf = self.attributes.keys()
-				attributesNew = newNode.attributes.keys()
-				message = '\n\tattributs en plus:\n'
-				for attr in attributesSelf:
-					if attr not in attributesNew: message = message +" "+ attr +","
-				message = message + '\n'+ newNode.name +':'
-				for attr in attributesNew:
-					if attr not in attributesSelf: message = message +" "+ attr +","
-				message = message + '\n\tattributs de même nom:'
-				for attr in attributesNew:
-					if attr in attributesSelf and self.attributes[attr] != newNode.attributes[attr]: message = message +" "+ attr +": "+ self.attributes[attr] +" "+ newNode.attributes[attr] +','
-			if self.text != newNode.text: message = message +'\nvaleurs différentes: '+ self.text +" / "+ newNode.text
-			if not self.samesChildren (newNode):
-				childrenSelf = self.getChildrenNames()
-				childrenNew = newNode.getChildrenNames()
-				message = message + '\n\tenfants en plus\n' + self.name +':'
-				for child in childrenSelf:
-					if child not in childrenNew: message = message +" "+ child +","
-				message = message + '\n'+ newNode.name +':'
-				for child in childrenNew:
-					if child not in childrenSelf: message = message +" "+ child +","
+		if message:
+			if longNameSelf == longNameNew: message = 'comparer les noeuds xml '+ longNameSelf +'\n'+ message
+			else: message = 'comparer les noeuds xml '+ longNameSelf +" et "+ longNameNew +'\n'+ message
+		message = message + messageChildren
+		# nettoyer le message
+		message = message.strip()
+		while '\n\n' in message: message = message.replace ('\n\n', '\n')
 		return message
 
 	def __eq__ (self, newNode):
 		if self.name != newNode.name or self.text != newNode.text: return False
-		result = self.samesAttributes (newNode)
-		if result: result = self.samesChildren (newNode)
-		if result:
-			# comparer le contenu des noeuds enfants
-			a=0
-			nbChildren = len (self.children)
-			while result and a< nbChildren:
-				o= newNode.findChildPosByName (self.children[a].name)
-				if self.children[a].text != newNode.children[o].text: result = False
-				elif not self.children[a].samesAttributes (newNode.children[o]): result = False
-				elif not self.children[a].samesChildren (newNode.children[o]): result = False
-				elif not self.children[a].__eq__ (newNode.children[o]): result = False
-				a+=1
-		return result
-
-	def __ne__ (self, newNode):
-		if self.name != newNode.name or self.text != newNode.text: return True
-		elif not self.samesAttributes (newNode): return True
-		elif not self.samesChildren (newNode): return True
+		isEquals = self.samesAttributes (newNode)
+		if isEquals: isEquals = self.samesChildren (newNode)
+		if not isEquals: return False
 		# comparer le contenu des noeuds enfants
 		a=0
-		result = True
 		nbChildren = len (self.children)
-		while result and a< nbChildren:
+		while isEquals and a< nbChildren:
 			o= newNode.findChildPosByName (self.children[a].name)
-			if self.children[a].text != newNode.children[o].text: result = False
-			elif not self.children[a].samesAttributes (newNode.children[o]): result = False
-			elif not self.children[a].samesChildren (newNode.children[o]): result = False
-			elif not self.children[a].__eq__ (newNode.children[o]): result = False
+			if self.children[a].text != newNode.children[o].text: isEquals = False
+			elif not self.children[a].samesAttributes (newNode.children[o]): isEquals = False
+			elif not self.children[a].samesChildren (newNode.children[o]): isEquals = False
+			elif not self.children[a].__eq__ (newNode.children[o]): isEquals = False
 			a+=1
-		return (not result)
+		return isEquals
+
+	def __ne__ (self, newNode):
+		return not self.__eq__ (newNode)
+
+	def sameStructureTree (self, newNode):
+		isSameStructure = self.sameStructureNode (newNode)
+		if not isSameStructure: return False
+		# la structure des noeuds enfants
+		a=0
+		nbChildren = len (self.children)
+		while isSameStructure and a< nbChildren:
+			o= newNode.findChildPosByName (self.children[a].name)
+			isSameStructure = self.children[a].sameStructureTree (newNode.children[o])
+			a+=1
+		return isSameStructure
+
+	def sameStructureNode (self, newNode):
+		if self.name != newNode.name: return False
+		isSameStructure = self.sameAttributeStructure (newNode.attributes)
+		if not isSameStructure: return False
+		isSameStructure = self.samesChildren (newNode)
+		return isSameStructure
 
 	def samesAttributes (self, newNode):
+		areSamesAttributes = self.sameAttributeStructure (newNode.attributes)
+		if not areSamesAttributes: return False
 		attributesSelf = self.attributes.keys()
 		attributesNew = newNode.attributes.keys()
 		areSamesAttributes = True
 		a=0
 		nbAttributes = len (attributesSelf)
 		while areSamesAttributes and a< nbAttributes:
+			if self.attributes [attributesSelf[a]] != newNode.attributes [attributesSelf[a]]: areSamesAttributes = False
+			a+=1
+		return areSamesAttributes
+
+	def sameAttributeStructure (self, newNodeAttributes):
+		# les noms des attributs
+		attributesSelf = self.attributes.keys()
+		attributesNew = newNodeAttributes.keys()
+		areSamesAttributes = True
+		a=0
+		nbAttributes = len (attributesSelf)
+		while areSamesAttributes and a< nbAttributes:
 			if attributesSelf[a] not in attributesNew: areSamesAttributes = False
 			a+=1
-		if areSamesAttributes:
-			a=0
-			nbAttributes = len (attributesNew)
-			while areSamesAttributes and a< nbAttributes:
-				if attributesNew[a] not in attributesSelf: areSamesAttributes = False
-				elif self.attributes [attributesNew[a]] != newNode.attributes [attributesNew[a]]: areSamesAttributes = False
-				a+=1
+		if not areSamesAttributes: return False
+		a=0
+		nbAttributes = len (attributesNew)
+		while areSamesAttributes and a< nbAttributes:
+			if attributesNew[a] not in attributesSelf: areSamesAttributes = False
+			a+=1
 		return areSamesAttributes
 
 	def samesChildren (self, newNode):
@@ -232,10 +247,25 @@ class FileXml (File):
 		self.tree = NodeXml()
 
 	def comparer (self, newFile):
+		# calculer le titre de la comparaison
+		title = 'b/comparer '+ self.title +" et "
+		d,f= textFct.commonParts (self.title, newFile.title)
+		if d>3:
+			title = title + newFile.title[d:f]
+			while "  " in title: title = title.replace ("  "," ")
+		else: title = title + newFile.title
+		title = title + '.txt'
+		fileCommon = File (title)
+		# comparer
 		self.toPath()
 		newFile.toPath()
+		fileCommon.text = 'comparer\n' + self.path +'\n'+ newFile.path +'\n\n'
 		message = self.tree.comparer (newFile.tree)
-		print (message)
+		message = message.replace (" .", " ")
+		message = textFct.cleanBasic (message)
+		message = message.replace ('\ncomparer', '\n\ncomparer')
+		fileCommon.text = fileCommon.text + message
+		fileCommon.write()
 
 	def read (self):
 		File.read (self)
@@ -246,7 +276,7 @@ class FileXml (File):
 		self.text = self.text.replace ('\t', " ")
 		self.text = self.text.replace ('\n', " ")
 		self.text = self.text.replace ('\r', " ")
-		while "  " in self.text: self.text = self.text.replace ("  ", " ")
+		self.text = textFct.cleanBasic (self.text)
 		self.text = self.text.replace (" <", "<")
 		self.text = self.text.replace ("> ", ">")
 		self.text = self.text.replace (" >", ">")
@@ -254,12 +284,3 @@ class FileXml (File):
 	def treeFromText (self):
 		self.text = self.text.replace (header, "")
 		self.text = self.tree.treeFromText (self.text)
-
-fileName = 'C:\\Users\\deborah.powers\\Desktop\\sian-2026\\test ciphyto flux\\ciphyto conseil lega flux.xml'
-fileBisName = 'C:\\Users\\deborah.powers\\Desktop\\sian-2026\\test ciphyto flux\\ciphyto conseil npsl 05-18 flux.xml'
-
-fileData = FileXml (fileName)
-fileData.read()
-fileBis = FileXml (fileBisName)
-fileBis.read()
-fileData.comparer (fileBis)
