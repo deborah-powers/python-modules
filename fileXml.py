@@ -14,6 +14,7 @@ class NodeXml():
 		self.attributes ={}
 
 	def treeFromText (self, textParent):
+		if textParent =="": return ""
 		f= textParent.find ('>')
 		self.name = textParent[1:f]
 		if self.name[-1] == '/': self.name = self.name[:-1]
@@ -247,25 +248,27 @@ class FileXml (File):
 		self.tree = NodeXml()
 
 	def comparer (self, newFile):
-		# calculer le titre de la comparaison
-		title = 'b/comparer '+ self.title +" et "
-		d,f= textFct.commonParts (self.title, newFile.title)
-		if d>3:
-			title = title + newFile.title[d:f]
-			while "  " in title: title = title.replace ("  "," ")
-		else: title = title + newFile.title
-		title = title + '.txt'
-		fileCommon = File (title)
-		# comparer
 		self.toPath()
 		newFile.toPath()
-		fileCommon.text = 'comparer\n' + self.path +'\n'+ newFile.path +'\n\n'
-		message = self.tree.comparer (newFile.tree)
-		message = message.replace (" .", " ")
-		message = textFct.cleanBasic (message)
-		message = message.replace ('\ncomparer', '\n\ncomparer')
-		fileCommon.text = fileCommon.text + message
-		fileCommon.write()
+		if self.tree == newFile.tree: print ("les xml sont identiques:\n", self.path, '\n', newFile.path)
+		else:
+			# calculer le titre de la comparaison
+			title = 'b/comparer '+ self.title +" et "
+			d,f= textFct.commonParts (self.title, newFile.title)
+			if d>3:
+				title = title + newFile.title[d:f]
+				while "  " in title: title = title.replace ("  "," ")
+			else: title = title + newFile.title
+			title = title + '.txt'
+			fileCommon = File (title)
+			# comparer
+			fileCommon.text = 'comparer\n' + self.path +'\n'+ newFile.path +'\n\n'
+			message = self.tree.comparer (newFile.tree)
+			message = message.replace (" .", " ")
+			message = textFct.cleanBasic (message)
+			message = message.replace ('\ncomparer', '\n\ncomparer')
+			fileCommon.text = fileCommon.text + message
+			fileCommon.write()
 
 	def read (self):
 		File.read (self)

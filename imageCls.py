@@ -9,7 +9,7 @@ import cv2
 import colorsys
 from mediaCls import MediaFile, MediaFolder
 import mediaCls as media
-from kmeans import KmeansTablesNb
+from kmeans import Kmeans, KmeansTablesNb
 import loggerFct as log
 
 imgExtensions =[ 'jpg', 'bmp', 'gif', 'png', 'mp4', 'avi', 'heic', 'heif' ]
@@ -19,9 +19,33 @@ rgb_to_hsv = numpy.vectorize (colorsys.rgb_to_hsv)
 hsv_to_rgb = numpy.vectorize (colorsys.hsv_to_rgb)
 register_heif_opener()
 
-class KmeansTablesCanal (KmeansTablesNb):
-	def __init__ (self, table):
-		KmeansTablesNb.__init__ (self, 1.0, table)
+def creerGif (nomGif, gifFolder, imageNameList):
+	if gifFolder[-1] != os.sep: gifFolder = gifFolder + os.sep
+	nomGif = gifFolder + nomGif + '.gif'
+	pilImageList =[]
+	for imageName in imageNameList:
+		pilImageList.append (Image.open (gifFolder + imageName))
+		pilImageList[-1] = pilImageList[-1].convert ('RGB')
+	imageRef = pilImageList.pop(0)
+	imageRef.save (nomGif, save_all=True, append_images=pilImageList, duration=500, loop=0)
+
+class KmeansBw (Kmeans):
+	def __init__ (self, colors):
+		Kmeans.__init__ (self, 15, colors)
+
+	def computeScore (self, groupId, itemId):
+		score = self.groups [groupId][0] - self.values [itemId]
+		if score <0: score *=-1
+		return score
+
+	def computeMean (self, groupId):
+		groupLen = len (self.groups [groupId])
+		groupRange = range (1, groupLen)
+		score =0
+		for g in groupRange: score += self.groups [groupId][g]
+		groupLen -=1
+		score /= groupLen
+		return score
 
 def blurrOne (table, y,x):
 	# calculer la valeur moyenne
@@ -104,6 +128,21 @@ class ImageFile (MediaFile):
 			percentScale = float (heightNew / float (self.image.size[1]))
 			widthNew = int (self.image.size[0] * percentScale)
 			self.image = self.image.resize ((widthNew, heightNew), Image.Resampling.LANCZOS)
+
+	def simplifyColors (self):
+		self.tobw()
+		self.array = numpy.array (self.image)
+		colors = self.getColors()
+		colorKmeans = KmeansBw (colors)
+		colorKmeans.BuildGroup()
+		groupRange = range (len (colorKmeans.groups))
+		for g in groupRange: colorKmeans.groups[g][0] = int (colorKmeans.groups[g][0])
+		for group in colorKmeans.groups:
+			for color in group:
+				grey = self.array.T
+				colorArea = (grey == color)
+				self.array[colorArea.T] = group[0]
+		self.image = Image.fromarray (self.array)
 
 	def eraseColors (self, referImg):
 		# éffacer certaines couleurs d'une image à partir d'une image de référence qui les contient

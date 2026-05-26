@@ -1,7 +1,10 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
 from fileCls import File
+from fileLocal import pathCss
 import loggerFct as log
+
+fileCssCommon = pathCss + '\t.css'
 
 class RuleCss():
 	def __init__ (self):
@@ -131,6 +134,25 @@ class QueryCss():
 			res = res +'\n\t'+ rule.__str__()
 		return res
 
+	def __eq__ (self, otherQuery):
+		if self.query != otherQuery.query: return False
+		nbRulesSelf = len (self.rules)
+		nbRulesOther = len (otherQuery.rules)
+		if nbRulesSelf != nbRulesOther: return False
+		s=0
+		o=0
+		isSameRule = True
+		while isSameRule and s< nbRulesSelf:
+			o=0
+			while isSameRule and o< nbRulesOther:
+				isSameRule = self.rules[s].__eq__ (otherRule.rules[o])
+				o+=1
+			s+=1
+		return isSameRule
+
+	def __ne__ (self, otherQuery):
+		return not self.__eq__ (otherQuery)
+
 	def __contains__ (self, rule):
 		if isinstance (rule, str):	# nom de règle, div, p.class-name
 			isIn = False
@@ -223,10 +245,3 @@ class FileCss (File):
 		for mark in marquers:
 			self.replace (" "+ mark, mark)
 			self.replace (mark +" ", mark)
-
-fileName = 's/library-css\\structure.css'
-fileCss = FileCss (fileName)
-fileCss.read()
-rule = fileCss.getRulesForItem ('p')
-
-print (isinstance (rule, RuleCss), isinstance ('hello', str), isinstance ({ 'a':2, 'b':4 }, dict))

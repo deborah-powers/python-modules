@@ -5,7 +5,7 @@ import numpy
 numpy.seterr (all='warn')
 from PIL import Image, ImageOps
 import colorsys
-from imgModif import openImage, getColors, imGtoHsv, hsVtoImg
+from imageModif import openImage, getColors, imGtoHsv, hsVtoImg
 import loggerFct as log
 
 help ="""
@@ -14,10 +14,8 @@ attention, le détourage fonctionne mal pour les zones dont la couleur est proch
 le script fait le plus gros du travail, mais il faut le corriger manuellement
 """
 
- def unifyClosesColors (imageArray, colorList):
+def unifyClosesColors (imageArray, colorList):
 	# les couleurs, en nb, sont codées par un unique nombre
-	colorList = getColors (imageOriginal)
-	imageArray = numpy.array (imageOriginal)
 	rangeColors = range (1, len (colorList))
 	for c in rangeColors:
 		score = int (colorList[c]) - int (colorList[c-1])
@@ -190,6 +188,7 @@ def eraseBorder (imageName):
 	imageNouvelle = Image.fromarray (imageArray)
 	imageNouvelle.save (newName + '-bord.bmp')
 
-if __name__ == '__main__':
+
+if __name__ == '__main__' and false:
 	print (help)
 	if len (argv) >1: eraseBorder (argv[1])

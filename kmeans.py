@@ -60,7 +60,7 @@ class Kmeans():
 					groupscore = score
 					groupId = g
 			# trouver le groupe dont elle est le plus proche
-			if groupscore <= scoreDifference:
+			if groupscore <= self.scoreDifference:
 				# calculer la nouvelle moyenne
 				self.groups [groupId][0] = self.computeMean (groupId)
 				self.groups [groupId].append (self.values[c])
