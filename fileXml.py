@@ -5,6 +5,7 @@ from fileCls import File
 import loggerFct as log
 
 header = '<?xml version="1.0" encoding="utf-8"?>'
+styleTag = "<?xml-stylesheet type='text/css' href='xml-style.css'?>"
 
 class NodeXml():
 	def __init__ (self):
@@ -102,8 +103,8 @@ class NodeXml():
 		message = message.strip()
 		while '\n\n' in message: message = message.replace ('\n\n', '\n')
 		if message:
-			if longNameSelf == longNameNew: message = 'comparer les noeuds xml '+ longNameSelf +'\n'+ message
-			else: message = 'comparer les noeuds xml '+ longNameSelf +" et "+ longNameNew +'\n'+ message
+			if longNameSelf == longNameNew: message = 'comparer les noeuds '+ longNameSelf +'\n'+ message
+			else: message = 'comparer les noeuds '+ longNameSelf +" et "+ longNameNew +'\n'+ message
 		message = message + messageChildren
 		# nettoyer le message
 		message = message.strip()
