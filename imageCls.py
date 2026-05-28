@@ -429,6 +429,12 @@ class ImageFile (MediaFile):
 		self.array = self.array.astype ('uint8')
 		self.image = Image.fromarray (self.array)
 
+	def fromArray (self):
+		self.image = Image.fromarray (self.array)
+
+	def toArray (self):
+		self.array = numpy.array (self.image)
+
 	def fromMedia (self, mediaFile):
 		self.path = mediaFile.path
 		self.title = mediaFile.title
