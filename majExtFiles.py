@@ -26,4 +26,4 @@ def compareFiles (fileNameList):
 		fileList[f].title = fileList[f].title +" "+ str(f)
 		fileList[0].comparer (fileList[f])
 
-compareFiles (textFctFiles)
+compareFiles (htmlFctFiles)
