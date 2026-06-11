@@ -153,8 +153,7 @@ class NodeXml():
 	def samesAttributes (self, newNode):
 		areSamesAttributes = self.sameAttributeStructure (newNode.attributes)
 		if not areSamesAttributes: return False
-		attributesSelf = self.attributes.keys()
-		attributesNew = newNode.attributes.keys()
+		attributesSelf = list (self.attributes.keys())
 		areSamesAttributes = True
 		a=0
 		nbAttributes = len (attributesSelf)
@@ -165,8 +164,8 @@ class NodeXml():
 
 	def sameAttributeStructure (self, newNodeAttributes):
 		# les noms des attributs
-		attributesSelf = self.attributes.keys()
-		attributesNew = newNodeAttributes.keys()
+		attributesSelf = list (self.attributes.keys())
+		attributesNew = list (newNodeAttributes.keys())
 		areSamesAttributes = True
 		a=0
 		nbAttributes = len (attributesSelf)
@@ -286,5 +285,6 @@ class FileXml (File):
 		self.text = self.text.replace (" >", ">")
 
 	def treeFromText (self):
-		self.text = self.text.replace (header, "")
+		d=1+ self.find ('>')
+		self.text = self.text[d:]
 		self.text = self.tree.treeFromText (self.text)
