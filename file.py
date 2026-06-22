@@ -11,7 +11,7 @@ import loggerFct as log
 help ="""traiter des fichiers
 utilisation
 	le script est appelable dans un fichier
-	python3 file.py fichier tag (fichierB)
+	python file.py fichier tag (fichierB)
 les valeurs de tag
 	clean (ru - r - u):	nettoyer le texte. modifier ou pas la casse.
 	mef (ru - r - u):	mettre en forme un texte utilisant ma mise en forme spécifique.
