@@ -70,15 +70,16 @@ def simplifyColors (self):
 	self.tobw()
 	self.toArray()
 	colors = self.getColors()
-	colorKmeans = KmeansBw (colors)
-	colorKmeans.BuildGroup()
-	groupRange = range (len (colorKmeans.groups))
-	for g in groupRange: colorKmeans.groups[g][0] = int (colorKmeans.groups[g][0])
-	for group in colorKmeans.groups:
-		for color in group:
-			grey = self.array.T
-			colorArea = (grey == color)
-			self.array[colorArea.T] = group[0]
+	if len (colors) >12:
+		colorKmeans = KmeansBw (colors)
+		colorKmeans.BuildGroup()
+		groupRange = range (len (colorKmeans.groups))
+		for g in groupRange: colorKmeans.groups[g][0] = int (colorKmeans.groups[g][0])
+		for group in colorKmeans.groups:
+			for color in group:
+				grey = self.array.T
+				colorArea = (grey == color)
+				self.array[colorArea.T] = group[0]
 	self.eraseColorIslands()
 	self.fromArray()
 
