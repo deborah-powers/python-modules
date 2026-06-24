@@ -78,27 +78,27 @@ def upperCase (text, case=""):
 	"""
 	# préparer le texte
 	text = '\n'+ text +'\n'
-	text = text.replace ('\nmdp: ', '\ncode\tMdp: ')
-	text = text.replace ('\nMdp: ', '\ncode\tMdp: ')
-	if '\ncode\t' in text:
-		paragraphList = text.split ('\ncode\t')
+	text = text.replace ('\nmdp: ', '\nraw\tMdp: ')
+	text = text.replace ('\nMdp: ', '\nraw\tMdp: ')
+	if '\nraw\tMdp' in text:
+		paragraphList = text.split ('\nraw\tMdp')
 		paragraphRange = range (1, len (paragraphList))
-		for i in paragraphRange: paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
-		text = '\ncode\n'.join (paragraphList)
+		for i in paragraphRange: paragraphList[i] = paragraphList[i].replace ('\n', '\n//\n', 1)
+		text = '\nraw\n'.join (paragraphList)
 	# isoler les blocs devant rester intacts
-	if '\ncode\n' in text:
-		paragraphList = text.split ('\ncode\n')
+	if '\nraw\n' in text:
+		paragraphList = text.split ('\nraw\n')
 		if 'reset' in case: paragraphList[0] = paragraphList[0].lower()
 		if 'upper' in case: paragraphList[0] = upperCaseIntern (paragraphList[0])
 		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange:
-			d= paragraphList[i].find ('\n/\n') +1
+			d= paragraphList[i].find ('\n//\n') +1
 			temp = paragraphList[i][d:]
 			paragraphList[i] = paragraphList[i][:d]
 			if 'reset' in case: temp = temp.lower()
 			if 'upper' in case: temp = upperCaseIntern (temp)
 			paragraphList[i] = paragraphList[i] + temp
-		text = '\ncode\n'.join (paragraphList)
+		text = '\nraw\n'.join (paragraphList)
 	else:
 		if 'reset' in case: text = text.lower()
 		if 'upper' in case: text = upperCaseIntern (text)
@@ -195,8 +195,8 @@ def cleanSql (text):
 	if '\nselect ' not in text: return text
 	textList = text.split ('\nselect ')
 	textRange = range (1, len (textList))
-	for t in textRange: textList[t] = textList[t].replace (';\n', ';\n/\n', 1)
-	text = '\ncode\nselect '.join (textList)
+	for t in textRange: textList[t] = textList[t].replace (';\n', ';\n//\n', 1)
+	text = '\nraw\nselect '.join (textList)
 	if '\nwith ' in text:
 		textList = text.split ('\nwith ')
 		textRange = range (1, len (textList))
@@ -204,12 +204,12 @@ def cleanSql (text):
 			d= textList[t].find ('\n')
 			if ' as (' in textList[t][:d] or ' as(' in textList[t][:d]:
 				f= textList[t].find (';\n')
-				textList[t] = textList[t][:f].replace ('\ncode\n', '\n') + textList[t][f:]
-				textList[t-1] = textList[t-1] + '\ncode'
+				textList[t] = textList[t][:f].replace ('\nraw\n', '\n') + textList[t][f:]
+				textList[t-1] = textList[t-1] + '\nraw'
 		text = '\nwith '.join (textList)
 	return text
 
-def protectUrl (text):
+def protectUrlFromUpperCase (text):
 	if ': C:\\' in text:
 		paragraphList = text.split (': C:\\')
 		paragraphRange = range (1, len (paragraphList))
@@ -219,9 +219,9 @@ def protectUrl (text):
 				d=1+ paragraphList[i-1].rfind ('\n')
 				temp = paragraphList[i-1][d:]
 				paragraphList[i-1] = paragraphList[i-1][:d]
-				temp = '\ncode\n' + temp.capitalize()
+				temp = '\nraw\n' + temp.capitalize()
 				paragraphList[i-1] = paragraphList[i-1] + temp
-				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n//\n', 1)
 		text = ': C:\\'.join (paragraphList)
 	if '\nC:\\' in text:
 		paragraphList = text.split ('\nC:\\')
@@ -229,8 +229,8 @@ def protectUrl (text):
 		for i in paragraphRange:
 			e= findEndUrl (paragraphList[i])
 			if e> len (paragraphList[i]) or paragraphList[i][e] == '\n':
-				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
-				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+				paragraphList[i-1] = paragraphList[i-1] + '\nraw\n'
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n//\n', 1)
 		text = '\nC:\\'.join (paragraphList)
 	if ': http' in text:
 		paragraphList = text.split (': http')
@@ -241,9 +241,9 @@ def protectUrl (text):
 				d=1+ paragraphList[i-1].rfind ('\n')
 				temp = paragraphList[i-1][d:]
 				paragraphList[i-1] = paragraphList[i-1][:d]
-				temp = '\ncode\n' + temp.capitalize()
+				temp = '\nraw\n' + temp.capitalize()
 				paragraphList[i-1] = paragraphList[i-1] + temp
-				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n//\n', 1)
 		text = ': http'.join (paragraphList)
 	if '\nhttp' in text:
 		paragraphList = text.split ('\nhttp')
@@ -251,9 +251,26 @@ def protectUrl (text):
 		for i in paragraphRange:
 			e= findEndUrl (paragraphList[i])
 			if e> len (paragraphList[i]) or paragraphList[i][e] == '\n':
-				paragraphList[i-1] = paragraphList[i-1] + '\ncode\n'
-				paragraphList[i] = paragraphList[i].replace ('\n', '\n/\n', 1)
+				paragraphList[i-1] = paragraphList[i-1] + '\nraw\n'
+				paragraphList[i] = paragraphList[i].replace ('\n', '\n//\n', 1)
 		text = '\nhttp'.join (paragraphList)
+	return text
+
+def protectCodeFromUpperCase (text):
+	text = text.replace ('\ncode: ', '\nraw\tCode: ')
+	text = text.replace ('\nCode: ', '\nraw\tCode: ')
+	text = text.replace ('\ncode\n', '\nraw\nCode\n')
+	text = text.replace ('\nCode\n', '\nraw\nCode\n')
+	if '\nraw\nCode\n' in text:
+		textList = text.split ('\nraw\nCode\n')
+		textRange = range (1, len (textList))
+		for t in textRange: textList[t] = textList[t].replace ('\n/\n', '\n/\n//\n', 1)
+		text = '\nraw\nCode\n'.join (textList)
+	if '\nraw\tCode: ' in text:
+		textList = text.split ('\nraw\tCode: ')
+		textRange = range (1, len (textList))
+		for t in textRange: textList[t] = textList[t].replace ('\n', '\n//\n', 1)
+		text = '\nraw\nCode\n'.join (textList)
 	return text
 
 def cleanText (text):
@@ -322,7 +339,8 @@ def shape (text, case=""):
 	for char in titleChars:
 		while '\n'+ 3* char in text: text = text.replace ('\n'+ 3* char, '\n'+ 2* char)
 	text = cleanSql (text)
-	text = protectUrl (text)
+	text = protectUrlFromUpperCase (text)
+	text = protectCodeFromUpperCase (text)
 	if case: text = upperCase (text, case)
 	while '\n\n' in text: text = text.replace ('\n\n', '\n')
 	text = text.strip()
@@ -338,8 +356,8 @@ def shape (text, case=""):
 		text = text.replace ('\n'+ 2* char +'\n', '\n\n'+ 2* char +'\n\n')
 		text = text.replace ('\n'+ 2* char, '\n\n'+ 2* char)
 	while '\n\n\n' in text: text = text.replace ('\n\n\n', '\n\n')
-	text = text.replace ('\n/\n', '\n')
-	text = text.replace ('\ncode\n', '\n')
+	text = text.replace ('\n//\n', '\n')
+	text = text.replace ('\nraw\n', '\n')
 	return text
 
 def toMarkdown (text):
