@@ -43,7 +43,7 @@ def findColorIsland (self, coords, island, neighbourgs):
 		if self.array[coords[0]][coords[1]] == self.array[coords[0]][coords[1] +1]: neighbourgList.append ((coords[0], coords[1] +1))
 		elif self.array[coords[0]][coords[1] +1] in neighbourgs.keys(): neighbourgs [self.array[coords[0]][coords[1] +1]] +=1
 		else: neighbourgs [self.array[coords[0]][coords[1] +1]] =1
-	if len (neighbourgList) >2:	# si plus de trois éléments dans l'îlot, il est considéré comme un continent
+	if len (neighbourgList) >3:	# si plus de quatre éléments dans l'îlot, il est considéré comme un continent
 		for neigh in neighbourgList: island.add (neigh)
 	else:
 		for neigh in neighbourgList: island, neighbourgs = self.findColorIsland (neigh, island, neighbourgs)
@@ -66,6 +66,48 @@ def eraseColorIslands (self):
 			seenPoints.update (island)
 			if len (island) <4: self.eraseColorIsland (island, neighbourgs)
 
+def findColorFronters (self):
+	lenHeight = len (self.array)
+	lenWidth = len (self.array[0])
+	rangeHeight = range (lenHeight)
+	rangeWidth = range (1, lenWidth)
+	for h in rangeHeight:
+		v=0
+		for w in rangeWidth:
+			if self.array[h][w] == self.array[h][w-1]: continue
+			diff = int (self.array[h][w]) - int (self.array[h][w-1])
+			if diff <-30 or diff >30:
+				diff = int (self.array[h][v]) - int (self.array[h][w-1])
+				while v< w-1 and diff >=-30 and diff <=30:
+					self.array[h][v] = self.array[h][w-1]
+					v+=1
+					diff = int (self.array[h][v]) - int (self.array[h][w-1])
+				v=w
+		diff = int (self.array[h][v]) - int (self.array[h][-1])
+		while v< lenWidth -1 and diff >=-30 and diff <=30:
+			self.array[h][v] = self.array[h][-1]
+			v+=1
+			diff = int (self.array[h][v]) - int (self.array[h][-1])
+	rangeHeight = range (1, len (self.array))
+	rangeWidth = range (len (self.array[0]))
+	for h in rangeWidth:
+		v=0
+		for w in rangeHeight:
+			if self.array[h][w] == self.array[h-1][w]: continue
+			diff = int (self.array[h][w]) - int (self.array[h-1][w])
+			if diff <-5 or diff >5:
+				diff = int (self.array[v][w]) - int (self.array[h-1][w])
+				while v< h-1 and diff >=-30 and diff <=30:
+					self.array[v][w] = self.array[h-1][w]
+					v+=1
+					diff = int (self.array[v][w]) - int (self.array[h-1][w])
+				v=h
+		diff = int (self.array[v][w]) - int (self.array[-1][w])
+		while v< lenHeight -1 and diff >=-30 and diff <=30:
+			self.array[v][w] = self.array[-1][w]
+			v+=1
+			diff = int (self.array[v][w]) - int (self.array[-1][w])
+
 def simplifyColors (self):
 	self.tobw()
 	self.toArray()
@@ -81,12 +123,14 @@ def simplifyColors (self):
 				colorArea = (grey == color)
 				self.array[colorArea.T] = group[0]
 	self.eraseColorIslands()
+	self.findColorFronters()
 	self.fromArray()
 
 setattr (ImageFile, 'simplifyColors', simplifyColors)
 setattr (ImageFile, 'eraseColorIslands', eraseColorIslands)
 setattr (ImageFile, 'findColorIsland', findColorIsland)
 setattr (ImageFile, 'eraseColorIsland', eraseColorIsland)
+setattr (ImageFile, 'findColorFronters', findColorFronters)
 
 def eraseLonelyPixelsNb (imageArray):
 	# seuls les quatre pixels touchant directement le pixel central sont pris en compte
