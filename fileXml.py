@@ -114,8 +114,8 @@ class NodeXml():
 	def __eq__ (self, newNode):
 		if self.name != newNode.name or self.text != newNode.text: return False
 		isEquals = self.samesAttributes (newNode)
-		if isEquals: isEquals = self.samesChildren (newNode)
 		if not isEquals: return False
+		else: isEquals = self.samesChildren (newNode)
 		# comparer le contenu des noeuds enfants
 		a=0
 		nbChildren = len (self.children)
@@ -285,6 +285,8 @@ class FileXml (File):
 		self.text = self.text.replace (" >", ">")
 
 	def treeFromText (self):
-		d=1+ self.find ('>')
-		self.text = self.text[d:]
+		if '<?' in self.text:
+			d= self.text.rfind ('<?')
+			d=1+ self.find ('>',d)
+			self.text = self.text[d:]
 		self.text = self.tree.treeFromText (self.text)

@@ -10,7 +10,7 @@ class KmeansBw (Kmeans):
 		Kmeans.__init__ (self, 15, colors)
 
 	def computeScore (self, groupId, itemId):
-		score = self.groups [groupId][0] - self.values [itemId]
+		score = self.groups [groupId][1] - self.values [itemId]
 		if score <0: score *=-1
 		return score
 
@@ -21,9 +21,39 @@ class KmeansBw (Kmeans):
 		for g in groupRange: score += self.groups [groupId][g]
 		groupLen -=1
 		score /= groupLen
+		return int (score)
+
+class KmeansCol (Kmeans):
+	def __init__ (self, colors):
+		Kmeans.__init__ (self, 15, colors)
+
+	def computeScore (self, groupId, itemId):
+		scoreR = self.groups [groupId][1][0] - self.values [itemId][0]
+		scoreG = self.groups [groupId][1][1] - self.values [itemId][1]
+		scoreB = self.groups [groupId][1][2] - self.values [itemId][2]
+		if scoreR <0: scoreR *=-1
+		if scoreG <0: scoreG *=-1
+		if scoreB <0: scoreB *=-1
+		score = scoreR + scoreG + scoreB
 		return score
 
-def findColorIsland (self, coords, island, neighbourgs):
+	def computeMean (self, groupId):
+		groupLen = len (self.groups [groupId])
+		groupRange = range (1, groupLen)
+		scoreR =0
+		scoreG =0
+		scoreB =0
+		for g in groupRange:
+			scoreR = scoreR + self.groups [groupId][g][0]
+			scoreG = scoreG + self.groups [groupId][g][1]
+			scoreB = scoreB + self.groups [groupId][g][2]
+		groupLen -=1
+		scoreR /= groupLen
+		scoreG /= groupLen
+		scoreB /= groupLen
+		return (int (scoreR), int (scoreG), int (scoreB))
+
+def findColorIslandBw (self, coords, island, neighbourgs):
 	if coords in island: return island, neighbourgs
 	island.add (coords)
 	neighbourgList =[]
@@ -49,6 +79,39 @@ def findColorIsland (self, coords, island, neighbourgs):
 		for neigh in neighbourgList: island, neighbourgs = self.findColorIsland (neigh, island, neighbourgs)
 	return island, neighbourgs
 
+def caseEqualCol (caseA, caseO):
+	return caseA[0] == caseO[0] and caseA[1] == caseO[1] and caseA[2] == caseO[2]
+
+def caseInKeysCol (caseA, keys):
+	return (caseA[0], caseA[1], caseA[2]) in keys
+
+def findColorIsland (self, coords, island, neighbourgs, color='col'):
+	if coords in island: return island, neighbourgs
+	island.add (coords)
+	neighbourgList =[]
+	if coords[0] >0:
+		if caseEqual (self.array[coords[0]][coords[1]], self.array[coords[0] -1][coords[1]]): neighbourgList.append ((coords[0] -1, coords[1]))
+		elif caseInKeys (self.array[coords[0] -1][coords[1]], neighbourgs.keys()): neighbourgs [self.array[coords[0] -1][coords[1]]] +=1
+		else: neighbourgs [( self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2] )] =1
+	if coords[0] < len (self.array) -1:
+		print (self.array[coords[0] +1][coords[1]])
+		if caseEqual (self.array[coords[0]][coords[1]], self.array[coords[0] +1][coords[1]]): neighbourgList.append ((coords[0] +1, coords[1]))
+		elif caseInKeys (self.array[coords[0] +1][coords[1]], neighbourgs.keys()): neighbourgs [self.array[coords[0] +1][coords[1]]] +=1
+		else: neighbourgs [( self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2] )] =1
+	if coords[1] >0:
+		if caseEqual (self.array[coords[0]][coords[1]], self.array[coords[0]][coords[1] -1]): neighbourgList.append ((coords[0], coords[1] -1))
+		elif caseInKeys (self.array[coords[0]][coords[1] -1], neighbourgs.keys()): neighbourgs [self.array[coords[0]][coords[1] -1]] +=1
+		else: neighbourgs [( self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2] )] =1
+	if coords[1] < len (self.array[0]) -1:
+		if caseEqual (self.array[coords[0]][coords[1]], self.array[coords[0]][coords[1] +1]): neighbourgList.append ((coords[0], coords[1] +1))
+		elif caseInKeys (self.array[coords[0]][coords[1] +1], neighbourgs.keys()): neighbourgs [self.array[coords[0]][coords[1] +1]] +=1
+		else: neighbourgs [( self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2] )] =1
+	if len (neighbourgList) >3:	# si plus de quatre éléments dans l'îlot, il est considéré comme un continent
+		for neigh in neighbourgList: island.add (neigh)
+	else:
+		for neigh in neighbourgList: island, neighbourgs = self.findColorIsland (neigh, island, neighbourgs)
+	return island, neighbourgs
+
 def eraseColorIsland (self, island, neighbourgs):
 	colors = neighbourgs.keys()
 	color = list (colors)[0]
@@ -56,13 +119,13 @@ def eraseColorIsland (self, island, neighbourgs):
 		if neighbourgs [col] > neighbourgs [color]: color = col
 	for h,w in island: self.array[h][w] = color
 
-def eraseColorIslands (self):
+def eraseColorIslands (self, color):
 	rangeHeight = range (len (self.array))
 	rangeWidth = range (len (self.array[0]))
 	seenPoints = set()
 	for h in rangeHeight:
 		for w in rangeWidth:
-			island, neighbourgs = self.findColorIsland ((h,w), set(), dict())
+			island, neighbourgs = self.findColorIsland ((h,w), set(), dict(), color)
 			seenPoints.update (island)
 			if len (island) <4: self.eraseColorIsland (island, neighbourgs)
 
@@ -108,22 +171,35 @@ def findColorFronters (self):
 			v+=1
 			diff = int (self.array[v][w]) - int (self.array[-1][w])
 
-def simplifyColors (self):
+def simplifyColorsBw (self):
 	self.tobw()
 	self.toArray()
 	colors = self.getColors()
-	if len (colors) >12:
+	if len (colors) >8:
 		colorKmeans = KmeansBw (colors)
 		colorKmeans.BuildGroup()
-		groupRange = range (len (colorKmeans.groups))
-		for g in groupRange: colorKmeans.groups[g][0] = int (colorKmeans.groups[g][0])
 		for group in colorKmeans.groups:
 			for color in group:
 				grey = self.array.T
 				colorArea = (grey == color)
 				self.array[colorArea.T] = group[0]
-	self.eraseColorIslands()
-	self.findColorFronters()
+	self.eraseColorIslands ('bw')
+#	self.findColorFronters()
+	self.fromArray()
+
+def simplifyColors (self):
+	self.toArray()
+	colors = self.getColors()
+	if len (colors) >8:
+		colorKmeans = KmeansCol (colors)
+		colorKmeans.BuildGroup()
+		for group in colorKmeans.groups:
+			for r,g,b in group:
+				red, green, blue = self.array.T
+				colorArea = (red == r) & (green == g) & (blue == b)
+				self.array[colorArea.T] = (group[0][0], group[0][1], group[0][2])
+	self.eraseColorIslands ('col')
+#	self.findColorFronters()
 	self.fromArray()
 
 setattr (ImageFile, 'simplifyColors', simplifyColors)
