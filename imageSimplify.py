@@ -25,7 +25,7 @@ class KmeansBw (Kmeans):
 
 class KmeansCol (Kmeans):
 	def __init__ (self, colors):
-		Kmeans.__init__ (self, 15, colors)
+		Kmeans.__init__ (self, 30, colors)
 
 	def computeScore (self, groupId, itemId):
 		scoreR = self.groups [groupId][1][0] - self.values [itemId][0]
@@ -76,40 +76,41 @@ def findColorIslandBw (self, coords, island, neighbourgs):
 	if len (neighbourgList) >3:	# si plus de quatre éléments dans l'îlot, il est considéré comme un continent
 		for neigh in neighbourgList: island.add (neigh)
 	else:
-		for neigh in neighbourgList: island, neighbourgs = self.findColorIsland (neigh, island, neighbourgs)
+		for neigh in neighbourgList: island, neighbourgs = self.findColorIslandBw (neigh, island, neighbourgs)
 	return island, neighbourgs
 
-def caseEqualCol (caseA, caseO):
-	return caseA[0] == caseO[0] and caseA[1] == caseO[1] and caseA[2] == caseO[2]
-
-def caseInKeysCol (caseA, keys):
-	return (caseA[0], caseA[1], caseA[2]) in keys
-
-def findColorIsland (self, coords, island, neighbourgs, color='col'):
+def findColorIslandCol (self, coords, island, neighbourgs):
 	if coords in island: return island, neighbourgs
 	island.add (coords)
 	neighbourgList =[]
 	if coords[0] >0:
-		if caseEqual (self.array[coords[0]][coords[1]], self.array[coords[0] -1][coords[1]]): neighbourgList.append ((coords[0] -1, coords[1]))
-		elif caseInKeys (self.array[coords[0] -1][coords[1]], neighbourgs.keys()): neighbourgs [self.array[coords[0] -1][coords[1]]] +=1
+		if self.array[coords[0]][coords[1]][0] == self.array[coords[0] -1][coords[1]][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0] -1][coords[1]][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0] -1][coords[1]][2]:
+			neighbourgList.append ((coords[0] -1, coords[1]))
+		elif (self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2]) in neighbourgs.keys():
+			neighbourgs [( self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2] )] +=1
 		else: neighbourgs [( self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2] )] =1
 	if coords[0] < len (self.array) -1:
-		print (self.array[coords[0] +1][coords[1]])
-		if caseEqual (self.array[coords[0]][coords[1]], self.array[coords[0] +1][coords[1]]): neighbourgList.append ((coords[0] +1, coords[1]))
-		elif caseInKeys (self.array[coords[0] +1][coords[1]], neighbourgs.keys()): neighbourgs [self.array[coords[0] +1][coords[1]]] +=1
+		if self.array[coords[0]][coords[1]][0] == self.array[coords[0] +1][coords[1]][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0] +1][coords[1]][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0] +1][coords[1]][2]:
+			neighbourgList.append ((coords[0] +1, coords[1]))
+		elif (self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2]) in neighbourgs.keys():
+			neighbourgs [( self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2] )] +=1
 		else: neighbourgs [( self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2] )] =1
 	if coords[1] >0:
-		if caseEqual (self.array[coords[0]][coords[1]], self.array[coords[0]][coords[1] -1]): neighbourgList.append ((coords[0], coords[1] -1))
-		elif caseInKeys (self.array[coords[0]][coords[1] -1], neighbourgs.keys()): neighbourgs [self.array[coords[0]][coords[1] -1]] +=1
+		if self.array[coords[0]][coords[1]][0] == self.array[coords[0]][coords[1] -1][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0]][coords[1] -1][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0]][coords[1] -1][2]:
+			neighbourgList.append ((coords[0], coords[1] -1))
+		elif (self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2]) in neighbourgs.keys():
+			neighbourgs [(self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2])] +=1
 		else: neighbourgs [( self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2] )] =1
 	if coords[1] < len (self.array[0]) -1:
-		if caseEqual (self.array[coords[0]][coords[1]], self.array[coords[0]][coords[1] +1]): neighbourgList.append ((coords[0], coords[1] +1))
-		elif caseInKeys (self.array[coords[0]][coords[1] +1], neighbourgs.keys()): neighbourgs [self.array[coords[0]][coords[1] +1]] +=1
+		if self.array[coords[0]][coords[1]][0] == self.array[coords[0]][coords[1] +1][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0]][coords[1] +1][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0]][coords[1] +1][2]:
+			neighbourgList.append ((coords[0], coords[1] +1))
+		elif (self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2]) in neighbourgs.keys():
+			neighbourgs [( self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2] )] +=1
 		else: neighbourgs [( self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2] )] =1
 	if len (neighbourgList) >3:	# si plus de quatre éléments dans l'îlot, il est considéré comme un continent
 		for neigh in neighbourgList: island.add (neigh)
 	else:
-		for neigh in neighbourgList: island, neighbourgs = self.findColorIsland (neigh, island, neighbourgs)
+		for neigh in neighbourgList: island, neighbourgs = self.findColorIslandCol (neigh, island, neighbourgs)
 	return island, neighbourgs
 
 def eraseColorIsland (self, island, neighbourgs):
@@ -123,11 +124,12 @@ def eraseColorIslands (self, color):
 	rangeHeight = range (len (self.array))
 	rangeWidth = range (len (self.array[0]))
 	seenPoints = set()
-	for h in rangeHeight:
-		for w in rangeWidth:
-			island, neighbourgs = self.findColorIsland ((h,w), set(), dict(), color)
-			seenPoints.update (island)
-			if len (island) <4: self.eraseColorIsland (island, neighbourgs)
+	if color == 'col':
+		for h in rangeHeight:
+			for w in rangeWidth:
+				island, neighbourgs = self.findColorIslandCol ((h,w), set(), dict())
+				seenPoints.update (island)
+				if len (island) <4: self.eraseColorIsland (island, neighbourgs)
 
 def findColorFronters (self):
 	lenHeight = len (self.array)
@@ -198,13 +200,13 @@ def simplifyColors (self):
 				red, green, blue = self.array.T
 				colorArea = (red == r) & (green == g) & (blue == b)
 				self.array[colorArea.T] = (group[0][0], group[0][1], group[0][2])
-	self.eraseColorIslands ('col')
+#	self.eraseColorIslands ('col')
 #	self.findColorFronters()
 	self.fromArray()
 
 setattr (ImageFile, 'simplifyColors', simplifyColors)
 setattr (ImageFile, 'eraseColorIslands', eraseColorIslands)
-setattr (ImageFile, 'findColorIsland', findColorIsland)
+setattr (ImageFile, 'findColorIslandCol', findColorIslandCol)
 setattr (ImageFile, 'eraseColorIsland', eraseColorIsland)
 setattr (ImageFile, 'findColorFronters', findColorFronters)
 
