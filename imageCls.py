@@ -139,7 +139,7 @@ class ImageFile (MediaFile):
 		self.image = ImageOps.invert (self.image)
 
 	def to16bits (self):
-		self.image = self.image.convert ('P', colors=16)
+		self.image = self.image.quantize ('P', colors=16)
 	#	self.array = numpy.array (self.image)
 
 	def tobw (self):

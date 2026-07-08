@@ -53,7 +53,7 @@ class KmeansCol (Kmeans):
 		scoreB /= groupLen
 		return (int (scoreR), int (scoreG), int (scoreB))
 
-def findColorIslandBw (self, coords, island, neighbourgs):
+def findColorIsland (self, coords, island, neighbourgs):
 	if coords in island: return island, neighbourgs
 	island.add (coords)
 	neighbourgList =[]
@@ -76,41 +76,7 @@ def findColorIslandBw (self, coords, island, neighbourgs):
 	if len (neighbourgList) >3:	# si plus de quatre éléments dans l'îlot, il est considéré comme un continent
 		for neigh in neighbourgList: island.add (neigh)
 	else:
-		for neigh in neighbourgList: island, neighbourgs = self.findColorIslandBw (neigh, island, neighbourgs)
-	return island, neighbourgs
-
-def findColorIslandCol (self, coords, island, neighbourgs):
-	if coords in island: return island, neighbourgs
-	island.add (coords)
-	neighbourgList =[]
-	if coords[0] >0:
-		if self.array[coords[0]][coords[1]][0] == self.array[coords[0] -1][coords[1]][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0] -1][coords[1]][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0] -1][coords[1]][2]:
-			neighbourgList.append ((coords[0] -1, coords[1]))
-		elif (self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2]) in neighbourgs.keys():
-			neighbourgs [( self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2] )] +=1
-		else: neighbourgs [( self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2] )] =1
-	if coords[0] < len (self.array) -1:
-		if self.array[coords[0]][coords[1]][0] == self.array[coords[0] +1][coords[1]][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0] +1][coords[1]][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0] +1][coords[1]][2]:
-			neighbourgList.append ((coords[0] +1, coords[1]))
-		elif (self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2]) in neighbourgs.keys():
-			neighbourgs [( self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2] )] +=1
-		else: neighbourgs [( self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2] )] =1
-	if coords[1] >0:
-		if self.array[coords[0]][coords[1]][0] == self.array[coords[0]][coords[1] -1][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0]][coords[1] -1][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0]][coords[1] -1][2]:
-			neighbourgList.append ((coords[0], coords[1] -1))
-		elif (self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2]) in neighbourgs.keys():
-			neighbourgs [(self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2])] +=1
-		else: neighbourgs [( self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2] )] =1
-	if coords[1] < len (self.array[0]) -1:
-		if self.array[coords[0]][coords[1]][0] == self.array[coords[0]][coords[1] +1][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0]][coords[1] +1][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0]][coords[1] +1][2]:
-			neighbourgList.append ((coords[0], coords[1] +1))
-		elif (self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2]) in neighbourgs.keys():
-			neighbourgs [( self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2] )] +=1
-		else: neighbourgs [( self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2] )] =1
-	if len (neighbourgList) >3:	# si plus de quatre éléments dans l'îlot, il est considéré comme un continent
-		for neigh in neighbourgList: island.add (neigh)
-	else:
-		for neigh in neighbourgList: island, neighbourgs = self.findColorIslandCol (neigh, island, neighbourgs)
+		for neigh in neighbourgList: island, neighbourgs = self.findColorIsland (neigh, island, neighbourgs)
 	return island, neighbourgs
 
 def eraseColorIsland (self, island, neighbourgs):
@@ -120,16 +86,15 @@ def eraseColorIsland (self, island, neighbourgs):
 		if neighbourgs [col] > neighbourgs [color]: color = col
 	for h,w in island: self.array[h][w] = color
 
-def eraseColorIslands (self, color):
+def eraseColorIslands (self):
 	rangeHeight = range (len (self.array))
 	rangeWidth = range (len (self.array[0]))
 	seenPoints = set()
-	if color == 'col':
-		for h in rangeHeight:
-			for w in rangeWidth:
-				island, neighbourgs = self.findColorIslandCol ((h,w), set(), dict())
-				seenPoints.update (island)
-				if len (island) <4: self.eraseColorIsland (island, neighbourgs)
+	for h in rangeHeight:
+		for w in rangeWidth:
+			island, neighbourgs = self.findColorIsland ((h,w), set(), dict())
+			seenPoints.update (island)
+			if len (island) <4: self.eraseColorIsland (island, neighbourgs)
 
 def findColorFronters (self):
 	lenHeight = len (self.array)
@@ -173,23 +138,75 @@ def findColorFronters (self):
 			v+=1
 			diff = int (self.array[v][w]) - int (self.array[-1][w])
 
-def simplifyColorsBw (self):
-	self.tobw()
-	self.toArray()
-	colors = self.getColors()
-	if len (colors) >8:
-		colorKmeans = KmeansBw (colors)
-		colorKmeans.BuildGroup()
-		for group in colorKmeans.groups:
-			for color in group:
-				grey = self.array.T
-				colorArea = (grey == color)
-				self.array[colorArea.T] = group[0]
-	self.eraseColorIslands ('bw')
-#	self.findColorFronters()
-	self.fromArray()
-
 def simplifyColors (self):
+	self.image = self.image.quantize (12)
+	palette = bytearray (self.image.palette.palette)
+	self.toArray()
+	self.eraseColorIslands()
+	self.findColorFronters()
+	self.fromArray()
+	self.image.putpalette (palette)
+
+setattr (ImageFile, 'simplifyColors', simplifyColors)
+setattr (ImageFile, 'eraseColorIslands', eraseColorIslands)
+setattr (ImageFile, 'findColorIsland', findColorIsland)
+setattr (ImageFile, 'eraseColorIsland', eraseColorIsland)
+setattr (ImageFile, 'findColorFronters', findColorFronters)
+
+# anciennes fonctions gardées pour servir d'exemple
+
+def eraseColorIslands_va (self, color):
+	rangeHeight = range (len (self.array))
+	rangeWidth = range (len (self.array[0]))
+	seenPoints = set()
+	if color == 'col':
+		for h in rangeHeight:
+			for w in rangeWidth:
+				island, neighbourgs = self.findColorIslandCol ((h,w), set(), dict())
+				seenPoints.update (island)
+				if len (island) <4: self.eraseColorIsland (island, neighbourgs)
+	elif color == 'bw':
+		for h in rangeHeight:
+			for w in rangeWidth:
+				island, neighbourgs = self.findColorIslandBw ((h,w), set(), dict())
+				seenPoints.update (island)
+				if len (island) <4: self.eraseColorIsland (island, neighbourgs)
+
+def findColorIslandCol (self, coords, island, neighbourgs):
+	if coords in island: return island, neighbourgs
+	island.add (coords)
+	neighbourgList =[]
+	if coords[0] >0:
+		if self.array[coords[0]][coords[1]][0] == self.array[coords[0] -1][coords[1]][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0] -1][coords[1]][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0] -1][coords[1]][2]:
+			neighbourgList.append ((coords[0] -1, coords[1]))
+		elif (self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2]) in neighbourgs.keys():
+			neighbourgs [( self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2] )] +=1
+		else: neighbourgs [( self.array[coords[0] -1][coords[1]][0], self.array[coords[0] -1][coords[1]][1], self.array[coords[0] -1][coords[1]][2] )] =1
+	if coords[0] < len (self.array) -1:
+		if self.array[coords[0]][coords[1]][0] == self.array[coords[0] +1][coords[1]][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0] +1][coords[1]][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0] +1][coords[1]][2]:
+			neighbourgList.append ((coords[0] +1, coords[1]))
+		elif (self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2]) in neighbourgs.keys():
+			neighbourgs [( self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2] )] +=1
+		else: neighbourgs [( self.array[coords[0] +1][coords[1]][0], self.array[coords[0] +1][coords[1]][1], self.array[coords[0] +1][coords[1]][2] )] =1
+	if coords[1] >0:
+		if self.array[coords[0]][coords[1]][0] == self.array[coords[0]][coords[1] -1][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0]][coords[1] -1][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0]][coords[1] -1][2]:
+			neighbourgList.append ((coords[0], coords[1] -1))
+		elif (self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2]) in neighbourgs.keys():
+			neighbourgs [(self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2])] +=1
+		else: neighbourgs [( self.array[coords[0]][coords[1] -1][0], self.array[coords[0]][coords[1] -1][1], self.array[coords[0]][coords[1] -1][2] )] =1
+	if coords[1] < len (self.array[0]) -1:
+		if self.array[coords[0]][coords[1]][0] == self.array[coords[0]][coords[1] +1][0] and self.array[coords[0]][coords[1]][1] == self.array[coords[0]][coords[1] +1][1] and self.array[coords[0]][coords[1]][2] == self.array[coords[0]][coords[1] +1][2]:
+			neighbourgList.append ((coords[0], coords[1] +1))
+		elif (self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2]) in neighbourgs.keys():
+			neighbourgs [( self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2] )] +=1
+		else: neighbourgs [( self.array[coords[0]][coords[1] +1][0], self.array[coords[0]][coords[1] +1][1], self.array[coords[0]][coords[1] +1][2] )] =1
+	if len (neighbourgList) >3:	# si plus de quatre éléments dans l'îlot, il est considéré comme un continent
+		for neigh in neighbourgList: island.add (neigh)
+	else:
+		for neigh in neighbourgList: island, neighbourgs = self.findColorIslandCol (neigh, island, neighbourgs)
+	return island, neighbourgs
+
+def simplifyColorsCol (self):
 	self.toArray()
 	colors = self.getColors()
 	if len (colors) >8:
@@ -204,11 +221,22 @@ def simplifyColors (self):
 #	self.findColorFronters()
 	self.fromArray()
 
-setattr (ImageFile, 'simplifyColors', simplifyColors)
-setattr (ImageFile, 'eraseColorIslands', eraseColorIslands)
-setattr (ImageFile, 'findColorIslandCol', findColorIslandCol)
-setattr (ImageFile, 'eraseColorIsland', eraseColorIsland)
-setattr (ImageFile, 'findColorFronters', findColorFronters)
+def simplifyColorsBw (self):
+	self.tobw()
+	self.toArray()
+	colors = self.getColors()
+	log.message (colors)
+	if len (colors) >8:
+		colorKmeans = KmeansBw (colors)
+		colorKmeans.BuildGroup()
+		for group in colorKmeans.groups:
+			for color in group:
+				grey = self.array.T
+				colorArea = (grey == color)
+				self.array[colorArea.T] = group[0]
+#	self.eraseColorIslands ('bw')
+#	self.findColorFronters()
+	self.fromArray()
 
 def eraseLonelyPixelsNb (imageArray):
 	# seuls les quatre pixels touchant directement le pixel central sont pris en compte
