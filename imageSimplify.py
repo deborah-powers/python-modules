@@ -25,7 +25,7 @@ class KmeansBw (Kmeans):
 
 class KmeansCol (Kmeans):
 	def __init__ (self, colors):
-		Kmeans.__init__ (self, 30, colors)
+		Kmeans.__init__ (self, 40, colors)
 
 	def computeScore (self, groupId, itemId):
 		scoreR = self.groups [groupId][1][0] - self.values [itemId][0]
@@ -140,9 +140,25 @@ def findColorFronters (self):
 
 def simplifyColors (self):
 	self.image = self.image.quantize (12)
+	self.image = self.image.convert ('RGB')
+	colors = self.getColors()
+	colorKmeans = KmeansCol (colors)
+	colorKmeans.BuildGroup()
+	self.toArray()
+	for group in colorKmeans.groups:
+		for r,g,b in group:
+			red, green, blue = self.array.T
+			colorArea = (red == r) & (green == g) & (blue == b)
+			self.array[colorArea.T] = (group[0][0], group[0][1], group[0][2])
+	self.fromArray()
+	self.image = self.image.quantize (12)
 	palette = bytearray (self.image.palette.palette)
 	self.toArray()
 	self.eraseColorIslands()
+	self.fromArray()
+	self.image.putpalette (palette)
+	self.image = self.image.convert ('RGB')
+	self.toArray()
 	self.findColorFronters()
 	self.fromArray()
 	self.image.putpalette (palette)
