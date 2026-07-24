@@ -251,6 +251,13 @@ Sudo cp /home/ent6904919/bureau/my-path.pth /usr/lib/python3.9/site-packages/
 
 C:\Users\deborah.powers\AppData\Local\anaconda3\Lib\site-packages
 
+** ajouter provisoirement un dossier
+
+from sys import path
+path.append ('mon/dossier')
+path.append ('C:\\Users\\deborah.powers\\Desktop\\python')
+
+
 == Créer un package
 
 Monpackage/
