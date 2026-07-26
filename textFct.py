@@ -80,11 +80,11 @@ def upperCase (text, case=""):
 	text = '\n'+ text +'\n'
 	text = text.replace ('\nmdp: ', '\nraw\tMdp: ')
 	text = text.replace ('\nMdp: ', '\nraw\tMdp: ')
-	if '\nraw\tMdp' in text:
-		paragraphList = text.split ('\nraw\tMdp')
+	if '\nraw\tMdp: ' in text:
+		paragraphList = text.split ('\nraw\tMdp: ')
 		paragraphRange = range (1, len (paragraphList))
 		for i in paragraphRange: paragraphList[i] = paragraphList[i].replace ('\n', '\n//\n', 1)
-		text = '\nraw\n'.join (paragraphList)
+		text = '\nraw\nMdp: '.join (paragraphList)
 	# isoler les blocs devant rester intacts
 	if '\nraw\n' in text:
 		paragraphList = text.split ('\nraw\n')
