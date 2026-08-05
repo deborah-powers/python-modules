@@ -1,11 +1,16 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+import os
+from sys import argv
 import textFct
 from fileCls import File
+from folderCls import Folder
 import loggerFct as log
 
 header = '<?xml version="1.0" encoding="utf-8"?>'
 styleTag = "<?xml-stylesheet type='text/css' href='xml-style.css'?>"
+desktopPath = 'C:\\Users\\deborah.powers\\Desktop\\'
+folderPath = desktopPath + '$demarche flux\\'
 
 class NodeXml():
 	def __init__ (self):
@@ -247,13 +252,14 @@ class FileXml (File):
 		File.__init__ (self, file)
 		self.tree = NodeXml()
 
-	def comparer (self, newFile):
+	def comparer (self, newFile, pathDest=None):
+		if not pathDest: pathDest = desktopPath
 		self.toPath()
 		newFile.toPath()
 		if self.tree == newFile.tree: print ("les xml sont identiques:\n", self.path, '\n', newFile.path)
 		else:
 			# calculer le titre de la comparaison
-			title = 'b/comparer '+ self.title +" et "
+			title = pathDest + 'comparer '+ self.title +" et "
 			d,f= textFct.commonParts (self.title, newFile.title)
 			if d>3:
 				title = title + newFile.title[d:f]
@@ -290,3 +296,63 @@ class FileXml (File):
 			d=1+ self.find ('>',d)
 			self.text = self.text[d:]
 		self.text = self.tree.treeFromText (self.text)
+
+class FolderXml (Folder):
+	# spécial pour les flux de sian
+	def get (self, tagName=None, sens=True):
+		for dirpath, SousListDossiers, subList in os.walk (self.path):
+			if not subList: continue
+			range_tag = range (len (subList) -1, -1, -1)
+			for i in range_tag:
+				if " flux.xml" not in subList[i]: trash = subList.pop(i)
+			if tagName:
+				range_tag = range (len (subList) -1, -1, -1)
+				if sens:
+					for i in range_tag:
+						if tagName not in subList[i]: trash = subList.pop(i)
+				else:
+					for i in range_tag:
+						if tagName in subList[i]: trash = subList.pop(i)
+			if subList:
+				for file in subList:
+					fileTmp = FileXml (os.path.join (dirpath, file))
+					fileTmp.fromPath()
+					self.list.append (fileTmp)
+		self.list.sort()
+		self.fromPath()
+
+	def findPairs (self):
+		# trouver les paires de fichiers npsl - legacy afin de faire la comparaison
+		filePairsTmp =[]
+	#	fileSingles =[]
+		nbFiles = len (self.list)
+		rangeFiles = range (nbFiles)
+		for f in rangeFiles:
+			if f in filePairsTmp: continue
+			g=f+1
+			while g< nbFiles:
+				if self.list[g].title[:-18] == self.list[f].title[:-18]:
+					filePairsTmp.append (f)
+					filePairsTmp.append (g)
+					g= nbFiles
+				g+=1
+		filePairs =[]
+		rangeFiles = range (0, len (filePairsTmp), 2)
+		for f in rangeFiles: filePairs.append ((filePairsTmp[f], filePairsTmp[f+1]))
+		return filePairs
+
+	def comparer (self):
+		filePairs = self.findPairs()
+		for (fa, fo) in filePairs:
+			self.list[fa].path = self.path + self.list[fa].path
+			self.list[fa].read()
+			self.list[fo].path = self.path + self.list[fo].path
+			self.list[fo].read()
+			self.list[fa].comparer (self.list[fo], self.path)
+
+if len (argv) ==2:
+	folderPath = folderPath.replace ('$demarche', argv[1])
+	folderComp = FolderXml (folderPath)
+	folderComp.get()
+	folderComp.comparer()
+else: print ("entrez l'abbréviation de la démarche")
