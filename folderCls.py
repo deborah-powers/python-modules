@@ -139,6 +139,36 @@ class Folder():
 	def remove (self, file):
 		self.list.remove (file)
 
+	def comparerGroup (self):
+		# TODO à continuer
+		# le dossier contient un groupe de fichiers à comparer entre eux
+		# calculer le titre de la comparaison
+		comparTitle = self.list[0].title
+		nbFile = len (self.list)
+		f=1
+		while f< nbFile and len (comparTitle) >4:
+			if comparTitle not in self.list[f].title and self.list[f].title not in comparTitle:
+				while len (comparTitle) >4 and comparTitle not in self.list[f].title:
+					if comparTitle[:-1] in self.list[f].title: comparTitle = comparTitle[:-1]
+					elif comparTitle[1:] in self.list[f].title: comparTitle = comparTitle[1:]
+					elif len (comparTitle) %2 ==0: comparTitle = comparTitle[:-1]
+					else: comparTitle = comparTitle[1:]
+			f+=1
+		comparTitle = comparTitle.strip()
+		print ('fichier de comparaison:', comparTitle)
+		if len (comparTitle) <5:
+			print ('les fichiers ont des noms différents\nsont-ils sensés être comparés ensemble ?\narrêt de la comparaison')
+			return
+		# créer le fichier de comparaison
+		f=1 self.path.rfind (os.sep)
+		comparTitle = self.path[:f] + comparTitle + '.txt'
+		comparFile = File (comparTitle)
+		comparFile.text = 'comparaison des fichiers\n'
+		for myfile in self.list:
+			myfile.toPath()
+			comparFile.text = comparFile.text + myfile.path +'\n'
+		comparFile.text = comparFile.text +'\n'
+		comparFile.write()
 
 	def __str__ (self):
 		strList = 'Dossier: '+ self.path +'\nListe:'

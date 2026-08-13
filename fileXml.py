@@ -566,7 +566,7 @@ class FolderXml (Folder):
 			for f in group:
 				self.list[f].path = self.path + self.list[f].path
 				self.list[f].read()
-			self.comparerGroup (group)
+			self.comparerGroup (group, self.path)
 
 if len (argv) ==2:
 	folderPath = folderPath.replace ('$demarche', argv[1])
