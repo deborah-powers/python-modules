@@ -2,95 +2,6 @@
 # -*- coding: utf-8 -*-
 import random
 
-def compareText (itemA, itemB, aliMatrix, a, b):
-	aliScore =0
-	if itemA == itemB: aliScore = scoreAli
-	elif itemA + itemB in scoreMatrix.keys (): aliScore = scoreMatrix [itemA + itemB ]
-	elif itemB + itemA in scoreMatrix.keys (): aliScore = scoreMatrix [itemB + itemA ]
-	scoreTmp =[
-		aliMatrix [a-1][b] + scoreGap,
-		aliMatrix [a-1][b-1] + aliScore,
-		aliMatrix [a][b-1] + scoreGap
-	]
-	aliScore = max (scoreTmp)
-	return aliScore, scoreTmp.index (aliScore) -1
-
-def prependList (liste, item):
-	listeNew =[ item ]
-	for old in liste: listeNew.append (old)
-	return listeNew
-
-def newList():
-	return []
-
-def compareList (itemA, itemB, aliMatrix, a, b):
-	if itemA == itemB: return scoreAli, 0
-	else: return 0, random.choice (scoreChoice)
-
-def align (anyA, anyB, funcPrepend, funcCompare, funcNew):
-	# préparer les éléments
-	anyA = funcPrepend (anyA, '_')
-	anyB = funcPrepend (anyB, '_')
-	# construire les matrices
-	aliMatrix =[]
-	aliPath =[]
-	rangeA = range (1, len (anyA))
-	rangeB = range (1, len (anyB))
-	aliMatrix.append ([0])
-	aliPath.append ([0])
-	for b in rangeB:
-		aliMatrix[0].append (scoreGap *b)
-		aliPath[0].append (1)
-	for a in rangeA:
-		aliMatrix.append ([ scoreGap *a ])
-		aliPath.append ([-1])
-		for b in rangeB:
-			aliMatrix[-1].append (0)
-			aliPath[-1].append (0)
-	# phase aller
-	for a in rangeA:
-		for b in rangeB: aliMatrix[a][b], aliPath[a][b] = funcCompare (anyA[a], anyB[b], aliMatrix, a, b)
-	# phase retour
-	anyAnew = funcNew()
-	anyBnew = funcNew()
-	lenA = len (anyA) -1
-	lenB = len (anyB) -1
-	while lenA >0 or lenB >0:
-		if aliPath [lenA][lenB] ==0:
-			anyAnew = funcPrepend (anyAnew, anyA [lenA])
-			anyBnew = funcPrepend (anyBnew, anyB [lenB])
-			lenA -=1
-			lenB -=1
-		elif aliPath [lenA][lenB] ==1:
-			anyAnew = funcPrepend (anyAnew, '_')
-			anyBnew = funcPrepend (anyBnew, anyB [lenB])
-			lenB -=1
-		else:
-			anyAnew = funcPrepend (anyAnew, anyA [lenA])
-			anyBnew = funcPrepend (anyBnew, '_')
-			lenA -=1
-	aliScore = aliMatrix[-1][-1] / len (anyAnew)
-	return aliScore, anyAnew, anyBnew
-
-def alignText (textA, textB):
-	return align (textA, textB, prependText, compareText, newText)
-
-def alignList (listA, listB):
-	return align (listA, listB, prependList, compareList, newList)
-
-
-def test():
-	textA = 'abcd'
-	textB = '5555'
-	listA =[ 'a', 'b', 'c', 'd']
-	listB =[ '5', '5', '5', '5']
-
-	print ('textes identiques\n', alignText (textA, textA))
-	print ('textes différents\n', alignText (textA, textB))
-	print ('listes identiques\n', alignList (listA, listA))
-	print ('listes différentes\n', alignList (listA, listB))
-
-
 """ ------------------------ créer la matrice des scores ------------------------ """
 
 def setScorePair (scoreMatrix, score, la, lo):
@@ -164,25 +75,84 @@ def createScoreMatrix():
 """
 """ ------------------------ créer la matrice d'alignement ------------------------ """
 
-scoreGap =6
+scoreGapOpen =2
+scoreGapFill =2
 scoreMatrix = createScoreMatrix()
 
 def initAliMatrix (textA, textI):
 	# les textes commencent déjà par un caractère symbolisant le gap
 	lenI = len (textI)
 	aliMatrix =[]
-	for char in textA: aliMatrix.append (lenI * [ scoreGap ])	# initier la matrice vide
+	for char in textA:
+		aliMatrix.append ([])	# initier la matrice vide
+		for chir in textI: aliMatrix[-1].append ((scoreGapOpen, 3))
 	rangeO = range (1, len (textA))
-	for a in rangeO: aliMatrix[a][0] = aliMatrix[a-1][0] + scoreGap
+	for a in rangeO: aliMatrix[a][0] =( aliMatrix[a-1][0][0] + scoreGapOpen, 3)
 	rangeO = range (1, lenI)
-	for i in rangeO: aliMatrix[0][i] = aliMatrix[0][i-1] + scoreGap
+	for i in rangeO: aliMatrix[0][i] =( aliMatrix[0][i-1][0] + scoreGapOpen, 3)
 	return aliMatrix
+
+def getPosScoreTrioMin (scoreTrio):
+	score = scoreTrio[0]
+	pos =0
+	if scoreTrio[1] < score:
+		score = scoreTrio[1]
+		pos =1
+	if scoreTrio[2] < score:
+		score = scoreTrio[2]
+		pos =2
+	return score, pos
+
+def computeCaseScore (a,i, textA, textI, aliMatrix):
+	scoreTrio =[]
+	scoreTrio.append (aliMatrix[a-1][i][0] + scoreGapFill)	# gap en i aligné en face de la lettre de a
+	scoreTrio.append (aliMatrix[a-1][i-1][0] + scoreMatrix [textA[a] + textI[i]])
+	scoreTrio.append (aliMatrix[a][i-1][0] + scoreGapFill)	# gap en a aligné en face de la lettre de i
+#	scoreTrio.append (aliMatrix[0][i][0])	# gap en a aligné en face de la lettre de i
+	return getPosScoreTrioMin (scoreTrio)
 
 def createAliMatrix (textA, textI):
 	textA = '#'+ textA	## symbolise le gap
 	textI = '#'+ textI
 	aliMatrix = initAliMatrix (textA, textI)
+	lenA = len (textA)
+	lenI = len (textI)
+	rangeA = range (1, lenA)
+	rangeI = range (1, lenI)
+	for a in rangeA:
+		for i in rangeI: aliMatrix[a][i] = computeCaseScore (a,i, textA, textI, aliMatrix)
+	return aliMatrix
 
+def upwalkAliMatrix (textA, textI, aliMatrix):
+	textA = '#'+ textA	## symbolise le gap
+	textI = '#'+ textI
+	a= len (textA) -1
+	i= len (textI) -1
+	textAnv =""
+	textInv =""
+	while a>0 and i>0:
+		if aliMatrix[a][i][1] ==1:	# alignement
+			textAnv = textA[a] + textAnv
+			textInv = textI[i] + textInv
+			a-=1
+			i-=1
+		elif aliMatrix[a][i][1] ==0:	# gap dans i
+			textAnv = textA[a] + textAnv
+			textInv = '_'+ textInv
+			a-=1
+		elif aliMatrix[a][i][1] ==2:	# gap dans a
+			textAnv = '_'+ textAnv
+			textInv = textI[i] + textInv
+			i-=1
+	print (textA)
+	print (textI)
+#	textAnv = textAnv[::-1]
+	print (textAnv)
+	print (textInv)
+	return textAnv, textInv
 
+def alignText (textA, textI):
+	aliMatrix = createAliMatrix (textA, textI)
+	textAnv, textInv = upwalkAliMatrix (textA, textI, aliMatrix)
 
-
+alignText ('zrzog,el', 'nanczk,vl;')
