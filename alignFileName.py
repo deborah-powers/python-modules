@@ -18,13 +18,11 @@ def setScoreGroup (scoreMatrix, score, letterGroup):
 
 def createScoreMatrix():
 	# renvoi un dictionnaire { appariment2char: score }, { 'ab': 5 }
-	allLetters = 'aàbcçdeéèêëfghiîïjklmnoôöpqrstuùvwxyz \t\n\r0123456789"\'`/\\=+*-~_.?!:;,¨^°%$@&#<>{}()[]'
+	allLetters = 'aàbcçdeéèêëfghiîïjklmnoôöpqrstuùvwxyz 0123456789=+*-~_.?!:;,¨^°%$@&#<>{}()[]'
 	alphabet = 'aàbcçdeéèêëfghiîïjklmnoôöpqrstuùvwxyz'
 	voyels = 'aàeéèêëiîïoôöuùy';
 	consomns = 'bcçdfghjklmnpqrstvwxz'
 	numbers = '0123456789'
-	spaces = ' \t\n\r';
-	quotes = '"\'`';
 	brackets = '{}()[]';
 	tirets = '_-~';
 	points = '.?!:;,'
@@ -38,10 +36,8 @@ def createScoreMatrix():
 	setScoreGroup (scoreMatrix, 3, numbers)
 	setScoreGroup (scoreMatrix, 3, points)
 	setScoreGroup (scoreMatrix, 3, tirets)
-	setScoreGroup (scoreMatrix, 2, spaces)
-	setScoreGroup (scoreMatrix, 2, quotes)
 	# cas particuliers
-	setScorePair (scoreMatrix, 2, '/', '\\')
+	setScorePair (scoreMatrix, 2, " ", '_')
 	setScorePair (scoreMatrix, 2, '(', '[')
 	setScorePair (scoreMatrix, 2, ')', ']')
 	setScorePair (scoreMatrix, 1, 'a', 'à')
