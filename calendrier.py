@@ -23,6 +23,7 @@ les valeurs de tag
 	journal:	"	mon journal
 	poids:		"	"	poids
 	depenses:	"	"	dépenses
+	douleurs:	"	"	douleurs et autres
 	repas:		"	"	repas
 """ % __file__
 
@@ -171,7 +172,7 @@ class eventGoogle (calendarGoogle, Event):
 		else: return None
 
 	def getOnePurchase (self):
-		if self.color == evtDict ['depenses'][1] and self.infos and self.title.lower() not in 'regles règles poids douleurs repas balade':
+		if self.color == evtDict ['depenses'][1] and self.infos and self.title.lower() not in 'regles règles poids douleur douleurs repas balade':
 			self.infos = self.infos.replace ('\r', "")
 			self.infos = self.infos.replace ('\n', " ")
 			details = 'inconnu'
@@ -192,7 +193,7 @@ class eventGoogle (calendarGoogle, Event):
 			self.infos = self.infos.replace ('.\n', '. ')
 			self.infos = self.infos.replace ('\n', '. ')
 		#	strDate = self.date.toStrHour() +'\t'+ self.duration.toStrHour() +'\t'+ self.infos.replace ('. ', '\t')
-			strDate = self.date.toStrHour() +'\t%02d\t'+ self.infos
+			strDate = self.date.toStrHour() +'\t'+ self.location +'\t%02d\t'+ self.infos
 			strDate = strDate % self.duration
 		#	strDate = strDate.replace ('0/00/00 ',"")
 			return strDate

@@ -18,28 +18,22 @@ def setScoreGroup (scoreMatrix, score, letterGroup):
 
 def createScoreMatrix():
 	# renvoi un dictionnaire { appariment2char: score }, { 'ab': 5 }
-	allLetters = 'aàbcçdeéèêëfghiîïjklmnoôöpqrstuùvwxyz 0123456789=+*-~_.?!:;,¨^°%$@&#<>{}()[]'
+	allLetters = 'aàbcçdeéèêëfghiîïjklmnoôöpqrstuùvwxyz 0123456789-_.'
 	alphabet = 'aàbcçdeéèêëfghiîïjklmnoôöpqrstuùvwxyz'
 	voyels = 'aàeéèêëiîïoôöuùy';
 	consomns = 'bcçdfghjklmnpqrstvwxz'
 	numbers = '0123456789'
-	brackets = '{}()[]';
-	tirets = '_-~';
-	points = '.?!:;,'
-	mathOperator ='+-*/^<>='
-	others = '^°%$@&#'
 	scoreMatrix = {}
 	setScoreGroup (scoreMatrix, 5, allLetters)
 	setScoreGroup (scoreMatrix, 4, alphabet)
 	setScoreGroup (scoreMatrix, 3, voyels)
 	setScoreGroup (scoreMatrix, 3, consomns)
 	setScoreGroup (scoreMatrix, 3, numbers)
-	setScoreGroup (scoreMatrix, 3, points)
-	setScoreGroup (scoreMatrix, 3, tirets)
 	# cas particuliers
-	setScorePair (scoreMatrix, 2, " ", '_')
-	setScorePair (scoreMatrix, 2, '(', '[')
-	setScorePair (scoreMatrix, 2, ')', ']')
+	setScorePair (scoreMatrix, 3, '.', '-')
+	setScorePair (scoreMatrix, 3, '.', '_')
+	setScorePair (scoreMatrix, 3, '-', '_')
+	setScorePair (scoreMatrix, 1, " ", '_')
 	setScorePair (scoreMatrix, 1, 'a', 'à')
 	setScorePair (scoreMatrix, 1, 'u', 'ù')
 	setScorePair (scoreMatrix, 1, 'u', 'y')
@@ -138,13 +132,12 @@ def upwalkAliMatrix (textA, textI, aliMatrix):
 			i-=1
 		elif aliMatrix[a][i][1] ==0:	# gap dans i
 			textAnv = textA[a] + textAnv
-			textInv = '_'+ textInv
+			textInv = '#'+ textInv
 			a-=1
 		elif aliMatrix[a][i][1] ==2:	# gap dans a
-			textAnv = '_'+ textAnv
+			textAnv = '#'+ textAnv
 			textInv = textI[i] + textInv
 			i-=1
-#	textAnv = textAnv[::-1]
 	return textAnv, textInv
 
 def alignText (textA, textI):
