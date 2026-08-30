@@ -13,16 +13,25 @@ python horaire-bus.py ville numligne arret
 """
 horaireTemplateName = 'b/programmes\\horaire bus template.html'
 horaireDataName = 'b/horaire bus $data.txt'
-horaireLigneTemplate = '<tr><th>$heure</th><td>$minutes</td></tr>'
+horaireLigneTemplate = "'$heure': '$minutes',\n"
 
-def extractHours (horaireList, posFin):
-	horaireRange = range (0, posFin, 2)
+def extractHours (horaireList):
+	horaireRange = range (1, len (horaireList), 2)
 	horaireLigneData =""
 	for h in horaireRange:
 		horaireLigneData = horaireLigneData + horaireLigneTemplate.replace ('$heure', horaireList[h])
-		horaireList[h+1] = horaireList[h+1].replace (" ", '</td><td>')
 		horaireLigneData = horaireLigneData.replace ('$minutes', horaireList[h+1])
+	horaireLigneData = horaireLigneData[:-2]
 	return horaireLigneData
+
+def findPeriodHoraire (horaireBloc):
+	horaireList = horaireBloc.split ('\n')
+	periode = horaireList[0]
+	if " " in periode:
+		d= periode.find (" ")
+		periode = periode[:d]
+	horaire = extractHours (horaireList)
+	return periode, horaire
 
 if len (argv) !=4: print (helpData)
 else:
@@ -50,15 +59,28 @@ else:
 	horaireTemplateFile.replace ('$direction', horaireList[7])
 	horaireTemplateFile.replace ('$date', horaireList[9])
 	# extraire les horaires
-	horaireList = horaireList[11:]
-	d= horaireList.index ('samedi')
-	horaireLigneData = extractHours (horaireList, d)
-	horaireTemplateFile.replace ('$semaine', horaireLigneData)
-	horaireList = horaireList[d+1:]
-	d= horaireList.index ('dimanche et férié')
-	horaireLigneData = extractHours (horaireList, d)
-	horaireTemplateFile.replace ('$samedi', horaireLigneData)
-	horaireList = horaireList[d+1:]
-	horaireLigneData = extractHours (horaireList, len (horaireList))
-	horaireTemplateFile.replace ('$dimanche', horaireLigneData)
+	horaireList = horaireList[10:]
+	horaireDataFile.text = '\n'.join (horaireList)
+	horaireDict ={ 'semaine': "", 'samedi': "", 'dimanche': "", 'vacance': "" }
+	horaireDataFile.text = horaireDataFile.text.replace ('samedi', '\nsamedi')
+	horaireDataFile.text = horaireDataFile.text.replace ('dimanche', '\ndimanche')
+	horaireDataFile.text = horaireDataFile.text.replace ('vacance', '\nvacance')
+	horaireList = horaireDataFile.text.split ('\n\n')
+	periode, horaire = findPeriodHoraire (horaireList[0])
+	horaireDict[periode] = horaire
+	print (periode)
+	periode, horaire = findPeriodHoraire (horaireList[1])
+	horaireDict[periode] = horaire
+	print (periode)
+	periode, horaire = findPeriodHoraire (horaireList[2])
+	horaireDict[periode] = horaire
+	print (periode)
+	if len (horaireList) >3:
+		periode, horaire = findPeriodHoraire (horaireList[3])
+		horaireDict[periode] = horaire
+		print (periode)
+	horaireTemplateFile.replace ('$horaireSemaine', horaireDict['semaine'])
+	horaireTemplateFile.replace ('$horaireSamedi', horaireDict['samedi'])
+	horaireTemplateFile.replace ('$horaireDimanche', horaireDict['dimanche'])
+	horaireTemplateFile.replace ('$horaireVacance', horaireDict['vacance'])
 	horaireTemplateFile.write()

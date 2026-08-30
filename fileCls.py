@@ -541,20 +541,20 @@ class Article (File):
 				if (len (textTmp) -f) <4 and textTmp[-1] in numbers and textTmp[f] in numbers: textTmp = textTmp[:f-1]
 			self.text = self.text + textTmp
 		# nettoyer le texte
-		self.text = self.replace ('-\n', "")
+		self.replace ('-\n', "")
 		self.text = textFct.cleanText (self.text)
 		midleChars = '?!:;,. -_abcdefghijklmnopqrstuvwxyz'
-		for char in midleChars: self.text = self.replace ('\n'+ char, " "+ char)
+		for char in midleChars: self.replace ('\n'+ char, " "+ char)
 		startChars = 'ABCDEFGIJKLMNOPQRSTUVWXYZ0123456789/\\-_' + numbers
 		endChars = '?!:./\\' + numbers
-		for char in startChars: self.text = self.replace ('\n'+ char, '\t'+ char)
-		for char in endChars: self.text = self.replace (char +'\n', char +'\t')
-		self.text = self.replace ('\n', " ")
-		for char in startChars: self.text = self.replace ('\t'+ char, '\n'+ char)
-		for char in endChars: self.text = self.replace (char +'\t', char +'\n')
+		for char in startChars: self.replace ('\n'+ char, '\t'+ char)
+		for char in endChars: self.replace (char +'\n', char +'\t')
+		self.replace ('\n', " ")
+		for char in startChars: self.replace ('\t'+ char, '\n'+ char)
+		for char in endChars: self.replace (char +'\t', char +'\n')
 		# pour chaque page, récupérer les images
 		if getImg: self.fromPdfImg (filePdf.pages)
-		else: self.text = self.replace ('/ img / ', '== ')
+		else: self.replace ('/ img / ', '== ')
 		# récupérer d'éventuelles métadonnées
 		metaKeys = filePdf.metadata.keys()
 		if 'subject' in metaKeys: self.subject = filePdf.metadata['subject']
