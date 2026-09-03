@@ -160,7 +160,7 @@ class Folder():
 			print ('les fichiers ont des noms différents\nsont-ils sensés être comparés ensemble ?\narrêt de la comparaison')
 			return
 		# créer le fichier de comparaison
-		f=1 self.path.rfind (os.sep)
+		f=1+ self.path.rfind (os.sep)
 		comparTitle = self.path[:f] + comparTitle + '.txt'
 		comparFile = File (comparTitle)
 		comparFile.text = 'comparaison des fichiers\n'
