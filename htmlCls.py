@@ -779,13 +779,13 @@ class Html (Article):
 	def fromUrl (self, params=None):
 		pathTmp = self.path
 		self.toPath()
-		res = False
-		if params: res = self.fromUrlVa (params)
+		recup = False
+		if params: recup = self.fromUrlVa (params)
 		else:
-			res = self.fromUrlVa()
-			if not res: res = self.fromUrlVb()
+			recup = self.fromUrlVa()
+			if not recup: recup = self.fromUrlVb()
 		self.path = pathTmp
-		if res: self.cleanBody()
+		if recup: self.cleanBody()
 		else: print ('la récupération à échoué, impossible de récupérer les données pour\n' + self.link)
 
 	""" ________________________ nettoyer le texte ________________________ """

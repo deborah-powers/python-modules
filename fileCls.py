@@ -61,8 +61,12 @@ def toFile (fileName, text, mode='w'):
 		textBrut.close()
 	else: print ('le titre du fichier est mal formé', title)
 
-def fromUrl (url, params=None):
+def fromUrl (url, folder='b/', params=None):
 	text =""
+	folder = shortcut (folder)
+	if folder[-1] != os.sep: folder = folder + os.sep
+	p= 1+ url.rfind ('/')
+	path = folder + url[p:]
 	try:
 		myRequest = None
 		if params:
@@ -75,14 +79,24 @@ def fromUrl (url, params=None):
 		text =""
 		print (e)
 	if not text:
-		try: urlRequest.urlretrieve (url, 'tmp.txt')
+		try: urlRequest.urlretrieve (url, path)
 		except Exception as e: print (e)
 		else:
-			textBrut = open ('tmp.txt', 'rb')
+			textBrut = open (path, 'rb')
 			text = decodeFileContent (textBrut)
-			os.remove ('tmp.txt')
+			os.remove (path)
 	else: print ('la récupération à échoué, impossible de récupérer les données pour\n' + url)
 	return text
+
+def fromUrlToFile (url, folder='b/'):
+	# pour les pdf, etc
+	folder = shortcut (folder)
+	if folder[-1] != os.sep: folder = folder + os.sep
+	p= 1+ url.rfind ('/')
+	path = folder + url[p:]
+	print ('écriture de', path)
+	try: urlRequest.urlretrieve (url, path)
+	except Exception as e: print (e)
 
 def comparerText (textA, textB):
 	textA = textA.replace ('\t'," ")
