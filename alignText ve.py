@@ -97,27 +97,6 @@ class AlignText():
 	"""
 	""" ------------------------ créer la matrice d'alignement ------------------------ """
 
-
-class AlignList():
-	def __init__ (self, listA, listI):
-		self.listA = listA
-		self.listI = listI
-		self.scoreGapOpen =2
-		self.scoreGapFill =2
-		self.aliMatrix =[]
-
-	def initAliMatrix (self):
-		# les listes commencent déjà par un caractère symbolisant le gap
-
-
-	def createAliMatrix (self):
-		self.listA.insert (0, "")	# le gap
-		self.listI.insert (0, "")
-
-
-
-
-
 	def initAliMatrix (self):
 		# les textes commencent déjà par un caractère symbolisant le gap
 		lenI = len (self.textI)
