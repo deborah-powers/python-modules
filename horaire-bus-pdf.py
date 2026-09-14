@@ -12,6 +12,15 @@ fileSrc = 'b/bus 2026-08 244 horaire.pdf'
 # le html avec l'horaire complet
 horaireCompletNom = 'b/bus $date $bus horaire complet.html'
 
+class Arret():
+	def __init__ (self):
+		self.bus =""
+		self.direction =""
+		self.periode =""
+		self.date =""
+		self.lieu =""
+		self.passages =[]
+
 class HorairePage():
 	def __init__ (self):
 		self.direction =""
@@ -91,16 +100,21 @@ def extractPdfData():
 	# les métadonnées
 	filePdf.subject = 'transport, bus'
 	filePdf.author = 'ratp'
+	filePdf.meta['bus'] = filePdf.title[12:15]
+	d=18+ filePdf.text.find ('Horaires valables du')
+	filePdf.meta['date'] = filePdf.text[d:d+38]
+	d= filePdf.meta['date'].rfind ('\n')
+	filePdf.meta['date'] = filePdf.meta['date'][:d]
+	"""
 	today = DatePerso (2026, 5, 12)
 	today = today.today()
 	filePdf.meta['date'] = today.toStrDay()
-	filePdf.meta['bus'] = filePdf.title[12:15]
+	"""
 	# les données
 	filePdf.text = '\n'+ filePdf.text
 	filePdf.replace ('\n\n', '\n')
 	pages = filePdf.text.split ("\n== page ")
 	trash = pages.pop(0)
-
 	horairePages =[]
 	nvHoraire = HorairePage()
 	nvHoraire.read (pages[0])
@@ -111,8 +125,7 @@ def extractPdfData():
 		nvHoraire.read (page)
 		melted = horairePages[-1].melt (nvHoraire)
 		if not melted: horairePages.append (nvHoraire)
-
-	filePdf.text = "horaire du bus "+ filePdf.meta['bus'] +". le "+ filePdf.meta['date'] +'\n'
+	filePdf.text = "horaire du bus "+ filePdf.meta['bus'] +". "+ filePdf.meta['date'] +'\n'
 	for horaire in horairePages:
 		filePdf.text = filePdf.text + "== vers "+ horaire.direction +". le "+ horaire.periode +'\n'
 		arrets = horaire.arrets.keys()

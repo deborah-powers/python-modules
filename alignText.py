@@ -12,102 +12,13 @@ def getPosScoreTrioMin (scoreTrio):
 		pos =2
 	return score, pos
 
-class AlignBase():
-	def __init__ (self, iterA, iterI):
+class AlignText():
+	def __init__ (self, textA, textI):
+		self.textA = textA
+		self.textI = textI
 		self.scoreGapOpen =2
 		self.scoreGapFill =2
 		self.aliMatrix =[]
-		self.iterA = iterA
-		self.iterI = iterI
-
-	def initAliMatrix (self):
-		# les éléments commencent déjà par un caractère symbolisant le gap
-		lenI = len (self.iterI)
-		self.aliMatrix =[]
-		for char in self.iterA:
-			self.aliMatrix.append ([])	# initier la matrice vide
-			for chir in self.iterI: self.aliMatrix[-1].append ((self.scoreGapOpen, 3))
-		rangeO = range (1, len (self.iterA))
-		for a in rangeO: self.aliMatrix[a][0] =( self.aliMatrix[a-1][0][0] + self.scoreGapOpen, 3)
-		rangeO = range (1, lenI)
-		for i in rangeO: self.aliMatrix[0][i] =( self.aliMatrix[0][i-1][0] + self.scoreGapOpen, 3)
-
-	def computePairScore (self, a,i):
-		# calculer le score de similarité d'une paire d'élément
-		# adapter selon la classe fille
-		pass
-
-	def computeCaseScore (self, a,i):
-		scoreTrio =[]
-		scoreTrio.append (self.aliMatrix[a-1][i][0] + self.scoreGapFill)	# gap en i aligné en face de la lettre de a
-		scoreSim = self.computePairScore (a,i)
-		if self.iterA[a] != self.iterI[i]: scoreSim = self.scoreGapFill
-		scoreTrio.append (self.aliMatrix[a-1][i-1][0] + scoreSim)
-		scoreTrio.append (self.aliMatrix[a][i-1][0] + self.scoreGapFill)	# gap en a aligné en face de la lettre de i
-	#	scoreTrio.append (self.aliMatrix[0][i][0])	# gap en a aligné en face de la lettre de i
-		return getPosScoreTrioMin (scoreTrio)
-
-	def createAliMatrix (self):
-		# rajouter le caractère gap en début de chaque élément
-		self.initAliMatrix()
-		lenA = len (self.iterA)
-		lenI = len (self.iterI)
-		rangeA = range (1, lenA)
-		rangeI = range (1, lenI)
-		for a in rangeA:
-			for i in rangeI: self.aliMatrix[a][i] = self.computeCaseScore (a,i)
-
-	def upwalkAliMatrix (self):
-		# renvoi une liste par défaut
-		a= len (self.iterA) -1
-		i= len (self.iterI) -1
-		listAnv =[]
-		listInv =[]
-		while a>0 and i>0:
-			if self.aliMatrix[a][i][1] ==1:	# alignement
-				listAnv.insert (0, self.iterA[a])
-				listInv.insert (0, self.iterI[i])
-				a-=1
-				i-=1
-			elif self.aliMatrix[a][i][1] ==0:	# gap dans i
-				listAnv.insert (0, self.iterA[a])
-				listInv.insert (0, "")
-				a-=1
-			elif self.aliMatrix[a][i][1] ==2:	# gap dans a
-				listAnv.insert (0, "")
-				listInv.insert (0, self.iterI[i])
-				i-=1
-		while a>0:	# gap dans i
-			listAnv.insert (0, self.iterA[a])
-			listInv.insert (0, "")
-			a-=1
-		while i>0:	# gap dans a
-			listAnv.insert (0, "")
-			listInv.insert (0, self.iterI[i])
-			i-=1
-	#	listAnv = listAnv[::-1]
-		return listAnv, listInv
-
-	def align (self):
-		print ('séquences originales\n' + self.iterA +'\n'+ self.iterI)
-		self.createScoreMatrix()
-		self.createAliMatrix()
-		listAnv, listInv = self.upwalkAliMatrix()
-		print ('séquences finales\n' + listAnv +'\n'+ listInv)
-
-class AlignList (AlignBase):
-	def computePairScore (self, a,i):
-		scoreSim =0
-		if self.iterA[a] != self.iterI[i]: scoreSim = self.scoreGapFill
-
-	def createAliMatrix (self):
-		self.iterA.insert (0, "")	# le gap
-		self.iterI.insert (0, "")
-		AlignBase.createAliMatrix (self)
-
-class AlignText (AlignBase):
-	def __init__ (self, textA, textI):
-		AlignBase.__init__ (self, textA, textI)
 		self.scoreMatrix ={}
 
 	""" ------------------------ créer la matrice des scores ------------------------ """
@@ -186,21 +97,73 @@ class AlignText (AlignBase):
 	"""
 	""" ------------------------ créer la matrice d'alignement ------------------------ """
 
-	def computePairScore (self, a,i):
-		return self.scoreMatrix [self.textA[a] + self.textI[i]]
+	def initAliMatrix (self):
+		# les textes commencent déjà par un caractère symbolisant le gap
+		lenI = len (self.textI)
+		self.aliMatrix =[]
+		for char in self.textA:
+			self.aliMatrix.append ([])	# initier la matrice vide
+			for chir in self.textI: self.aliMatrix[-1].append ((self.scoreGapOpen, 3))
+		rangeO = range (1, len (self.textA))
+		for a in rangeO: self.aliMatrix[a][0] =( self.aliMatrix[a-1][0][0] + self.scoreGapOpen, 3)
+		rangeO = range (1, lenI)
+		for i in rangeO: self.aliMatrix[0][i] =( self.aliMatrix[0][i-1][0] + self.scoreGapOpen, 3)
+
+	def computeCaseScore (self, a,i):
+		scoreTrio =[]
+		scoreTrio.append (self.aliMatrix[a-1][i][0] + self.scoreGapFill)	# gap en i aligné en face de la lettre de a
+		scoreTrio.append (self.aliMatrix[a-1][i-1][0] + self.scoreMatrix [self.textA[a] + self.textI[i]])
+		scoreTrio.append (self.aliMatrix[a][i-1][0] + self.scoreGapFill)	# gap en a aligné en face de la lettre de i
+	#	scoreTrio.append (self.aliMatrix[0][i][0])	# gap en a aligné en face de la lettre de i
+		return getPosScoreTrioMin (scoreTrio)
 
 	def createAliMatrix (self):
-		self.textA = " "+ self.textA	# symbolise le gap
-		self.textI = " "+ self.textI
-		AlignBase.createAliMatrix (self)
+		self.textA = '#'+ self.textA	## symbolise le gap
+		self.textI = '#'+ self.textI
+		self.initAliMatrix()
+		lenA = len (self.textA)
+		lenI = len (self.textI)
+		rangeA = range (1, lenA)
+		rangeI = range (1, lenI)
+		for a in rangeA:
+			for i in rangeI: self.aliMatrix[a][i] = self.computeCaseScore (a,i)
 
 	def upwalkAliMatrix (self):
-		listAnv, listInv = AlignBase.createAliMatrix (self)
 		a= len (self.textA) -1
 		i= len (self.textI) -1
-		textAnv = "".join (listAnv)
-		textInv = "".join (listInv)
+		textAnv =""
+		textInv =""
+		while a>0 and i>0:
+			if self.aliMatrix[a][i][1] ==1:	# alignement
+				textAnv = self.textA[a] + textAnv
+				textInv = self.textI[i] + textInv
+				a-=1
+				i-=1
+			elif self.aliMatrix[a][i][1] ==0:	# gap dans i
+				textAnv = self.textA[a] + textAnv
+				textInv = '_'+ textInv
+				a-=1
+			elif self.aliMatrix[a][i][1] ==2:	# gap dans a
+				textAnv = '_'+ textAnv
+				textInv = self.textI[i] + textInv
+				i-=1
+		while a>0:	# gap dans i
+			textAnv = self.textA[a] + textAnv
+			textInv = '_'+ textInv
+			a-=1
+		while i>0:	# gap dans a
+			textAnv = '_'+ textAnv
+			textInv = self.textI[i] + textInv
+			i-=1
+	#	textAnv = textAnv[::-1]
 		return textAnv, textInv
+
+	def align (self):
+		print ('séquences originales\n' + self.textA +'\n'+ self.textI)
+		self.createScoreMatrix()
+		self.createAliMatrix()
+		textAnv, textInv = self.upwalkAliMatrix()
+		print ('séquences finales\n' + textAnv +'\n'+ textInv)
 
 alignText = AlignText ('zrzog,el', 'nanczk,vl;')
 alignText.align()
