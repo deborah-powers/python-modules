@@ -27,7 +27,7 @@ les valeurs de tag
 	repas:		"	"	repas
 """ % __file__
 
-dateStart = DatePerso (2026, 9, 6)
+dateStart = DatePerso (2026, 8, 27)
 dateEnd = DatePerso.today()
 dateEndStr = dateEnd.toStrDay()
 """
