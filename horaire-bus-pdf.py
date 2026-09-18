@@ -18,7 +18,7 @@ class Arret():
 		self.direction =""
 		self.periode =""
 		self.date =""
-		self.lieu =""
+		self.arret =""
 		self.passages =[]
 
 class HorairePage():
@@ -135,6 +135,7 @@ def extractPdfData():
 			filePdf.text = filePdf.text +"** "+ arret +'\n'+ passages +'\n'
 	while '00:00 00:00' in filePdf.text: filePdf.replace ('00:00 00:00', '00:00')
 	filePdf.write()
+	print ('fichier créé:', filePdf.path)
 
 extractPdfData()
 
