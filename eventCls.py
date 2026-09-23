@@ -55,11 +55,7 @@ class DatePerso (datetime):
 			googleDate = googleDate[:16]
 			return DatePerso.fromStr ('%Y-%m-%dT%H:%M', googleDate)
 
-	def fromStr_interne (self, model, source):
-		dtDate = datetime.strptime (source, model)
-		return DatePerso (dtDate.year, dtDate.month, dtDate.day, dtDate.hour, dtDate.minute)
-
-	def fromStr (model, source):
+	def fromStr (self, model, source):
 		dtDate = datetime.strptime (source, model)
 		return DatePerso (dtDate.year, dtDate.month, dtDate.day, dtDate.hour, dtDate.minute)
 
