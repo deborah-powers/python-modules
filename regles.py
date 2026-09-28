@@ -1,5 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
+from sys import path
+path.append ('C:\\Users\\LENOVO\\Desktop\\python')
 from datetime import datetime, timedelta
 from fileCls import File
 from fileList import FileTable
@@ -12,11 +14,11 @@ dataFull.read()
 dataFull.pop (0)
 
 # la récupération
-month = dataFull[0][0][:4]
+year = dataFull[0][0][:4]
 r=0
-while dataFull[r][0][:4] == month: r+=1
-month = dataFull[r][0][:4]
-while dataFull[r][0][:4] == month: r+=1
+while dataFull[r][0][:4] == year: r+=1
+year = dataFull[r][0][:4]
+while dataFull[r][0][:4] == year: r+=1
 dataRafined = FileTable()
 dataRafined.extend (dataFull[:r])
 
