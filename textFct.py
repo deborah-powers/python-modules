@@ -11,7 +11,7 @@ wordsFullMaj =( '\\lenovo\\', 'i3f', 'nvda', 'rgaa' )
 codeKeywords =(
 	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where', 'and', 'with', 'union', 'when', 'case',
 	'having', 'group by', 'order by', 'insert into', 'if', 'elseif', 'end', 'loop', 'perform', 'drop',
-	'cd', 'psql', 'git', 'return', 'mvn', 'python', 'else',
+	'cd', 'psql', 'git', 'return', 'mvn', 'python', 'else', 'switch',
 	'def', 'class', 'console.log', 'var', 'function', 'private', 'protected', 'public',
 	'log.debug', 'log.info'
 )
@@ -98,7 +98,7 @@ def upperCase (text, case=""):
 			if 'reset' in case: temp = temp.lower()
 			if 'upper' in case: temp = upperCaseIntern (temp)
 			paragraphList[i] = paragraphList[i] + temp
-		text = '\nraw\n'.join (paragraphList)
+		text = '\n'.join (paragraphList)
 	else:
 		if 'reset' in case: text = text.lower()
 		if 'upper' in case: text = upperCaseIntern (text)
