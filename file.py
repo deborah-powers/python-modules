@@ -1,0 +1,98 @@
+#!/usr/bin/python3.6
+# -*- coding: utf-8 -*-
+import subprocess
+from sys import argv
+import textFct
+from fileCls import File, Article
+from htmlCls import Html
+from fileList import FileTable
+import loggerFct as log
+
+help ="""traiter des fichiers
+utilisation
+	le script est appelable dans un fichier
+	python file.py fichier tag (fichierB)
+les valeurs de tag
+	clean (ru - r - u):	nettoyer le texte. modifier ou pas la casse.
+	mef (ru - r - u):	mettre en forme un texte utilisant ma mise en forme spécifique.
+	help:		afficher l'aide d'un fichier python.
+	conv:		transformer un fichier html en texte et vice-versa. art pour convertir un article
+	md:			transformer un fichier txt en markdown
+	comp:		comparer deux fichiers
+	art:		transformer un texte simple en article
+	pdf (img):	récupérer le texte d'un pdf
+	js:			transformer un tableau tsv en variable js
+"""
+
+nbArg = len (argv)
+if nbArg <3: print (help)
+elif argv[2] == 'help':
+	from funcHelp import printHelp
+	printHelp (argv[1])
+elif argv[2] == 'pdf':
+	page = Article (argv[1])
+	if argv[1][-4:] == '.pdf' or argv[1][-4:] == '.PDF':
+		if nbArg >3: page.fromPdf (True)
+		else: page.fromPdf (False)
+	if argv[1][-4:] == '.txt': page.fromPdfTxt()
+	page.write()
+elif argv[2] == 'art':
+	page = File (argv[1])
+	page.read()
+	article = Article (argv[1])
+	article.fromFile()
+	article.write()
+elif argv[2] == 'js':
+	page = FileTable (argv[1])
+	page.read()
+	page.toJslist()
+elif argv[2] == 'md':
+	page = File (argv[1])
+	page.read()
+	page.toMarkdown()
+	page.write()
+elif argv[2] == 'conv':
+	page = None
+	if argv[1][-4:] == '.txt':
+		pageHtml = Html()
+		page = File (argv[1])
+		page.read()
+		if '\n\n==\n\nsujet: ' in page.text or '\n\n==\n\nSujet: ' in page.text:
+			page = Article (argv[1])
+			page.read()
+			pageHtml.fromArticle (page)
+		else: pageHtml.fromText (page)
+		pageHtml.toEreader()	# je ne créé de html que pour mes appareils
+	elif argv[1][-5:] == '.html':
+		page = Html (argv[1])
+		page.read()
+		page = page.toText()
+		if page: page.write()
+elif nbArg >2 and argv[2] == 'comp':
+	fileA = File (argv[1])
+	fileA.read()
+	fileB = File (argv[3])
+	fileB.read()
+	fileA.comparer (fileB)
+elif argv[2] == 'mef':
+	filePerso = File (argv[1])
+	filePerso.read()
+	affinement =""
+	if nbArg >3:
+		if 'r' in argv[3] and 'u' in argv[3]: affinement = 'reset upper'
+		elif 'r' in argv[3]: affinement = 'reset'
+		elif 'u' in argv[3]: affinement = 'upper'
+	filePerso.text = textFct.shape (filePerso.text, affinement)
+	filePerso.write()
+elif argv[2] == 'clean':
+	filePerso = File (argv[1])
+	filePerso.read()
+	# TODO: à revoir
+	if filePerso.path[-5:] == '.html' or filePerso.path[-6:] == '.xhtml' or filePerso.path[-4:] == '.xml': filePerso.text = textFct.cleanHtml (filePerso.text)
+	# formats dérivés du xml
+	elif filePerso.path[-4:] == '.ops' or filePerso.path[-4:] == '.opf' or filePerso.path[-4:] == '.ncx': filePerso.text = textFct.cleanHtml (filePerso.text)
+	elif filePerso.path[-4:] == '.css': filePerso.text = textFct.cleanCss (filePerso.text)
+	else: filePerso.text = textFct.cleanText (filePerso.text)
+	filePerso.write()
+# le nom du fichier n'a pas ete donne
+else: print (help)

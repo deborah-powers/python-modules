@@ -1,0 +1,79 @@
+Vérifier l'accessibilité d'une page web pour les handicapés, en utilisant python et selenium.
+
+============ Liens d'intérêt ============
+
+https://pypi.org/project/selenium/
+https://github.com/axe-selenium-python/axe-selenium-python
+https://selenium-python.readthedocs.io/
+https://gist.github.com/sujit/578d577c3f5a74a9f183c92a2c18c5b5
+
+============ Installation ============
+
+Vous devez déjà avoir installé sur votre poste:
+- Python
+- Pip (package installer for python)
+- Chrome
+
+Installer en plus:
+- Selenium
+- Webdriver_manager
+- Axe-selenium-python
+
+En ligne de commande:
+pip install -U selenium
+pip install webdriver_manager
+pip install axe-selenium-python
+
+============ Notes ============
+
+Démo dans selenium-python-accessibilitie.py
+
+common.by.By précise l'attribut par lequel récupérer un élément. By.ID, XPATH, NAME, TAG_NAME, CLASS_NAME, CSS_SELECTOR
+XPATH est le chemin pour retrouver une balise quelquonque. //p[@class="ma-classe"]/strong[1] renvoi le premier <strong/> contenu dans le <p/>
+//p[@class="ma-classe"]/strong	un seul élément strong dans mon p. Je le récupère.
+//p[@class="ma-classe"]/strong[1]	plusieurs éléments strong dans mon p. Je récupère le premier. L'indice commence à 1.
+//tag[@attribut="valeur"]/enfants[1]
+
+============ Opinion de Deborah ============
+
+Cette méthode est rapide et éfficace, elle repère beaucoup d'erreurs.
+Je n'ai pas vérifié si les règles utilisées par axe étaient à jour du rgaa.
+
+============ Erreurs ============
+
+Cannot import name 'webdriver' from partially initialized module 'selenium'
+Renommer mon script selenium.py --> nawak.py
+
+************************************************
+
+Ssl.sslcertverificationerror: [ssl: Certificate_verify_failed] certificate verify failed: Unable to get local issuer certificate (_ssl.c:\ 1000)
+
+service = Service()
+options = webdriver.ChromeOptions()
+options.add_argument ('--enable-unsafe-swiftshader')
+options.add_argument ('--ignore-certificate-errors')
+options.add_argument ('--accept_insecure_certs')
+driver = webdriver.chrome (service=service, options=options)
+
+************************************************
+
+Requests.exceptions.connectionerror: Could not reach host. Are you offline ?
+service = Service()
+options = webdriver.ChromeOptions()
+options.add_argument ('--enable-unsafe-swiftshader')
+options.add_argument ('--ignore-certificate-errors')
+options.add_argument ('--accept_insecure_certs')
+driver = webdriver.chrome (service=service, options=options)
+
+************************************************
+
+[16140:10700:0108/121417.009: Error: Ssl_client_socket_impl.cc(878)] handshake failed; returned -1, ssl error code 1, net_error -101
+
+https://stackoverflow.com/questions/37883759/errorssl-client-socket-openssl-cc1158-handshake-failed-with-chromedriver-chr
+
+options.add_argument('--enable-unsafe-swiftshader')
+options.add_argument('--ignore-certificate-errors')
+options.add_argument('--ignore-ssl-errors')
+options.add_argument ('--log-level=3')
+
+Cette erreur ne bloque pas le déroulement de mon script, je peux l'ignorer.

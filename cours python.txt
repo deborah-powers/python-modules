@@ -1,0 +1,457 @@
+== Divers
+
+Object.__dir__()	récupère les fonctions d'un objet
+Object.__module__	nom du fichier contenant la classe de l'objet
+Object.__class__	nom de la classe de l'objet
+Object.__dict__		renvoi les champs et leurs valeurs sous la forme d'un dictionnaire
+Id (variable)	id de la case mémoire contenant la variable
+__file__			nom du script s'executant
+if __name__ 'main': Pass
+Else: Xxx
+Empêche de lancer certaines actions quand le script est une dépendance
+Syntaxerror: Erreur dans l'écriture du code. Mauvaise indentation.
+Nameerror: Mot non reconnu par l'interprêteur. Utilisation d'une variable non déclarée.
+Les types de donnée: String, int, float.
+Variable contre littéral: Un littéral est une donnée (le nombre 3) utilisée tel quel dans e code, sans être stoquée dans une variable.
+6**2 = 36
+26/5 = 5.2
+26%5 = 1
+
+*** erreur 403 quand je fais du web scrapping
+
+https://stackoverflow.com/questions/16627227/how-do-i-avoid-http-error-403-when-web-scraping-with-python
+
+This is probably because of mod_security or some similar server security feature which blocks known spider/bot user agents (urllib uses something like python urllib/3.3.0, it's easily detected). Try setting a known browser user agent with:
+
+myRequest = Request(
+	url='http://www.cmegroup.com/trading/products/#sortField=oi&sortAsc=false&venues=3&page=1&cleared=1&group=1', 
+	headers={'User-Agent': 'Mozilla/5.0'}
+)
+myRequest = urlRequest.Request (url, headers={ 'User-Agent': 'Mozilla/5.0' })
+
+== installation
+
+python.exe -m pip install --upgrade pip
+pip install --upgrade pdfplumber
+pip install --upgrade pypandoc_binary
+pip install --upgrade numpy
+pip install --upgrade pywin32
+pip install --upgrade Pillow
+pip install --upgrade pillow-heif
+pip install --upgrade opencv-python
+pip install --upgrade -U selenium
+pip install --upgrade webdriver_manager
+pip install --upgrade axe-selenium-python
+pip install --upgrade google-api-python-client
+pip install --upgrade google-cloud-service-control
+pip install --upgrade google-auth-httplib2
+pip install --upgrade google-auth-oauthlib
+
+
+pip install Spire.PDF
+pip install xpdf-python --no-binary=:all:
+
+== Espaces de nom
+
+Dictionnaire contenant les noms des fonctions, des variables et leurs valeurs pour un script.
+Il en existe quatre types: Built-in, global, enclosing, local.
+
+** Built-in
+
+En de base de python, qui contient les fonctions de base (print, erreurs, etc). Il vit temps que l'interprêteur tourne.
+Dir(__builtins__)
+
+** Global
+
+En du script tournant. Il contient certains noms communs à tous (__name__, __main__, etc) en plus des variables créées dans mon script.
+Lorsque j'importe une dépendance (import dep), python lui créé son propre espace de nom.
+Si j'importe une variable à partir d'un dépendence (from dep import var), elle est inclue dans l'en du script.
+Globals()
+Si j'appelle globals() dans une fonction, elle ne récupère pas ses variables locales.
+
+** Local
+
+En de la fonction. Il contient ses paramètres et les variables créées à l'intérieur.
+Si elle est applelée à la base du script, elle a la même valeur que globals().
+Si je l'appelle dans une boucle for, elle affiche les variables créées dans la boucle, y compris l'itérateur, celles crées dans les autres boucles, celles de de globals().
+Un espace enclosing représente l'en d'une fonction en contenant une autre.
+Locals()
+
+== Scopes
+
+Ce qui sous-temps les espaces de nom.
+Il en existe quatre types: Built-in, global, enclosing, local.
+Le built-in est identique à l'espace de nom. Ses fonctions agissent et sont accessibles de partout où l'en est accessible.
+
+** Local
+
+Scope des variables contenues dans une fonction. Ses variables ne sont modifiables et lisibles que de l'intérieur de la fonction. A chaque appel, un nouveau scope indépendant est créé.
+
+** Enclosing et global
+
+Pour les fonctions imbriquées, une variable de rang 1 peut être lue au rang 2 mais pas modifiée. Sauf avec le mot-clef nonlocal.
+Glovar = 'global_value'
+def enclosing_function():
+	var = 'value'
+	def nested_function():
+		nonlocal var
+		global glovar
+		global glonew
+		var = 'new_value'
+		glovar = 'local_value'
+		glonew = 'local_value'
+	Enclosing_function.var est modifiée
+	La v globale glonew est créée et accessible ailleur.
+
+** Scope résolution
+
+Règle selon laquelle python recherche les variables entre les espaces de nom.
+La norme est legb, local, enclosing, global, built-in.
+
+== Fonctions à arguments variables
+
+def funcnbargvariable (*args):
+	# args est un tuple
+	For arg in args: Print (arg)
+Funcnbargvariable ('a', 'b', 'c')
+def funcnomargvariable (**kwargs):
+	# kwargs est un dictionnaire
+	Print (kwargs.get ('myarg'))
+	# si myarg n'existe pas, kwargs.get ('myarg') vaut none
+Funcnomargvariable (arg1='coucou', myarg=22)
+def functout (argpositionnel, *args, argnomme, **kwargs):
+Functout ('coucou', 'les', 'amis', argnomme='il fait beau', argnomme2="aujourd'hui", argnomme3="n'est-ce pas ?")
+
+** Les arguments mutables
+
+def myfunc (arg1, arglist=[]):
+	Arglist.append (arg1)
+Arglist1 = myfunc ('coucou')
+>> arglist1 =[ 'coucou' ]
+Arglist2 = myfunc ('loulou')
+>> arglist2 =[ 'coucou', 'loulou' ]
+Les arguments mutables sont des conteneurs dont le contenu sera modifié par la fonction. Les liste, set et dictionnaire en sont.
+Arglist avec sa valeur par défaut n'est déclaré qu'une fois dans la mémoire. Lors des deux appels, python utilise cette unique fausse variable.
+Solution
+def myfunc (arg1, arglist=none):
+	if arglistnone: Arglist =[]
+	Arglist.append (arg1)
+
+*********
+
+*args =[2,8]
+Range (*args)
+Args est considéré comme un tuple, *args est considéré comme si les deux chiffres étaient indépendants.
+A, *b, c = [3, 6, 9, 12, 15]
+>> b= [6, 9, 12]
+My_tuple = (3, 6, 9)
+Merged_tuple = (0, *my_tuple, 12)
+>> merged_tuple = (0, 3, 6, 9, 12)
+Num_collection = [3, 6, 9]
+Funcnbargvariable (*num_collection)
+>> comme si j'avais transmit 3 arguments indépendants au lieu d'un.
+
+== Fonctions lambda
+
+Add_two = lambda nb: Nb + 2
+Check_if_a_grade = lambda grade: 'got an a !' if grade >= 90 else 'did not get an a.'
+
+from math import *
+hypothenuse = lambda deg: sqrt (cos (radians (deg)) * cos (radians (deg)) + sin (radians (deg)) * sin (radians (deg)))
+
+== les fonctions d'ordre suppérieur
+
+les fonctions sont en fait des objets. ont peut les stoquer dans des listes, dans des variables, etc.
+lowerCustomName = str.lower
+lowerCustomName (myString) = myString.lower()
+on peut aussi les passer en paramètre d'autres fonctions ou les renvoyer.
+les fonctions qui en reçoivent d'autres comme paramètres ou en renvoient sont des fonctions d'ordre suppérieur.
+
+def make_box_volume_function (height):
+	# defines and returns a function that takes two numeric arguments,		
+	# length &  width, and returns the volume given the input height
+	def volume (length, width):
+		return length * width * height
+	return volume
+	# elle renvoi la fonction volume
+
+box_volume_height15 = make_box_volume_function (15)
+# box_volume_height15 est un prête-nom pour volume
+print (box_volume_height15 (3,2))
+
+
+== Rajouter une fonction à une classe
+
+def newfunction (self):
+	Pass
+Setattr (Myclass, 'myfunction', newfunction)
+Item = Myclass()
+Item.myfunction()
+
+== Changer la version de python par défaut
+
+Quand j'ai deux versions sur mon ordi.
+# remove python 2
+Sudo apt purge -y python2.7
+Sudo apt purge -y python2.7-minimal
+# you already have python 3 but
+Sudo ln -s /usr/bin/python3 /usr/bin/python
+# same for pip
+Sudo apt install -y python3-pip
+Sudo ln -s /usr/bin/pip3 /usr/bin/pip
+# confirm the new version of python: 3
+python --version
+
+** Seconde méthode
+
+# try following to see all instances of python
+Whereis python
+Which python
+# then remove all instances using:
+Sudo apt autoremove python
+# repeat sudo apt autoremove python(for all versions) that should do it, then install anaconda and manage pythons however you like if you need to reinstall it.
+
+== présentation des erreurs
+
+SyntaxError: non-respect de la grammaire de python
+NameError: utilisation d'une variable non déclarée. faute d'ortographe, oubli de déclaration de variable
+TypeError: réalisation d'une opération sur une variable de mauvais type. ex additionner des dictionnaires, du texte et un nombre, ect
+erreur de logique: le programme tourne mais ne fais pas ce que le développeur veut
+
+** SyntaxError
+
+mal ortographier un mot-clef de python.
+manquer ou utilier une ponctuation inadaptée, :;.
+oublier un membre d'une parenthère ou de guillemets, "'({[.
+
+** erreurs supplémentaires
+
+IndexError: éssayer de récupérer une case à un indice qui n'existe pas dans une liste
+ValueError: faire appel à une donnée qui n'existe pas, qui n'est pas là où l'on la cherche.
+
+== rappels sur les listes
+
+il est normal que les listes contiennent des éléments de types différents.
+cf cours python.py / listMethods
+
+== Ajouter un dossier à sys.path
+
+Je veux utiliser les scripts de /home/deborah/python partout.
+from sys import path
+Print (path)
+Repérer le chemin de site-packages,
+/home/deborah/.local/lib/python3.8/site-packages
+C:/users/deborah.powers/appdata/local/programs/python/python36/lib/site-packages
+C:/users/lenovo/appdata/local/programs/python/python311/lib/site-packages
+/usr/lib64/python3.9/site-packages ou /usr/lib/python3.9/site-packages
+Créer /site-packages/my-paths.pth
+/home/deborah/python
+C:/users/deborah.powers/desktop/python
+Sudo cp /home/ent6904919/bureau/my-path.pth /usr/lib/python3.9/site-packages/
+
+C:\Users\deborah.powers\AppData\Local\anaconda3\Lib\site-packages
+
+** ajouter provisoirement un dossier
+
+from sys import path
+path.append ('mon/dossier')
+path.append ('C:\\Users\\deborah.powers\\Desktop\\python')
+
+
+== Créer un package
+
+Monpackage/
+	Setup.py
+	Monpackage/
+		__init__.py
+		autre.py
+Dans setup.py
+#!/usr/bin/python3.6
+# -*- coding: Utf-8 -*-
+from setuptools import setup, find_packages
+Author = 'deborah noisetier'
+Name = 'utilitaires'
+Description = "mes petits scripts utilitaires"
+Version = '0.1'
+Setup (
+	Name = name, version = version, description = description,
+	Author = author,
+	Packages = find_packages()
+)
+__init__.py contient les trucs chargés à l'appel du package. Il est obligatoire.
+
+** Installer le package
+
+Sudo apt-get install python3-setuptools
+Sudo chmod -r 774 /usr/local/lib/python3.8/
+cd monpackage/
+python setup.py
+
+** Appeler mes objets
+
+from monpackage import trucdansinit
+from monpackage.autre import trucdansautre
+
+== Lancer un package comme un script, mais de partout
+
+Dans mon package, j'ai
+Monpackage/
+	Setup.py
+	Monpackage/
+		__init__.py
+		__main__.py
+		autre.py
+__main__.py contient le l'action, le script à lancer.
+
+** Lancer le package
+
+python -m monpackage args
+Les arguments sont récupérés via sys.argv, comme pour les scripts.
+
+== Lancer une application
+
+Pour l'utiliser moi-même
+Import os
+Os.system ('appli')
+Os.system ('appli fichier')
+Lancer et fermer une application
+Import subprocess
+Import time
+P= subprocess.popen ([ appli, fichier])
+Time.sleep (4)
+P.terminate()
+Applis:
+	Vlc	vlc
+	Eog	visionneuse d'image
+
+== Récupérer les photos à partir de google photo
+
+https://developers.google.com/photos/picker/reference/rest?hl=fr
+https://developers.google.com/photos/picker/samples?hl=fr
+https://developers.google.com/photos/overview/about?hl=fr
+
+https://developers.google.com/photos/overview/configure-your-app?hl=fr (activer l'api)
+https://youtu.be/VtYqNDeTyqg?list=TLPQMTUxMjIwMjRXP1lj_XxEBg
+
+dans la console, créer le projet photos-deborah
+https://console.cloud.google.com/apis/library/photospicker.googleapis.com?hl=fr&inv=1&invt=AbkN4A&project=photos-deborah
+activer l'api photo picker
+https://console.cloud.google.com/apis/api/photospicker.googleapis.com/metrics?hl=fr&inv=1&invt=AbkN4A&project=photos-deborah
+créer mon écran de consentement. préciser les utilisateurs autorisés (adresses mail)
+ajouter des champs d'application ?? "Google Photos Picker API" et les champs "photos library api"
+https://developers.google.com/photos/picker/guides/get-started-picker?hl=fr
+
+les scopes: https://developers.google.com/identity/protocols/oauth2/scopes
+
+== Récupérer les fichiers de mon drive
+
+https://developers.google.com/workspace/drive/api/quickstart/python
+
+mon profil de développeuse est actif et associé au compte contenant mon drive.
+créer le projet drive-deborah
+https://console.cloud.google.com/apis/enableflow?apiid=drive.googleapis.com&inv=1&invt=AbxL8Q&project=drive-deborah
+Activer l'api drive
+configurer l'écran de consentement
+https://console.cloud.google.com/auth/branding?inv=1&invt=AbxL8Q&project=drive-deborah
+créer un identifiant ID clients OAuth 2.0
+https://console.cloud.google.com/apis/credentials?inv=1&invt=AbxL8Q&project=drive-deborah
+application de bureau
+dans audience, entrer mes utilisateurs de test. mes adresses de gmail.
+si besoin, installer les librairies python pour google.
+pip install --upgrade google-api-python-client
+pip install --upgrade google-auth-oauthlib
+créer le fichier python, fromDrive.py
+
+*** documentation
+https://developers.google.com/resources/api-libraries/documentation/drive/v3/python/latest/index.html
+https://developers.google.com/workspace/drive/api/guides/search-files
+
+*** erreurs rencontrées
+
+code: 403
+Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API
+service = build (appli, 'v3', credentials=creds, client_options={ 'quota_project_id': appli-id })
+
+It seems that the Service Control API might not be enabled on your project.
+
+dans mon projet, activer l'api service control
+https://console.cloud.google.com/apis/library/servicecontrol.googleapis.com?inv=1&invt=AbxXgg&project=drive-deborah
+
+pip install --upgrade google-cloud-service-control
+
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
+
+== Récupérer les éléments de mes calendriers google
+
+https://developers.google.com/calendar/api/quickstart/python
+Dans google, créer mon profil de développeuse.
+Vérifier que le profil est associé au compte contenant le calendrier.
+https://developers.google.com/profile/u/116171585149691769782?hl=fr&authuser=2&utm_source=developers.google.com
+Activer l'api google calendar
+https://console.cloud.google.com/projectselector2/apis/enableflow?apiid=calendar-json.googleapis.com&hl=fr&pli=1&supportedpurview=project
+https://developers.google.com/identity/protocols/oauth2/service-account?authuser=2&hl=fr#creatinganaccount
+Cf quickstart.py
+projet calendrier-deborah
+https://console.cloud.google.com/apis/library?hl=fr&inv=1&invt=AbkN4A&project=calendrier-deborah
+dans la console, aller dans identifiants pour créer un nouveau ID clients OAuth 2.0
+
+** Erreur invalid_grant
+
+File "c:/users/lenovo/desktop/python/calendrier.py", line 315, in <module>
+Service = setservice()
+^^^^^^^^^^^^
+File "c:/users/lenovo/desktop/python/calendrier.py", line 70, in setservice
+if creds and creds.expired and creds.refresh_token: Creds.refresh (request())
+^^^^^^^^^^^^^^^^^^^^^^^^^
+File "c:/users/lenovo/appdata/local/programs/python/python311/lib/site-packages/google/oauth2/credentials.py", line 335, in refresh
+) = reauth.refresh_grant(
+^^^^^^^^^^^^^^^^^^^^^
+File "c:/users/lenovo/appdata/local/programs/python/python311/lib/site-packages/google/oauth2eauth.py", line 349, in refresh_grant
+_client._handle_error_response(response_data, retryable_error)
+File "c:/users/lenovo/appdata/local/programs/python/python311/lib/site-packages/google/oauth2/_client.py", line 69, in _handle_error_response
+Raise exceptions.refresherror(
+Google.auth.exceptions.refresherror: ('invalid_grant: Bad request', {'error': 'invalid_grant', 'error_description': 'bad request'})
+Dans mon code, ligne #if not creds or not creds.valid
+Commenter les if - else,
+Garder
+Flow = installedappflow.from_client_secrets_file ('credentials.json', scopes)
+Creds = flow.run_local_server (port=0)
+# save the credentials for the next run
+With open ('token.json', 'w') as token: Token.write (creds.to_json())
+https://groups.google.com/g/adwords-api/c/skrmufn8h5y
+https://developers.google.com/google-ads/api/docs/start?hl=fr#generate_oauth2_credentials
+https://console.cloud.google.com/projectselector2/apis/credentials?hl=fr&supportedpurview=project
+Sélectionner calendrier-deborah. Attention, mon utilisateur doit être deborah.powers89.
+https://console.cloud.google.com/apis/credentials?hl=fr&authuser=2&project=calendrier-deborah&supportedpurview=project
+
+** Erreurs
+
+Modulenotfounderror: No module named 'googleapiclient'
+pip install --upgrade google-api-python-client
+Modulenotfounderror: No module named 'google_auth_oauthlib'
+pip install --upgrade google-api-python-client
+pip install --upgrade google-auth-oauthlib
+"message": "api keys are not supported by this api. Expected oauth2 access token or other authentication credentials that assert a principal. See https://cloud.google.com/docs/authentication",
+https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t2%3a31%3a00z&alt=json
+Error
+	Code	403
+	Message	"the request is missing a valid api key."
+Errors	0
+	Message	"the request is missing a valid api key."
+	Domain	"global"
+	Reason	"forbidden"
+	Status	"permission_denied"
+File "quickstart.py", line 231, in fromcalendar
+	Evtlisttmp = evtlisttmp2.execute()
+File "/home/deborah/.local/lib/python3.8/site-packages/googleapiclient/_helpers.py", line 134, in positional_wrapper
+	return wrapped(*args, **kwargs)
+File "/home/deborah/.local/lib/python3.8/site-packages/googleapiclient/http.py", line 935, in execute
+	Raise httperror(resp, content, uri=self.uri)
+Googleapiclient.errors.httperror: <httperror 400 when requesting https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4%40group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t2%3a31%3a00z&alt=json returned "bad request". Details: "[{'domain': 'global', 'reason': 'badrequest', 'message': 'bad request'}]">
+Deborah@deborah-thinkpad-t420: ~/python$
+https://www.googleapis.com/calendar/v3/calendars/nb71ojvfs60b1lmm2re27kj8h4@group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t2%3a31%3a00z&alt=json
+https://www.googleapis.com/calendar/v3/calendars/33akjnknr3mp1oletdkm8tdjog@group.calendar.google.com/events?singleevents=true&orderby=starttime&timemin=2022-1-2022t1%3a31%3a00z&timemax=2022-1-2022t3%3a11%3a00z&alt=json
+Modulenotfounderror: No module named 'googleapiclient'
+pip install google-api-python-client
+pip install google-auth-oauthlib
