@@ -11,7 +11,7 @@ wordsFullMaj =( '\\lenovo\\', 'i3f', 'nvda', 'rgaa' )
 codeKeywords =(
 	'set schema', 'declare', 'begin', 'do $$', 'update', 'select', 'from', 'inner join', 'outer join', 'left outer join', 'where', 'and', 'with', 'union', 'when', 'case',
 	'having', 'group by', 'order by', 'insert into', 'if', 'elseif', 'end', 'loop', 'perform', 'drop',
-	'cd', 'psql', 'git', 'return', 'mvn', 'python', 'else', 'switch',
+	'cd', 'ls', 'psql', 'git', 'return', 'mvn', 'python', 'node', 'npm', 'pip', 'else', 'switch',
 	'def', 'class', 'console.log', 'var', 'function', 'private', 'protected', 'public',
 	'log.debug', 'log.info'
 )
@@ -270,7 +270,7 @@ def protectCodeFromUpperCase (text):
 		textList = text.split ('\nraw\tCode: ')
 		textRange = range (1, len (textList))
 		for t in textRange: textList[t] = textList[t].replace ('\n', '\n//\n', 1)
-		text = '\nraw\nCode\n'.join (textList)
+		text = '\nraw\nCode: '.join (textList)
 	return text
 
 def cleanText (text):
