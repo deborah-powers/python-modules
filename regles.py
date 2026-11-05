@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from sys import path
-path.append ('C:\\Users\\LENOVO\\Desktop\\python')
+# from sys import path
+# path.append ('C:\\Users\\LENOVO\\Desktop\\python')
 from datetime import datetime, timedelta
 from fileCls import File
 from fileList import FileTable
