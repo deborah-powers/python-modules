@@ -188,6 +188,11 @@ class File():
 		self.text = textFct.toMarkdown (self.text)
 		self.path = self.path.replace ('.txt', '.md')
 
+	def addMajWords (self, words):
+		for word in words:
+			for s in textFct.pointsStart:
+				for e in textFct.pointsEnd: self.text = self.text.replace (s+ word +e, s+ word.capitalize() +e)
+
 	def readJson (self):
 		if not self.text: self.read()
 		self.replace ('\n')
@@ -299,9 +304,9 @@ class File():
 
 	def toList (self, sep='\n'):
 		if sep not in self.text: return []
-		textTmp = self.replace (sep + sep, sep)
+		textTmp = self.text.replace (sep + sep, sep)
 		while sep + sep in textTmp: textTmp = textTmp.replace (sep + sep, sep)
-		textList = self.split (textTmp)
+		textList = textTmp.split (sep)
 		return textList
 
 	def fromList (self, textList, sep='\n'):

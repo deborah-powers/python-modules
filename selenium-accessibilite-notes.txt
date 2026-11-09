@@ -1,13 +1,13 @@
 Vérifier l'accessibilité d'une page web pour les handicapés, en utilisant python et selenium.
 
-============ Liens d'intérêt ============
+============ Liens d'intérêt
 
 https://pypi.org/project/selenium/
 https://github.com/axe-selenium-python/axe-selenium-python
 https://selenium-python.readthedocs.io/
 https://gist.github.com/sujit/578d577c3f5a74a9f183c92a2c18c5b5
 
-============ Installation ============
+============ Installation
 
 Vous devez déjà avoir installé sur votre poste:
 - Python
@@ -24,7 +24,7 @@ pip install -U selenium
 pip install webdriver_manager
 pip install axe-selenium-python
 
-============ Notes ============
+============ Notes
 
 Démo dans selenium-python-accessibilitie.py
 
@@ -34,12 +34,12 @@ XPATH est le chemin pour retrouver une balise quelquonque. //p[@class="ma-classe
 //p[@class="ma-classe"]/strong[1]	plusieurs éléments strong dans mon p. Je récupère le premier. L'indice commence à 1.
 //tag[@attribut="valeur"]/enfants[1]
 
-============ Opinion de Deborah ============
+============ Opinion de Deborah
 
 Cette méthode est rapide et éfficace, elle repère beaucoup d'erreurs.
 Je n'ai pas vérifié si les règles utilisées par axe étaient à jour du rgaa.
 
-============ Erreurs ============
+============ Erreurs
 
 Cannot import name 'webdriver' from partially initialized module 'selenium'
 Renommer mon script selenium.py --> nawak.py

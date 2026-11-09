@@ -5,6 +5,8 @@ letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZaàâbcdeéêèëfghiîïjkmlmnoôpqrstuûv
 uppercaseLetters = ('aA', 'àA', 'bB', 'cC', '\xe7\xc7', 'dD', 'eE', 'éE', 'èE', 'êE', 'ëE', 'fF', 'gG', 'hH', 'iI', 'îI', 'ïI', 'jJ', 'kK', 'lL', 'mM', 'nN', 'oO', '\xf4\xe4', 'pP', 'qQ', 'rR', 'sS', 'tT', 'uU', 'vV', 'wW', 'xX', 'yY', 'zZ')
 
 # liste des points, des chaines de caracteres suivies par une majuscule
+pointsEnd ='\n\t /\\:.,;!?}])'
+pointsStart ='\n\t ([{'
 wordsBeginMaj =( 'paris', 'rueil', 'avon', 'valo', 'leto', 'mars', 'mai', 'juin', 'papa', 'papi', 'victo', 'france', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'janvier', 'février', 'avril', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre', 'decembre', 'deborah', 'powers', 'cadiot', 'maman', 'mamie', 'régine', 'tony', 'robert', 'simplon', 'loïc', 'jared', 'ville valo', 'shelby', 'magritte', 'gabin', 'makaron', 'malmaison', 'fontainebleau', 'issy', 'moulineaux', 'châte', 'chateaudun', 'michelet', 'chatelet', 'c:\\', 'users\\', 'desktop\\')
 wordsBeginMin =( 'Deborah.powers', 'Deborah.noisetier', 'Http', 'File:///', '\nPg_')
 wordsFullMaj =( '\\lenovo\\', 'i3f', 'nvda', 'rgaa' )
@@ -54,8 +56,6 @@ def upperCaseIntern (text):
 	for word in wordsBeginMaj[12:]: text = text.replace (word, word.capitalize())
 	for word in wordsFullMaj: text = text.replace (word, word.upper())
 	text = text.replace ('', '')
-	pointsEnd ='\n\t /\\:.,;!?}])'
-	pointsStart ='\n\t ([{'
 	for word in wordsBeginMaj[:12]:
 		for s in pointsStart:
 			for e in pointsEnd: text = text.replace (s+ word +e, s+ word.capitalize() +e)

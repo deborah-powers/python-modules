@@ -12,12 +12,15 @@ from selenium import webdriver	# contrôle le navigateur
 from selenium.webdriver.common.by import By	# accède aux élements de la page web
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
-
-myurl = 'http://www.my-url.com'
-
 # utliser le navigateur chrome
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+# tests d'accessibilité
+from axe_selenium_python import Axe
+import warnings
+warnings.filterwarnings("ignore")
+
+myurl = 'http://www.my-url.com'
 
 service = Service()
 options = webdriver.ChromeOptions()
@@ -116,6 +119,14 @@ driver.get (myurlBis)
 driver.back()
 driver.execute_script ('window.history.go(-1)')
 content = driver.find_element (By.CLASS_NAME, 'toto')
+
+# tester l'accessibilité avec axe-core
+axe = Axe (driver)
+axe.inject()
+accessibilityResult = axe.run()
+axe.write_results (accessibilityResult, 'accessibilitie-rapport.json')
+driver.close()
+assert len (accessibilityResult['violations']) == 0, axe.report (accessibilityResult['violations'])
 
 """ options du navigateur chrome qui ne me servent pas
 options.add_argument ('--enable-unsafe-swiftshader')
